@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Events;
+package com.loohp.interactivechat.API.Events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -30,7 +30,7 @@ public class PrePacketComponentProcessEvent extends Event {
     }
     
     public Player getSender() {
-    	return reciever;
+    	return sender;
     }
     
     public void setSender(Player sender) {

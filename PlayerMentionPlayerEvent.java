@@ -1,4 +1,6 @@
-package com.loohp.interactivechat.Events;
+package com.loohp.interactivechat.API.Events;
+
+import java.util.UUID;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,16 +16,14 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 	//Set the Sound to null if you do not want to play sound
 
 	Player reciever;
-	String message;
-    Player sender;
+	UUID sender;
     String title;
     String subtitle;
     Sound sound;
     boolean cancel;
 
-    public PlayerMentionPlayerEvent(Player reciever, Player sender, String message, String title, String subtitle, Sound sound, boolean cancel) {
+    public PlayerMentionPlayerEvent(Player reciever, UUID sender, String title, String subtitle, Sound sound, boolean cancel) {
         this.reciever = reciever;
-        this.message = message;
         this.sender = sender;
         this.title = title;
         this.subtitle = subtitle;
@@ -45,8 +45,8 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     	return reciever;
     }
     
-    public Player getSender() {
-    	return reciever;
+    public UUID getSender() {
+    	return sender;
     }
     
     public String getTitle() {
@@ -78,14 +78,6 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     	this.reciever = reciever;
     }
     
-    public String getMessage() {
-    	return message;
-    }
-    
-    public void setMessage(String message) {
-    	this.message = message;
-    }
-
     private static final HandlerList HANDLERS = new HandlerList();
 
     public HandlerList getHandlers() {

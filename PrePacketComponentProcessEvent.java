@@ -1,5 +1,7 @@
 package com.loohp.interactivechat.API.Events;
 
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -16,9 +18,9 @@ public class PrePacketComponentProcessEvent extends Event {
 	Player reciever;
     WrappedChatComponent component;
     int field;
-    Player sender;
+    UUID sender;
 
-    public PrePacketComponentProcessEvent(Player reciever, WrappedChatComponent component, int field, Player sender) {
+    public PrePacketComponentProcessEvent(Player reciever, WrappedChatComponent component, int field, UUID sender) {
         this.reciever = reciever;
         this.component = component;
         this.field = field;
@@ -29,11 +31,11 @@ public class PrePacketComponentProcessEvent extends Event {
     	return reciever;
     }
     
-    public Player getSender() {
+    public UUID getSender() {
     	return sender;
     }
     
-    public void setSender(Player sender) {
+    public void setSender(UUID sender) {
     	this.sender = sender;
     }
     

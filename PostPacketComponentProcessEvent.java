@@ -1,4 +1,6 @@
-package com.loohp.interactivechat.Events;
+package com.loohp.interactivechat.API.Events;
+
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -13,10 +15,10 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
 
 	Player reciever;
 	PacketContainer packet;
-    Player sender;
+	UUID sender;
     boolean cancel;
 
-    public PostPacketComponentProcessEvent(Player reciever, PacketContainer packet, Player sender) {
+    public PostPacketComponentProcessEvent(Player reciever, PacketContainer packet, UUID sender) {
         this.reciever = reciever;
         this.packet = packet;
         this.sender = sender;
@@ -37,8 +39,8 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
     	return reciever;
     }
     
-    public Player getSender() {
-    	return reciever;
+    public UUID getSender() {
+    	return sender;
     }
     
     public PacketContainer getPacket() {

@@ -1,0 +1,7970 @@
+[
+  {
+    "id": 0,
+    "displayName": "Air",
+    "name": "air",
+    "hardness": 0,
+    "stackSize": 0,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [
+      {
+        "drop": 0
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 1,
+    "displayName": "Stone",
+    "name": "stone",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Stone"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Granite"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Polished Granite"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Diorite"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Polished Diorite"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Andesite"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Polished Andesite"
+      }
+    ],
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 4
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 2,
+    "displayName": "Grass Block",
+    "name": "grass",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": {
+          "id": 3,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 3,
+    "displayName": "Dirt",
+    "name": "dirt",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Dirt"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Coarse Dirt"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Podzol"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 3
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 4,
+    "displayName": "Cobblestone",
+    "name": "cobblestone",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 4
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 5,
+    "displayName": "Wood Planks",
+    "name": "planks",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Oak Wood Planks"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Spruce Wood Planks"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Birch Wood Planks"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Jungle Wood Planks"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Acacia Wood Planks"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Dark Oak Wood Planks"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 5
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 6,
+    "displayName": "Sapling",
+    "name": "sapling",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 6
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 7,
+    "displayName": "Bedrock",
+    "name": "bedrock",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 8,
+    "displayName": "Water",
+    "name": "flowing_water",
+    "hardness": 100,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 2
+  },
+  {
+    "id": 9,
+    "displayName": "Stationary Water",
+    "name": "water",
+    "hardness": 100,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 2
+  },
+  {
+    "id": 10,
+    "displayName": "Lava",
+    "name": "flowing_lava",
+    "hardness": 100,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 11,
+    "displayName": "Stationary Lava",
+    "name": "lava",
+    "hardness": 100,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 12,
+    "displayName": "Sand",
+    "name": "sand",
+    "hardness": 0.5,
+    "stackSize": 0,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Sand"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Red sand"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 12
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 13,
+    "displayName": "Gravel",
+    "name": "gravel",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": 13,
+        "minCount": 0.9
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 14,
+    "displayName": "Gold Ore",
+    "name": "gold_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 14
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 15,
+    "displayName": "Iron Ore",
+    "name": "iron_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "274": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 15
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 16,
+    "displayName": "Coal Ore",
+    "name": "coal_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": {
+          "id": 263,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 17,
+    "displayName": "Wood",
+    "name": "log",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 17
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 18,
+    "displayName": "Leaves",
+    "name": "leaves",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Oak Leaves"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Spruce Leaves"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Birch Leaves"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Jungle Leaves"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Oak Leaves (no decay)"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Spruce Leaves (no decay)"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Birch Leaves (no decay)"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Jungle Leaves (no decay)"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Oak Leaves (check decay)"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Spruce Leaves (check decay)"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Birch Leaves (check decay)"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Jungle Leaves (check decay)"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Oak Leaves (no decay and check decay)"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Spruce Leaves (no decay and check decay)"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Birch Leaves (no decay and check decay)"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Jungle Leaves (no decay and check decay)"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 6,
+        "minCount": 0,
+        "maxCount": 1
+      },
+      {
+        "drop": 260,
+        "minCount": 0,
+        "maxCount": 1
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 19,
+    "displayName": "Sponge",
+    "name": "sponge",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Sponge"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Wet Sponge"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 19
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 20,
+    "displayName": "Glass",
+    "name": "glass",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 21,
+    "displayName": "Lapis Lazuli Ore",
+    "name": "lapis_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "274": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": {
+          "id": 351,
+          "metadata": 4
+        },
+        "minCount": 4,
+        "maxCount": 8
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 22,
+    "displayName": "Lapis Lazuli Block",
+    "name": "lapis_block",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "274": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 22
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 23,
+    "displayName": "Dispenser",
+    "name": "dispenser",
+    "hardness": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 23
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 24,
+    "displayName": "Sandstone",
+    "name": "sandstone",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Sandstone"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Chiseled sandstone"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Smooth sandstone"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 24
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 25,
+    "displayName": "Note Block",
+    "name": "noteblock",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 25
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 26,
+    "displayName": "Bed",
+    "name": "bed",
+    "hardness": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 26
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 27,
+    "displayName": "Powered Rail",
+    "name": "golden_rail",
+    "hardness": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "drops": [
+      {
+        "drop": 27
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 28,
+    "displayName": "Detector Rail",
+    "name": "detector_rail",
+    "hardness": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "drops": [
+      {
+        "drop": 28
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 29,
+    "displayName": "Sticky Piston",
+    "name": "sticky_piston",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 29
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 30,
+    "displayName": "Cobweb",
+    "name": "web",
+    "hardness": 4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "web",
+    "harvestTools": {
+      "267": true,
+      "268": true,
+      "272": true,
+      "276": true,
+      "283": true,
+      "359": true
+    },
+    "drops": [
+      {
+        "drop": 287
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 31,
+    "displayName": "Grass",
+    "name": "tallgrass",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Shrub"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Tall Grass"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Fern"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 295,
+        "minCount": 0,
+        "maxCount": 1
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 32,
+    "displayName": "Dead Bush",
+    "name": "deadbush",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 280,
+        "minCount": 0,
+        "maxCount": 2
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 33,
+    "displayName": "Piston",
+    "name": "piston",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 33
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 34,
+    "displayName": "Piston Head",
+    "name": "piston_head",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 34
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 35,
+    "displayName": "Wool",
+    "name": "wool",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wool",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Wool"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Wool"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Wool"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light blue Wool"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Wool"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Wool"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Wool"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Wool"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light gray Wool"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Wool"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Wool"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Wool"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Wool"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Wool"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Wool"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Wool"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 35
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 36,
+    "displayName": "Block moved by Piston",
+    "name": "piston_extension",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 36
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 37,
+    "displayName": "Dandelion",
+    "name": "yellow_flower",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 37
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 38,
+    "displayName": "Poppy",
+    "name": "red_flower",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Poppy"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Blue Orchid"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Allium"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Azure Bluet"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Red Tulip"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Orange Tulip"
+      },
+      {
+        "metadata": 6,
+        "displayName": "White Tulip"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Pink Tulip"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Oxeye Daisy"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 38
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 39,
+    "displayName": "Brown Mushroom",
+    "name": "brown_mushroom",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 39
+      }
+    ],
+    "transparent": false,
+    "emitLight": 1,
+    "filterLight": 15
+  },
+  {
+    "id": 40,
+    "displayName": "Red Mushroom",
+    "name": "red_mushroom",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 40
+      }
+    ],
+    "transparent": false,
+    "emitLight": 1,
+    "filterLight": 15
+  },
+  {
+    "id": 41,
+    "displayName": "Block of Gold",
+    "name": "gold_block",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 41
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 42,
+    "displayName": "Block of Iron",
+    "name": "iron_block",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "274": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 42
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 43,
+    "displayName": "Double Stone Slab",
+    "name": "double_stone_slab",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Double Stone Slab"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Double Sandstone Slab"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Double (Stone) Wooden Slab"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Double Cobblestone Slab"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Double Bricks Slab"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Double Stone Brick Slab"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Double Nether Brick Slab"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Double Quartz Slab"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Smooth Double Stone Slab"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Smooth Double Sandstone Slab"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Tile Double Quartz Slab (note the underside)"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 44,
+    "displayName": "Stone Slab",
+    "name": "stone_slab",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Stone Slab"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Sandstone Slab"
+      },
+      {
+        "metadata": 2,
+        "displayName": "(Stone) Wooden Slab"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Cobblestone Slab"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Bricks Slab"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Stone Brick Slab"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Nether Brick Slab"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Quartz Slab"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Upper Stone Slab"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Upper Sandstone Slab"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Upper (Stone) Wooden Slab"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Upper Cobblestone Slab"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Upper Bricks Slab"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Upper Stone Brick Slab"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Upper Nether Brick Slab"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Upper Quartz Slab"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 45,
+    "displayName": "Bricks",
+    "name": "brick_block",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 45
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 46,
+    "displayName": "TNT",
+    "name": "tnt",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Drops a TNT item when broken"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Activates when broken"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 46
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 47,
+    "displayName": "Bookshelf",
+    "name": "bookshelf",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 340,
+        "minCount": 3
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 48,
+    "displayName": "Moss Stone",
+    "name": "mossy_cobblestone",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 48
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 49,
+    "displayName": "Obsidian",
+    "name": "obsidian",
+    "hardness": 50,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 49
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 50,
+    "displayName": "Torch",
+    "name": "torch",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Torch"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Torch"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Torch"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Torch"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Torch"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 50
+      }
+    ],
+    "transparent": true,
+    "emitLight": 14,
+    "filterLight": 0
+  },
+  {
+    "id": 51,
+    "displayName": "Fire",
+    "name": "fire",
+    "hardness": 0,
+    "stackSize": 0,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 52,
+    "displayName": "Monster Spawner",
+    "name": "mob_spawner",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 53,
+    "displayName": "Oak Wood Stairs",
+    "name": "oak_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 53
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 54,
+    "displayName": "Chest",
+    "name": "chest",
+    "hardness": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 54
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 55,
+    "displayName": "Redstone Wire",
+    "name": "redstone_wire",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [
+      {
+        "drop": 331
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 56,
+    "displayName": "Diamond Ore",
+    "name": "diamond_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 264
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 57,
+    "displayName": "Block of Diamond",
+    "name": "diamond_block",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 57
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 58,
+    "displayName": "Crafting Table",
+    "name": "crafting_table",
+    "hardness": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 58
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 59,
+    "displayName": "Wheat",
+    "name": "wheat",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 295
+      },
+      {
+        "drop": 295,
+        "minCount": 0,
+        "maxCount": 3
+      },
+      {
+        "drop": 296
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 60,
+    "displayName": "Farmland",
+    "name": "farmland",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": {
+          "id": 3,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 61,
+    "displayName": "Furnace",
+    "name": "furnace",
+    "hardness": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 61
+      }
+    ],
+    "transparent": true,
+    "emitLight": 13,
+    "filterLight": 0
+  },
+  {
+    "id": 62,
+    "displayName": "Burning Furnace",
+    "name": "lit_furnace",
+    "hardness": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 61
+      }
+    ],
+    "transparent": true,
+    "emitLight": 13,
+    "filterLight": 0
+  },
+  {
+    "id": 63,
+    "displayName": "Standing Sign",
+    "name": "standing_sign",
+    "hardness": 1,
+    "stackSize": 16,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 323
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 64,
+    "displayName": "Oak Door",
+    "name": "wooden_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 64
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 65,
+    "displayName": "Ladder",
+    "name": "ladder",
+    "hardness": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 65
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 66,
+    "displayName": "Rail",
+    "name": "rail",
+    "hardness": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "drops": [
+      {
+        "drop": 66
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 67,
+    "displayName": "Cobblestone Stairs",
+    "name": "stone_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 67
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 68,
+    "displayName": "Wall Sign",
+    "name": "wall_sign",
+    "hardness": 1,
+    "stackSize": 16,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 323
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 69,
+    "displayName": "Lever",
+    "name": "lever",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [
+      {
+        "drop": 69
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 70,
+    "displayName": "Stone Pressure Plate",
+    "name": "stone_pressure_plate",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 70
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 71,
+    "displayName": "Iron Door",
+    "name": "iron_door",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 71
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 72,
+    "displayName": "Wooden Pressure Plate",
+    "name": "wooden_pressure_plate",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 72
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 73,
+    "displayName": "Redstone Ore",
+    "name": "redstone_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 331,
+        "minCount": 4,
+        "maxCount": 5
+      }
+    ],
+    "transparent": true,
+    "emitLight": 9,
+    "filterLight": 0
+  },
+  {
+    "id": 74,
+    "displayName": "Glowing Redstone Ore",
+    "name": "lit_redstone_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 331,
+        "minCount": 4,
+        "maxCount": 5
+      }
+    ],
+    "transparent": true,
+    "emitLight": 9,
+    "filterLight": 0
+  },
+  {
+    "id": 75,
+    "displayName": "Redstone Torch (inactive)",
+    "name": "unlit_redstone_torch",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Redstone Torch"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 75
+      }
+    ],
+    "transparent": true,
+    "emitLight": 7,
+    "filterLight": 0
+  },
+  {
+    "id": 76,
+    "displayName": "Redstone Torch (active)",
+    "name": "redstone_torch",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Redstone Torch"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Redstone Torch"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 76
+      }
+    ],
+    "transparent": true,
+    "emitLight": 7,
+    "filterLight": 0
+  },
+  {
+    "id": 77,
+    "displayName": "Stone Button",
+    "name": "stone_button",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "drops": [
+      {
+        "drop": 77
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 78,
+    "displayName": "Snow (layer)",
+    "name": "snow_layer",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "harvestTools": {
+      "256": true,
+      "269": true,
+      "273": true,
+      "277": true,
+      "284": true
+    },
+    "drops": [
+      {
+        "drop": 332,
+        "minCount": 2,
+        "maxCount": 9
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 79,
+    "displayName": "Ice",
+    "name": "ice",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 80,
+    "displayName": "Snow",
+    "name": "snow",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "harvestTools": {
+      "256": true,
+      "269": true,
+      "273": true,
+      "277": true,
+      "284": true
+    },
+    "drops": [
+      {
+        "drop": 332,
+        "minCount": 4
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 81,
+    "displayName": "Cactus",
+    "name": "cactus",
+    "hardness": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 81
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 82,
+    "displayName": "Clay",
+    "name": "clay",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": 337,
+        "minCount": 4
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 83,
+    "displayName": "Sugar Cane",
+    "name": "reeds",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 83
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 84,
+    "displayName": "Jukebox",
+    "name": "jukebox",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "No disc inserted"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Contains a disc"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 84
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 85,
+    "displayName": "Oak Fence",
+    "name": "fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 85
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 86,
+    "displayName": "Pumpkin",
+    "name": "pumpkin",
+    "hardness": 1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 86
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 87,
+    "displayName": "Netherrack",
+    "name": "netherrack",
+    "hardness": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 87
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 88,
+    "displayName": "Soul Sand",
+    "name": "soul_sand",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": 88
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 89,
+    "displayName": "Glowstone",
+    "name": "glowstone",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 348,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 90,
+    "displayName": "Nether Portal",
+    "name": "portal",
+    "hardness": null,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 11,
+    "filterLight": 0
+  },
+  {
+    "id": 91,
+    "displayName": "Jack o'Lantern",
+    "name": "lit_pumpkin",
+    "hardness": 1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 91
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 15
+  },
+  {
+    "id": 92,
+    "displayName": "Cake",
+    "name": "cake",
+    "hardness": 0.5,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 93,
+    "displayName": "Redstone Repeater (inactive)",
+    "name": "unpowered_repeater",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 356
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 94,
+    "displayName": "Redstone Repeater (active)",
+    "name": "powered_repeater",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 356
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 95,
+    "displayName": "Stained Glass",
+    "name": "stained_glass",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Stained Glass"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Stained Glass"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Stained Glass"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light Blue Stained Glass"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Stained Glass"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Stained Glass"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Stained Glass"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Stained Glass"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light Gray Stained Glass"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Stained Glass"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Stained Glass"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Stained Glass"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Stained Glass"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Stained Glass"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Stained Glass"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Stained Glass"
+      }
+    ],
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 96,
+    "displayName": "Trapdoor",
+    "name": "trapdoor",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 96
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 97,
+    "displayName": "Monster Egg",
+    "name": "monster_egg",
+    "hardness": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Stone Monster Egg"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Cobblestone Monster Egg"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Stone Brick Monster Egg"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Mossy Stone Brick Monster Egg"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Cracked Stone Brick Monster Egg"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Chiseled Stone Brick Monster Egg"
+      }
+    ],
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 98,
+    "displayName": "Stone Bricks",
+    "name": "stonebrick",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Stone brick"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Mossy stone brick"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Cracked stone brick"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Chiseled stone brick"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 98
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 99,
+    "displayName": "Brown Mushroom (block)",
+    "name": "brown_mushroom_block",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Pores on all sides"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Cap texture on top, west and north"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Cap texture on top and north"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Cap texture on top, north and east"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Cap texture on top and west"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Cap texture on top"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Cap texture on top and east"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Cap texture on top, south and west"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Cap texture on top and south"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cap texture on top, east and south"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Stem texture on all four sides, pores on top and bottom"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Cap texture on all six sides"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Stem texture on all six sides"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 40,
+        "minCount": 0,
+        "maxCount": 2
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 100,
+    "displayName": "Red Mushroom (block)",
+    "name": "red_mushroom_block",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Pores on all sides"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Cap texture on top, west and north"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Cap texture on top and north"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Cap texture on top, north and east"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Cap texture on top and west"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Cap texture on top"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Cap texture on top and east"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Cap texture on top, south and west"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Cap texture on top and south"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cap texture on top, east and south"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Stem texture on all four sides, pores on top and bottom"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Cap texture on all six sides"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Stem texture on all six sides"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 40,
+        "minCount": 0,
+        "maxCount": 2
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 101,
+    "displayName": "Iron Bars",
+    "name": "iron_bars",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 101
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 102,
+    "displayName": "Glass Pane",
+    "name": "glass_pane",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 103,
+    "displayName": "Melon",
+    "name": "melon_block",
+    "hardness": 1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 360,
+        "minCount": 3,
+        "maxCount": 7
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 104,
+    "displayName": "Pumpkin Stem",
+    "name": "pumpkin_stem",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 361,
+        "minCount": 0,
+        "maxCount": 3
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 105,
+    "displayName": "Melon Stem",
+    "name": "melon_stem",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 362,
+        "minCount": 0,
+        "maxCount": 3
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 106,
+    "displayName": "Vines",
+    "name": "vine",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 106
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 107,
+    "displayName": "Fence Gate",
+    "name": "fence_gate",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 107
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 108,
+    "displayName": "Brick Stairs",
+    "name": "brick_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 108
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 109,
+    "displayName": "Stone Brick Stairs",
+    "name": "stone_brick_stairs",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 109
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 110,
+    "displayName": "Mycelium",
+    "name": "mycelium",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [
+      {
+        "drop": {
+          "id": 3,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 111,
+    "displayName": "Lily Pad",
+    "name": "waterlily",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 111
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 112,
+    "displayName": "Nether Brick",
+    "name": "nether_brick",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 112
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 113,
+    "displayName": "Nether Brick Fence",
+    "name": "nether_brick_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 113
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 114,
+    "displayName": "Nether Brick Stairs",
+    "name": "nether_brick_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 114
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 115,
+    "displayName": "Nether Wart",
+    "name": "nether_wart",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 372
+      },
+      {
+        "drop": 372,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 116,
+    "displayName": "Enchantment Table",
+    "name": "enchanting_table",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 116
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 117,
+    "displayName": "Brewing Stand",
+    "name": "brewing_stand",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 379
+      }
+    ],
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0
+  },
+  {
+    "id": 118,
+    "displayName": "Cauldron",
+    "name": "cauldron",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 380
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 119,
+    "displayName": "End Portal",
+    "name": "end_portal",
+    "hardness": null,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 120,
+    "displayName": "End Portal Frame",
+    "name": "end_portal_frame",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 120
+      }
+    ],
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0
+  },
+  {
+    "id": 121,
+    "displayName": "End Stone",
+    "name": "end_stone",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 121
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 122,
+    "displayName": "Dragon Egg",
+    "name": "dragon_egg",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 122
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 123,
+    "displayName": "Redstone Lamp (inactive)",
+    "name": "redstone_lamp",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 123
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 124,
+    "displayName": "Redstone Lamp (active)",
+    "name": "lit_redstone_lamp",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 124
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 125,
+    "displayName": "Double Wooden Slab",
+    "name": "double_wooden_slab",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Double Oak Wood Slab"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Double Spruce Wood Slab"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Double Birch Wood Slab"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Double Jungle Wood Slab"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Double Acacia Wood Slab"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Double Dark Oak Wood Slab"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 126,
+    "displayName": "Wooden Slab",
+    "name": "wooden_slab",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Oak Wood Slab"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Spruce Wood Slab"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Birch Wood Slab"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Jungle Wood Slab"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Acacia Wood Slab"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Dark Oak Wood Slab"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Upper Oak Wood Slab"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Upper Spruce Wood Slab"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Upper Birch Wood Slab"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Upper Jungle Wood Slab"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Upper Acacia Wood Slab"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Upper Dark Oak Wood Slab"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 127,
+    "displayName": "Cocoa",
+    "name": "cocoa",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": {
+          "id": 351,
+          "metadata": 3
+        }
+      },
+      {
+        "drop": {
+          "id": 351,
+          "metadata": 3
+        },
+        "minCount": 3
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 128,
+    "displayName": "Sandstone Stairs",
+    "name": "sandstone_stairs",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 128
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 129,
+    "displayName": "Emerald Ore",
+    "name": "emerald_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 388
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 130,
+    "displayName": "Ender Chest",
+    "name": "ender_chest",
+    "hardness": 22.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 49,
+        "minCount": 8
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 131,
+    "displayName": "Tripwire Hook",
+    "name": "tripwire_hook",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [
+      {
+        "drop": 131
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 132,
+    "displayName": "Tripwire",
+    "name": "tripwire",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "drops": [
+      {
+        "drop": 287
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 133,
+    "displayName": "Block of Emerald",
+    "name": "emerald_block",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "278": true
+    },
+    "drops": [
+      {
+        "drop": 133
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 134,
+    "displayName": "Spruce Wood Stairs",
+    "name": "spruce_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 134
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 135,
+    "displayName": "Birch Wood Stairs",
+    "name": "birch_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 135
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 136,
+    "displayName": "Jungle Wood Stairs",
+    "name": "jungle_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 136
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 137,
+    "displayName": "Command Block",
+    "name": "command_block",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 138,
+    "displayName": "Beacon",
+    "name": "beacon",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 138
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 139,
+    "displayName": "Cobblestone Wall",
+    "name": "cobblestone_wall",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Cobblestone Wall"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Mossy Cobblestone Wall"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 139
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 140,
+    "displayName": "Flower Pot",
+    "name": "flower_pot",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 140
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 141,
+    "displayName": "Carrot",
+    "name": "carrots",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 141
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 142,
+    "displayName": "Potato",
+    "name": "potatoes",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [
+      {
+        "drop": 142
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 143,
+    "displayName": "Wooden Button",
+    "name": "wooden_button",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 143
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 144,
+    "displayName": "Mob head",
+    "name": "skull",
+    "hardness": 1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Skeleton Skull"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Wither Skeleton Skull"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Zombie Head"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Head"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Creeper Head"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 144
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 145,
+    "displayName": "Anvil",
+    "name": "anvil",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Anvil"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Slightly Damaged Anvil"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Very Damaged Anvil"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Anvil (North/South)"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Anvil (East/West)"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Anvil (South/North)"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Anvil (West/East)"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Slightly Damaged Anvil (North/South)"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Slightly Damaged Anvil (East/West)"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Slightly Damaged Anvil (West/East)"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Slightly Damaged Anvil (South/North)"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Very Damaged Anvil (North/South)"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Very Damaged Anvil (East/West)"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Very Damaged Anvil (West/East)"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Very Damaged Anvil (South/North)"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 145
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 146,
+    "displayName": "Trapped Chest",
+    "name": "trapped_chest",
+    "hardness": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 146
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 147,
+    "displayName": "Weighted Pressure Plate (Light)",
+    "name": "light_weighted_pressure_plate",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 147
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 148,
+    "displayName": "Weighted Pressure Plate (Heavy)",
+    "name": "heavy_weighted_pressure_plate",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 148
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 149,
+    "displayName": "Redstone Comparator",
+    "name": "unpowered_comparator",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 404
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 150,
+    "displayName": "Redstone Comparator (deprecated)",
+    "name": "powered_comparator",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 404
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 151,
+    "displayName": "Daylight Sensor",
+    "name": "daylight_detector",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 151
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 152,
+    "displayName": "Block of Redstone",
+    "name": "redstone_block",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 152
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 153,
+    "displayName": "Nether Quartz Ore",
+    "name": "quartz_ore",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 406
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 154,
+    "displayName": "Hopper",
+    "name": "hopper",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 154
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 155,
+    "displayName": "Block of Quartz",
+    "name": "quartz_block",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Block of Quartz"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Chiseled Quartz Block"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Pillar Quartz Block (vertical)"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Pillar Quartz Block (north-south)"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Pillar Quartz Block (east-west)"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 155
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 156,
+    "displayName": "Quartz Stairs",
+    "name": "quartz_stairs",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 156
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 157,
+    "displayName": "Activator Rail",
+    "name": "activator_rail",
+    "hardness": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "rock",
+    "drops": [
+      {
+        "drop": 157
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 158,
+    "displayName": "Dropper",
+    "name": "dropper",
+    "hardness": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 158
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 159,
+    "displayName": "Stained Clay",
+    "name": "stained_hardened_clay",
+    "hardness": 1.25,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White hardened clay"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange hardened clay"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta hardened clay"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light blue hardened clay"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow hardened clay"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime hardened clay"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink hardened clay"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray hardened clay"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light gray hardened clay"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan hardened clay"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple hardened clay"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue hardened clay"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown hardened clay"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green hardened clay"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red hardened clay"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black hardened clay"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 159
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 160,
+    "displayName": "Stained Glass Pane",
+    "name": "stained_glass_pane",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Stained Glass Pane"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Stained Glass Pane"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Stained Glass Pane"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light Blue Stained Glass Pane"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Stained Glass Pane"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Stained Glass Pane"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Stained Glass Pane"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Stained Glass Pane"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light Gray Stained Glass Pane"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Stained Glass Pane"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Stained Glass Pane"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Stained Glass Pane"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Stained Glass Pane"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Stained Glass Pane"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Stained Glass Pane"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Stained Glass Pane"
+      }
+    ],
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 161,
+    "displayName": "Leaves (Acacia/Dark Oak)",
+    "name": "leaves2",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "plant",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Acacia Leaves"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Dark Oak Leaves"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Acacia Leaves (no decay)"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Dark Oak Leaves (no decay)"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Acacia Leaves (check decay)"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Dark Oak Leaves (check decay)"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Acacia Leaves (no decay and check decay)"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Dark Oak Leaves (no decay and check decay)"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 6,
+        "minCount": 0,
+        "maxCount": 1
+      },
+      {
+        "drop": 260,
+        "minCount": 0,
+        "maxCount": 1
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 162,
+    "displayName": "Wood (Acacia/Dark Oak)",
+    "name": "log2",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 162
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 163,
+    "displayName": "Acacia Wood Stairs",
+    "name": "acacia_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 163
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 164,
+    "displayName": "Dark Oak Wood Stairs",
+    "name": "dark_oak_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 164
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 165,
+    "displayName": "Slime Block",
+    "name": "slime",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 165
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 166,
+    "displayName": "Barrier",
+    "name": "barrier",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 167,
+    "displayName": "Iron Trapdoor",
+    "name": "iron_trapdoor",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 167
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 168,
+    "displayName": "Prismarine",
+    "name": "prismarine",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Prismarine"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Prismarine Bricks"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Dark Prismarine"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 168
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 169,
+    "displayName": "Sea Lantern",
+    "name": "sea_lantern",
+    "hardness": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 410,
+        "minCount": 2,
+        "maxCount": 3
+      }
+    ],
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0
+  },
+  {
+    "id": 170,
+    "displayName": "Hay Bale",
+    "name": "hay_block",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 170
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 171,
+    "displayName": "Carpet",
+    "name": "carpet",
+    "hardness": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Carpet"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Carpet"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Carpet"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light Blue Carpet"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Carpet"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Carpet"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Carpet"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Carpet"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light Gray Carpet"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Carpet"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Carpet"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Carpet"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Carpet"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Carpet"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Carpet"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Carpet"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 171
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 172,
+    "displayName": "Hardened Clay",
+    "name": "hardened_clay",
+    "hardness": 1.25,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White hardened clay"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange hardened clay"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta hardened clay"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light blue hardened clay"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow hardened clay"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime hardened clay"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink hardened clay"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray hardened clay"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light gray hardened clay"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan hardened clay"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple hardened clay"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue hardened clay"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown hardened clay"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green hardened clay"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red hardened clay"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black hardened clay"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 172
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 173,
+    "displayName": "Block of Coal",
+    "name": "coal_block",
+    "hardness": 5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 173
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 174,
+    "displayName": "Packed Ice",
+    "name": "packed_ice",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 175,
+    "displayName": "Large Flowers",
+    "name": "double_plant",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Sunflower"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Lilac"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Double Tallgrass"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Large Fern"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Rose Bush"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Peony"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Top Half of any Large Plant; low three bits 0x7 are derived from the block below."
+      }
+    ],
+    "drops": [
+      {
+        "drop": 175
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 176,
+    "displayName": "Standing Banner",
+    "name": "standing_banner",
+    "hardness": 1,
+    "stackSize": 16,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 176
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 177,
+    "displayName": "Wall Banner",
+    "name": "wall_banner",
+    "hardness": 1,
+    "stackSize": 16,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 177
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 178,
+    "displayName": "Inverted Daylight Sensor",
+    "name": "daylight_detector_inverted",
+    "hardness": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 178
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 179,
+    "displayName": "Red Sandstone",
+    "name": "red_sandstone",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Red Sandstone"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Chiseled Red Sandstone"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Smooth Red Sandstone"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 179
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 180,
+    "displayName": "Red Sandstone Stairs",
+    "name": "red_sandstone_stairs",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 180
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 181,
+    "displayName": "Double Red Sandstone Slab",
+    "name": "double_stone_slab2",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Double Red Sandstone Slab"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Smooth Double Red Sandstone Slab"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 182,
+    "displayName": "Red Sandstone Slab",
+    "name": "stone_slab2",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Red Sandstone Slab"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Upper Red Sandstone Slab"
+      }
+    ],
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 183,
+    "displayName": "Spruce Fence Gate",
+    "name": "spruce_fence_gate",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 183
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 184,
+    "displayName": "Birch Fence Gate",
+    "name": "birch_fence_gate",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 184
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 185,
+    "displayName": "Jungle Fence Gate",
+    "name": "jungle_fence_gate",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 185
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 186,
+    "displayName": "Dark Oak Fence Gate",
+    "name": "dark_oak_fence_gate",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 186
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 187,
+    "displayName": "Acacia Fence Gate",
+    "name": "acacia_fence_gate",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 187
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 188,
+    "displayName": "Spruce Fence",
+    "name": "spruce_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 188
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 189,
+    "displayName": "Birch Fence",
+    "name": "birch_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 189
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 190,
+    "displayName": "Jungle Fence",
+    "name": "jungle_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 190
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 191,
+    "displayName": "Dark Oak Fence",
+    "name": "dark_oak_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 191
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 192,
+    "displayName": "Acacia Fence",
+    "name": "acacia_fence",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 192
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 193,
+    "displayName": "Spruce Door",
+    "name": "spruce_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 193
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 194,
+    "displayName": "Birch Door",
+    "name": "birch_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 194
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 195,
+    "displayName": "Jungle Door",
+    "name": "jungle_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 195
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 196,
+    "displayName": "Acacia Door",
+    "name": "acacia_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 196
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 197,
+    "displayName": "Dark Oak Door",
+    "name": "dark_oak_door",
+    "hardness": 3,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "wood",
+    "drops": [
+      {
+        "drop": 197
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 198,
+    "displayName": "End Rod",
+    "name": "end_rod",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "End Rod facing down"
+      },
+      {
+        "metadata": 1,
+        "displayName": "End Rod facing up"
+      },
+      {
+        "metadata": 2,
+        "displayName": "End Rod facing north"
+      },
+      {
+        "metadata": 3,
+        "displayName": "End Rod facing south"
+      },
+      {
+        "metadata": 4,
+        "displayName": "End Rod facing west"
+      },
+      {
+        "metadata": 5,
+        "displayName": "End Rod facing east"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 198
+      }
+    ],
+    "transparent": false,
+    "emitLight": 14,
+    "filterLight": 15
+  },
+  {
+    "id": 199,
+    "displayName": "Chorus Plant",
+    "name": "chorus_plant",
+    "hardness": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 432,
+        "minCount": 0,
+        "maxCount": 1
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 200,
+    "displayName": "Chorus Flower",
+    "name": "chorus_flower",
+    "hardness": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 200
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 201,
+    "displayName": "Purpur Block",
+    "name": "purpur_block",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 201
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 202,
+    "displayName": "Purpur Pillar",
+    "name": "purpur_pillar",
+    "hardness": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 202
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 203,
+    "displayName": "Purpur Stairs",
+    "name": "purpur_stairs",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 203
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 204,
+    "displayName": "Purpur Double Slab",
+    "name": "purpur_double_slab",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 205,
+    "displayName": "Purpur Slab",
+    "name": "purpur_slab",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": {
+          "id": 44,
+          "metadata": 0
+        }
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 206,
+    "displayName": "End Stone Bricks",
+    "name": "end_bricks",
+    "hardness": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 206
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 207,
+    "displayName": "Beetroot Seeds",
+    "name": "beetroots",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "empty",
+    "material": "plant",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 208,
+    "displayName": "Grass Path",
+    "name": "grass_path",
+    "hardness": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 209,
+    "displayName": "End Gateway",
+    "name": "end_gateway",
+    "hardness": null,
+    "stackSize": 0,
+    "diggable": false,
+    "boundingBox": "empty",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15
+  },
+  {
+    "id": 210,
+    "displayName": "Repeating Command Block",
+    "name": "repeating_command_block",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 211,
+    "displayName": "Chain Command Block",
+    "name": "chain_command_block",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 212,
+    "displayName": "Frosted Ice",
+    "name": "frosted_ice",
+    "hardness": 0.5,
+    "stackSize": 0,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 2
+  },
+  {
+    "id": 213,
+    "displayName": "Magma Block",
+    "name": "magma",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 213
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 214,
+    "displayName": "Nether Wart Block",
+    "name": "nether_wart_block",
+    "hardness": 1,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 214
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 215,
+    "displayName": "Red Nether Brick",
+    "name": "red_nether_brick",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 215
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 216,
+    "displayName": "Bone Block",
+    "name": "bone_block",
+    "hardness": 2,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 216
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 217,
+    "displayName": "Structure Void",
+    "name": "structure_void",
+    "hardness": 0,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Save"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Load"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Corner"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Data"
+      }
+    ],
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 218,
+    "displayName": "Observer",
+    "name": "observer",
+    "hardness": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 218
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 219,
+    "displayName": "White Shulker Box",
+    "name": "white_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 219
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 220,
+    "displayName": "Orange Shulker Box",
+    "name": "orange_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 220
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 221,
+    "displayName": "Magenta Shulker Box",
+    "name": "magenta_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 221
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 222,
+    "displayName": "Light Blue Shulker Box",
+    "name": "light_blue_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 222
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 223,
+    "displayName": "Yellow Shulker Box",
+    "name": "yellow_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 223
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 224,
+    "displayName": "Lime Shulker Box",
+    "name": "lime_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 224
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 225,
+    "displayName": "Pink Shulker Box",
+    "name": "pink_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 225
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 226,
+    "displayName": "Gray Shulker Box",
+    "name": "gray_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 226
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 227,
+    "displayName": "Light Gray Shulker Box",
+    "name": "light_gray_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 227
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 228,
+    "displayName": "Cyan Shulker Box",
+    "name": "cyan_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 228
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 229,
+    "displayName": "Purple Shulker Box",
+    "name": "purple_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 229
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 230,
+    "displayName": "Blue Shulker Box",
+    "name": "blue_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 230
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 231,
+    "displayName": "Brown Shulker Box",
+    "name": "brown_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 231
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 232,
+    "displayName": "Green Shulker Box",
+    "name": "green_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 232
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 233,
+    "displayName": "Red Shulker Box",
+    "name": "red_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 233
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 234,
+    "displayName": "Black Shulker Box",
+    "name": "black_shulker_box",
+    "hardness": 6,
+    "stackSize": 1,
+    "diggable": true,
+    "boundingBox": "block",
+    "drops": [
+      {
+        "drop": 234
+      }
+    ],
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0
+  },
+  {
+    "id": 235,
+    "displayName": "White Glazed Terracotta",
+    "name": "white_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 235
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 236,
+    "displayName": "Orange Glazed Terracotta",
+    "name": "orange_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 236
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 237,
+    "displayName": "Magenta Glazed Terracotta",
+    "name": "magenta_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 237
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 238,
+    "displayName": "Light Blue Glazed Terracotta",
+    "name": "light_blue_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 238
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 239,
+    "displayName": "Yellow Glazed Terracotta",
+    "name": "yellow_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 239
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 240,
+    "displayName": "Lime Glazed Terracotta",
+    "name": "lime_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 240
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 241,
+    "displayName": "Pink Glazed Terracotta",
+    "name": "pink_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 241
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 242,
+    "displayName": "Gray Glazed Terracotta",
+    "name": "gray_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 242
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 243,
+    "displayName": "Light Gray Glazed Terracotta",
+    "name": "light_gray_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 243
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 244,
+    "displayName": "Cyan Glazed Terracotta",
+    "name": "cyan_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 244
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 245,
+    "displayName": "Purple Glazed Terracotta",
+    "name": "purple_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 245
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 246,
+    "displayName": "Blue Glazed Terracotta",
+    "name": "blue_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 246
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 247,
+    "displayName": "Brown Glazed Terracotta",
+    "name": "brown_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 247
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 248,
+    "displayName": "Green Glazed Terracotta",
+    "name": "green_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 248
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 249,
+    "displayName": "Red Glazed Terracotta",
+    "name": "red_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 249
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 250,
+    "displayName": "Black Glazed Terracotta",
+    "name": "black_glazed_terracotta",
+    "hardness": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "drops": [
+      {
+        "drop": 250
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 251,
+    "displayName": "Concrete",
+    "name": "concrete",
+    "hardness": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "rock",
+    "harvestTools": {
+      "257": true,
+      "270": true,
+      "274": true,
+      "278": true,
+      "285": true
+    },
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Concrete"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Concrete"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Concrete"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light blue Concrete"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Concrete"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Concrete"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Concrete"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Concrete"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light gray Concrete"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Concrete"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Concrete"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Concrete"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Concrete"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Concrete"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Concrete"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Concrete"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 251
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 252,
+    "displayName": "Concrete Powder",
+    "name": "concrete_powder",
+    "hardness": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "boundingBox": "block",
+    "material": "dirt",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "White Concrete Powder"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Orange Concrete Powder"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Magenta Concrete Powder"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Light blue Concrete Powder"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Yellow Concrete Powder"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Lime Concrete Powder"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Pink Concrete Powder"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Gray Concrete Powder"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Light gray Concrete Powder"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Cyan Concrete Powder"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Purple Concrete Powder"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Blue Concrete Powder"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Brown Concrete Powder"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Green Concrete Powder"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Red Concrete Powder"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Black Concrete Powder"
+      }
+    ],
+    "drops": [
+      {
+        "drop": 252
+      }
+    ],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 255,
+    "displayName": "Structure Block",
+    "name": "structure_block",
+    "hardness": null,
+    "stackSize": 64,
+    "diggable": false,
+    "boundingBox": "block",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Save"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Load"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Corner"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Data"
+      }
+    ],
+    "drops": [],
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15
+  },
+  {
+    "id": 256,
+    "displayName": "Iron Shovel",
+    "stackSize": 1,
+    "name": "iron_shovel"
+  },
+  {
+    "id": 257,
+    "displayName": "Iron Pickaxe",
+    "stackSize": 1,
+    "name": "iron_pickaxe"
+  },
+  {
+    "id": 258,
+    "displayName": "Iron Axe",
+    "stackSize": 1,
+    "name": "iron_axe"
+  },
+  {
+    "id": 259,
+    "displayName": "Flint and Steel",
+    "stackSize": 1,
+    "name": "flint_and_steel"
+  },
+  {
+    "id": 260,
+    "displayName": "Apple",
+    "stackSize": 64,
+    "name": "apple"
+  },
+  {
+    "id": 261,
+    "displayName": "Bow",
+    "stackSize": 1,
+    "name": "bow"
+  },
+  {
+    "id": 262,
+    "displayName": "Arrow",
+    "stackSize": 64,
+    "name": "arrow"
+  },
+  {
+    "id": 263,
+    "displayName": "Coal",
+    "stackSize": 64,
+    "name": "coal",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Coal"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Charcoal"
+      }
+    ]
+  },
+  {
+    "id": 264,
+    "displayName": "Diamond",
+    "stackSize": 64,
+    "name": "diamond"
+  },
+  {
+    "id": 265,
+    "displayName": "Iron Ingot",
+    "stackSize": 64,
+    "name": "iron_ingot"
+  },
+  {
+    "id": 266,
+    "displayName": "Gold Ingot",
+    "stackSize": 64,
+    "name": "gold_ingot"
+  },
+  {
+    "id": 267,
+    "displayName": "Iron Sword",
+    "stackSize": 1,
+    "name": "iron_sword"
+  },
+  {
+    "id": 268,
+    "displayName": "Wooden Sword",
+    "stackSize": 1,
+    "name": "wooden_sword"
+  },
+  {
+    "id": 269,
+    "displayName": "Wooden Shovel",
+    "stackSize": 1,
+    "name": "wooden_shovel"
+  },
+  {
+    "id": 270,
+    "displayName": "Wooden Pickaxe",
+    "stackSize": 1,
+    "name": "wooden_pickaxe"
+  },
+  {
+    "id": 271,
+    "displayName": "Wooden Axe",
+    "stackSize": 1,
+    "name": "wooden_axe"
+  },
+  {
+    "id": 272,
+    "displayName": "Stone Sword",
+    "stackSize": 1,
+    "name": "stone_sword"
+  },
+  {
+    "id": 273,
+    "displayName": "Stone Shovel",
+    "stackSize": 1,
+    "name": "stone_shovel"
+  },
+  {
+    "id": 274,
+    "displayName": "Stone Pickaxe",
+    "stackSize": 1,
+    "name": "stone_pickaxe"
+  },
+  {
+    "id": 275,
+    "displayName": "Stone Axe",
+    "stackSize": 1,
+    "name": "stone_axe"
+  },
+  {
+    "id": 276,
+    "displayName": "Diamond Sword",
+    "stackSize": 1,
+    "name": "diamond_sword"
+  },
+  {
+    "id": 277,
+    "displayName": "Diamond Shovel",
+    "stackSize": 1,
+    "name": "diamond_shovel"
+  },
+  {
+    "id": 278,
+    "displayName": "Diamond Pickaxe",
+    "stackSize": 1,
+    "name": "diamond_pickaxe"
+  },
+  {
+    "id": 279,
+    "displayName": "Diamond Axe",
+    "stackSize": 1,
+    "name": "diamond_axe"
+  },
+  {
+    "id": 280,
+    "displayName": "Stick",
+    "stackSize": 64,
+    "name": "stick"
+  },
+  {
+    "id": 281,
+    "displayName": "Bowl",
+    "stackSize": 64,
+    "name": "bowl"
+  },
+  {
+    "id": 282,
+    "displayName": "Mushroom Stew",
+    "stackSize": 1,
+    "name": "mushroom_stew"
+  },
+  {
+    "id": 283,
+    "displayName": "Golden Sword",
+    "stackSize": 1,
+    "name": "golden_sword"
+  },
+  {
+    "id": 284,
+    "displayName": "Golden Shovel",
+    "stackSize": 1,
+    "name": "golden_shovel"
+  },
+  {
+    "id": 285,
+    "displayName": "Golden Pickaxe",
+    "stackSize": 1,
+    "name": "golden_pickaxe"
+  },
+  {
+    "id": 286,
+    "displayName": "Golden Axe",
+    "stackSize": 1,
+    "name": "golden_axe"
+  },
+  {
+    "id": 287,
+    "displayName": "String",
+    "stackSize": 64,
+    "name": "string"
+  },
+  {
+    "id": 288,
+    "displayName": "Feather",
+    "stackSize": 64,
+    "name": "feather"
+  },
+  {
+    "id": 289,
+    "displayName": "Gunpowder",
+    "stackSize": 64,
+    "name": "gunpowder"
+  },
+  {
+    "id": 290,
+    "displayName": "Wooden Hoe",
+    "stackSize": 1,
+    "name": "wooden_hoe"
+  },
+  {
+    "id": 291,
+    "displayName": "Stone Hoe",
+    "stackSize": 1,
+    "name": "stone_hoe"
+  },
+  {
+    "id": 292,
+    "displayName": "Iron Hoe",
+    "stackSize": 1,
+    "name": "iron_hoe"
+  },
+  {
+    "id": 293,
+    "displayName": "Diamond Hoe",
+    "stackSize": 1,
+    "name": "diamond_hoe"
+  },
+  {
+    "id": 294,
+    "displayName": "Golden Hoe",
+    "stackSize": 1,
+    "name": "golden_hoe"
+  },
+  {
+    "id": 295,
+    "displayName": "Seeds",
+    "stackSize": 64,
+    "name": "wheat_seeds"
+  },
+  {
+    "id": 296,
+    "displayName": "Wheat",
+    "stackSize": 64,
+    "name": "wheat"
+  },
+  {
+    "id": 297,
+    "displayName": "Bread",
+    "stackSize": 64,
+    "name": "bread"
+  },
+  {
+    "id": 298,
+    "displayName": "Leather Cap",
+    "stackSize": 1,
+    "name": "leather_helmet"
+  },
+  {
+    "id": 299,
+    "displayName": "Leather Tunic",
+    "stackSize": 1,
+    "name": "leather_chestplate"
+  },
+  {
+    "id": 300,
+    "displayName": "Leather Pants",
+    "stackSize": 1,
+    "name": "leather_leggings"
+  },
+  {
+    "id": 301,
+    "displayName": "Leather Boots",
+    "stackSize": 1,
+    "name": "leather_boots"
+  },
+  {
+    "id": 302,
+    "displayName": "Chain Helmet",
+    "stackSize": 1,
+    "name": "chainmail_helmet"
+  },
+  {
+    "id": 303,
+    "displayName": "Chain Chestplate",
+    "stackSize": 1,
+    "name": "chainmail_chestplate"
+  },
+  {
+    "id": 304,
+    "displayName": "Chain Leggings",
+    "stackSize": 1,
+    "name": "chainmail_leggings"
+  },
+  {
+    "id": 305,
+    "displayName": "Chain Boots",
+    "stackSize": 1,
+    "name": "chainmail_boots"
+  },
+  {
+    "id": 306,
+    "displayName": "Iron Helmet",
+    "stackSize": 1,
+    "name": "iron_helmet"
+  },
+  {
+    "id": 307,
+    "displayName": "Iron Chestplate",
+    "stackSize": 1,
+    "name": "iron_chestplate"
+  },
+  {
+    "id": 308,
+    "displayName": "Iron Leggings",
+    "stackSize": 1,
+    "name": "iron_leggings"
+  },
+  {
+    "id": 309,
+    "displayName": "Iron Boots",
+    "stackSize": 1,
+    "name": "iron_boots"
+  },
+  {
+    "id": 310,
+    "displayName": "Diamond Helmet",
+    "stackSize": 1,
+    "name": "diamond_helmet"
+  },
+  {
+    "id": 311,
+    "displayName": "Diamond Chestplate",
+    "stackSize": 1,
+    "name": "diamond_chestplate"
+  },
+  {
+    "id": 312,
+    "displayName": "Diamond Leggings",
+    "stackSize": 1,
+    "name": "diamond_leggings"
+  },
+  {
+    "id": 313,
+    "displayName": "Diamond Boots",
+    "stackSize": 1,
+    "name": "diamond_boots"
+  },
+  {
+    "id": 314,
+    "displayName": "Golden Helmet",
+    "stackSize": 1,
+    "name": "golden_helmet"
+  },
+  {
+    "id": 315,
+    "displayName": "Golden Chestplate",
+    "stackSize": 1,
+    "name": "golden_chestplate"
+  },
+  {
+    "id": 316,
+    "displayName": "Golden Leggings",
+    "stackSize": 1,
+    "name": "golden_leggings"
+  },
+  {
+    "id": 317,
+    "displayName": "Golden Boots",
+    "stackSize": 1,
+    "name": "golden_boots"
+  },
+  {
+    "id": 318,
+    "displayName": "Flint",
+    "stackSize": 64,
+    "name": "flint"
+  },
+  {
+    "id": 319,
+    "displayName": "Raw Porkchop",
+    "stackSize": 64,
+    "name": "porkchop"
+  },
+  {
+    "id": 320,
+    "displayName": "Cooked Porkchop",
+    "stackSize": 64,
+    "name": "cooked_porkchop"
+  },
+  {
+    "id": 321,
+    "displayName": "Painting",
+    "stackSize": 64,
+    "name": "painting"
+  },
+  {
+    "id": 322,
+    "displayName": "Golden Apple",
+    "stackSize": 64,
+    "name": "golden_apple",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Golden Apple"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Enchanted Golden Apple"
+      }
+    ]
+  },
+  {
+    "id": 323,
+    "displayName": "Sign",
+    "stackSize": 16,
+    "name": "sign"
+  },
+  {
+    "id": 324,
+    "displayName": "Oak Door",
+    "stackSize": 64,
+    "name": "wooden_door"
+  },
+  {
+    "id": 325,
+    "displayName": "Bucket",
+    "stackSize": 16,
+    "name": "bucket"
+  },
+  {
+    "id": 326,
+    "displayName": "Water Bucket",
+    "stackSize": 1,
+    "name": "water_bucket"
+  },
+  {
+    "id": 327,
+    "displayName": "Lava Bucket",
+    "stackSize": 1,
+    "name": "lava_bucket"
+  },
+  {
+    "id": 328,
+    "displayName": "Minecart",
+    "stackSize": 1,
+    "name": "minecart"
+  },
+  {
+    "id": 329,
+    "displayName": "Saddle",
+    "stackSize": 1,
+    "name": "saddle"
+  },
+  {
+    "id": 330,
+    "displayName": "Iron Door",
+    "stackSize": 64,
+    "name": "iron_door"
+  },
+  {
+    "id": 331,
+    "displayName": "Redstone",
+    "stackSize": 64,
+    "name": "redstone"
+  },
+  {
+    "id": 332,
+    "displayName": "Snowball",
+    "stackSize": 16,
+    "name": "snowball"
+  },
+  {
+    "id": 333,
+    "displayName": "Boat",
+    "stackSize": 1,
+    "name": "boat"
+  },
+  {
+    "id": 334,
+    "displayName": "Leather",
+    "stackSize": 64,
+    "name": "leather"
+  },
+  {
+    "id": 335,
+    "displayName": "Milk",
+    "stackSize": 1,
+    "name": "milk_bucket"
+  },
+  {
+    "id": 336,
+    "displayName": "Brick",
+    "stackSize": 64,
+    "name": "brick"
+  },
+  {
+    "id": 337,
+    "displayName": "Clay",
+    "stackSize": 64,
+    "name": "clay_ball"
+  },
+  {
+    "id": 338,
+    "displayName": "Sugar Cane",
+    "stackSize": 64,
+    "name": "reeds"
+  },
+  {
+    "id": 339,
+    "displayName": "Paper",
+    "stackSize": 64,
+    "name": "paper"
+  },
+  {
+    "id": 340,
+    "displayName": "Book",
+    "stackSize": 64,
+    "name": "book"
+  },
+  {
+    "id": 341,
+    "displayName": "Slimeball",
+    "stackSize": 64,
+    "name": "slime_ball"
+  },
+  {
+    "id": 342,
+    "displayName": "Minecart with Chest",
+    "stackSize": 1,
+    "name": "chest_minecart"
+  },
+  {
+    "id": 343,
+    "displayName": "Minecart with Furnace",
+    "stackSize": 1,
+    "name": "furnace_minecart"
+  },
+  {
+    "id": 344,
+    "displayName": "Egg",
+    "stackSize": 16,
+    "name": "egg"
+  },
+  {
+    "id": 345,
+    "displayName": "Compass",
+    "stackSize": 64,
+    "name": "compass"
+  },
+  {
+    "id": 346,
+    "displayName": "Fishing Rod",
+    "stackSize": 1,
+    "name": "fishing_rod"
+  },
+  {
+    "id": 347,
+    "displayName": "Clock",
+    "stackSize": 64,
+    "name": "clock"
+  },
+  {
+    "id": 348,
+    "displayName": "Glowstone Dust",
+    "stackSize": 64,
+    "name": "glowstone_dust"
+  },
+  {
+    "id": 349,
+    "displayName": "Raw Fish",
+    "stackSize": 64,
+    "name": "fish",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Raw Fish"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Raw Salmon"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Clownfish"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Pufferfish"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Cooked Fish"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Cooked Salmon"
+      }
+    ]
+  },
+  {
+    "id": 350,
+    "displayName": "Cooked Fish",
+    "stackSize": 64,
+    "name": "cooked_fish",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Raw Fish"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Raw Salmon"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Clownfish"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Pufferfish"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Cooked Fish"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Cooked Salmon"
+      }
+    ]
+  },
+  {
+    "id": 351,
+    "displayName": "Dye",
+    "stackSize": 64,
+    "name": "dye",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Ink Sac"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Rose Red"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Cactus Green"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Cocoa Beans"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Lapis Lazuli"
+      },
+      {
+        "metadata": 5,
+        "displayName": "Purple Dye"
+      },
+      {
+        "metadata": 6,
+        "displayName": "Cyan Dye"
+      },
+      {
+        "metadata": 7,
+        "displayName": "Light Gray Dye"
+      },
+      {
+        "metadata": 8,
+        "displayName": "Gray Dye"
+      },
+      {
+        "metadata": 9,
+        "displayName": "Pink Dye"
+      },
+      {
+        "metadata": 10,
+        "displayName": "Lime Dye"
+      },
+      {
+        "metadata": 11,
+        "displayName": "Dandelion Yellow"
+      },
+      {
+        "metadata": 12,
+        "displayName": "Light Blue Dye"
+      },
+      {
+        "metadata": 13,
+        "displayName": "Magenta Dye"
+      },
+      {
+        "metadata": 14,
+        "displayName": "Orange Dye"
+      },
+      {
+        "metadata": 15,
+        "displayName": "Bone Meal"
+      }
+    ]
+  },
+  {
+    "id": 352,
+    "displayName": "Bone",
+    "stackSize": 64,
+    "name": "bone"
+  },
+  {
+    "id": 353,
+    "displayName": "Sugar",
+    "stackSize": 64,
+    "name": "sugar"
+  },
+  {
+    "id": 354,
+    "displayName": "Cake",
+    "stackSize": 1,
+    "name": "cake"
+  },
+  {
+    "id": 355,
+    "displayName": "Bed",
+    "stackSize": 1,
+    "name": "bed"
+  },
+  {
+    "id": 356,
+    "displayName": "Redstone Repeater",
+    "stackSize": 64,
+    "name": "repeater"
+  },
+  {
+    "id": 357,
+    "displayName": "Cookie",
+    "stackSize": 64,
+    "name": "cookie"
+  },
+  {
+    "id": 358,
+    "displayName": "Map",
+    "stackSize": 64,
+    "name": "filled_map"
+  },
+  {
+    "id": 359,
+    "displayName": "Shears",
+    "stackSize": 1,
+    "name": "shears"
+  },
+  {
+    "id": 360,
+    "displayName": "Melon",
+    "stackSize": 64,
+    "name": "melon"
+  },
+  {
+    "id": 361,
+    "displayName": "Pumpkin Seeds",
+    "stackSize": 64,
+    "name": "pumpkin_seeds"
+  },
+  {
+    "id": 362,
+    "displayName": "Melon Seeds",
+    "stackSize": 64,
+    "name": "melon_seeds"
+  },
+  {
+    "id": 363,
+    "displayName": "Raw Beef",
+    "stackSize": 64,
+    "name": "beef"
+  },
+  {
+    "id": 364,
+    "displayName": "Steak",
+    "stackSize": 64,
+    "name": "cooked_beef"
+  },
+  {
+    "id": 365,
+    "displayName": "Raw Chicken",
+    "stackSize": 64,
+    "name": "chicken"
+  },
+  {
+    "id": 366,
+    "displayName": "Cooked Chicken",
+    "stackSize": 64,
+    "name": "cooked_chicken"
+  },
+  {
+    "id": 367,
+    "displayName": "Rotten Flesh",
+    "stackSize": 64,
+    "name": "rotten_flesh"
+  },
+  {
+    "id": 368,
+    "displayName": "Ender Pearl",
+    "stackSize": 16,
+    "name": "ender_pearl"
+  },
+  {
+    "id": 369,
+    "displayName": "Blaze Rod",
+    "stackSize": 64,
+    "name": "blaze_rod"
+  },
+  {
+    "id": 370,
+    "displayName": "Ghast Tear",
+    "stackSize": 64,
+    "name": "ghast_tear"
+  },
+  {
+    "id": 371,
+    "displayName": "Gold Nugget",
+    "stackSize": 64,
+    "name": "gold_nugget"
+  },
+  {
+    "id": 372,
+    "displayName": "Nether Wart",
+    "stackSize": 64,
+    "name": "nether_wart"
+  },
+  {
+    "id": 373,
+    "displayName": "Potion",
+    "stackSize": 1,
+    "name": "potion"
+  },
+  {
+    "id": 374,
+    "displayName": "Glass Bottle",
+    "stackSize": 64,
+    "name": "glass_bottle"
+  },
+  {
+    "id": 375,
+    "displayName": "Spider Eye",
+    "stackSize": 64,
+    "name": "spider_eye"
+  },
+  {
+    "id": 376,
+    "displayName": "Fermented Spider Eye",
+    "stackSize": 64,
+    "name": "fermented_spider_eye"
+  },
+  {
+    "id": 377,
+    "displayName": "Blaze Powder",
+    "stackSize": 64,
+    "name": "blaze_powder"
+  },
+  {
+    "id": 378,
+    "displayName": "Magma Cream",
+    "stackSize": 64,
+    "name": "magma_cream"
+  },
+  {
+    "id": 379,
+    "displayName": "Brewing Stand",
+    "stackSize": 64,
+    "name": "brewing_stand"
+  },
+  {
+    "id": 380,
+    "displayName": "Cauldron",
+    "stackSize": 64,
+    "name": "cauldron"
+  },
+  {
+    "id": 381,
+    "displayName": "Eye of Ender",
+    "stackSize": 64,
+    "name": "ender_eye"
+  },
+  {
+    "id": 382,
+    "displayName": "Glistering Melon",
+    "stackSize": 64,
+    "name": "speckled_melon"
+  },
+  {
+    "id": 383,
+    "displayName": "Spawn Egg",
+    "stackSize": 64,
+    "name": "spawn_egg"
+  },
+  {
+    "id": 384,
+    "displayName": "Bottle o' Enchanting",
+    "stackSize": 64,
+    "name": "experience_bottle"
+  },
+  {
+    "id": 385,
+    "displayName": "Fire Charge",
+    "stackSize": 64,
+    "name": "fire_charge"
+  },
+  {
+    "id": 386,
+    "displayName": "Book and Quill",
+    "stackSize": 1,
+    "name": "writable_book"
+  },
+  {
+    "id": 387,
+    "displayName": "Written Book",
+    "stackSize": 16,
+    "name": "written_book"
+  },
+  {
+    "id": 388,
+    "displayName": "Emerald",
+    "stackSize": 64,
+    "name": "emerald"
+  },
+  {
+    "id": 389,
+    "displayName": "Item Frame",
+    "stackSize": 64,
+    "name": "item_frame"
+  },
+  {
+    "id": 390,
+    "displayName": "Flower Pot",
+    "stackSize": 64,
+    "name": "flower_pot"
+  },
+  {
+    "id": 391,
+    "displayName": "Carrot",
+    "stackSize": 64,
+    "name": "carrot"
+  },
+  {
+    "id": 392,
+    "displayName": "Potato",
+    "stackSize": 64,
+    "name": "potato"
+  },
+  {
+    "id": 393,
+    "displayName": "Baked Potato",
+    "stackSize": 64,
+    "name": "baked_potato"
+  },
+  {
+    "id": 394,
+    "displayName": "Poisonous Potato",
+    "stackSize": 64,
+    "name": "poisonous_potato"
+  },
+  {
+    "id": 395,
+    "displayName": "Empty Map",
+    "stackSize": 64,
+    "name": "map"
+  },
+  {
+    "id": 396,
+    "displayName": "Golden Carrot",
+    "stackSize": 64,
+    "name": "golden_carrot"
+  },
+  {
+    "id": 397,
+    "displayName": "Mob head",
+    "stackSize": 64,
+    "name": "skull",
+    "variations": [
+      {
+        "metadata": 0,
+        "displayName": "Skeleton Skull"
+      },
+      {
+        "metadata": 1,
+        "displayName": "Wither Skeleton Skull"
+      },
+      {
+        "metadata": 2,
+        "displayName": "Zombie Head"
+      },
+      {
+        "metadata": 3,
+        "displayName": "Head"
+      },
+      {
+        "metadata": 4,
+        "displayName": "Creeper Head"
+      }
+    ]
+  },
+  {
+    "id": 398,
+    "displayName": "Carrot on a Stick",
+    "stackSize": 1,
+    "name": "carrot_on_a_stick"
+  },
+  {
+    "id": 399,
+    "displayName": "Nether Star",
+    "stackSize": 64,
+    "name": "nether_star"
+  },
+  {
+    "id": 400,
+    "displayName": "Pumpkin Pie",
+    "stackSize": 64,
+    "name": "pumpkin_pie"
+  },
+  {
+    "id": 401,
+    "displayName": "Firework Rocket",
+    "stackSize": 64,
+    "name": "fireworks"
+  },
+  {
+    "id": 402,
+    "displayName": "Firework Star",
+    "stackSize": 64,
+    "name": "firework_charge"
+  },
+  {
+    "id": 403,
+    "displayName": "Enchanted Book",
+    "stackSize": 1,
+    "name": "enchanted_book"
+  },
+  {
+    "id": 404,
+    "displayName": "Redstone Comparator",
+    "stackSize": 64,
+    "name": "comparator"
+  },
+  {
+    "id": 405,
+    "displayName": "Nether Brick",
+    "stackSize": 64,
+    "name": "netherbrick"
+  },
+  {
+    "id": 406,
+    "displayName": "Nether Quartz",
+    "stackSize": 64,
+    "name": "quartz"
+  },
+  {
+    "id": 407,
+    "displayName": "Minecart with TNT",
+    "stackSize": 1,
+    "name": "tnt_minecart"
+  },
+  {
+    "id": 408,
+    "displayName": "Minecart with Hopper",
+    "stackSize": 1,
+    "name": "hopper_minecart"
+  },
+  {
+    "id": 409,
+    "displayName": "Prismarine Shard",
+    "stackSize": 64,
+    "name": "prismarine_shard"
+  },
+  {
+    "id": 410,
+    "displayName": "Prismarine Crystals",
+    "stackSize": 64,
+    "name": "prismarine_crystals"
+  },
+  {
+    "id": 411,
+    "displayName": "Raw Rabbit",
+    "stackSize": 64,
+    "name": "rabbit"
+  },
+  {
+    "id": 412,
+    "displayName": "Cooked Rabbit",
+    "stackSize": 64,
+    "name": "cooked_rabbit"
+  },
+  {
+    "id": 413,
+    "displayName": "Rabbit Stew",
+    "stackSize": 1,
+    "name": "rabbit_stew"
+  },
+  {
+    "id": 414,
+    "displayName": "Rabbit's Foot",
+    "stackSize": 64,
+    "name": "rabbit_foot"
+  },
+  {
+    "id": 415,
+    "displayName": "Rabbit Hide",
+    "stackSize": 64,
+    "name": "rabbit_hide"
+  },
+  {
+    "id": 416,
+    "displayName": "Armor Stand",
+    "stackSize": 16,
+    "name": "armor_stand"
+  },
+  {
+    "id": 417,
+    "displayName": "Iron Horse Armor",
+    "stackSize": 1,
+    "name": "iron_horse_armor"
+  },
+  {
+    "id": 418,
+    "displayName": "Golden Horse Armor",
+    "stackSize": 1,
+    "name": "golden_horse_armor"
+  },
+  {
+    "id": 419,
+    "displayName": "Diamond Horse Armor",
+    "stackSize": 1,
+    "name": "diamond_horse_armor"
+  },
+  {
+    "id": 420,
+    "displayName": "Lead",
+    "stackSize": 64,
+    "name": "lead"
+  },
+  {
+    "id": 421,
+    "displayName": "Name Tag",
+    "stackSize": 64,
+    "name": "name_tag"
+  },
+  {
+    "id": 422,
+    "displayName": "Minecart with Command Block",
+    "stackSize": 1,
+    "name": "command_block_minecart"
+  },
+  {
+    "id": 423,
+    "displayName": "Raw Mutton",
+    "stackSize": 64,
+    "name": "mutton"
+  },
+  {
+    "id": 424,
+    "displayName": "Cooked Mutton",
+    "stackSize": 64,
+    "name": "cooked_mutton"
+  },
+  {
+    "id": 425,
+    "displayName": "Banner",
+    "stackSize": 16,
+    "name": "banner"
+  },
+  {
+    "id": 426,
+    "displayName": "End Crystal",
+    "stackSize": 64,
+    "name": "end_crystal"
+  },
+  {
+    "id": 427,
+    "displayName": "Spruce Door",
+    "stackSize": 64,
+    "name": "spruce_door"
+  },
+  {
+    "id": 428,
+    "displayName": "Birch Door",
+    "stackSize": 64,
+    "name": "birch_door"
+  },
+  {
+    "id": 429,
+    "displayName": "Jungle Door",
+    "stackSize": 64,
+    "name": "jungle_door"
+  },
+  {
+    "id": 430,
+    "displayName": "Acacia Door",
+    "stackSize": 64,
+    "name": "acacia_door"
+  },
+  {
+    "id": 431,
+    "displayName": "Dark Oak Door",
+    "stackSize": 64,
+    "name": "dark_oak_door"
+  },
+  {
+    "id": 432,
+    "displayName": "Chorus Fruit",
+    "stackSize": 64,
+    "name": "chorus_fruit"
+  },
+  {
+    "id": 433,
+    "displayName": "Popped Chorus Fruit",
+    "stackSize": 64,
+    "name": "chorus_fruit_popped"
+  },
+  {
+    "id": 434,
+    "displayName": "Beetroot",
+    "stackSize": 64,
+    "name": "beetroot"
+  },
+  {
+    "id": 435,
+    "displayName": "Beetroot Seeds",
+    "stackSize": 64,
+    "name": "beetroot_seeds"
+  },
+  {
+    "id": 436,
+    "displayName": "Beetroot Soup",
+    "stackSize": 1,
+    "name": "beetroot_soup"
+  },
+  {
+    "id": 437,
+    "displayName": "Dragon's Breath",
+    "stackSize": 64,
+    "name": "dragon_breath"
+  },
+  {
+    "id": 438,
+    "displayName": "Splash Potion",
+    "stackSize": 1,
+    "name": "splash_potion"
+  },
+  {
+    "id": 439,
+    "displayName": "Spectral Arrow",
+    "stackSize": 64,
+    "name": "spectral_arrow"
+  },
+  {
+    "id": 440,
+    "displayName": "Tipped Arrow",
+    "stackSize": 64,
+    "name": "tipped_arrow"
+  },
+  {
+    "id": 441,
+    "displayName": "Lingering Potion",
+    "stackSize": 1,
+    "name": "lingering_potion"
+  },
+  {
+    "id": 442,
+    "displayName": "Shield",
+    "stackSize": 1,
+    "name": "shield"
+  },
+  {
+    "id": 443,
+    "displayName": "Elytra",
+    "stackSize": 1,
+    "name": "elytra"
+  },
+  {
+    "id": 444,
+    "displayName": "Spruce Boat",
+    "stackSize": 1,
+    "name": "spruce_boat"
+  },
+  {
+    "id": 445,
+    "displayName": "Birch Boat",
+    "stackSize": 1,
+    "name": "birch_boat"
+  },
+  {
+    "id": 446,
+    "displayName": "Jungle Boat",
+    "stackSize": 1,
+    "name": "jungle_boat"
+  },
+  {
+    "id": 447,
+    "displayName": "Acacia Boat",
+    "stackSize": 1,
+    "name": "acacia_boat"
+  },
+  {
+    "id": 448,
+    "displayName": "Dark Oak Boat",
+    "stackSize": 1,
+    "name": "dark_oak_boat"
+  },
+  {
+    "id": 449,
+    "displayName": "Totem of Undying",
+    "stackSize": 1,
+    "name": "totem_of_undying"
+  },
+  {
+    "id": 450,
+    "displayName": "Shulker Shell",
+    "stackSize": 64,
+    "name": "shulker_shell"
+  },
+  {
+    "id": 452,
+    "displayName": "Iron Nugget",
+    "stackSize": 64,
+    "name": "iron_nugget"
+  },
+  {
+    "id": 2256,
+    "displayName": "13 Disc",
+    "stackSize": 1,
+    "name": "record_13"
+  },
+  {
+    "id": 2257,
+    "displayName": "Cat Disc",
+    "stackSize": 1,
+    "name": "record_cat"
+  },
+  {
+    "id": 2258,
+    "displayName": "Blocks Disc",
+    "stackSize": 1,
+    "name": "record_blocks"
+  },
+  {
+    "id": 2259,
+    "displayName": "Chirp Disc",
+    "stackSize": 1,
+    "name": "record_chirp"
+  },
+  {
+    "id": 2260,
+    "displayName": "Far Disc",
+    "stackSize": 1,
+    "name": "record_far"
+  },
+  {
+    "id": 2261,
+    "displayName": "Mall Disc",
+    "stackSize": 1,
+    "name": "record_mall"
+  },
+  {
+    "id": 2262,
+    "displayName": "Mellohi Disc",
+    "stackSize": 1,
+    "name": "record_mellohi"
+  },
+  {
+    "id": 2263,
+    "displayName": "Stal Disc",
+    "stackSize": 1,
+    "name": "record_stal"
+  },
+  {
+    "id": 2264,
+    "displayName": "Strad Disc",
+    "stackSize": 1,
+    "name": "record_strad"
+  },
+  {
+    "id": 2265,
+    "displayName": "Ward Disc",
+    "stackSize": 1,
+    "name": "record_ward"
+  },
+  {
+    "id": 2266,
+    "displayName": "11 Disc",
+    "stackSize": 1,
+    "name": "record_11"
+  },
+  {
+    "id": 2267,
+    "displayName": "Wait Disc",
+    "stackSize": 1,
+    "name": "record_wait"
+  }
+]

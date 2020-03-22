@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.Updater;
@@ -47,12 +48,16 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.update")) {
 				sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
 				sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
-				String version = Updater.checkUpdate();
-				if (version.equals("latest")) {
-					sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
-				} else {
-					Updater.sendUpdateMessage(version);
-				}
+				new BukkitRunnable() {
+					public void run() {
+						String version = Updater.checkUpdate();
+						if (version.equals("latest")) {
+							sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
+						} else {
+							Updater.sendUpdateMessage(version);
+						}
+					}
+				}.runTaskAsynchronously(InteractiveChat.plugin);
 			} else {
 				sender.sendMessage(InteractiveChat.NoPermission);
 			}

@@ -1,6 +1,6 @@
 name: InteractiveChat
 author: loohp
-version: 1.7.0
+version: 1.7.1
 main: com.loohp.interactivechat.InteractiveChat
 api-version: 1.13
 description: Make the chat interactive

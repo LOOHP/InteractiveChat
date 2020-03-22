@@ -59,6 +59,72 @@ public class CustomStringUtils {
 		return set;
 	}
 	
+	public static TextComponent copyFormattingNoReplace(TextComponent set, BaseComponent get) {
+		if (set.getClickEvent() == null) {
+			set.setClickEvent(get.getClickEvent());
+		}
+		if (set.getHoverEvent() == null) {
+			set.setHoverEvent(get.getHoverEvent());
+		}
+		if (set.isBoldRaw() == null) {
+			set.setBold(get.isBoldRaw());
+		}
+		if (set.getColorRaw() == null) {
+			set.setColor(get.getColorRaw());
+		}
+		if (set.isItalicRaw() == null) {
+			set.setItalic(get.isItalicRaw());
+		}
+		if (set.isObfuscatedRaw() == null) {
+			set.setObfuscated(get.isObfuscatedRaw());
+		}
+		if (set.isStrikethroughRaw() == null) {
+			set.setStrikethrough(get.isStrikethroughRaw());
+		}
+		if (set.isUnderlinedRaw() == null) {
+			set.setUnderlined(get.isUnderlinedRaw());
+		}
+		if (!InteractiveChat.version.contains("OLD")) {
+			if (set.getInsertion() == null) {
+				set.setInsertion(get.getInsertion());
+			}
+		}
+		return set;
+	}
+	
+	public static BaseComponent copyFormattingNoReplace(BaseComponent set, BaseComponent get) {
+		if (set.getClickEvent() == null) {
+			set.setClickEvent(get.getClickEvent());
+		}
+		if (set.getHoverEvent() == null) {
+			set.setHoverEvent(get.getHoverEvent());
+		}
+		if (set.isBoldRaw() == null) {
+			set.setBold(get.isBoldRaw());
+		}
+		if (set.getColorRaw() == null) {
+			set.setColor(get.getColorRaw());
+		}
+		if (set.isItalicRaw() == null) {
+			set.setItalic(get.isItalicRaw());
+		}
+		if (set.isObfuscatedRaw() == null) {
+			set.setObfuscated(get.isObfuscatedRaw());
+		}
+		if (set.isStrikethroughRaw() == null) {
+			set.setStrikethrough(get.isStrikethroughRaw());
+		}
+		if (set.isUnderlinedRaw() == null) {
+			set.setUnderlined(get.isUnderlinedRaw());
+		}
+		if (!InteractiveChat.version.contains("OLD")) {
+			if (set.getInsertion() == null) {
+				set.setInsertion(get.getInsertion());
+			}
+		}
+		return set;
+	}
+	
 	public static BaseComponent copyFormattingEventsNoReplace(BaseComponent set, TextComponent get) {
 		if (set.getClickEvent() == null) {
 			set.setClickEvent(get.getClickEvent());

@@ -15,6 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.loohp.interactivechat.Utils.Updater;
+
 import net.md_5.bungee.api.ChatColor;
 
 public class ConfigManager {
@@ -147,6 +149,10 @@ public class ConfigManager {
     		getConfig().set("Chat.MentionHoverText", hoverList);   		
     	}
 	    
+	    if (!getConfig().contains("Options.Updater")) {
+	    	getConfig().set("Options.Updater", true);
+	    }
+	    
 	    saveConfig();
 	    reloadConfig();
 	    //------
@@ -228,5 +234,13 @@ public class ConfigManager {
 		InteractiveChat.mentionHightlight = ConfigManager.getConfig().getString("Chat.MentionHighlight");
 		List<String> stringList3 = ConfigManager.getConfig().getStringList("Chat.MentionHoverText");
 		InteractiveChat.mentionHover = String.join("\n", stringList3);
+		
+		if (InteractiveChat.UpdaterTaskID >= 0) {
+			Bukkit.getScheduler().cancelTask(InteractiveChat.UpdaterTaskID);
+		}
+		InteractiveChat.UpdaterEnabled = InteractiveChat.plugin.getConfig().getBoolean("Options.Updater");
+		if (InteractiveChat.UpdaterEnabled == true) {
+			Updater.updaterInterval();
+		}
 	}
 }

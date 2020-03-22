@@ -105,6 +105,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";
 	
+	public static boolean UpdaterEnabled = true;
+	public static int UpdaterTaskID = -1;
+	
 	public static HashMap<String, Long> keyTime = new HashMap<String, Long>(); 
 
 	@Override

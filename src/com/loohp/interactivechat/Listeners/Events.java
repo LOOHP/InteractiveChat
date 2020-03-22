@@ -243,7 +243,7 @@ public class Events implements Listener {
 		        	
 		        	components = send.getChatComponents().getValues();	 
 		        	
-		            for (WrappedChatComponent component : components) {
+		            for (WrappedChatComponent component : components) {		            			       
 		            	
 		            	boolean usealt = false;
 		            	WrappedChatComponent alt = null;
@@ -251,18 +251,20 @@ public class Events implements Listener {
 
 		            	if (component == null) {
 		            		BaseComponent[] basecomp = (BaseComponent[]) event.getPacket().getModifier().read(1);
-		            		field = 1;
+		            		field = 1;            		
 		            		List<BaseComponent> base = new ArrayList<BaseComponent>();
-			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));			 
+			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));
 			            	TextComponent newText = new TextComponent("");
+	            			newText.copyFormatting(basecomp[0]);
 		            		for (BaseComponent each : base) {
-		            			newText.copyFormatting(each, ComponentBuilder.FormatRetention.EVENTS, false);
-		            			each.copyFormatting(newText, ComponentBuilder.FormatRetention.EVENTS, false);
+		            			each.copyFormatting(newText, false);
 		            			newText.addExtra(each);	            				            			
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);			         
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	usealt = true;
+			            	if (newText.toLegacyText().equals("")) {
+			            		usealt = true;
+			            	}
 		            	}
 		            	
 		            	if (usealt == true) {
@@ -1240,6 +1242,7 @@ public class Events implements Listener {
 		            		newText.addExtra(id);
 		            		
 			            	String stringCom = ComponentSerializer.toString(newText);
+			            	
 			            	if (field == 0) {
 			            		send.getChatComponents().write(0, WrappedChatComponent.fromJson(stringCom));
 			            	} else if (field == 1) {

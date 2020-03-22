@@ -257,14 +257,16 @@ public class LegacyEvents implements Listener {
 		            		List<BaseComponent> base = new ArrayList<BaseComponent>();
 			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));			 
 			            	TextComponent newText = new TextComponent("");
+			            	newText = CustomStringUtils.copyFormatting(newText, basecomp[0]);
 		            		for (BaseComponent each : base) {
-		            			newText = CustomStringUtils.copyFormattingEventsNoReplace(newText, each);
-		            			each = CustomStringUtils.copyFormattingEventsNoReplace(each, newText);
+		            			each = CustomStringUtils.copyFormattingNoReplace(each, newText);
 		            			newText.addExtra(each);
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	usealt = true;
+			            	if (newText.toLegacyText().equals("")) {
+			            		usealt = true;
+			            	}
 		            	}
 		            	
 		            	if (usealt == true) {

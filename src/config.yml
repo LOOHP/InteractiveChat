@@ -1,3 +1,6 @@
+Options:
+  Updater: true
+
 Messages:
   NoPermission: "&cYou do not have permission to use that command!"
 

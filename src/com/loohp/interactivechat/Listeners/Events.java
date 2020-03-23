@@ -241,9 +241,9 @@ public class Events implements Listener {
 		        	send = packet.shallowClone();
 		        	event.setReadOnly(true);
 		        	
-		        	components = send.getChatComponents().getValues();	
+		        	components = send.getChatComponents().getValues();			        		    
 		        	
-		            for (WrappedChatComponent component : components) {		            			       
+		            for (WrappedChatComponent component : components) {
 		            	
 		            	boolean usealt = false;
 		            	WrappedChatComponent alt = null;
@@ -491,7 +491,14 @@ public class Events implements Listener {
 					            					    
 						            						TextComponent message = new TextComponent(detectString);
 						            						message.copyFormatting(each);
-						            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
+						            						if (message.getColorRaw() != null) {
+							            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
+							            							if (lastColor.length() > 1) {
+							            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
+							            								message.setColor(color);
+							            							}
+							            						}
+						            						} else {
 						            							if (lastColor.length() > 1) {
 						            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
 						            								message.setColor(color);

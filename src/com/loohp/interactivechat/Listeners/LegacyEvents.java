@@ -495,12 +495,20 @@ public class LegacyEvents implements Listener {
 						            						
 						            						TextComponent message = new TextComponent(detectString);						            	
 						            						message = CustomStringUtils.copyFormatting(message, each);
-						            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
+						            						if (message.getColorRaw() != null) {
+							            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
+							            							if (lastColor.length() > 1) {
+							            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
+							            								message.setColor(color);
+							            							}
+							            						}
+						            						} else {
 						            							if (lastColor.length() > 1) {
 						            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
 						            								message.setColor(color);
 						            							}
 						            						}
+						            						
 						            						if (InteractiveChat.usePlayerNameHoverEnable == true) {
 						            							String text = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
 						            							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(text).create()));

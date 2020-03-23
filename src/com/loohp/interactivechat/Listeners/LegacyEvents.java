@@ -41,7 +41,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
-import com.loohp.interactivechat.Utils.CustomMapUtils;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.KeyUtils;
@@ -332,29 +332,29 @@ public class LegacyEvents implements Listener {
 			            	}
 			            	
 			            	if (fromBungee == false) {
-				            	if (sender == null) {       
-			            			for (Entry<Player, Long> entry : CustomMapUtils.entriesSortedByValues(InteractiveChat.time)) {
-										if ((unix - entry.getValue()) < 10000) {
-											if (InteractiveChat.lastMessage.containsKey(entry.getKey())) {
-												if (rawMessage.contains(InteractiveChat.lastMessage.get(entry.getKey()))) {
-													sender = entry.getKey();
-													break;
-												}									
-											}
-										}
-									}
-				            	}
-		            			
-		            			if (sender == null) {
-									for (Entry<Player, Long> entry : CustomMapUtils.entriesSortedByValues(InteractiveChat.time)) {
-										if ((unix - entry.getValue()) < 500) {
-											if (InteractiveChat.lastMessage.containsKey(entry.getKey())) {
-												sender = entry.getKey();
-												break;
-											}
-										}
-									}
-		            			}
+				            	//if (sender == null) {       
+			            		//	for (Entry<Player, Long> entry : CustomMapUtils.entriesSortedByValues(InteractiveChat.time)) {
+								//		if ((unix - entry.getValue()) < 10000) {
+								//			if (InteractiveChat.lastMessage.containsKey(entry.getKey())) {
+								//				if (rawMessage.contains(InteractiveChat.lastMessage.get(entry.getKey()))) {
+								//					sender = entry.getKey();
+								//					break;
+								//				}									
+								//			}
+								//		}
+								//	}
+				            	//}
+		            		    //	
+		            			//if (sender == null) {
+								//	for (Entry<Player, Long> entry : CustomMapUtils.entriesSortedByValues(InteractiveChat.time)) {
+								//		if ((unix - entry.getValue()) < 500) {
+								//			if (InteractiveChat.lastMessage.containsKey(entry.getKey())) {
+								//				sender = entry.getKey();
+								//				break;
+								//			}
+								//		}
+								//	}
+		            			//}
 		            			
 		            			UUID uuid = null;
 		            			if (sender != null) {
@@ -484,21 +484,23 @@ public class LegacyEvents implements Listener {
 						            					
 						            					if (detectStringCase.equals(placeholderCase)) {
 						            						
+						            						String lastColor = "";
 						            						if (join.isEmpty() == false) {		            							
 						            							TextComponent word = new TextComponent(String.join("", join));
+						            							lastColor = ChatColorUtils.getLastColors(String.join("", join));
 						            							word = CustomStringUtils.copyFormatting(word, each);
 									            				newText.addExtra(word);
 									            				join.clear();
 						            						}
 						            						
-						            						String color = "";
-						            						if (i > 1) {
-							            						if (alltext[i - 2].equals("§")) {
-							            							color = alltext[i - 2] + alltext[i - 1];
-							            						}
-						            						}
-						            						TextComponent message = new TextComponent(color + detectString);
+						            						TextComponent message = new TextComponent(detectString);						            	
 						            						message = CustomStringUtils.copyFormatting(message, each);
+						            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
+						            							if (lastColor.length() > 1) {
+						            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
+						            								message.setColor(color);
+						            							}
+						            						}
 						            						if (InteractiveChat.usePlayerNameHoverEnable == true) {
 						            							String text = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
 						            							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(text).create()));

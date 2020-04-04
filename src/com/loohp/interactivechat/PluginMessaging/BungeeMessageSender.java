@@ -11,7 +11,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Utils.InventoryUtils;
-import com.loohp.interactivechat.Utils.Utils;
+import com.loohp.interactivechat.Utils.SerializeUtils;
 
 public class BungeeMessageSender {
 	
@@ -51,7 +51,7 @@ public class BungeeMessageSender {
     		map = newMap;
     	}
         try {
-        	String hash = Utils.serialize((Serializable) map);
+        	String hash = SerializeUtils.serialize((Serializable) map);
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF(hash);
             out.writeInt(field);

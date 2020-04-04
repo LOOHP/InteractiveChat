@@ -221,18 +221,37 @@ public class Events implements Listener {
 		            
 		            for (WrappedChatComponent component : components) {
 		            	if (component != null) {
-		            		if (component.getJson().contains("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸")) {	
+		            		if (component.getJson().contains("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸")) {
+		            			event.setReadOnly(false);
+		            			component.setJson(component.getJson().replace("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸", ""));
+		            			packet.getChatComponents().write(0, component);
+		            			event.setReadOnly(true);
 		            			return;
 		            		}
 		            	} else {
 		            		BaseComponent[] basecomp = (BaseComponent[]) event.getPacket().getModifier().read(1);
 		            		List<BaseComponent> base = new ArrayList<BaseComponent>();
-			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));			 
+			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));
+			            	boolean is = false;
+			            	event.setReadOnly(false);
 		            		for (BaseComponent each : base) {
 		            			if (each.toLegacyText().contains("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸")) {
-		            				return;
+		            				TextComponent text = (TextComponent) each;
+		            				text.setText(text.getText().replace("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸", ""));
+		            				is = true;
 		            			}
 		            		}
+		            		if (is == true) {
+		            			TextComponent newText = new TextComponent("");
+			            		for (BaseComponent each : base) {
+			            			newText.addExtra(each);
+			            		}			            		
+				            	String stringCom = ComponentSerializer.toString(newText);
+				            	packet.getModifier().write(1, ComponentSerializer.parse(stringCom));
+		            			event.setReadOnly(true);
+		            			return;
+		            		}
+		            		event.setReadOnly(true);
 		            	}
 		            }
 		            
@@ -285,7 +304,7 @@ public class Events implements Listener {
 			            			event.setReadOnly(false);
 			    		        	event.setCancelled(false);
 			    		        	event.setReadOnly(true);
-			            			continue;
+			            			return;
 			            		}
 			            	}
 		            		

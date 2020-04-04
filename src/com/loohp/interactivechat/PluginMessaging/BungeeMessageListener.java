@@ -14,7 +14,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Utils.InventoryUtils;
-import com.loohp.interactivechat.Utils.Utils;
+import com.loohp.interactivechat.Utils.SerializeUtils;
 
 public class BungeeMessageListener implements PluginMessageListener {
 
@@ -46,10 +46,10 @@ public class BungeeMessageListener implements PluginMessageListener {
         try {
 			switch (field) {
 			case 0:
-				InteractiveChat.messageKeyUUID.putAll((HashMap<String, UUID>) Utils.deserialize(hash));
+				InteractiveChat.messageKeyUUID.putAll((HashMap<String, UUID>) SerializeUtils.deserialize(hash));
 				break;
 			case 1:
-				HashMap<Long, String> map = (HashMap<Long, String>) Utils.deserialize(hash);
+				HashMap<Long, String> map = (HashMap<Long, String>) SerializeUtils.deserialize(hash);
 				HashMap<Long, Inventory> newMap = new HashMap<Long, Inventory>();
 				for (Entry<Long, String> entry : map.entrySet()) {
 					Inventory inv = InventoryUtils.fromBase64(entry.getValue(), "");
@@ -58,7 +58,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 				InteractiveChat.itemDisplay.putAll(newMap);
 				break;
 			case 2:
-				HashMap<Long, String> map1 = (HashMap<Long, String>) Utils.deserialize(hash);
+				HashMap<Long, String> map1 = (HashMap<Long, String>) SerializeUtils.deserialize(hash);
 				HashMap<Long, Inventory> newMap1 = new HashMap<Long, Inventory>();
 				for (Entry<Long, String> entry : map1.entrySet()) {
 					Inventory inv = InventoryUtils.fromBase64(entry.getValue(), "");
@@ -67,7 +67,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 				InteractiveChat.inventoryDisplay.putAll(newMap1);
 				break;
 			case 3:
-				HashMap<Long, String> map2 = (HashMap<Long, String>) Utils.deserialize(hash);
+				HashMap<Long, String> map2 = (HashMap<Long, String>) SerializeUtils.deserialize(hash);
 				HashMap<Long, Inventory> newMap2 = new HashMap<Long, Inventory>();
 				for (Entry<Long, String> entry : map2.entrySet()) {
 					Inventory inv = InventoryUtils.fromBase64(entry.getValue(), "");
@@ -76,7 +76,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 				InteractiveChat.enderDisplay.putAll(newMap2);
 				break;
 			case 4:
-				InteractiveChat.mentionPair.putAll((HashMap<UUID, UUID>) Utils.deserialize(hash));
+				InteractiveChat.mentionPair.putAll((HashMap<UUID, UUID>) SerializeUtils.deserialize(hash));
 				break;
 			}	
 			Bukkit.getConsoleSender().sendMessage(field + "");

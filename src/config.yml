@@ -96,6 +96,8 @@ ItemDisplay:
     InventoryTitle: "%player_name%'s Item"
     #Cooldown of this placeholder
     Cooldown: 0
+    #Enable the click GUI
+    GUIEnabled: true
 
   Inventory:    
     #Enable players to show their inventory

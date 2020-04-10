@@ -913,9 +913,7 @@ public class LegacyEvents implements Listener {
 								            							InteractiveChat.itemDisplay.put(time, inv);	
 								            							//BungeeMessageSender.forwardHashMap(sender, InteractiveChat.itemDisplay, 1);
 							            							}
-								            						
-								            						ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-									            							
+								            							
 								            						BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(message));
 													            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 													            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
@@ -923,7 +921,10 @@ public class LegacyEvents implements Listener {
 													            	for (BaseComponent baseComponent : baseJson) {
 													            		TextComponent textcomponent = (TextComponent) baseComponent;
 									            					    textcomponent.setHoverEvent(hoverItem);
-									            					    textcomponent.setClickEvent(clickItem);
+									            					    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+									            							ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+									            							textcomponent.setClickEvent(clickItem);
+									            					    }
 									            					    newText.addExtra(textcomponent);
 													            	}
 													            	

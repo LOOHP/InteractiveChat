@@ -153,6 +153,10 @@ public class ConfigManager {
 	    	getConfig().set("Options.Updater", true);
 	    }
 	    
+	    if (!getConfig().contains("ItemDisplay.Item.GUIEnabled")) {
+	    	getConfig().set("ItemDisplay.Item.GUIEnabled", true);
+	    }
+	    
 	    saveConfig();
 	    reloadConfig();
 	    //------

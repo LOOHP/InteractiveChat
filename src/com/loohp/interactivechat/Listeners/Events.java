@@ -900,9 +900,7 @@ public class Events implements Listener {
 								            							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
 								            							singleMap.put(time, inv);
 								            							//BungeeMessageSender.forwardHashMap(sender, singleMap, 1);
-							            							}
-								            						
-								            						ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+							            							}								            														        
 								            					    
 								            					    BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(message));
 													            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
@@ -911,7 +909,10 @@ public class Events implements Listener {
 													            	for (BaseComponent baseComponent : baseJson) {
 													            		TextComponent textcomponent = (TextComponent) baseComponent;
 									            					    textcomponent.setHoverEvent(hoverItem);
-									            					    textcomponent.setClickEvent(clickItem);
+									            					    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+									            							ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+									            							textcomponent.setClickEvent(clickItem);
+									            					    }
 									            					    newText.addExtra(textcomponent);
 													            	}
 								            					    

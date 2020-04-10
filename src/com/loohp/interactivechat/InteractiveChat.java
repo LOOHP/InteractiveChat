@@ -36,7 +36,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static String space1 = "\u200A";
 	
 	public static boolean ess3 = false;
-	public static boolean Prison = false;
 	public static boolean dmp = false;
 	
 	public static boolean useItem = true;
@@ -171,11 +170,6 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into Essentials!");
 			ess3 = true;
-		}
-	    
-	    if (Bukkit.getServer().getPluginManager().getPlugin("Prison") != null) {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into Prison!");
-	    	Prison = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("DeathMessagesPrime") != null) {

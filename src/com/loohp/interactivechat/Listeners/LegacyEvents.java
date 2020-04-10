@@ -46,6 +46,7 @@ import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.KeyUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.MessageUtils;
 import com.loohp.interactivechat.Utils.NMSUtli;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -80,44 +81,20 @@ public class LegacyEvents implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
-	public void onPlayerChat(AsyncPlayerChatEvent event) {	
-		if (InteractiveChat.Prison == true) {
-			return;
-		}
-		long unix = System.currentTimeMillis();
-		Player sender = event.getPlayer();
-		String message = event.getMessage();
-		InteractiveChat.lastMessage.put(sender, message);
-		InteractiveChat.time.put(sender, unix);		
-	}
-	
-	@EventHandler(priority=EventPriority.HIGH)
-	public void chatPrison(AsyncPlayerChatEvent event) {
-		if (InteractiveChat.Prison == false) {
-			return;
-		}
-		String key = KeyUtils.getRandomKey();
-		event.setMessage(event.getMessage() + key);
-		InteractiveChat.messageKey.put(key, event.getPlayer());
-		InteractiveChat.messageKeyUUID.put(key, event.getPlayer().getUniqueId());
-		//BungeeMessageSender.forwardHashMap(event.getPlayer(), InteractiveChat.messageKeyUUID, 0);
+	public void addKey(AsyncPlayerChatEvent event) {
+		event.setMessage(MessageUtils.preprocessMessage(event.getMessage()));
 		
 		long unix = System.currentTimeMillis();
 		Player sender = event.getPlayer();
 		String message = event.getMessage();
 		InteractiveChat.lastMessage.put(sender, message);
-		InteractiveChat.time.put(sender, unix);	
-	}
-
-	@EventHandler(priority=EventPriority.HIGH)
-	public void addKey(AsyncPlayerChatEvent event) {
-		if (InteractiveChat.Prison == true) {
-			return;
-		}
+		InteractiveChat.time.put(sender, unix);
+		
 		String key = KeyUtils.getRandomKey();
 		event.setMessage(event.getMessage() + key);
 		InteractiveChat.messageKey.put(key, event.getPlayer());
 		InteractiveChat.messageKeyUUID.put(key, event.getPlayer().getUniqueId());
+		//BungeeMessageSender.forwardHashMap(event.getPlayer(), InteractiveChat.messageKeyUUID, 0);
 	}
 	
 	@EventHandler(priority=EventPriority.LOWEST)

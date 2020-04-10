@@ -1,7 +1,5 @@
 package com.loohp.interactivechat.Utils;
 
-import org.bukkit.Bukkit;
-
 import com.loohp.interactivechat.InteractiveChat;
 
 import net.md_5.bungee.api.ChatColor;
@@ -12,9 +10,7 @@ public class MessageUtils {
 		for (String placeholder : InteractiveChat.placeholderList) {
 			if (ChatColor.stripColor(message).contains(placeholder)) {
 				String regex = escapeMetaCharacters(placeholder);
-				Bukkit.getConsoleSender().sendMessage(regex);
 				regex = regex.replaceAll("(\\\\?.)", "(?:§.)?(?:$0)");
-				Bukkit.getConsoleSender().sendMessage(regex);
 				message = message.replaceAll("(" + regex + ")", placeholder);
 			}
 		}

@@ -214,8 +214,10 @@ public class ConfigManager {
 		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
-		InteractiveChat.itemFrame1 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Primary"));
-		InteractiveChat.itemFrame2 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Secondary"));
+		if (InteractiveChat.version.contains("legacy")) {
+			InteractiveChat.itemFrame1 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Primary"));
+			InteractiveChat.itemFrame2 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Secondary"));
+		}
 		
 		InteractiveChat.usePlayerName = ConfigManager.getConfig().getBoolean("Player.UsePlayerNameInteraction");
 		InteractiveChat.usePlayerNameHoverEnable = ConfigManager.getConfig().getBoolean("Player.Hover.Enable");

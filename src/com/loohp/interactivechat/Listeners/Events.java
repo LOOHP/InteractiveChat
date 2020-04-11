@@ -199,7 +199,7 @@ public class Events implements Listener {
 		            	if (component != null) {
 		            		if (component.getJson().contains("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸")) {
 		            			event.setReadOnly(false);
-		            			component.setJson(component.getJson().replace("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸", ""));
+		            			component.setJson(component.getJson().replace("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸", "").replace(InteractiveChat.space0, "").replace(InteractiveChat.space1, ""));
 		            			packet.getChatComponents().write(0, component);
 		            			event.setReadOnly(true);
 		            			return;
@@ -210,9 +210,10 @@ public class Events implements Listener {
 			            	base = CustomStringUtils.loadExtras(Arrays.asList(basecomp));
 			            	boolean is = false;
 			            	event.setReadOnly(false);
-		            		for (BaseComponent each : base) {
+			            	for (BaseComponent each : base) {
 		            			if (each.toLegacyText().contains("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸")) {
 		            				TextComponent text = (TextComponent) each;
+			            			text.setText(text.getText().replace(InteractiveChat.space0, "").replace(InteractiveChat.space1, ""));
 		            				text.setText(text.getText().replace("񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸񘄸", ""));
 		            				is = true;
 		            			}
@@ -415,7 +416,7 @@ public class Events implements Listener {
 								TextComponent removeKeyText = new TextComponent("");
 								for (BaseComponent each : base) {
 									String json = ComponentSerializer.toString(each);
-									json = json.replaceAll(InteractiveChat.space0, "").replaceAll(InteractiveChat.space1, "");
+									json = json.replace(InteractiveChat.space0, "").replace(InteractiveChat.space1, "");
 									BaseComponent[] newBase = ComponentSerializer.parse(json);
 									for (BaseComponent eachNew : newBase) {
 										removeKeyText.addExtra(eachNew);

@@ -12,8 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.MaterialUtils;
-import com.loohp.interactivechat.Utils.Updater;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;

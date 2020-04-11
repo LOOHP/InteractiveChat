@@ -15,7 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.loohp.interactivechat.Utils.Updater;
+import com.loohp.interactivechat.Updater.Updater;
 
 import net.md_5.bungee.api.ChatColor;
 

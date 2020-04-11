@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -157,6 +158,13 @@ public class ConfigManager {
 	    	getConfig().set("ItemDisplay.Item.GUIEnabled", true);
 	    }
 	    
+	    if (!getConfig().contains("ItemDisplay.Item.Frame.Primary")) {
+	    	getConfig().set("ItemDisplay.Item.Frame.Primary", "MAGENTA_STAINED_GLASS_PANE");
+	    }
+	    if (!getConfig().contains("ItemDisplay.Item.Frame.Secondary")) {
+	    	getConfig().set("ItemDisplay.Item.Frame.Secondary", "BLACK_STAINED_GLASS_PANE");
+	    }
+	    
 	    saveConfig();
 	    reloadConfig();
 	    //------
@@ -205,6 +213,9 @@ public class ConfigManager {
 		InteractiveChat.itemTitle = ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("ItemDisplay.Item.InventoryTitle"));
 		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
+		
+		InteractiveChat.itemFrame1 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Primary"));
+		InteractiveChat.itemFrame2 = Material.valueOf(ConfigManager.getConfig().getString("ItemDisplay.Item.Frame.Secondary"));
 		
 		InteractiveChat.usePlayerName = ConfigManager.getConfig().getBoolean("Player.UsePlayerNameInteraction");
 		InteractiveChat.usePlayerNameHoverEnable = ConfigManager.getConfig().getBoolean("Player.Hover.Enable");

@@ -31,7 +31,7 @@ public class Updater {
 					}
 				}
 			}
-		}.runTaskTimerAsynchronously(InteractiveChat.plugin, 500, 600).getTaskId();
+		}.runTaskTimerAsynchronously(InteractiveChat.plugin, 500, 1190).getTaskId();
 	}
 	
 	public static void sendUpdateMessage(String version) {

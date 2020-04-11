@@ -98,6 +98,11 @@ ItemDisplay:
     Cooldown: 0
     #Enable the click GUI
     GUIEnabled: true
+    #The item used for the frame of the Item GUI
+    #Only exists in versions on or above 1.13
+    Frame:
+      Primary: MAGENTA_STAINED_GLASS_PANE
+      Secondary: BLACK_STAINED_GLASS_PANE
 
   Inventory:    
     #Enable players to show their inventory

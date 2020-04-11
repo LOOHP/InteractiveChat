@@ -258,9 +258,7 @@ public class Events implements Listener {
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);			         
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	if (newText.toLegacyText().equals("")) {
-			            		usealt = true;
-			            	}
+			            	usealt = true;
 		            	}
 		            	
 		            	if (usealt == true) {
@@ -886,9 +884,9 @@ public class Events implements Listener {
 								            						
 								            						if (!InteractiveChat.itemDisplay.containsKey(time)) {
 							            								Inventory inv = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, title)));
-							            								ItemStack empty = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE, 1);
-							            								if (item.getType().equals(Material.MAGENTA_STAINED_GLASS_PANE)) {
-							            									empty = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+							            								ItemStack empty = new ItemStack(InteractiveChat.itemFrame1, 1);
+							            								if (item.getType().equals(InteractiveChat.itemFrame1)) {
+							            									empty = new ItemStack(InteractiveChat.itemFrame2, 1);
 							            								}
 							            								ItemMeta emptyMeta = empty.getItemMeta();
 							            								emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");

@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
@@ -73,6 +74,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static String PlayerNotFoundClickValue = "";
 	public static boolean PlayerNotFoundReplaceEnable = true;
 	public static String PlayerNotFoundReplaceText = "[&cERROR]";
+	
+	public static Material itemFrame1;
+	public static Material itemFrame2;
 	
 	public static boolean AllowMention = true;
 	

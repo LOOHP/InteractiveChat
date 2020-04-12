@@ -126,15 +126,8 @@ public class InteractiveChat extends JavaPlugin {
 		InteractiveChat.plugin.getConfig().options().copyDefaults(false);
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
-
-	    getCommand("interactivechat").setExecutor(new Commands());
-	    
-	    ConfigManager.setup();	    
-	    
-	    removeTimeout();
-	    removePlayer();
 		
-	    if (getServer().getClass().getPackage().getName().contains("1_15_R1") == true) {
+		if (getServer().getClass().getPackage().getName().contains("1_15_R1") == true) {
 	    	version = "1.15";
 	    } else if (getServer().getClass().getPackage().getName().contains("1_14_R1") == true) {
 	    	version = "1.14";
@@ -162,6 +155,13 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "This version of minecraft is unsupported!");
 	    	plugin.getPluginLoader().disablePlugin(this);
 	    }
+
+	    getCommand("interactivechat").setExecutor(new Commands());
+	    
+	    ConfigManager.setup();	    
+	    
+	    removeTimeout();
+	    removePlayer();
 	    
 	    if (InteractiveChat.version.contains("legacy")) {
 	    	getServer().getPluginManager().registerEvents(new LegacyEvents(), this);

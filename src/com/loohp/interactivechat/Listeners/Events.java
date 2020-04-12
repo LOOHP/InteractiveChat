@@ -43,6 +43,7 @@ import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.ChatColorFilter;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.KeyUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
@@ -82,6 +83,9 @@ public class Events implements Listener {
 
 	@EventHandler(priority=EventPriority.HIGH)
 	public void addKey(AsyncPlayerChatEvent event) {
+		if (event.isCancelled()) {
+			return;
+		}
 		event.setMessage(MessageUtils.preprocessMessage(event.getMessage()));
 		
 		long unix = System.currentTimeMillis();
@@ -97,6 +101,7 @@ public class Events implements Listener {
 		//BungeeMessageSender.forwardHashMap(event.getPlayer(), InteractiveChat.messageKeyUUID, 0);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.LOWEST)
     public void onCheckMaxAndMention(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();
@@ -126,6 +131,12 @@ public class Events implements Listener {
 		Player sender = event.getPlayer();
 
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
+			for (String each : message.split(" ")) {
+				if (Bukkit.getOfflinePlayer(each) != null) {
+					InteractiveChat.mentionPair.put(Bukkit.getOfflinePlayer(each).getUniqueId(), sender.getUniqueId());	
+					//BungeeMessageSender.forwardHashMap(sender, InteractiveChat.mentionPair, 4);
+				}
+			}
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (!player.equals(sender)) {
 					List<String> playernames = new ArrayList<String>();
@@ -304,7 +315,11 @@ public class Events implements Listener {
 			            			keyRemove = key;
 			            			messageKey = key;
 			            			if (!InteractiveChat.keyTime.containsKey(key)) {
-			            				InteractiveChat.keyTime.put(key, System.currentTimeMillis());
+			            				long time = System.currentTimeMillis();
+			            				InteractiveChat.keyTime.put(key, time);
+			            				HashMap<String, Long> singleMap = new HashMap<String, Long>();
+			            				singleMap.put(key, time);
+			            				//BungeeMessageSender.forwardHashMap(event.getPlayer(), singleMap, 5);
 			            			}
 			            		}
 			            	}
@@ -316,10 +331,7 @@ public class Events implements Listener {
 				            		if (InteractiveChat.messageKeyUUID.containsKey(key)) {
 				            			fromBungee = true;
 				            			keyRemove = key;
-				            			messageKey = key;
-				            			if (!InteractiveChat.keyTime.containsKey(key)) {
-				            				InteractiveChat.keyTime.put(key, System.currentTimeMillis());
-				            			}
+				            			messageKey = key;				            		
 				            		}
 			            		}
 			            	}
@@ -870,6 +882,7 @@ public class Events implements Listener {
 								            					    } else {
 								            					    	itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
 								            					    }
+								            					    itemString = ChatColorFilter.filterIllegalColorCodes(itemString);
 								            					    
 								            					    amountString = String.valueOf(item.getAmount());
 								            					    message = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Item}", itemString).replace("{Amount}", amountString)));
@@ -878,12 +891,12 @@ public class Events implements Listener {
 						
 								            					    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
 						
-								            						String title = InteractiveChat.itemTitle;
+								            						String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
 								            						
 								            						long time = InteractiveChat.keyTime.get(messageKey);
 								            						
 								            						if (!InteractiveChat.itemDisplay.containsKey(time)) {
-							            								Inventory inv = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, title)));
+							            								Inventory inv = Bukkit.createInventory(null, 27, title);
 							            								ItemStack empty = new ItemStack(InteractiveChat.itemFrame1, 1);
 							            								if (item.getType().equals(InteractiveChat.itemFrame1)) {
 							            									empty = new ItemStack(InteractiveChat.itemFrame2, 1);
@@ -898,7 +911,7 @@ public class Events implements Listener {
 								            							InteractiveChat.itemDisplay.put(time, inv);	
 								            							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
 								            							singleMap.put(time, inv);
-								            							//BungeeMessageSender.forwardHashMap(sender, singleMap, 1);
+								            							//BungeeMessageSender.forwardHashMap(sender, 1, singleMap, title);
 							            							}								            														        
 								            					    
 								            					    BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(message));
@@ -1017,16 +1030,17 @@ public class Events implements Listener {
 						            						
 						            						Player player = sender;
 						            						
-						            						String replaceText = InteractiveChat.invReplaceText;
-						            						String title = InteractiveChat.invTitle;
+						            						String replaceText = InteractiveChat.invReplaceText;						       
 						            						
 						            						if (player != null) {
 						            							if (player.hasPermission("interactivechat.module.inventory")) {
 						            								
 						            								long time = InteractiveChat.keyTime.get(messageKey);
 						            								
+						            								String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
+						            								
 							            							if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
-							            								Inventory inv = Bukkit.createInventory(null, 45, ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, title)));
+							            								Inventory inv = Bukkit.createInventory(null, 45, title);
 								            							for (int j = 0; j < player.getInventory().getSize(); j = j + 1) {
 								            								if (player.getInventory().getItem(j) != null) {
 								            									if (!player.getInventory().getItem(j).getType().equals(Material.AIR)) {
@@ -1037,7 +1051,7 @@ public class Events implements Listener {
 								            							InteractiveChat.inventoryDisplay.put(time, inv);	
 								            							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
 								            							singleMap.put(time, inv);
-								            							//BungeeMessageSender.forwardHashMap(sender, singleMap, 2);
+								            							//BungeeMessageSender.forwardHashMap(sender, 2, singleMap, title);
 							            							}
 							            							
 							            							String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
@@ -1158,16 +1172,17 @@ public class Events implements Listener {
 						            						
 						            						Player player = sender;
 						            						
-						            						String replaceText = InteractiveChat.enderReplaceText;
-						            						String title = InteractiveChat.enderTitle;
+						            						String replaceText = InteractiveChat.enderReplaceText;						            						
 						            						
 						            						if (player != null) {
 						            							if (player.hasPermission("interactivechat.module.enderchest")) {
 						            								
 						            								long time = InteractiveChat.keyTime.get(messageKey);
 						            								
+						            								String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.enderTitle));
+						            								
 							            							if (!InteractiveChat.enderDisplay.containsKey(time)) {
-							            								Inventory inv = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, title)));
+							            								Inventory inv = Bukkit.createInventory(null, 27, title);
 								            							for (int j = 0; j < player.getEnderChest().getSize(); j = j + 1) {
 								            								if (player.getEnderChest().getItem(j) != null) {
 								            									if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
@@ -1178,7 +1193,7 @@ public class Events implements Listener {
 								            							InteractiveChat.enderDisplay.put(time, inv);	
 								            							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
 								            							singleMap.put(time, inv);
-								            							//BungeeMessageSender.forwardHashMap(sender, singleMap, 3);
+								            							//BungeeMessageSender.forwardHashMap(sender, 3, singleMap, title);
 							            							}
 							            							
 							            							String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
@@ -1239,7 +1254,8 @@ public class Events implements Listener {
 					            	}
 								}
 			            	} else {
-			            		base = BungeeMessage.fromBungee(messageKey, event, component, field, InteractiveChat.messageKeyUUID.get(messageKey));
+			            		BungeeMessage.fromBungee(messageKey, event, component, field, InteractiveChat.messageKeyUUID.get(messageKey));
+			            		return;
 			            	}
 			            	
 			            	TextComponent newText = new TextComponent("");

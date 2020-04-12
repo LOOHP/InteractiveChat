@@ -111,7 +111,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean UpdaterEnabled = true;
 	public static int UpdaterTaskID = -1;
 	
-	public static HashMap<String, Long> keyTime = new HashMap<String, Long>(); 
+	public static HashMap<String, Long> keyTime = new HashMap<String, Long>();
+	public static HashMap<UUID, HashMap<String, String>> bungeePapi = new HashMap<UUID, HashMap<String, String>>(); 
 
 	@Override
 	public void onEnable() {	

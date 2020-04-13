@@ -10,8 +10,8 @@ public class MessageUtils {
 		for (String placeholder : InteractiveChat.placeholderList) {
 			if (ChatColor.stripColor(message).contains(placeholder)) {
 				String regex = escapeMetaCharacters(placeholder);
-				regex = regex.replaceAll("(\\\\?.)", "(?:§.)?(?:$0)");
-				message = message.replaceAll("(" + regex + ")", placeholder);
+				regex = regex.replaceAll("\\\\?.", "(?:§.)?(?:$0)");
+				message = message.replaceAll(regex, placeholder);
 			}
 		}
 		return message;

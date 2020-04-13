@@ -9,22 +9,17 @@ public class ChatColorUtils {
 	
     public static String getLastColors(String input) {
         String result = "";
-        int length = input.length();
-
-        for (int index = length - 1; index > -1; index--) {
-            char section = input.charAt(index);
-            if (section == ChatColor.COLOR_CHAR && index < length - 1) {
-                char c = input.charAt(index + 1);
-                ChatColor color = ChatColor.getByChar(c);
-
-                if (color != null) {
-                    result = color.toString() + result;
-
-                    if (isColor(color) || color.equals(ChatColor.RESET)) {
-                        break;
-                    }
-                }
-            }
+        
+        for (int i = input.length() - 1; i > 0; i--) {
+        	if (input.charAt(i - 1) == '§') {
+        		String color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
+        		if (isLegal(color)) {
+        			result = color + result;
+        			if (isColor(ChatColor.getByChar(input.charAt(i))) || ChatColor.getByChar(input.charAt(i)).equals(ChatColor.RESET)) {
+        				break;
+        			}
+        		}
+        	}
         }
 
         return result;
@@ -38,6 +33,13 @@ public class ChatColorUtils {
     	format.add(ChatColor.UNDERLINE);
     	format.add(ChatColor.STRIKETHROUGH);
     	if (format.contains(color) || color.equals(ChatColor.RESET)) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    public static boolean isLegal(String color) {
+    	if (color.matches("§[g-j,p,q,s-z,A-Z,\\-!$%^&*()_+|~=`{}\\[\\]:\\\";'<>?,.\\/\\\\]")) {
     		return false;
     	}
     	return true;

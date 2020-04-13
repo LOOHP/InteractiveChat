@@ -253,7 +253,7 @@ public class Events implements Listener {
 		            	boolean usealt = false;
 		            	WrappedChatComponent alt = null;
 		            	int field = 0;
-
+		            	
 		            	if (component == null) {
 		            		BaseComponent[] basecomp = (BaseComponent[]) event.getPacket().getModifier().read(1);
 		            		field = 1;            		
@@ -267,7 +267,9 @@ public class Events implements Listener {
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);			         
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	usealt = true;
+			            	if (!newText.getText().equals("")) {
+			            		usealt = true;
+			            	}
 		            	}
 		            	
 		            	if (usealt == true) {
@@ -432,7 +434,7 @@ public class Events implements Listener {
 			            		}	  
 			            		bcs = ComponentSerializer.parse(ComponentSerializer.toString(removeKeyText));
 				            	base = new ArrayList<BaseComponent>();
-				            	base = CustomStringUtils.loadExtras(Arrays.asList(bcs));
+				            	base = CustomStringUtils.loadExtras(Arrays.asList(bcs));				            			
 				            		            	
 				            	if (InteractiveChat.usePlayerName == true) {
 				            		List<Player> playerlist = new ArrayList<Player>(Bukkit.getOnlinePlayers());
@@ -495,19 +497,7 @@ public class Events implements Listener {
 					            					    
 						            						TextComponent message = new TextComponent(detectString);
 						            						message.copyFormatting(each);
-						            						if (message.getColorRaw() != null) {
-							            						if (message.getColorRaw().equals(ChatColor.WHITE) || message.getColorRaw().equals(ChatColor.RESET)) {
-							            							if (lastColor.length() > 1) {
-							            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
-							            								message.setColor(color);
-							            							}
-							            						}
-						            						} else {
-						            							if (lastColor.length() > 1) {
-						            								ChatColor color = ChatColor.getByChar(lastColor.charAt(lastColor.lastIndexOf('§') + 1));
-						            								message.setColor(color);
-						            							}
-						            						}
+						            						message.setText(lastColor + message.getText());
 						            						if (InteractiveChat.usePlayerNameHoverEnable == true) {
 						            							String text = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
 						            							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(text).create()));

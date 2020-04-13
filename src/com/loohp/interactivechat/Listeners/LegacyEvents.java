@@ -41,9 +41,9 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
+import com.loohp.interactivechat.Utils.ChatColorFilter;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.ChatColorFilter;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.KeyUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
@@ -127,7 +127,6 @@ public class LegacyEvents implements Listener {
 		//BungeeMessageSender.forwardHashMap(event.getPlayer(), InteractiveChat.messageKeyUUID, 0);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.LOWEST)
     public void onCheckMaxAndMention(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();
@@ -158,12 +157,12 @@ public class LegacyEvents implements Listener {
 		Player sender = event.getPlayer();
 
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
-			for (String each : message.split(" ")) {
-				if (Bukkit.getOfflinePlayer(each) != null) {
-					InteractiveChat.mentionPair.put(Bukkit.getOfflinePlayer(each).getUniqueId(), sender.getUniqueId());	
-					//BungeeMessageSender.forwardHashMap(sender, InteractiveChat.mentionPair, 4);
-				}
-			}
+			//for (String each : message.split(" ")) {
+			//	if (Bukkit.getOfflinePlayer(each) != null) {
+			//		InteractiveChat.mentionPair.put(Bukkit.getOfflinePlayer(each).getUniqueId(), sender.getUniqueId());	
+			//		//BungeeMessageSender.forwardHashMap(sender, InteractiveChat.mentionPair, 4);
+			//	}
+			//}
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (!player.equals(sender)) {
 					List<String> playernames = new ArrayList<String>();

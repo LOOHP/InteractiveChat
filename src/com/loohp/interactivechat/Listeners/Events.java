@@ -86,6 +86,32 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
+		if (InteractiveChat.cm) {
+			return;
+		}
+		event.setMessage(MessageUtils.preprocessMessage(event.getMessage()));
+		
+		long unix = System.currentTimeMillis();
+		Player sender = event.getPlayer();
+		String message = event.getMessage();
+		InteractiveChat.lastMessage.put(sender, message);
+		InteractiveChat.time.put(sender, unix);
+		
+		String key = KeyUtils.getRandomKey();
+		event.setMessage(event.getMessage() + key);
+		InteractiveChat.messageKey.put(key, event.getPlayer());
+		InteractiveChat.messageKeyUUID.put(key, event.getPlayer().getUniqueId());
+		//BungeeMessageSender.forwardHashMap(event.getPlayer(), InteractiveChat.messageKeyUUID, 0);
+	}
+	
+	@EventHandler(priority=EventPriority.LOW)
+	public void addKeyChatManager(AsyncPlayerChatEvent event) {
+		if (event.isCancelled()) {
+			return;
+		}
+		if (!InteractiveChat.cm) {
+			return;
+		}
 		event.setMessage(MessageUtils.preprocessMessage(event.getMessage()));
 		
 		long unix = System.currentTimeMillis();

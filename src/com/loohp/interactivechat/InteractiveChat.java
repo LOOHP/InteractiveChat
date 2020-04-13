@@ -38,6 +38,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean ess3 = false;
 	public static boolean dmp = false;
+	public static boolean cm = false;
 	
 	public static boolean useItem = true;
 	public static boolean useInventory = true;
@@ -175,6 +176,11 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into Essentials!");
 			ess3 = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into ChatManager!");
+			cm = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("DeathMessagesPrime") != null) {

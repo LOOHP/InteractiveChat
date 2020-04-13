@@ -297,7 +297,7 @@ public class LegacyEvents implements Listener {
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	if (!newText.getText().equals("")) {
+			            	if (!ChatColor.stripColor(newText.toLegacyText()).equals("")) {
 			            		usealt = true;
 			            	}
 		            	}

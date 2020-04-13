@@ -72,7 +72,7 @@ public class Events implements Listener {
 		InteractiveChat.mentionCooldown.remove(event.getPlayer());
 	}
 	
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		Player sender = event.getPlayer();
 		String message = event.getMessage();
@@ -293,7 +293,7 @@ public class Events implements Listener {
 		            		}
 			            	String stringCom = ComponentSerializer.toString(newText);			         
 			            	alt = WrappedChatComponent.fromJson(stringCom);
-			            	if (!newText.getText().equals("")) {
+			            	if (!ChatColor.stripColor(newText.toLegacyText()).equals("")) {
 			            		usealt = true;
 			            	}
 		            	}

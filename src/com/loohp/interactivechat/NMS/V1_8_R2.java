@@ -4,10 +4,18 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.loohp.interactivechat.Utils.JsonUtils;
+
+import net.minecraft.server.v1_8_R2.IChatBaseComponent;
+import net.minecraft.server.v1_8_R2.IChatBaseComponent.ChatSerializer;
 import net.minecraft.server.v1_8_R2.NBTTagCompound;
+import net.minecraft.server.v1_8_R2.PacketPlayOutTitle;
+import net.minecraft.server.v1_8_R2.PacketPlayOutTitle.EnumTitleAction;
 
 public class V1_8_R2 {
 	
@@ -45,6 +53,17 @@ public class V1_8_R2 {
 
 	    // Return a string representation of the serialized object
 	    return itemAsJsonObject.toString();
+	}
+	
+	public static void sendTitle(Player player, String title, String subtitle) {
+		IChatBaseComponent chatTitle = ChatSerializer.a(JsonUtils.toJSON(title));
+		IChatBaseComponent chatSubtitle = ChatSerializer.a(JsonUtils.toJSON(subtitle));
+
+		PacketPlayOutTitle titlepacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, chatTitle);
+		PacketPlayOutTitle subtitlepacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, chatSubtitle);
+
+		((CraftPlayer) player).getHandle().playerConnection.sendPacket(titlepacket);
+		((CraftPlayer) player).getHandle().playerConnection.sendPacket(subtitlepacket);
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -563,8 +564,10 @@ public class Events implements Listener {
 					            			String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 											String subtitle = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
 											Sound sound = null;
-											if (Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound")) != null) {
-												player.playSound(player.getLocation(), Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound")), 3.0F, 1.0F);
+											if (EnumUtils.isValidEnum(Sound.class, ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
+												sound = Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound"));
+											} else {
+												Bukkit.getConsoleSender().sendMessage("Invalid Sound: " + ConfigManager.getConfig().getString("Chat.MentionedSound"));
 											}
 											
 											boolean inCooldown = true;

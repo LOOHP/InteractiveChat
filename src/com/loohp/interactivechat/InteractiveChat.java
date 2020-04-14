@@ -129,30 +129,32 @@ public class InteractiveChat extends JavaPlugin {
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
 		
-		if (getServer().getClass().getPackage().getName().contains("1_15_R1") == true) {
-	    	version = "1.15";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_14_R1") == true) {
-	    	version = "1.14";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_13_R2") == true) {
-	    	version = "1.13.1";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_13_R1") == true) {
-	    	version = "1.13";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_12_R1") == true) {
-	    	version = "legacy1.12";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_11_R1") == true) {
-	    	version = "legacy1.11";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_10_R1") == true) {
-	    	version = "legacy1.10";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_9_R2") == true) {
-	    	version = "legacy1.9.4";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_9_R1") == true) {
-	    	version = "legacy1.9";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_8_R3") == true) {
-	    	version = "OLDlegacy1.8.4";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_8_R2") == true) {
-	    	version = "OLDlegacy1.8.3";
-	    } else if (getServer().getClass().getPackage().getName().contains("1_8_R1") == true) {
-	    	version = "OLDlegacy1.8";
+		String packageName = getServer().getClass().getPackage().getName();
+
+        if (packageName.contains("1_15_R1")) {
+            version = "1.15";
+        } else if (packageName.contains("1_14_R1")) {
+            version = "1.14";
+        } else if (packageName.contains("1_13_R2")) {
+            version = "1.13.1";
+        } else if (packageName.contains("1_13_R1")) {
+            version = "1.13";
+        } else if (packageName.contains("1_12_R1")) {
+            version = "legacy1.12";
+        } else if (packageName.contains("1_11_R1")) {
+            version = "legacy1.11";
+        } else if (packageName.contains("1_10_R1")) {
+            version = "legacy1.10";
+        } else if (packageName.contains("1_9_R2")) {
+            version = "legacy1.9.4";
+        } else if (packageName.contains("1_9_R1")) {
+            version = "legacy1.9";
+        } else if (packageName.contains("1_8_R3")) {
+            version = "OLDlegacy1.8.4";
+        } else if (packageName.contains("1_8_R2")) {
+            version = "OLDlegacy1.8.3";
+        } else if (packageName.contains("1_8_R1")) {
+            version = "OLDlegacy1.8";
 	    } else {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "This version of minecraft is unsupported!");
 	    	plugin.getPluginLoader().disablePlugin(this);

@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.loohp.interactivechat.Debug.Debug;
+import com.loohp.interactivechat.Hooks.EssentialsHook;
 import com.loohp.interactivechat.Listeners.DeathMessagePrimeEvents;
 import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Listeners.LegacyEvents;
@@ -113,7 +114,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static int UpdaterTaskID = -1;
 	
 	public static HashMap<String, Long> keyTime = new HashMap<String, Long>();
-	public static HashMap<UUID, HashMap<String, String>> bungeePapi = new HashMap<UUID, HashMap<String, String>>(); 
+	public static HashMap<UUID, HashMap<String, String>> bungeePapi = new HashMap<UUID, HashMap<String, String>>();
+	
+	public static HashMap<Player, String> essenNick = new HashMap<Player, String>();
 
 	@Override
 	public void onEnable() {	
@@ -178,6 +181,8 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into Essentials!");
 			ess3 = true;
+			getServer().getPluginManager().registerEvents(new EssentialsHook(), this);
+			EssentialsHook.setup();
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {

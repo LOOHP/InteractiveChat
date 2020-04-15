@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -51,6 +50,7 @@ import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 import com.loohp.interactivechat.Utils.NMSUtli;
 import com.loohp.interactivechat.Utils.RarityUtils;
+import com.loohp.interactivechat.Utils.SoundUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -170,13 +170,8 @@ public class Events implements Listener {
         				playernames.add(player.getDisplayName());
         			}
         			if (InteractiveChat.ess3 == true) {
-        				Essentials essen = (Essentials)Bukkit.getPluginManager().getPlugin("Essentials");
-        				if (essen.getUser(player.getUniqueId()).getNickname() != null) {
-        					if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
-        						String prefix = essen.getConfig().getString("nickname-prefix");
-        						String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-        						playernames.add(prefix + essentialsNick);
-        					}
+        				if (InteractiveChat.essenNick.containsKey(player)) {
+        					playernames.add(InteractiveChat.essenNick.get(player));
         				}
         			}
         			boolean found = false;
@@ -472,13 +467,8 @@ public class Events implements Listener {
 				            				playernames.add(player.getDisplayName());
 				            			}
 				            			if (InteractiveChat.ess3 == true) {
-				            				Essentials essen = (Essentials)Bukkit.getPluginManager().getPlugin("Essentials");
-				            				if (essen.getUser(player.getUniqueId()).getNickname() != null) {
-				            					if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
-				            						String prefix = essen.getConfig().getString("nickname-prefix");
-				            						String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-				            						playernames.add(prefix + essentialsNick);
-				            					}
+				            				if (InteractiveChat.essenNick.containsKey(player)) {
+				            					playernames.add(InteractiveChat.essenNick.get(player));
 				            				}
 				            			}
 				            			
@@ -564,7 +554,7 @@ public class Events implements Listener {
 					            			String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 											String subtitle = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
 											Sound sound = null;
-											if (EnumUtils.isValidEnum(Sound.class, ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
+											if (SoundUtils.isValid(ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
 												sound = Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound"));
 											} else {
 												Bukkit.getConsoleSender().sendMessage("Invalid Sound: " + ConfigManager.getConfig().getString("Chat.MentionedSound"));

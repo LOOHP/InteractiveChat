@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 public class PrePacketComponentProcessEvent extends Event {
 	
@@ -16,11 +16,11 @@ public class PrePacketComponentProcessEvent extends Event {
 	//Field is the field number in which the component is obtained from the chat packet, either 0 or 1
 
 	Player reciever;
-    WrappedChatComponent component;
+	BaseComponent component;
     int field;
     UUID sender;
 
-    public PrePacketComponentProcessEvent(Player reciever, WrappedChatComponent component, int field, UUID sender) {
+    public PrePacketComponentProcessEvent(Player reciever, BaseComponent component, int field, UUID sender) {
         this.reciever = reciever;
         this.component = component;
         this.field = field;
@@ -39,11 +39,11 @@ public class PrePacketComponentProcessEvent extends Event {
     	this.sender = sender;
     }
     
-    public WrappedChatComponent getChatComponent() {
+    public BaseComponent getBaseComponent() {
     	return component;
     }
     
-    public void setChatComponent(WrappedChatComponent component) {
+    public void setChatComponent(BaseComponent component) {
     	this.component = component;
     }
     

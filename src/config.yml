@@ -64,6 +64,10 @@ Chat:
   #The title to show when mentioned
   MentionedTitle: "&c&lMentioned"
 
+  #How long should the title be shown when mentioned
+  #Duration in seconds
+  MentionedTitleDuration: 1.5
+
   #This is currently unused
   UnknownPlayerMentionSubtitle: "&fSomeone had mentioned you in the chat!"
   

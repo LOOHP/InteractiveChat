@@ -46,11 +46,6 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
     public PacketContainer getPacket() {
     	return packet;
     }
-    
-    @Deprecated
-    public void setReciver(Player reciever) {
-    	this.reciever = reciever;
-    }
 
     private static final HandlerList HANDLERS = new HandlerList();
 

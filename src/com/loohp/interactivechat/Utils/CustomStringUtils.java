@@ -10,6 +10,57 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class CustomStringUtils {
 	
+	public static double similarity(String s1, String s2) {
+		String longer = s1;
+		String shorter = s2;
+		if (s1.length() < s2.length()) {
+		    longer = s2; shorter = s1;
+		}
+		int longerLength = longer.length();
+		if (longerLength == 0) {
+			return 1.0;
+		}
+		return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
+	}
+	
+	public static int editDistance(String s1, String s2) {
+	    s1 = s1.toLowerCase();
+	    s2 = s2.toLowerCase();
+
+	    int[] costs = new int[s2.length() + 1];
+	    for (int i = 0; i <= s1.length(); i++) {
+	        int lastValue = i;
+	        for (int j = 0; j <= s2.length(); j++) {
+	        if (i == 0) {
+	        	costs[j] = j;
+	        } else {
+	            if (j > 0) {
+	            	int newValue = costs[j - 1];
+	            	if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
+	            		newValue = Math.min(Math.min(newValue, lastValue),costs[j]) + 1;
+	                }
+	                costs[j - 1] = lastValue;
+	                lastValue = newValue;
+	            }
+	        }
+	    }
+	    if (i > 0)
+	        costs[s2.length()] = lastValue;
+	    }
+	    return costs[s2.length()];
+    }
+	
+	public static String escapeMetaCharacters(String inputString){
+	    final String[] metaCharacters = {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
+
+	    for (int i = 0; i < metaCharacters.length; i++){
+	        if(inputString.contains(metaCharacters[i])){
+	            inputString = inputString.replace(metaCharacters[i], "\\" + metaCharacters[i]);
+	        }
+	    }
+	    return inputString;
+	}
+	
 	public static String[] splitStringEvery(String s, int interval) {
 	    int arrayLength = (int) Math.ceil(((s.length() / (double)interval)));
 	    String[] result = new String[arrayLength];
@@ -25,6 +76,12 @@ public class CustomStringUtils {
 	    return result;
 	}
 	
+	public static List<BaseComponent> loadExtras(BaseComponent basecomponent) {
+		List<BaseComponent> list = new ArrayList<BaseComponent>();
+		list.add(basecomponent);
+		return loadExtras(list);
+	}
+	
 	public static List<BaseComponent> loadExtras(List<BaseComponent> baseComp) {
 		List<BaseComponent> list = new ArrayList<BaseComponent>();
 			
@@ -36,14 +93,17 @@ public class CustomStringUtils {
 	        } else {
 	        	BaseComponent noExtra = each.duplicate();
 	        	noExtra.getExtra().clear();
-	        	TextComponent text = new TextComponent(noExtra.toPlainText());
+	        	TextComponent text = new TextComponent(noExtra.toLegacyText());
  	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
  	        		text = copyFormatting(text, noExtra);
  	        	} else {
  	        		text.copyFormatting(noExtra);
  	        	}	        	
 	        	list.add(text);
-	        	list.addAll(loadExtras(each.getExtra())); // Calls same method again.
+	        	for (BaseComponent extra : loadExtras(each.getExtra())) {
+	        		extra = copyFormattingNoReplace(extra, noExtra);
+	        		list.add(extra);
+	        	}
 	        }
 	    }
 	    return list;

@@ -66,8 +66,11 @@ public class SenderFinder {
 		Player currentplayer = null;
 		int currentpos = 99999;
 		for (Entry<String, Player> entry : names.entrySet()) {
+			Bukkit.getConsoleSender().sendMessage(entry.getKey());
 			int pos = chat.toLowerCase().indexOf(entry.getKey().toLowerCase());
-			if (pos > 0 && pos < currentpos) {
+			Bukkit.getConsoleSender().sendMessage(chat);
+			Bukkit.getConsoleSender().sendMessage(pos + "");
+			if (pos >= 0 && pos < currentpos) {
 				currentpos = pos;
 				currentplayer = entry.getValue();
 			}

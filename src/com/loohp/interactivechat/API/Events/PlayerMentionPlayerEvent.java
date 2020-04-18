@@ -74,11 +74,6 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     	this.sound = sound;
     }
     
-    @Deprecated
-    public void setReciver(Player reciever) {
-    	this.reciever = reciever;
-    }
-    
     private static final HandlerList HANDLERS = new HandlerList();
 
     public HandlerList getHandlers() {

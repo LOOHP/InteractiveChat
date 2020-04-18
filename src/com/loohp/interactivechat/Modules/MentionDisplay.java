@@ -28,7 +28,7 @@ public class MentionDisplay {
 	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, Player sender, String messageKey, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
     		if (InteractiveChat.mentionPair.get(beenpinged.getUniqueId()).equals(sender.getUniqueId())) {
-    			Player player = beenpinged;
+    			Player reciever = beenpinged;
     			
     			String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 				String subtitle = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
@@ -40,23 +40,21 @@ public class MentionDisplay {
 				}
 				
 				boolean inCooldown = true;
-				if (InteractiveChat.mentionCooldown.get(player) < unix) {
+				if (InteractiveChat.mentionCooldown.get(reciever) < unix) {
 					inCooldown = false;
 				}
-				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, player, sender.getUniqueId(), title, subtitle, sound, inCooldown);
+				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, sound, inCooldown);
 				Bukkit.getPluginManager().callEvent(mentionEvent);
-				Player reciever = mentionEvent.getReciver();
-				InteractiveChat.mentionPair.put(reciever.getUniqueId(), sender.getUniqueId());
 				if (!mentionEvent.isCancelled()) {
 					
 					int time = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
 					if (InteractiveChat.version.contains("OLD")) {
-						OldTitleSender.sendTitle(player, title, subtitle, time);
+						OldTitleSender.sendTitle(reciever, title, subtitle, time);
 					} else {
 						reciever.sendTitle(title, subtitle, 10, time, 20);
 					}
 					if (sound != null) {
-						reciever.playSound(player.getLocation(), sound, 3.0F, 1.0F);
+						reciever.playSound(reciever.getLocation(), sound, 3.0F, 1.0F);
 					}
 					
 					List<String> names = new ArrayList<String>();

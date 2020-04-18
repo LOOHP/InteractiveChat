@@ -22,7 +22,8 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     Sound sound;
     boolean cancel;
 
-    public PlayerMentionPlayerEvent(Player reciever, UUID sender, String title, String subtitle, Sound sound, boolean cancel) {
+    public PlayerMentionPlayerEvent(boolean async, Player reciever, UUID sender, String title, String subtitle, Sound sound, boolean cancel) {
+    	super(async);
         this.reciever = reciever;
         this.sender = sender;
         this.title = title;

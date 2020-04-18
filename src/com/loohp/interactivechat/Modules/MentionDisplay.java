@@ -25,7 +25,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class MentionDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, Player sender, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, Player sender, String messageKey, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
     		if (InteractiveChat.mentionPair.get(beenpinged.getUniqueId()).equals(sender.getUniqueId())) {
     			Player player = beenpinged;
@@ -43,7 +43,8 @@ public class MentionDisplay {
 				if (InteractiveChat.mentionCooldown.get(player) < unix) {
 					inCooldown = false;
 				}
-				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(player, sender.getUniqueId(), title, subtitle, sound, inCooldown);
+				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, player, sender.getUniqueId(), title, subtitle, sound, inCooldown);
+				Bukkit.getPluginManager().callEvent(mentionEvent);
 				Player reciever = mentionEvent.getReciver();
 				InteractiveChat.mentionPair.put(reciever.getUniqueId(), sender.getUniqueId());
 				if (!mentionEvent.isCancelled()) {

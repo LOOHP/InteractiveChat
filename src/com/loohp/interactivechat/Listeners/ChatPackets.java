@@ -82,7 +82,8 @@ public class ChatPackets {
 		        }, 5);
 		        
 		        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.getPlayer(), basecomponent, field, preEventSenderUUID);
+				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), event.getPlayer(), basecomponent, field, preEventSenderUUID);
+				Bukkit.getPluginManager().callEvent(preEvent);
 				if (preEvent.getSender() != null) {
 					Player newsender = Bukkit.getPlayer(preEvent.getSender());
 					if (newsender != null) {
@@ -95,7 +96,7 @@ public class ChatPackets {
 		        }
 		        
 		        if (InteractiveChat.AllowMention && sender.isPresent()) {
-		        	basecomponent = MentionDisplay.process(basecomponent, event.getPlayer(), sender.get(), rawMessageKey, unix);
+		        	basecomponent = MentionDisplay.process(basecomponent, event.getPlayer(), sender.get(), rawMessageKey, unix, event.isAsync());
 		        }
 
 		        if (InteractiveChat.useItem) {
@@ -120,7 +121,8 @@ public class ChatPackets {
 		        }
 		        
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.getPlayer(), packet, postEventSenderUUID);
+		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), event.getPlayer(), packet, postEventSenderUUID);
+		        Bukkit.getPluginManager().callEvent(postEvent);
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);
 		        	event.setCancelled(true);

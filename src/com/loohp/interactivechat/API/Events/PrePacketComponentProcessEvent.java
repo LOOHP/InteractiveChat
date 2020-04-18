@@ -20,7 +20,8 @@ public class PrePacketComponentProcessEvent extends Event {
     int field;
     UUID sender;
 
-    public PrePacketComponentProcessEvent(Player reciever, BaseComponent component, int field, UUID sender) {
+    public PrePacketComponentProcessEvent(boolean async, Player reciever, BaseComponent component, int field, UUID sender) {
+    	super(async);
         this.reciever = reciever;
         this.component = component;
         this.field = field;

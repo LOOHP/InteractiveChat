@@ -57,7 +57,12 @@ public class ChatPackets {
 		        	if (base instanceof TranslatableComponent) {
 		        		return;
 		        	}
-		        }		        		     
+		        }
+		        if (wcc == null) {
+		        	if (basecomponent.toPlainText().equals("")) {
+		        		return;
+		        	}
+		        }
 		        
 		        String rawMessageKey = basecomponent.toPlainText();
 		        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {

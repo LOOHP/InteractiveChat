@@ -108,32 +108,32 @@ public class Events implements Listener {
 		Player sender = event.getPlayer();
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (!player.equals(sender)) {
-					List<String> playernames = new ArrayList<String>();
-        			playernames.add(player.getName());
-        			if (!player.getName().equals(player.getDisplayName())) {
-        				playernames.add(player.getDisplayName());
-        			}
-        			if (InteractiveChat.ess3 == true) {
-        				if (InteractiveChat.essenNick.containsKey(player)) {
-        					playernames.add(InteractiveChat.essenNick.get(player));
-        				}
-        			}
-           			for (String name : playernames) {
-           				int index = message.toLowerCase().indexOf(name.toLowerCase());
-           				if (index >= 0) {
-           					char escape = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-           					if (escape != '\\') {
-           						InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());
-           						break;
-           					} else {
-           						StringBuilder sb = new StringBuilder(message);
-           						sb.deleteCharAt(index - 1);
-           						event.setMessage(sb.toString());
-           					}
-           				}
-           			}
-				}
+				List<String> playernames = new ArrayList<String>();
+    			playernames.add(player.getName());
+    			if (!player.getName().equals(player.getDisplayName())) {
+    				playernames.add(player.getDisplayName());
+    			}
+    			if (InteractiveChat.ess3 == true) {
+    				if (InteractiveChat.essenNick.containsKey(player)) {
+    					playernames.add(InteractiveChat.essenNick.get(player));
+    				}
+    			}
+       			for (String name : playernames) {
+       				int index = message.toLowerCase().indexOf(name.toLowerCase());
+       				if (index >= 0) {
+       					char escape = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
+       					if (escape != '\\') {
+       						if (!player.equals(sender)) {
+       							InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());
+       						}
+       						break;
+       					} else {
+       						StringBuilder sb = new StringBuilder(message);
+       						sb.deleteCharAt(index - 1);
+       						event.setMessage(sb.toString());
+       					}
+       				}
+       			}
 			}
 		}
 	}

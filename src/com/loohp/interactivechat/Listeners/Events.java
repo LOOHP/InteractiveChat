@@ -122,15 +122,25 @@ public class Events implements Listener {
        				int index = message.toLowerCase().indexOf(name.toLowerCase());
        				if (index >= 0) {
        					char escape = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-       					if (escape != '\\') {
+       					char escapeescape = (index - 2) < 0 ? ' ' : message.charAt(index - 2);
+       					if ((escape != '\\') || ((escape == '\\' && escapeescape == '\\'))) {
+       						if (escapeescape == '\\') {
+       							StringBuilder sb = new StringBuilder(message);
+	       						sb.deleteCharAt(index - 2);
+	       						event.setMessage(sb.toString());
+	       						message = event.getMessage();
+       						}
        						if (!player.equals(sender)) {
        							InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());
        						}
        						break;
        					} else {
-       						StringBuilder sb = new StringBuilder(message);
-       						sb.deleteCharAt(index - 1);
-       						event.setMessage(sb.toString());
+       						if (escape == '\\') {
+	       						StringBuilder sb = new StringBuilder(message);
+	       						sb.deleteCharAt(index - 1);
+	       						event.setMessage(sb.toString());
+	       						message = event.getMessage();
+       						}
        					}
        				}
        			}

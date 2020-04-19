@@ -92,11 +92,14 @@ public class InventoryDisplay {
 				
 				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
 				if ((trim.size() - 1) > i || endwith) {
-					if (trim.get(i).endsWith("\\")) {
+					if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
 						TextComponent message = new TextComponent(placeholder);
 						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 						newlist.add(message);
 					} else {
+						if (trim.get(i).endsWith("\\\\")) {
+							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
+						}
 						if (optplayer.isPresent()) {
 							Player player = optplayer.get();
 							if (player.hasPermission("interactivechat.module.inventory")) {

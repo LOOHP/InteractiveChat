@@ -91,67 +91,73 @@ public class EnderchestDisplay {
 				newlist.add(before);
 				
 				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
-				if ((trim.size() - 1) > i || endwith) {			
-					if (optplayer.isPresent()) {
-						Player player = optplayer.get();
-						if (player.hasPermission("interactivechat.module.enderchest")) {
-							
-							long time = InteractiveChat.keyTime.get(messageKey);
-							
-							String replaceText = InteractiveChat.enderReplaceText;	
-							
-							String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.enderTitle));
-							
-							if (!InteractiveChat.enderDisplay.containsKey(time)) {
-								Inventory inv = Bukkit.createInventory(null, 27, title);
-    							for (int j = 0; j < player.getEnderChest().getSize(); j = j + 1) {
-    								if (player.getEnderChest().getItem(j) != null) {
-    									if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
-    										inv.setItem(j, player.getEnderChest().getItem(j).clone());
-    									}
-    								}
-    							}			            							
-    							InteractiveChat.enderDisplay.put(time, inv);	
-    							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-    							singleMap.put(time, inv);
+				if ((trim.size() - 1) > i || endwith) {
+					if (trim.get(i).endsWith("\\")) {
+						TextComponent message = new TextComponent(placeholder);
+						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
+						newlist.add(message);
+					} else {
+						if (optplayer.isPresent()) {
+							Player player = optplayer.get();
+							if (player.hasPermission("interactivechat.module.enderchest")) {
+								
+								long time = InteractiveChat.keyTime.get(messageKey);
+								
+								String replaceText = InteractiveChat.enderReplaceText;	
+								
+								String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.enderTitle));
+								
+								if (!InteractiveChat.enderDisplay.containsKey(time)) {
+									Inventory inv = Bukkit.createInventory(null, 27, title);
+	    							for (int j = 0; j < player.getEnderChest().getSize(); j = j + 1) {
+	    								if (player.getEnderChest().getItem(j) != null) {
+	    									if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
+	    										inv.setItem(j, player.getEnderChest().getItem(j).clone());
+	    									}
+	    								}
+	    							}			            							
+	    							InteractiveChat.enderDisplay.put(time, inv);	
+	    							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
+	    							singleMap.put(time, inv);
+								}
+								
+								String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+								
+								BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
+				            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+				            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
+				            	
+				            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
+								String endertext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
+				            	
+				            	for (BaseComponent baseComponent : baseJson) {
+				            		TextComponent message = (TextComponent) baseComponent;
+				            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(endertext).create()));
+	    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewender " + time));
+	    							newlist.add(message);
+				            	}
+							} else {
+								TextComponent message = new TextComponent(placeholder);
+								
+								newlist.add(message);
 							}
-							
-							String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
-							
-							BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
-			            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
-			            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
-			            	
-			            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
-							String endertext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
-			            	
-			            	for (BaseComponent baseComponent : baseJson) {
-			            		TextComponent message = (TextComponent) baseComponent;
-			            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(endertext).create()));
-    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewender " + time));
-    							newlist.add(message);
-			            	}
 						} else {
-							TextComponent message = new TextComponent(placeholder);
+							TextComponent message = null;
+							if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
+								message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
+							} else {
+								message = new TextComponent(placeholder);
+							}
+							if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
+								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
+							}
+							if (InteractiveChat.PlayerNotFoundClickEnable == true) {
+								String endertext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
+								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), endertext));
+							}
 							
 							newlist.add(message);
 						}
-					} else {
-						TextComponent message = null;
-						if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
-							message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
-						} else {
-							message = new TextComponent(placeholder);
-						}
-						if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
-							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
-						}
-						if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-							String endertext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
-							message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), endertext));
-						}
-						
-						newlist.add(message);
 					}
 				}
 			}

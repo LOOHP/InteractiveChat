@@ -109,31 +109,37 @@ public class CustomPlaceholderDisplay {
 				newlist.add(before);
 				
 				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
-				if ((trim.size() - 1) > i || endwith) {					            											
-					Player player = parseplayer;
-					
-					String textComp = placeholder;
-					if (replaceEnabled) {
-						textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
-					}
-					Bukkit.getConsoleSender().sendMessage(textComp);
-					BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
-	            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
-	            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
-	            	
-	            	for (BaseComponent baseComponent : baseJson) {
-	            		TextComponent message = (TextComponent) baseComponent;
-	            		if (hoverEnabled) {
-							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(PlaceholderAPI.setPlaceholders(player, hoverText)).create()));
-						}
-						
-						if (clickEnabled) {
-							String clicktext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
-							message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction), clicktext));
-						}
-						
+				if ((trim.size() - 1) > i || endwith) {
+					if (trim.get(i).endsWith("\\")) {
+						TextComponent message = new TextComponent(placeholder);
+						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 						newlist.add(message);
-	            	}					    
+					} else {
+						Player player = parseplayer;
+						
+						String textComp = placeholder;
+						if (replaceEnabled) {
+							textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+						}
+						Bukkit.getConsoleSender().sendMessage(textComp);
+						BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
+		            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+		            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
+		            	
+		            	for (BaseComponent baseComponent : baseJson) {
+		            		TextComponent message = (TextComponent) baseComponent;
+		            		if (hoverEnabled) {
+								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(PlaceholderAPI.setPlaceholders(player, hoverText)).create()));
+							}
+							
+							if (clickEnabled) {
+								String clicktext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
+								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction), clicktext));
+							}
+							
+							newlist.add(message);
+		            	}
+					}
 				}
 			}
 		}

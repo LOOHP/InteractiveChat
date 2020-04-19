@@ -119,16 +119,20 @@ public class Events implements Listener {
         					playernames.add(InteractiveChat.essenNick.get(player));
         				}
         			}
-        			boolean found = false;
            			for (String name : playernames) {
-           				if (message.toLowerCase().contains(name.toLowerCase())) {
-           					found = true;
-           					break;
+           				int index = message.toLowerCase().indexOf(name.toLowerCase());
+           				if (index >= 0) {
+           					char escape = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
+           					if (escape != '\\') {
+           						InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());
+           						break;
+           					} else {
+           						StringBuilder sb = new StringBuilder(message);
+           						sb.deleteCharAt(index - 1);
+           						event.setMessage(sb.toString());
+           					}
            				}
            			}
-					if (found == true) {											
-						InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());	
-					}
 				}
 			}
 		}

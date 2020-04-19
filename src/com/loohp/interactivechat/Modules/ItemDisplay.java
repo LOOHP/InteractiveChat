@@ -99,117 +99,123 @@ public class ItemDisplay {
 				
 				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
 				if ((trim.size() - 1) > i || endwith) {
-					if (optplayer.isPresent()) {
-						Player player = optplayer.get();
-						if (player.hasPermission("interactivechat.module.item")) {
-							ItemStack item = null;							
-							if (InteractiveChat.version.equals("legacy1.9") || InteractiveChat.version.equals("legacy1.9.4") || InteractiveChat.version.contains("OLD")) {
-								item = new ItemStack(Material.BARRIER, 1);
-							} else {
-								item = new ItemStack(Material.STRUCTURE_VOID, 1);
-							}
-							
-							if (InteractiveChat.version.contains("OLD")) {
-								if (player.getItemInHand() == null) {
-    								ItemMeta meta = item.getItemMeta();
-    								ItemStack air = new ItemStack(Material.AIR);
-    								meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
-    								item.setItemMeta(meta);
-    							} else if (player.getItemInHand().getType().equals(Material.AIR)) {
-    								ItemMeta meta = item.getItemMeta();
-    								ItemStack air = new ItemStack(Material.AIR);
-    								meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
-    								item.setItemMeta(meta);
-    							} else {				            								
-    								item = player.getItemInHand();
-    							}
-							} else {
-								if (player.getEquipment().getItemInMainHand() == null) {
-									ItemMeta meta = item.getItemMeta();
-									ItemStack air = new ItemStack(Material.AIR);
-									meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
-									item.setItemMeta(meta);
-								} else if (player.getEquipment().getItemInMainHand().getType().equals(Material.AIR)) {
-									ItemMeta meta = item.getItemMeta();
-									ItemStack air = new ItemStack(Material.AIR);
-									meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
-									item.setItemMeta(meta);
-								} else {									
-									item = player.getEquipment().getItemInMainHand();
+					if (trim.get(i).endsWith("\\")) {
+						TextComponent message = new TextComponent(placeholder);
+						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
+						newlist.add(message);
+					} else {
+						if (optplayer.isPresent()) {
+							Player player = optplayer.get();
+							if (player.hasPermission("interactivechat.module.item")) {
+								ItemStack item = null;							
+								if (InteractiveChat.version.equals("legacy1.9") || InteractiveChat.version.equals("legacy1.9.4") || InteractiveChat.version.contains("OLD")) {
+									item = new ItemStack(Material.BARRIER, 1);
+								} else {
+									item = new ItemStack(Material.STRUCTURE_VOID, 1);
 								}
-							}											
-						    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
-						    String message = "";
-						    String itemString = "";
-						    String amountString = "";
-						    if (item.hasItemMeta()) {
-							    if (item.getItemMeta().hasDisplayName()) {
-							    	if (!item.getItemMeta().getDisplayName().equals("")) {
-							    		itemString = item.getItemMeta().getDisplayName();
-							    	} else {
-							    		itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
-							    	}
+								
+								if (InteractiveChat.version.contains("OLD")) {
+									if (player.getItemInHand() == null) {
+	    								ItemMeta meta = item.getItemMeta();
+	    								ItemStack air = new ItemStack(Material.AIR);
+	    								meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
+	    								item.setItemMeta(meta);
+	    							} else if (player.getItemInHand().getType().equals(Material.AIR)) {
+	    								ItemMeta meta = item.getItemMeta();
+	    								ItemStack air = new ItemStack(Material.AIR);
+	    								meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
+	    								item.setItemMeta(meta);
+	    							} else {				            								
+	    								item = player.getItemInHand();
+	    							}
+								} else {
+									if (player.getEquipment().getItemInMainHand() == null) {
+										ItemMeta meta = item.getItemMeta();
+										ItemStack air = new ItemStack(Material.AIR);
+										meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
+										item.setItemMeta(meta);
+									} else if (player.getEquipment().getItemInMainHand().getType().equals(Material.AIR)) {
+										ItemMeta meta = item.getItemMeta();
+										ItemStack air = new ItemStack(Material.AIR);
+										meta.setDisplayName(ChatColor.BLACK + "" + ChatColor.WHITE + MaterialUtils.getMinecraftName(air));
+										item.setItemMeta(meta);
+									} else {									
+										item = player.getEquipment().getItemInMainHand();
+									}
+								}											
+							    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
+							    String message = "";
+							    String itemString = "";
+							    String amountString = "";
+							    if (item.hasItemMeta()) {
+								    if (item.getItemMeta().hasDisplayName()) {
+								    	if (!item.getItemMeta().getDisplayName().equals("")) {
+								    		itemString = item.getItemMeta().getDisplayName();
+								    	} else {
+								    		itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
+								    	}
+								    } else {
+								    	itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
+								    }
 							    } else {
 							    	itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
 							    }
-						    } else {
-						    	itemString = RarityUtils.getRarityColor(item) + MaterialUtils.getMinecraftName(item);
-						    }
-						    itemString = ChatColorFilter.filterIllegalColorCodes(itemString);
-						    amountString = String.valueOf(item.getAmount());
-						    message = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Item}", itemString).replace("{Amount}", amountString)));
-						    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
-						    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
-							String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
-							long time = InteractiveChat.keyTime.get(messageKey);
-							if (!InteractiveChat.itemDisplay.containsKey(time)) {
-								Inventory inv = Bukkit.createInventory(null, 27, title);
-								ItemStack empty = new ItemStack(InteractiveChat.itemFrame1, 1);
-								if (item.getType().equals(InteractiveChat.itemFrame1)) {
-									empty = new ItemStack(InteractiveChat.itemFrame2, 1);
+							    itemString = ChatColorFilter.filterIllegalColorCodes(itemString);
+							    amountString = String.valueOf(item.getAmount());
+							    message = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Item}", itemString).replace("{Amount}", amountString)));
+							    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
+							    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
+								String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
+								long time = InteractiveChat.keyTime.get(messageKey);
+								if (!InteractiveChat.itemDisplay.containsKey(time)) {
+									Inventory inv = Bukkit.createInventory(null, 27, title);
+									ItemStack empty = new ItemStack(InteractiveChat.itemFrame1, 1);
+									if (item.getType().equals(InteractiveChat.itemFrame1)) {
+										empty = new ItemStack(InteractiveChat.itemFrame2, 1);
+									}
+									ItemMeta emptyMeta = empty.getItemMeta();
+									emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+									empty.setItemMeta(emptyMeta);
+									for (int j = 0; j < inv.getSize(); j = j + 1) {
+										inv.setItem(j, empty);
+									}
+									inv.setItem(13, item);				            							
+									InteractiveChat.itemDisplay.put(time, inv);	
+									HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
+									singleMap.put(time, inv);
 								}
-								ItemMeta emptyMeta = empty.getItemMeta();
-								emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-								empty.setItemMeta(emptyMeta);
-								for (int j = 0; j < inv.getSize(); j = j + 1) {
-									inv.setItem(j, empty);
-								}
-								inv.setItem(13, item);				            							
-								InteractiveChat.itemDisplay.put(time, inv);	
-								HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-								singleMap.put(time, inv);
+							    BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(message));
+				            	BaseComponent baseJson = bcJson[0];
+				            	TextComponent itemtextcomponent = (TextComponent) baseJson;
+				            	itemtextcomponent.setHoverEvent(hoverItem);
+							    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+									ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+									itemtextcomponent.setClickEvent(clickItem);
+							    }
+								newlist.add(itemtextcomponent);
+							    
+							} else {
+								TextComponent message = new TextComponent(placeholder);
+								
+								newlist.add(message);
 							}
-						    BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(message));
-			            	BaseComponent baseJson = bcJson[0];
-			            	TextComponent itemtextcomponent = (TextComponent) baseJson;
-			            	itemtextcomponent.setHoverEvent(hoverItem);
-						    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
-								ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-								itemtextcomponent.setClickEvent(clickItem);
-						    }
-							newlist.add(itemtextcomponent);
-						    
 						} else {
-							TextComponent message = new TextComponent(placeholder);
+							TextComponent message = null;
+							if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
+								message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
+							} else {
+								message = new TextComponent(placeholder);
+							}
+							if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
+								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
+							}
+							if (InteractiveChat.PlayerNotFoundClickEnable == true) {
+								String text1 = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
+								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), text1));
+							}
 							
 							newlist.add(message);
 						}
-					} else {
-						TextComponent message = null;
-						if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
-							message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
-						} else {
-							message = new TextComponent(placeholder);
-						}
-						if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
-							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
-						}
-						if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-							String text1 = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
-							message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), text1));
-						}
-						
-						newlist.add(message);
 					}
 				}
 			}

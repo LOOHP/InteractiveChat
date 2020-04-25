@@ -2,6 +2,7 @@ package com.loohp.interactivechat.Listeners;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,10 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
+import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -30,6 +34,27 @@ public class Events implements Listener {
 	@EventHandler
 	public void onJoin(PlayerQuitEvent event) {
 		InteractiveChat.mentionCooldown.remove(event.getPlayer());
+	}
+	
+	@EventHandler(priority=EventPriority.HIGH)
+	public void onCommand(PlayerCommandPreprocessEvent event) {
+		String command = event.getMessage();
+		for (String parsecommand : InteractiveChat.commandList) {
+			if (command.matches(parsecommand)) {
+				command = MessageUtils.preprocessMessage(command);
+				for (String placeholder : InteractiveChat.placeholderList) {
+					if (command.contains(placeholder)) {
+						String regexPlaceholder = CustomStringUtils.escapeMetaCharacters(placeholder);
+						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
+						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderGroup(event.getPlayer(), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						event.setMessage(command);
+						break;
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	@EventHandler(priority=EventPriority.HIGH)

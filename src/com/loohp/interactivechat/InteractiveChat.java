@@ -22,6 +22,7 @@ import com.loohp.interactivechat.Hooks.EssentialsHook;
 import com.loohp.interactivechat.Listeners.ChatPackets;
 import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Metrics;
+import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 
 public class InteractiveChat extends JavaPlugin {
@@ -105,6 +106,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";
 	public static long mentionDuration = 2;
+	
+	public static List<String> commandList = new ArrayList<String>();
+	public static HashMap<String, CommandPlaceholderGroup> commandPlaceholderMatch = new HashMap<String, CommandPlaceholderGroup>();
 	
 	public static boolean UpdaterEnabled = true;
 	public static int UpdaterTaskID = -1;

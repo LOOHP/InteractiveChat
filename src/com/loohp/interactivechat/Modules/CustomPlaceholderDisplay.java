@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -124,7 +123,6 @@ public class CustomPlaceholderDisplay {
 						if (replaceEnabled) {
 							textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
 						}
-						Bukkit.getConsoleSender().sendMessage(textComp);
 						BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
 		            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 		            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));

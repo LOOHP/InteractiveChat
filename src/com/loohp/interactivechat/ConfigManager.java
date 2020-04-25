@@ -74,12 +74,20 @@ public class ConfigManager {
 		InteractiveChat.PlayerNotFoundReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 		
 		InteractiveChat.placeholderList.clear();
-		InteractiveChat.placeholderList.add(InteractiveChat.itemPlaceholder);
-		InteractiveChat.placeholderList.add(InteractiveChat.invPlaceholder);
-		InteractiveChat.placeholderList.add(InteractiveChat.enderPlaceholder);
+		if (InteractiveChat.useItem) {
+			InteractiveChat.placeholderList.add(InteractiveChat.itemPlaceholder);
+		}
+		if (InteractiveChat.useInventory) {
+			InteractiveChat.placeholderList.add(InteractiveChat.invPlaceholder);
+		}
+		if (InteractiveChat.useEnder) {
+			InteractiveChat.placeholderList.add(InteractiveChat.enderPlaceholder);
+		}
 		for (int customNo = 1; getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)) == true; customNo = customNo + 1) {
 			InteractiveChat.placeholderList.add(getConfig().getString("CustomPlaceholders." + String.valueOf(customNo) + ".Text"));
 		}
+		
+		InteractiveChat.commandList = getConfig().getStringList("Settings.CommandsToParse");
 		
 		InteractiveChat.maxPlacholders = getConfig().getInt("Settings.MaxPlaceholders");
 		InteractiveChat.limitReachMessage = getConfig().getString("Messages.LimitReached");

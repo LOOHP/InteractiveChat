@@ -23,7 +23,9 @@ import com.loohp.interactivechat.Modules.InventoryDisplay;
 import com.loohp.interactivechat.Modules.ItemDisplay;
 import com.loohp.interactivechat.Modules.MentionDisplay;
 import com.loohp.interactivechat.Modules.PlayernameDisplay;
+import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
+import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -72,7 +74,9 @@ public class ChatPackets {
 		        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
 		        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
 		        }
-		        Optional<Player> sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+		        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
+		        Optional<Player> sender = commandsender.getSender() != null ? Optional.of(commandsender.getSender()) : SenderFinder.getSender(basecomponent, rawMessageKey);
+		        basecomponent = commandsender.getBaseComponent();
 		        if (sender.isPresent()) {
 		        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
 		        }

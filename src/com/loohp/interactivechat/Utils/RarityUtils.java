@@ -2,17 +2,22 @@ package com.loohp.interactivechat.Utils;
 
 import java.util.HashMap;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import com.loohp.interactivechat.InteractiveChat;
+
+import net.md_5.bungee.api.ChatColor;
 
 public class RarityUtils {
 
 	private static HashMap<Material, ChatColor> rarityMapping = new HashMap<Material, ChatColor>();
 	
 	public static void setupRarity() {
+		if (InteractiveChat.version.contains("legacy")) {
+			return;
+		}
+		
 		rarityMapping.put(Material.EXPERIENCE_BOTTLE, ChatColor.YELLOW);
 		rarityMapping.put(Material.DRAGON_BREATH, ChatColor.YELLOW);
 		rarityMapping.put(Material.ELYTRA, ChatColor.YELLOW);
@@ -60,20 +65,24 @@ public class RarityUtils {
 	
 	public static ChatColor getRarityColor(ItemStack item) {
 		ChatColor color = ChatColor.WHITE;
-		Material type = item.getType();
-		if (item.getItemMeta().hasEnchants()) {
-			color = ChatColor.AQUA;
-		}
-		if (rarityMapping.containsKey(type)) {
-			color = rarityMapping.get(type);
+		if (!item.getType().equals(Material.AIR)) {
+			Material type = item.getType();
+			if (item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
+				color = ChatColor.AQUA;
+			}
+			if (rarityMapping.containsKey(type)) {
+				color = rarityMapping.get(type);
+			}
 		}
 		return color;
 	}
 	
 	public static ChatColor getRarityColor(Material material) {
 		ChatColor color = ChatColor.WHITE;
-		if (rarityMapping.containsKey(material)) {
-			color = rarityMapping.get(material);
+		if (!material.equals(Material.AIR)) {
+			if (rarityMapping.containsKey(material)) {
+				color = rarityMapping.get(material);
+			}
 		}
 		return color;
 	}

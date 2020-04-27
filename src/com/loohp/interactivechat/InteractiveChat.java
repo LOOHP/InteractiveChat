@@ -24,6 +24,7 @@ import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
 import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.RarityUtils;
 
 public class InteractiveChat extends JavaPlugin {
 	
@@ -181,6 +182,7 @@ public class InteractiveChat extends JavaPlugin {
 		}
 		
 	    MaterialUtils.setupLang();
+	    RarityUtils.setupRarity();
 	    
 	    metrics.addCustomChart(new Metrics.SingleLineChart("total_placeholders", new Callable<Integer>() {
             @Override

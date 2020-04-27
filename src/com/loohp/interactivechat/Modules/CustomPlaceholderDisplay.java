@@ -83,70 +83,74 @@ public class CustomPlaceholderDisplay {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {
-			TextComponent textcomponent = (TextComponent) base;
-			String text = textcomponent.getText();
-			if (casesensitive) {
-				if (!text.contains(placeholder)) {
-					newlist.add(textcomponent);
-					continue;
-				}
+			if (!(base instanceof TextComponent)) {
+				newlist.add(base);
 			} else {
-				if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
-					newlist.add(textcomponent);
-					continue;
+				TextComponent textcomponent = (TextComponent) base;
+				String text = textcomponent.getText();
+				if (casesensitive) {
+					if (!text.contains(placeholder)) {
+						newlist.add(textcomponent);
+						continue;
+					}
+				} else {
+					if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
+						newlist.add(textcomponent);
+						continue;
+					}
 				}
-			}
-			
-			String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
-			List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
-			if (trim.get(trim.size() - 1).equals("")) {
-				trim.remove(trim.size() - 1);
-			}
-			for (int i = 0; i < trim.size(); i++) {
-				TextComponent before = (TextComponent) textcomponent.duplicate();
-				before.setText(trim.get(i));
-				newlist.add(before);
 				
-				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
-				if ((trim.size() - 1) > i || endwith) {
-					if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
-						TextComponent message = new TextComponent(placeholder);
-						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-						newlist.add(message);
-					} else {
-						if (trim.get(i).endsWith("\\\\")) {
+				String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
+				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
+				if (trim.get(trim.size() - 1).equals("")) {
+					trim.remove(trim.size() - 1);
+				}
+				for (int i = 0; i < trim.size(); i++) {
+					TextComponent before = (TextComponent) textcomponent.duplicate();
+					before.setText(trim.get(i));
+					newlist.add(before);
+					
+					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
+					if ((trim.size() - 1) > i || endwith) {
+						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
+							TextComponent message = new TextComponent(placeholder);
 							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-						}
-						Player player = parseplayer;
-						
-						String textComp = placeholder;
-						if (replaceEnabled) {
-							textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
-						}
-						BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
-		            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
-		            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
-		            	
-		            	for (BaseComponent baseComponent : baseJson) {
-		            		TextComponent message = (TextComponent) baseComponent;
-		            		if (hoverEnabled) {
-								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(PlaceholderAPI.setPlaceholders(player, hoverText)).create()));
-							}
-							
-							if (clickEnabled) {
-								String clicktext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
-								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction), clicktext));
-							}
-							
 							newlist.add(message);
-		            	}
+						} else {
+							if (trim.get(i).endsWith("\\\\")) {
+								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
+							}
+							Player player = parseplayer;
+							
+							String textComp = placeholder;
+							if (replaceEnabled) {
+								textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+							}
+							BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
+			            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+			            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
+			            	
+			            	for (BaseComponent baseComponent : baseJson) {
+			            		TextComponent message = (TextComponent) baseComponent;
+			            		if (hoverEnabled) {
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(PlaceholderAPI.setPlaceholders(player, hoverText)).create()));
+								}
+								
+								if (clickEnabled) {
+									String clicktext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
+									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction), clicktext));
+								}
+								
+								newlist.add(message);
+			            	}
+						}
 					}
 				}
 			}
 		}
 		
-		TextComponent product = (TextComponent) newlist.get(0);
-		for (int i = 1; i < newlist.size(); i++) {
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}

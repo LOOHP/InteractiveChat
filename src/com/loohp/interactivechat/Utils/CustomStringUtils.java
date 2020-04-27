@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -105,6 +106,19 @@ public class CustomStringUtils {
 	        		list.add(extra);
 	        	}
 	        }
+	    }
+	    
+	    Iterator<BaseComponent> itr = list.iterator();
+	    while (itr.hasNext()) {
+	    	BaseComponent base = itr.next();
+	    	if (base instanceof TextComponent) {
+	    		TextComponent text = (TextComponent) base;
+	    		if (text.getText().matches("§.")) {
+	    			itr.remove();
+	    		} else {
+	    			text.setText(ChatColorFilter.removeUselessColorCodes(text.getText()));
+	    		}
+	    	}
 	    }
 	    return list;
 	}

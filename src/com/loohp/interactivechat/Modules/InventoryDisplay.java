@@ -66,109 +66,113 @@ public class InventoryDisplay {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {
-			TextComponent textcomponent = (TextComponent) base;
-			String text = textcomponent.getText();
-			if (casesensitive) {
-				if (!text.contains(placeholder)) {
-					newlist.add(textcomponent);
-					continue;
-				}
+			if (!(base instanceof TextComponent)) {
+				newlist.add(base);
 			} else {
-				if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
-					newlist.add(textcomponent);
-					continue;
+				TextComponent textcomponent = (TextComponent) base;
+				String text = textcomponent.getText();
+				if (casesensitive) {
+					if (!text.contains(placeholder)) {
+						newlist.add(textcomponent);
+						continue;
+					}
+				} else {
+					if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
+						newlist.add(textcomponent);
+						continue;
+					}
 				}
-			}
-			
-			String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
-			List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
-			if (trim.get(trim.size() - 1).equals("")) {
-				trim.remove(trim.size() - 1);
-			}
-			for (int i = 0; i < trim.size(); i++) {
-				TextComponent before = (TextComponent) textcomponent.duplicate();
-				before.setText(trim.get(i));
-				newlist.add(before);
 				
-				boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
-				if ((trim.size() - 1) > i || endwith) {
-					if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
-						TextComponent message = new TextComponent(placeholder);
-						((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-						newlist.add(message);
-					} else {
-						if (trim.get(i).endsWith("\\\\")) {
+				String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
+				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
+				if (trim.get(trim.size() - 1).equals("")) {
+					trim.remove(trim.size() - 1);
+				}
+				for (int i = 0; i < trim.size(); i++) {
+					TextComponent before = (TextComponent) textcomponent.duplicate();
+					before.setText(trim.get(i));
+					newlist.add(before);
+					
+					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
+					if ((trim.size() - 1) > i || endwith) {
+						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
+							TextComponent message = new TextComponent(placeholder);
 							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-						}
-						if (optplayer.isPresent()) {
-							Player player = optplayer.get();
-							if (player.hasPermission("interactivechat.module.inventory")) {
-								
-								long time = InteractiveChat.keyTime.get(messageKey);
-								
-								String replaceText = InteractiveChat.invReplaceText;
-								
-								String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
-								
-								if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
-									Inventory inv = Bukkit.createInventory(null, 45, title);
-	    							for (int j = 0; j < player.getInventory().getSize(); j = j + 1) {
-	    								if (player.getInventory().getItem(j) != null) {
-	    									if (!player.getInventory().getItem(j).getType().equals(Material.AIR)) {
-	    										inv.setItem(j, player.getInventory().getItem(j).clone());
-	    									}
-	    								}
-	    							}			            							
-	    							InteractiveChat.inventoryDisplay.put(time, inv);	
-	    							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-	    							singleMap.put(time, inv);
+							newlist.add(message);
+						} else {
+							if (trim.get(i).endsWith("\\\\")) {
+								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
+							}
+							if (optplayer.isPresent()) {
+								Player player = optplayer.get();
+								if (player.hasPermission("interactivechat.module.inventory")) {
+									
+									long time = InteractiveChat.keyTime.get(messageKey);
+									
+									String replaceText = InteractiveChat.invReplaceText;
+									
+									String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
+									
+									if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
+										Inventory inv = Bukkit.createInventory(null, 45, title);
+		    							for (int j = 0; j < player.getInventory().getSize(); j = j + 1) {
+		    								if (player.getInventory().getItem(j) != null) {
+		    									if (!player.getInventory().getItem(j).getType().equals(Material.AIR)) {
+		    										inv.setItem(j, player.getInventory().getItem(j).clone());
+		    									}
+		    								}
+		    							}			            							
+		    							InteractiveChat.inventoryDisplay.put(time, inv);	
+		    							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
+		    							singleMap.put(time, inv);
+									}
+									
+									String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+									
+									BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
+					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
+					            	
+					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
+									String invtext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
+					            	
+					            	for (BaseComponent baseComponent : baseJson) {
+					            		TextComponent message = (TextComponent) baseComponent;
+					            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(invtext).create()));
+		    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewinv " + time));
+		    							newlist.add(message);
+					            	}
+														            							
+								} else {
+									TextComponent message = new TextComponent(placeholder);
+									
+									newlist.add(message);
 								}
-								
-								String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
-								
-								BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
-				            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
-				            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
-				            	
-				            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
-								String invtext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
-				            	
-				            	for (BaseComponent baseComponent : baseJson) {
-				            		TextComponent message = (TextComponent) baseComponent;
-				            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(invtext).create()));
-	    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewinv " + time));
-	    							newlist.add(message);
-				            	}
-													            							
 							} else {
-								TextComponent message = new TextComponent(placeholder);
+								TextComponent message = null;
+								if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
+									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
+								} else {
+									message = new TextComponent(placeholder);
+								}
+								if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
+								}
+								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
+									String invtext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
+									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), invtext));
+								}
 								
 								newlist.add(message);
 							}
-						} else {
-							TextComponent message = null;
-							if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
-								message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
-							} else {
-								message = new TextComponent(placeholder);
-							}
-							if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
-								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
-							}
-							if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-								String invtext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
-								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), invtext));
-							}
-							
-							newlist.add(message);
 						}
 					}
 				}
 			}
 		}
 		
-		TextComponent product = (TextComponent) newlist.get(0);
-		for (int i = 1; i < newlist.size(); i++) {
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}

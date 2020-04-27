@@ -22,26 +22,30 @@ public class ProcessCommands {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {
-			TextComponent textcomponent = (TextComponent) base;
-			String text = textcomponent.getText();
-			boolean contains = false;
-			for (Entry<String, CommandPlaceholderGroup> entry : InteractiveChat.commandPlaceholderMatch.entrySet()) {
-				if (text.contains(entry.getKey())) {
-					String newText = text.replace(entry.getKey(), entry.getValue().getPlaceholder());
-					textcomponent.setText(newText);
-					newlist.add(textcomponent);
-					sender = entry.getValue().getSender();
-					contains = true;
-					break;
+			if (!(base instanceof TextComponent)) {
+				newlist.add(base);
+			} else {
+				TextComponent textcomponent = (TextComponent) base;
+				String text = textcomponent.getText();
+				boolean contains = false;
+				for (Entry<String, CommandPlaceholderGroup> entry : InteractiveChat.commandPlaceholderMatch.entrySet()) {
+					if (text.contains(entry.getKey())) {
+						String newText = text.replace(entry.getKey(), entry.getValue().getPlaceholder());
+						textcomponent.setText(newText);
+						newlist.add(textcomponent);
+						sender = entry.getValue().getSender();
+						contains = true;
+						break;
+					}
 				}
-			}
-			if (!contains) {
-				newlist.add(textcomponent);
+				if (!contains) {
+					newlist.add(textcomponent);
+				}
 			}
 		}
 		
-		TextComponent product = (TextComponent) newlist.get(0);
-		for (int i = 1; i < newlist.size(); i++) {
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}

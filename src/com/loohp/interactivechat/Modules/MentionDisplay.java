@@ -84,36 +84,40 @@ public class MentionDisplay {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {
-			TextComponent textcomponent = (TextComponent) base;
-			String text = textcomponent.getText();
-			if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
-				newlist.add(textcomponent);
-				continue;
-			}
-			
-			String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
-			List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
-			if (trim.get(trim.size() - 1).equals("")) {
-				trim.remove(trim.size() - 1);
-			}
-			for (int i = 0; i < trim.size(); i++) {
-				TextComponent before = (TextComponent) textcomponent.duplicate();
-				before.setText(trim.get(i));
-				newlist.add(before);
+			if (!(base instanceof TextComponent)) {
+				newlist.add(base);
+			} else {
+				TextComponent textcomponent = (TextComponent) base;
+				String text = textcomponent.getText();
+				if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
+					newlist.add(textcomponent);
+					continue;
+				}
 				
-				if ((trim.size() - 1) > i || text.endsWith(placeholder)) {		    
-					TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
-					message = CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
-					String hover = ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
-					message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
+				String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
+				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
+				if (trim.get(trim.size() - 1).equals("")) {
+					trim.remove(trim.size() - 1);
+				}
+				for (int i = 0; i < trim.size(); i++) {
+					TextComponent before = (TextComponent) textcomponent.duplicate();
+					before.setText(trim.get(i));
+					newlist.add(before);
 					
-					newlist.add(message);
+					if ((trim.size() - 1) > i || text.endsWith(placeholder)) {		    
+						TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
+						message = CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
+						String hover = ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
+						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
+						
+						newlist.add(message);
+					}
 				}
 			}
 		}
 		
-		TextComponent product = (TextComponent) newlist.get(0);
-		for (int i = 1; i < newlist.size(); i++) {
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}

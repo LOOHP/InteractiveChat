@@ -26,10 +26,8 @@ import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatPackets {
@@ -55,11 +53,6 @@ public class ChatPackets {
 		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) packet.getModifier().read(1);
 		        int field = (wcc != null) ? 0 : 1;
 		        BaseComponent basecomponent = basecomponentarray[0];
-		        for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
-		        	if (base instanceof TranslatableComponent) {
-		        		return;
-		        	}
-		        }
 		        if (wcc == null) {
 		        	if (basecomponent.toPlainText().equals("")) {
 		        		return;

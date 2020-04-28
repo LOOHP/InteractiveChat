@@ -26,6 +26,8 @@ public class ConfigManager {
 	}
 	
 	public static void loadConfig() {	
+		InteractiveChat.FilterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
+		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
 		
 		InteractiveChat.NoPermission = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));

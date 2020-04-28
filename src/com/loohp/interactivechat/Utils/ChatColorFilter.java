@@ -3,7 +3,7 @@ package com.loohp.interactivechat.Utils;
 public class ChatColorFilter {
 	
 	public static String removeUselessColorCodes(String string) {
-		return string.replaceAll("(§[0-9,a-f]){2,}", "");
+		return string.replaceAll("^(§[0-9,a-f,l-o,r])*(?=§[0-9,a-f,r])", "");
 	}
 	
 	public static String filterIllegalColorCodes(String string) {

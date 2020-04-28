@@ -108,17 +108,19 @@ public class CustomStringUtils {
 	        }
 	    }
 	    
-	    Iterator<BaseComponent> itr = list.iterator();
-	    while (itr.hasNext()) {
-	    	BaseComponent base = itr.next();
-	    	if (base instanceof TextComponent) {
-	    		TextComponent text = (TextComponent) base;
-	    		if (text.getText().matches("§.")) {
-	    			itr.remove();
-	    		} else {
-	    			text.setText(ChatColorFilter.removeUselessColorCodes(text.getText()));
-	    		}
-	    	}
+	    if (InteractiveChat.FilterUselessColorCodes) {
+		    Iterator<BaseComponent> itr = list.iterator();
+		    while (itr.hasNext()) {
+		    	BaseComponent base = itr.next();
+		    	if (base instanceof TextComponent) {
+		    		TextComponent text = (TextComponent) base;
+		    		if (text.getText().matches("^(§[0-9,a-f,l-o,r])*$")) {
+		    			itr.remove();
+		    		} else {
+		    			text.setText(ChatColorFilter.removeUselessColorCodes(text.getText()));
+		    		}
+		    	}
+		    }
 	    }
 	    return list;
 	}

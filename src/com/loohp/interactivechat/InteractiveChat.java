@@ -115,6 +115,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static int UpdaterTaskID = -1;
 	
 	public static HashMap<Player, String> essenNick = new HashMap<Player, String>();
+	
+	public static boolean FilterUselessColorCodes = true;
 
 	@Override
 	public void onEnable() {	

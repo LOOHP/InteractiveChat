@@ -20,7 +20,7 @@ public class MessageUtils {
 				regex = regex.replaceAll("\\\\?.", "(?:§.)?(?:$0)");
 				message = message.replaceAll(regex, placeholder);
 			}
-			message = message.replaceAll(CustomStringUtils.escapeMetaCharacters(placeholder), InteractiveChat.aliasesMapping.get(placeholder));
+			message = message.replaceAll(placeholder, InteractiveChat.aliasesMapping.get(placeholder));
 		}				
 		return message;
 	}

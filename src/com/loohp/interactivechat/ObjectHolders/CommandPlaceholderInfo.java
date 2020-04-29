@@ -8,14 +8,14 @@ import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
 
-public class CommandPlaceholderGroup {
+public class CommandPlaceholderInfo {
 	
 	String placeholder;
 	String uuidmatch;
 	UUID sender;
-	HashMap<String, CommandPlaceholderGroup> map;
+	HashMap<String, CommandPlaceholderInfo> map;
 	
-	public CommandPlaceholderGroup(Player sender, String placeholder, String uuidmatch, HashMap<String, CommandPlaceholderGroup> mapToRemoveFrom) {
+	public CommandPlaceholderInfo(Player sender, String placeholder, String uuidmatch, HashMap<String, CommandPlaceholderInfo> mapToRemoveFrom) {
 		this.placeholder = placeholder;
 		this.uuidmatch = uuidmatch;
 		this.sender = sender.getUniqueId();

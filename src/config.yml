@@ -103,6 +103,8 @@ ItemDisplay:
     CaseSensitive: false
     #The keyword to trigger the item display function
     Keyword: "[item]"
+    Aliases:
+      - "[i]"
     #The text to replace the keyword
     #Special Placeholders:
     #Use {Item} for item display name
@@ -127,6 +129,8 @@ ItemDisplay:
     CaseSensitive: false
     #The keyword to trigger the inventory display function
     Keyword: "[inv]"
+    Aliases:
+      - "[inventory]"
     #The text to replace the keyword
     Text: "&f[&b%player_name%'s Inventory&f]"
     #The title of the inventory view
@@ -144,6 +148,8 @@ ItemDisplay:
     CaseSensitive: false
     #The keyword to trigger the ender chest display function
     Keyword: "[ender]"
+    Aliases:
+      - "[e]"
     #The text to replace the keyword
     Text: "&f[&d%player_name%'s Ender Chest&f]"
     #The title of the ender chest inventory view
@@ -192,6 +198,8 @@ CustomPlaceholders:
     ParsePlayer: sender
     #The keyword to look for in the chat
     Text: "[money]"
+    Aliases:
+      - "[m]"
     #Parse Placeholders in the keyword text
     ParseKeyword: false
     #Whether or the keyword check is case sensitive
@@ -231,6 +239,7 @@ CustomPlaceholders:
   '2':
     ParsePlayer: viewer
     Text: "SunKnights"
+    Aliases: []
     ParseKeyword: false
     CaseSensitive: false
     Cooldown: 0
@@ -249,6 +258,7 @@ CustomPlaceholders:
   '3':
     ParsePlayer: sender
     Text: "[gametime]"
+    Aliases: []
     ParseKeyword: false
     CaseSensitive: true
     Cooldown: 0
@@ -265,6 +275,7 @@ CustomPlaceholders:
   '4':
     ParsePlayer: viewer
     Text: "[Hover]"
+    Aliases: []
     ParseKeyword: false
     CaseSensitive: false
     Cooldown: 0

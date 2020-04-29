@@ -25,7 +25,9 @@ public class ConfigManager {
 		loadConfig();
 	}
 	
-	public static void loadConfig() {	
+	public static void loadConfig() {
+		InteractiveChat.aliasesMapping.clear();
+		
 		InteractiveChat.FilterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
 		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
@@ -45,6 +47,19 @@ public class ConfigManager {
 		InteractiveChat.itemPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Keyword"));
 		InteractiveChat.invPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Keyword"));
 		InteractiveChat.enderPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Keyword"));
+		
+		for (String alias : getConfig().getStringList("ItemDisplay.Item.Aliases")) {
+			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.itemPlaceholder);
+		}
+		for (String alias : getConfig().getStringList("ItemDisplay.Inventory.Aliases")) {
+			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.invPlaceholder);
+		}
+		for (String alias : getConfig().getStringList("ItemDisplay.EnderChest.Aliases")) {
+			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.enderPlaceholder);
+		}
 		
 		InteractiveChat.itemReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
 		InteractiveChat.invReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text"));
@@ -86,7 +101,12 @@ public class ConfigManager {
 			InteractiveChat.placeholderList.add(InteractiveChat.enderPlaceholder);
 		}
 		for (int customNo = 1; getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)) == true; customNo = customNo + 1) {
-			InteractiveChat.placeholderList.add(getConfig().getString("CustomPlaceholders." + String.valueOf(customNo) + ".Text"));
+			String placeholder = getConfig().getString("CustomPlaceholders." + String.valueOf(customNo) + ".Text");
+			InteractiveChat.placeholderList.add(placeholder);			
+			for (String alias : getConfig().getStringList("CustomPlaceholders." + String.valueOf(customNo) + ".Aliases")) {
+				alias = ChatColor.translateAlternateColorCodes('&', alias);
+				InteractiveChat.aliasesMapping.put(alias, placeholder);
+			}
 		}
 		
 		InteractiveChat.commandList = getConfig().getStringList("Settings.CommandsToParse");

@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
+import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
@@ -28,7 +28,7 @@ public class ProcessCommands {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
 				boolean contains = false;
-				for (Entry<String, CommandPlaceholderGroup> entry : InteractiveChat.commandPlaceholderMatch.entrySet()) {
+				for (Entry<String, CommandPlaceholderInfo> entry : InteractiveChat.commandPlaceholderMatch.entrySet()) {
 					if (text.contains(entry.getKey())) {
 						String newText = text.replace(entry.getKey(), entry.getValue().getPlaceholder());
 						textcomponent.setText(newText);

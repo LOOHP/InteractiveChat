@@ -1,4 +1,4 @@
-package com.loohp.interactivechat;
+ package com.loohp.interactivechat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.MaterialUtils;
@@ -48,16 +47,14 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.update")) {
 				sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
 				sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
-				new BukkitRunnable() {
-					public void run() {
-						String version = Updater.checkUpdate();
-						if (version.equals("latest")) {
-							sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
-						} else {
-							Updater.sendUpdateMessage(version);
-						}
+				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+					String version = Updater.checkUpdate();
+					if (version.equals("latest")) {
+						sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
+					} else {
+						Updater.sendUpdateMessage(version);
 					}
-				}.runTaskAsynchronously(InteractiveChat.plugin);
+				});
 			} else {
 				sender.sendMessage(InteractiveChat.NoPermission);
 			}
@@ -107,7 +104,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return tab;
 		}
 		
-		if (args.length <= 1) {
+		switch (args.length) {
+		case 0:
 			if (sender.hasPermission("interactivechat.reload")) {
 				tab.add("reload");
 			}
@@ -115,8 +113,21 @@ public class Commands implements CommandExecutor, TabCompleter {
 				tab.add("update");
 			}
 			return tab;
+		case 1:
+			if (sender.hasPermission("interactivechat.reload")) {
+				if ("reload".startsWith(args[0].toLowerCase())) {
+					tab.add("reload");
+				}
+			}
+			if (sender.hasPermission("interactivechat.update")) {
+				if ("update".startsWith(args[0].toLowerCase())) {
+					tab.add("update");
+				}
+			}
+			return tab;
+		default:
+			return tab;
 		}
-		return tab;
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,11 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.loohp.interactivechat.Debug.Debug;
-import com.loohp.interactivechat.Hooks.EssentialsHook;
+import com.loohp.interactivechat.Hooks.EssentialsNicknames;
 import com.loohp.interactivechat.Listeners.ChatPackets;
 import com.loohp.interactivechat.Listeners.Events;
+import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
+import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -37,8 +37,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String space0 = "\u200B";
 	public static String space1 = "\u200A";
 	
-	public static boolean ess3 = false;
-	public static boolean cm = false;
+	public static boolean EssentialsHook = false;
+	public static boolean ChatManagerHook = false;
 	
 	public static boolean useItem = true;
 	public static boolean useInventory = true;
@@ -109,14 +109,16 @@ public class InteractiveChat extends JavaPlugin {
 	public static long mentionDuration = 2;
 	
 	public static List<String> commandList = new ArrayList<String>();
-	public static HashMap<String, CommandPlaceholderGroup> commandPlaceholderMatch = new HashMap<String, CommandPlaceholderGroup>();
-	
-	public static boolean UpdaterEnabled = true;
-	public static int UpdaterTaskID = -1;
+	public static HashMap<String, CommandPlaceholderInfo> commandPlaceholderMatch = new HashMap<String, CommandPlaceholderInfo>();
 	
 	public static HashMap<Player, String> essenNick = new HashMap<Player, String>();
 	
 	public static boolean FilterUselessColorCodes = true;
+	
+	public static HashMap<String, String> aliasesMapping = new HashMap<String, String>();
+	
+	public static boolean UpdaterEnabled = true;
+	public static int UpdaterTaskID = -1;
 
 	@Override
 	public void onEnable() {	
@@ -160,8 +162,7 @@ public class InteractiveChat extends JavaPlugin {
         } else if (packageName.contains("1_8_R1")) {
             version = "OLDlegacy1.8";
 	    } else {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "This version of minecraft is unsupported!");
-	    	plugin.getPluginLoader().disablePlugin(this);
+	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported!");
 	    }
 
 	    getCommand("interactivechat").setExecutor(new Commands());
@@ -172,28 +173,23 @@ public class InteractiveChat extends JavaPlugin {
 	    ChatPackets.chatMessageListener();
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into Essentials!");
-			ess3 = true;
-			getServer().getPluginManager().registerEvents(new EssentialsHook(), this);
-			EssentialsHook.setup();
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
+			EssentialsHook = true;
+			getServer().getPluginManager().registerEvents(new EssentialsNicknames(), this);
+			EssentialsNicknames.setup();
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Interactive Chat has hooked into ChatManager!");
-			cm = true;
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatManager!");
+			ChatManagerHook = true;
 		}
 		
 	    MaterialUtils.setupLang();
 	    RarityUtils.setupRarity();
 	    
-	    metrics.addCustomChart(new Metrics.SingleLineChart("total_placeholders", new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return InteractiveChat.placeholderList.size();
-            }
-        }));
+	    Charts.setup(metrics);
 	    
-	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "InteractiveChat has been Enabled!");
+	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    
 	    for (Player player : Bukkit.getOnlinePlayers()) {
 			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
@@ -202,6 +198,6 @@ public class InteractiveChat extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		getServer().getConsoleSender().sendMessage(ChatColor.RED + "InteractiveChat has been Disabled!");
+		getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
 	}
 }

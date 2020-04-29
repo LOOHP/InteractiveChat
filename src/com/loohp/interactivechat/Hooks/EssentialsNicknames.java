@@ -14,7 +14,7 @@ import com.loohp.interactivechat.InteractiveChat;
 
 import net.ess3.api.events.NickChangeEvent;
 
-public class EssentialsHook implements Listener {
+public class EssentialsNicknames implements Listener {
 	
 	private static Essentials essen;
 	private static String prefix;

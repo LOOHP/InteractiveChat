@@ -59,7 +59,7 @@ public class SenderFinder {
 		
 		HashMap<String, Player> names = new HashMap<String, Player>();
 		Bukkit.getOnlinePlayers().forEach((each) -> names.put(each.getName(), each)); 
-		if (InteractiveChat.ess3) {
+		if (InteractiveChat.EssentialsHook) {
 			InteractiveChat.essenNick.forEach((player, name) -> names.put(name, player));
 		}
 		

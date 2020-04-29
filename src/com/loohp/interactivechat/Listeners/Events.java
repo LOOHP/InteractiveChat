@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderGroup;
+import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
@@ -32,7 +32,7 @@ public class Events implements Listener {
 	}
 	
 	@EventHandler
-	public void onJoin(PlayerQuitEvent event) {
+	public void onLeave(PlayerQuitEvent event) {
 		InteractiveChat.mentionCooldown.remove(event.getPlayer());
 	}
 	
@@ -47,7 +47,7 @@ public class Events implements Listener {
 						String regexPlaceholder = CustomStringUtils.escapeMetaCharacters(placeholder);
 						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderGroup(event.getPlayer(), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(event.getPlayer(), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
 						event.setMessage(command);
 						break;
 					}
@@ -62,7 +62,7 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (InteractiveChat.cm) {
+		if (InteractiveChat.ChatManagerHook) {
 			return;
 		}
 
@@ -97,7 +97,7 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!InteractiveChat.cm) {
+		if (!InteractiveChat.ChatManagerHook) {
 			return;
 		}
 		
@@ -138,7 +138,7 @@ public class Events implements Listener {
     			if (!player.getName().equals(player.getDisplayName())) {
     				playernames.add(player.getDisplayName());
     			}
-    			if (InteractiveChat.ess3 == true) {
+    			if (InteractiveChat.EssentialsHook == true) {
     				if (InteractiveChat.essenNick.containsKey(player)) {
     					playernames.add(InteractiveChat.essenNick.get(player));
     				}

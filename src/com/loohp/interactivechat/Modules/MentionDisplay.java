@@ -62,7 +62,7 @@ public class MentionDisplay {
 					if (!names.contains(reciever.getName())) {
 						names.add(reciever.getName());
 					}
-					if (InteractiveChat.ess3) {
+					if (InteractiveChat.EssentialsHook) {
 						if (InteractiveChat.essenNick.containsKey(reciever)) {
 							names.add(InteractiveChat.essenNick.get(reciever));
 						}

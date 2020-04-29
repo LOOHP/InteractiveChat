@@ -15,13 +15,13 @@ public class MessageUtils {
 			}
 		}
 		for (String placeholder : InteractiveChat.aliasesMapping.keySet()) {
-			if (ChatColor.stripColor(message).contains(placeholder)) {
+			if (ChatColor.stripColor(message).matches(".*" + placeholder + ".*")) {
 				String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
 				regex = regex.replaceAll("\\\\?.", "(?:§.)?(?:$0)");
 				message = message.replaceAll(regex, placeholder);
 			}
 			message = message.replaceAll(placeholder, InteractiveChat.aliasesMapping.get(placeholder));
-		}				
+		}
 		return message;
 	}
 

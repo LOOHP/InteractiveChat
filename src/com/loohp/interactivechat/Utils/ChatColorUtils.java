@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 public class ChatColorUtils {
 	
@@ -43,6 +44,36 @@ public class ChatColorUtils {
     		return false;
     	}
     	return true;
+    }
+    
+    public static BaseComponent applyColor(BaseComponent basecomponent, String color) {
+    	if (color.length() >= 2 && color.charAt(1) != 'r') {
+	    	if (color.length() == 2) {
+	    		basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
+	    	} else if (color.length() == 4) {
+	    		basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
+	    		switch (ChatColor.getByChar(color.charAt(3))) {
+				case BOLD:
+					basecomponent.setBold(true);
+					break;
+				case ITALIC:
+					basecomponent.setItalic(true);
+					break;
+				case MAGIC:
+					basecomponent.setObfuscated(true);
+					break;
+				case STRIKETHROUGH:
+					basecomponent.setStrikethrough(true);
+					break;
+				case UNDERLINE:
+					basecomponent.setUnderlined(true);
+					break;
+				default:
+					break;
+	    		}
+	    	}
+    	}
+    	return basecomponent;
     }
   
 }

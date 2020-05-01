@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 
@@ -96,7 +97,9 @@ public class InventoryDisplay {
 					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {
 						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
+							String color = ChatColorUtils.getLastColors(newlist.get(newlist.size() - 1).toLegacyText());
 							TextComponent message = new TextComponent(placeholder);
+							message = (TextComponent) ChatColorUtils.applyColor(message, color);
 							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							newlist.add(message);
 						} else {

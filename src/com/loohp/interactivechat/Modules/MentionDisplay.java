@@ -92,7 +92,6 @@ public class MentionDisplay {
 				String regex = CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder));
 				
 				if (!text.matches("(?i).*" + regex + ".*")) {
-					Bukkit.getConsoleSender().sendMessage("(?i).*" + regex + ".*");
 					newlist.add(textcomponent);
 					continue;
 				}
@@ -105,7 +104,6 @@ public class MentionDisplay {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
 					before.setText(trim.get(i));
 					newlist.add(before);
-					Bukkit.getConsoleSender().sendMessage(regex);
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    
 						TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
 						message = CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);

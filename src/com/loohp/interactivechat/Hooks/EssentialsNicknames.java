@@ -25,7 +25,6 @@ public class EssentialsNicknames implements Listener {
 	}
 	
 	public static void loadNicks(Player player) {
-		Bukkit.getConsoleSender().sendMessage(player.getDisplayName());
 		if (essen.getUser(player.getUniqueId()).getNickname() != null && !essen.getUser(player.getUniqueId()).getNickname().equals("")) {
 			String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
 			InteractiveChat.essenNick.put(player, prefix + essentialsNick);

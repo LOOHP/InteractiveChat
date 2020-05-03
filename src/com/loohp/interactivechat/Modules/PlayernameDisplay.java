@@ -15,6 +15,7 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -32,9 +33,14 @@ public class PlayernameDisplay {
 	
 	public static BaseComponent process(BaseComponent basecomponent, String messageKey, long unix) {
 		HashMap<String, Player> names = new HashMap<String, Player>();
-		Bukkit.getOnlinePlayers().forEach((each) -> names.put(each.getName(), each)); 
+		Bukkit.getOnlinePlayers().forEach((each) -> {
+			names.put(ChatColor.stripColor(each.getName()), each);
+			if (!names.containsKey(ChatColor.stripColor(each.getDisplayName()))) {
+				names.put(ChatColor.stripColor(each.getDisplayName()), each);
+			}
+		}); 
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(name, player));
+			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColor.stripColor(name), player));
 		}
 		
 		for (Entry<String, Player> entry : names.entrySet()) {
@@ -52,19 +58,13 @@ public class PlayernameDisplay {
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
-				if (casesensitive) {
-					if (!text.contains(placeholder)) {
-						newlist.add(textcomponent);
-						continue;
-					}
-				} else {
-					if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
-						newlist.add(textcomponent);
-						continue;
-					}
+				String regex = casesensitive ? CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) : "(?i)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) + ")";
+				
+				if (!text.matches(".*" + regex + ".*")) {
+					newlist.add(textcomponent);
+					continue;
 				}
 				
-				String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
@@ -74,8 +74,7 @@ public class PlayernameDisplay {
 					before.setText(trim.get(i));
 					newlist.add(before);
 					
-					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
-					if ((trim.size() - 1) > i || endwith) {			
+					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {
 						String lastColor = ChatColorUtils.getLastColors(trim.get(i));
 				    
 						TextComponent message = new TextComponent(placeholder);

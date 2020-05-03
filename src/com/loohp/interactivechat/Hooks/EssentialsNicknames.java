@@ -25,11 +25,10 @@ public class EssentialsNicknames implements Listener {
 	}
 	
 	public static void loadNicks(Player player) {
-		if (essen.getUser(player.getUniqueId()).getNickname() != null) {
-			if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
-				String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-				InteractiveChat.essenNick.put(player, prefix + essentialsNick);
-			}
+		Bukkit.getConsoleSender().sendMessage(player.getDisplayName());
+		if (essen.getUser(player.getUniqueId()).getNickname() != null && !essen.getUser(player.getUniqueId()).getNickname().equals("")) {
+			String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
+			InteractiveChat.essenNick.put(player, prefix + essentialsNick);
 		}
 	}
 	
@@ -46,19 +45,14 @@ public class EssentialsNicknames implements Listener {
 	
 	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEssentialsNickChange(NickChangeEvent event) {
-		InteractiveChat.essenNick.put(event.getController().getBase(), prefix + event.getValue());
+		InteractiveChat.essenNick.put(event.getAffected().getBase(), prefix + event.getValue());
 	}
 	
 	@EventHandler
 	public void onEssentialsJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
-			if (essen.getUser(player.getUniqueId()).getNickname() != null) {
-				if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
-					String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-					InteractiveChat.essenNick.put(player, prefix + essentialsNick);
-				}
-			}
+			loadNicks(player);
 		}, 100);
 	}
 	

@@ -5,17 +5,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.earth2me.essentials.Essentials;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.EssentialsNicknames;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -76,8 +78,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean PlayerNotFoundReplaceEnable = true;
 	public static String PlayerNotFoundReplaceText = "[&cERROR]";
 	
-	public static Material itemFrame1;
-	public static Material itemFrame2;
+	public static ItemStack itemFrame1;
+	public static ItemStack itemFrame2;
 	
 	public static boolean AllowMention = true;
 	
@@ -111,7 +113,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static List<String> commandList = new ArrayList<String>();
 	public static HashMap<String, CommandPlaceholderInfo> commandPlaceholderMatch = new HashMap<String, CommandPlaceholderInfo>();
 	
-	public static HashMap<Player, String> essenNick = new HashMap<Player, String>();
+	public static ConcurrentHashMap<Player, String> essenNick = new ConcurrentHashMap<Player, String>();
 	
 	public static boolean FilterUselessColorCodes = true;
 	
@@ -129,11 +131,6 @@ public class InteractiveChat extends JavaPlugin {
 		int pluginId = 6747;
 
 		Metrics metrics = new Metrics(this, pluginId);
-		
-		plugin.getConfig().options().copyDefaults(true);
-		ConfigManager.saveConfig();
-		
-		protocolManager = ProtocolLibrary.getProtocolManager();
 		
 		String packageName = getServer().getClass().getPackage().getName();
 
@@ -164,6 +161,11 @@ public class InteractiveChat extends JavaPlugin {
 	    } else {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported!");
 	    }
+		
+		plugin.getConfig().options().copyDefaults(true);
+		ConfigManager.saveConfig();
+		
+		protocolManager = ProtocolLibrary.getProtocolManager();
 
 	    getCommand("interactivechat").setExecutor(new Commands());
 	    
@@ -193,6 +195,18 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    for (Player player : Bukkit.getOnlinePlayers()) {
 			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
+			
+			if (EssentialsHook) {
+				Essentials essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+				Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+					if (essen.getUser(player.getUniqueId()).getNickname() != null) {
+						if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
+							String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
+							InteractiveChat.essenNick.put(player, essen.getConfig().getString("nickname-prefix") + essentialsNick);
+						}
+					}
+				}, 100);
+			}
 		}
 	}
 

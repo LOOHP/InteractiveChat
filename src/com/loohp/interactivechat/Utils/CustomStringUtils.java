@@ -77,6 +77,10 @@ public class CustomStringUtils {
 	    return result;
 	}
 	
+	public static String getIgnoreColorCodeRegex(String input) {
+		return input.replaceAll("(?=(?<!§.).)(?=(?<!§).)(?=(?<!\\\\).)", "(§.)*?");
+	}
+	
 	public static List<BaseComponent> loadExtras(BaseComponent basecomponent) {
 		List<BaseComponent> list = new ArrayList<BaseComponent>();
 		list.add(basecomponent);

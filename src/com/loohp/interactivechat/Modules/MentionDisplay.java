@@ -58,13 +58,13 @@ public class MentionDisplay {
 					}
 					
 					List<String> names = new ArrayList<String>();
-					names.add(reciever.getName());
-					if (!names.contains(reciever.getName())) {
-						names.add(reciever.getName());
+					names.add(ChatColor.stripColor(reciever.getName()));
+					if (!names.contains(ChatColor.stripColor(reciever.getDisplayName()))) {
+						names.add(ChatColor.stripColor(reciever.getDisplayName()));
 					}
 					if (InteractiveChat.EssentialsHook) {
 						if (InteractiveChat.essenNick.containsKey(reciever)) {
-							names.add(InteractiveChat.essenNick.get(reciever));
+							names.add(ChatColor.stripColor(InteractiveChat.essenNick.get(reciever)));
 						}
 					}
 					
@@ -89,12 +89,14 @@ public class MentionDisplay {
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
-				if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
+				String regex = CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder));
+				
+				if (!text.matches("(?i).*" + regex + ".*")) {
+					Bukkit.getConsoleSender().sendMessage("(?i).*" + regex + ".*");
 					newlist.add(textcomponent);
 					continue;
 				}
 				
-				String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
@@ -103,8 +105,8 @@ public class MentionDisplay {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
 					before.setText(trim.get(i));
 					newlist.add(before);
-					
-					if ((trim.size() - 1) > i || text.endsWith(placeholder)) {		    
+					Bukkit.getConsoleSender().sendMessage(regex);
+					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    
 						TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
 						message = CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
 						String hover = ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));

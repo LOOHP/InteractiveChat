@@ -134,13 +134,13 @@ public class Events implements Listener {
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				List<String> playernames = new ArrayList<String>();
-    			playernames.add(player.getName());
+    			playernames.add(ChatColor.stripColor(player.getName()));
     			if (!player.getName().equals(player.getDisplayName())) {
-    				playernames.add(player.getDisplayName());
+    				playernames.add(ChatColor.stripColor(player.getDisplayName()));
     			}
-    			if (InteractiveChat.EssentialsHook == true) {
+    			if (InteractiveChat.EssentialsHook) {
     				if (InteractiveChat.essenNick.containsKey(player)) {
-    					playernames.add(InteractiveChat.essenNick.get(player));
+    					playernames.add(ChatColor.stripColor(InteractiveChat.essenNick.get(player)));
     				}
     			}
        			for (String name : playernames) {

@@ -5,12 +5,15 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import com.loohp.interactivechat.Updater.Updater;
 
 import net.md_5.bungee.api.ChatColor;
 
 public class ConfigManager {
+	
+	private static String version = InteractiveChat.version;
 	
 	public static FileConfiguration getConfig() {
 		return InteractiveChat.plugin.getConfig();
@@ -25,6 +28,7 @@ public class ConfigManager {
 		loadConfig();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void loadConfig() {
 		InteractiveChat.aliasesMapping.clear();
 		
@@ -69,8 +73,23 @@ public class ConfigManager {
 		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
-		InteractiveChat.itemFrame1 = Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary"));
-		InteractiveChat.itemFrame2 = Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary"));
+		Bukkit.getConsoleSender().sendMessage(version);
+		if (version.contains("legacy")) {
+			String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
+			Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+			short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+			InteractiveChat.itemFrame1 = new ItemStack(material, 1, data);
+		} else {
+			InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
+		}
+		if (version.contains("legacy")) {
+			String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
+			Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+			short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+			InteractiveChat.itemFrame2 = new ItemStack(material, 1, data);
+		} else {
+			InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
+		}
 		
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");
 		InteractiveChat.usePlayerNameHoverEnable = getConfig().getBoolean("Player.Hover.Enable");

@@ -7,8 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
-import com.loohp.interactivechat.Updater.Updater;
-
 import net.md_5.bungee.api.ChatColor;
 
 public class ConfigManager {
@@ -138,12 +136,6 @@ public class ConfigManager {
 		InteractiveChat.mentionHover = String.join("\n", stringList3);
 		InteractiveChat.mentionDuration = getConfig().getLong("Chat.MentionedTitleDuration");
 		
-		if (InteractiveChat.UpdaterTaskID >= 0) {
-			Bukkit.getScheduler().cancelTask(InteractiveChat.UpdaterTaskID);
-		}
 		InteractiveChat.UpdaterEnabled = InteractiveChat.plugin.getConfig().getBoolean("Options.Updater");
-		if (InteractiveChat.UpdaterEnabled == true) {
-			Updater.updaterInterval();
-		}
 	}
 }

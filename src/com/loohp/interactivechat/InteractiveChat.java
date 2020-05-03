@@ -25,6 +25,7 @@ import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -120,7 +121,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static HashMap<String, String> aliasesMapping = new HashMap<String, String>();
 	
 	public static boolean UpdaterEnabled = true;
-	public static int UpdaterTaskID = -1;
 
 	@Override
 	public void onEnable() {	
@@ -190,6 +190,10 @@ public class InteractiveChat extends JavaPlugin {
 	    RarityUtils.setupRarity();
 	    
 	    Charts.setup(metrics);
+	    
+	    if (UpdaterEnabled) {
+	    	getServer().getPluginManager().registerEvents(new Updater(), this);
+	    }
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    

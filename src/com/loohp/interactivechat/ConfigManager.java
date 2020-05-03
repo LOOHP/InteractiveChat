@@ -2,7 +2,6 @@ package com.loohp.interactivechat;
 
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -71,7 +70,6 @@ public class ConfigManager {
 		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
-		Bukkit.getConsoleSender().sendMessage(version);
 		if (version.contains("legacy")) {
 			String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
 			Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);

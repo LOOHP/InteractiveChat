@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -58,9 +59,14 @@ public class SenderFinder {
 		}
 		
 		HashMap<String, Player> names = new HashMap<String, Player>();
-		Bukkit.getOnlinePlayers().forEach((each) -> names.put(each.getName(), each)); 
+		Bukkit.getOnlinePlayers().forEach((each) -> {
+			names.put(ChatColor.stripColor(each.getName()), each);
+			if (!ChatColor.stripColor(each.getName()).equals(ChatColor.stripColor(each.getDisplayName()))) {
+				names.put(ChatColor.stripColor(each.getDisplayName()), each);
+			}
+		});
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(name, player));
+			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColor.stripColor(name), player));
 		}
 		
 		Player currentplayer = null;
@@ -75,7 +81,7 @@ public class SenderFinder {
 		
 		if (currentplayer != null) {
 			return Optional.of(currentplayer);
-		} 
+		}
 
 		return Optional.empty();
 	}

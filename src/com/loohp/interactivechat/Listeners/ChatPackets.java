@@ -26,6 +26,7 @@ import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -110,7 +111,7 @@ public class ChatPackets {
 		        
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, event.getPlayer(), rawMessageKey, unix);
 		        
-		        basecomponentarray[0] = basecomponent;
+		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent) : basecomponent;
 		        if (field == 0) {
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(basecomponentarray)));
 		        } else {

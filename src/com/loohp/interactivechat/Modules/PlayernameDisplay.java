@@ -2,20 +2,19 @@ package com.loohp.interactivechat.Modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -32,26 +31,27 @@ public class PlayernameDisplay {
 	private static String clickValue = InteractiveChat.usePlayerNameClickValue;
 	
 	public static BaseComponent process(BaseComponent basecomponent, String messageKey, long unix) {
-		HashMap<String, Player> names = new HashMap<String, Player>();
+		List<ReplaceTextBundle>  names = new ArrayList<ReplaceTextBundle>();
 		Bukkit.getOnlinePlayers().forEach((each) -> {
-			names.put(ChatColor.stripColor(each.getName()), each);
-			if (!names.containsKey(ChatColor.stripColor(each.getDisplayName()))) {
-				names.put(ChatColor.stripColor(each.getDisplayName()), each);
+			names.add(new ReplaceTextBundle(ChatColor.stripColor(each.getName()), each, each.getName()));
+			if (!ChatColor.stripColor(each.getName()).equals(ChatColor.stripColor(each.getDisplayName()))) {
+				names.add(new ReplaceTextBundle(ChatColor.stripColor(each.getDisplayName()), each, each.getDisplayName()));
 			}
-		}); 
+		});	
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColor.stripColor(name), player));
-		}
+			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColor.stripColor(name), player, name)));
+		}	
 		
-		for (Entry<String, Player> entry : names.entrySet()) {
-			basecomponent = processPlayer(entry.getKey(), entry.getValue(), basecomponent, messageKey, unix);
+		for (ReplaceTextBundle entry : names) {
+			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), entry.getReplaceText(), basecomponent, messageKey, unix);
 		}
 		return basecomponent;
 	}
 	
-	public static BaseComponent processPlayer(String placeholder, Player player, BaseComponent basecomponent, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, Player player, String replaceText, BaseComponent basecomponent, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+
 		for (BaseComponent base : basecomponentlist) {
 			if (!(base instanceof TextComponent)) {
 				newlist.add(base);
@@ -64,7 +64,7 @@ public class PlayernameDisplay {
 					newlist.add(textcomponent);
 					continue;
 				}
-				
+
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
@@ -73,13 +73,16 @@ public class PlayernameDisplay {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
 					before.setText(trim.get(i));
 					newlist.add(before);
-					
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {
-						String lastColor = ChatColorUtils.getLastColors(trim.get(i));
+						StringBuilder sb = new StringBuilder();
+						newlist.forEach((each) -> sb.append(each.toLegacyText())); 
+						
+						String lastColor = ChatColorUtils.getLastColors(sb.toString());
 				    
-						TextComponent message = new TextComponent(placeholder);
-						message = CustomStringUtils.copyFormatting(message, before);
+						TextComponent message = new TextComponent(replaceText);
+						message = (TextComponent) CustomStringUtils.copyFormatting(message, before);
 						message.setText(lastColor + message.getText());
+
 						if (hoverEnabled) {
 							String playertext = PlaceholderAPI.setPlaceholders(player, hoverText);
 							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));

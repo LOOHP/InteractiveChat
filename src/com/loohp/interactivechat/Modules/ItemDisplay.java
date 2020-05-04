@@ -206,6 +206,7 @@ public class ItemDisplay {
 								            	BaseComponent itembaseJson = itembcJson[0];
 												TextComponent itemitemtextcomponent = (TextComponent) itembaseJson;
 												itemitemtextcomponent.setText(RarityUtils.getRarityColor(item) + itemitemtextcomponent.getText());
+												itemitemtextcomponent.setColor(RarityUtils.getRarityColor(item));
 												if (!isAir) {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}

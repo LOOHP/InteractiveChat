@@ -46,7 +46,7 @@ public class Updater implements Listener {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			player.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
-			TextComponent url = new TextComponent(ChatColor.GOLD + "https://www.spigotmc.org/resources/75804");
+			TextComponent url = new TextComponent(ChatColor.GOLD + "https://www.spigotmc.org/resources/75870");
 			url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
 			url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/75870"));
 			player.spigot().sendMessage(url);

@@ -106,7 +106,7 @@ public class MentionDisplay {
 					newlist.add(before);
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    
 						TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
-						message = CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
+						message = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
 						String hover = ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
 						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
 						

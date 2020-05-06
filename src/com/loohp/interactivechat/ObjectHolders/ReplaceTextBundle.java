@@ -2,7 +2,7 @@ package com.loohp.interactivechat.ObjectHolders;
 
 import org.bukkit.entity.Player;
 
-public class ReplaceTextBundle {
+public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 	
 	String placeholder;
 	Player player;
@@ -24,6 +24,13 @@ public class ReplaceTextBundle {
 	
 	public String getReplaceText() {
 		return replaceText;
+	}
+
+	@Override
+	public int compareTo(ReplaceTextBundle anotherReplaceTextBundle) {
+		String compareText = anotherReplaceTextBundle.getPlaceholder();
+		int res = String.CASE_INSENSITIVE_ORDER.compare(placeholder, compareText);
+        return (res != 0) ? res : placeholder.compareTo(compareText);
 	}
 
 }

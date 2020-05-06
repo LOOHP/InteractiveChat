@@ -90,7 +90,7 @@ public class ChatPackets {
 				}
 		        
 		        if (InteractiveChat.usePlayerName) {
-		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, unix);
+		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
 		        }
 		        
 		        if (InteractiveChat.AllowMention && sender.isPresent()) {

@@ -36,16 +36,13 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ItemDisplay {
 	
-	private static String placeholder = InteractiveChat.itemPlaceholder;
-	private static boolean casesensitive = InteractiveChat.itemCaseSensitive;
 	private static HashMap<Player, HashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
-	private static long cooldown = ConfigManager.getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000;
 	
 	@SuppressWarnings("deprecation")
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
-		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
-		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
+		boolean contain = (InteractiveChat.itemCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.itemPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
+		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
 				Player player = optplayer.get();
 				Long uc = universalCooldowns.get(player);
@@ -59,16 +56,16 @@ public class ItemDisplay {
 					placeholderCooldowns.put(player, new HashMap<String, Long>());
 				}
 				HashMap<String, Long> spmap = placeholderCooldowns.get(player);
-				if (spmap.containsKey(placeholder)) {
-					if (spmap.get(placeholder) > unix) {
+				if (spmap.containsKey(InteractiveChat.itemPlaceholder)) {
+					if (spmap.get(InteractiveChat.itemPlaceholder) > unix) {
 						if (!player.hasPermission("interactivechat.cooldown.bypass")) {
 							return basecomponent;
 						}
 					}
 				}
-				spmap.put(placeholder, unix + cooldown);
+				spmap.put(InteractiveChat.itemPlaceholder, unix + ConfigManager.getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
 			}
-			InteractiveChat.cooldownbypass.get(unix).add(placeholder);
+			InteractiveChat.cooldownbypass.get(unix).add(InteractiveChat.itemPlaceholder);
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
@@ -80,33 +77,34 @@ public class ItemDisplay {
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
-				if (casesensitive) {
-					if (!text.contains(placeholder)) {
+				if (InteractiveChat.itemCaseSensitive) {
+					if (!text.contains(InteractiveChat.itemPlaceholder)) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				} else {
-					if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
+					if (!text.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase())) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				}
 				
-				String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
+				String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
+				
 				for (int i = 0; i < trim.size(); i++) {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
 					before.setText(trim.get(i));
 					newlist.add(before);
 					
-					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
+					boolean endwith = InteractiveChat.itemCaseSensitive ? text.endsWith(InteractiveChat.itemPlaceholder) : text.toLowerCase().endsWith(InteractiveChat.itemPlaceholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {
 						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
 							String color = ChatColorUtils.getLastColors(newlist.get(newlist.size() - 1).toLegacyText());
-							TextComponent message = new TextComponent(placeholder);
+							TextComponent message = new TextComponent(InteractiveChat.itemPlaceholder);
 							message = (TextComponent) ChatColorUtils.applyColor(message, color);
 							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							newlist.add(message);
@@ -287,24 +285,23 @@ public class ItemDisplay {
 											}
 										}
 									}
-								    
 								} else {
-									TextComponent message = new TextComponent(placeholder);
+									TextComponent message = new TextComponent(InteractiveChat.itemPlaceholder);
 									
 									newlist.add(message);
 								}
 							} else {
 								TextComponent message = null;
 								if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
-									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", placeholder));
+									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
 								} else {
-									message = new TextComponent(placeholder);
+									message = new TextComponent(InteractiveChat.itemPlaceholder);
 								}
 								if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
-									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", placeholder)).create()));
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.itemPlaceholder)).create()));
 								}
 								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-									String text1 = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", placeholder));
+									String text1 = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), text1));
 								}
 								

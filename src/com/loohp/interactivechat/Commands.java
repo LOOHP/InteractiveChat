@@ -34,7 +34,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload")) {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
-				ConfigManager.loadConfig();
 				MaterialUtils.reloadLang();
 				sender.sendMessage(InteractiveChat.ReloadPlugin);
 			} else {

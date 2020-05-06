@@ -127,7 +127,7 @@ public class Events implements Listener {
 		InteractiveChat.messages.put(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 	}
 	
-	@EventHandler(priority=EventPriority.LOWEST)
+	@EventHandler(priority=EventPriority.LOW)
     public void onMention(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();		
 		Player sender = event.getPlayer();

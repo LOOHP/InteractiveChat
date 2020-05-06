@@ -30,17 +30,29 @@ public class ChatColorUtils {
         String result = "";
         boolean found = false;
         
-        for (int i = 0; i < input.length() - 1; i++) {
-        	if (input.charAt(i) == '§' && input.length() > i + 1) {
-        		String color = String.valueOf(input.charAt(i)) + String.valueOf(input.charAt(i + 1));
-        		if (isLegal(color)) {
-        			if (found && (isColor(ChatColor.getByChar(input.charAt(i + 1))) || ChatColor.getByChar(input.charAt(i + 1)).equals(ChatColor.RESET))) {
-        				break;
-        			}
-        			result = result + color;
-        			found = true;
-        		}
+        if (input.length() < 2) {
+        	return "";
+        }
+        
+        int i = 1;
+        String color = "";
+        while (i < input.length()) {
+        	color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
+        	//Bukkit.getConsoleSender().sendMessage(color.replace("§", "&"));
+        	if (isLegal(color)) {
+	        	if (!found) {
+	        		found = true;
+	        		result = color;
+	        	} else if (isColor(ChatColor.getByChar(color.charAt(1)))) {
+	        		result = color;
+	        	} else {
+	        		result = result + color;
+	        	}
+	        	i++;
+        	} else if (found) {
+        		break;
         	}
+        	i++;
         }
 
         return result;
@@ -60,6 +72,9 @@ public class ChatColorUtils {
     }
     
     public static boolean isLegal(String color) {
+    	if (color.charAt(0) != '§') {
+    		return false;
+    	}
     	if (color.matches("§[g-j,p,q,s-z,A-Z,\\-!$%^&*()_+|~=`{}\\[\\]:\\\";'<>?,.\\/\\\\]")) {
     		return false;
     	}
@@ -96,6 +111,21 @@ public class ChatColorUtils {
 	    	}
     	}
     	return basecomponent;
+    }
+    
+    public static String addColorToEachWord(String text, String color) {
+    	StringBuilder sb = new StringBuilder();
+    	text = color + text;
+    	do {
+    		color = getFirstColors(text);
+    		int pos = text.indexOf(" ") + 1;
+    		pos = pos <= 0 ? text.length() : pos;
+    		String before = text.substring(0, pos);
+    		//Bukkit.getConsoleSender().sendMessage(color.replace("§", "&") + " " + text.replace("§", "&") + " " + before.replace("§", "&"));
+    		sb.append(before);
+    		text = color + text.substring(pos);
+    	} while (text.length() > 0 && !text.equals(color));
+    	return ChatColorFilter.removeUselessColorCodes(sb.toString());
     }
   
 }

@@ -11,7 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class ChatColorFilter {
 	
 	public static String removeUselessColorCodes(String string) {
-		return string.replaceAll("^(§[0-9,a-f,l-o,r])*(?=§[0-9,a-f,r])", "");
+		return string.replaceAll("(§[0-9a-fl-or])*(?=§[0-9a-fr])", "");
 	}
 	
 	public static String filterIllegalColorCodes(String string) {

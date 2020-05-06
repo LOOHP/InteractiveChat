@@ -1,7 +1,10 @@
 package com.loohp.interactivechat.Utils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.InteractiveChat;
 
@@ -9,6 +12,15 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class CustomStringUtils {
+	
+	public static List<String> getAllMatches(String regex, String str) {
+		List<String> allMatches = new LinkedList<String>();
+		Matcher m = Pattern.compile(regex).matcher(str);
+		while (m.find()) {
+		   allMatches.add(m.group());
+		}
+		return allMatches;
+	}
 	
 	public static int ordinalIndexOf(String str, String substr, int n) {
 	    int pos = str.indexOf(substr);
@@ -126,11 +138,11 @@ public class CustomStringUtils {
 	        	for (BaseComponent extra : loadExtras(each.getExtra())) {
 	        		extra = copyFormattingNoReplace(extra, noExtra);
 	        		if (extra instanceof TextComponent && text != null && ChatComponentUtils.areEventsSimilar(extra, text)) {
-	        			BaseComponent extraNoExtra = extra.duplicate();
+	        			TextComponent extraNoExtra = (TextComponent) extra.duplicate();
 	        			if (extraNoExtra.getExtra() != null) {
 	        				extraNoExtra.getExtra().clear();
 	        			}
-	        			text.setText(text.getText() + extraNoExtra.toLegacyText());
+	        			text.setText(text.getText() + ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), ChatColorUtils.getLastColors(text.getText())));
 	        		} else if (!(extra instanceof TextComponent)) {
 	        			if (text != null) {
 	        				list.add(text);

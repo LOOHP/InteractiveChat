@@ -10,6 +10,31 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class ChatComponentUtils {
 	
+	public static boolean areSimilar(BaseComponent base1, BaseComponent base2) {
+		if (!areEventsSimilar(base1, base2)) {
+			return false;
+		}
+		if (!base1.getColor().equals(base2.getColor())) {
+			return false;
+		}
+		if (base1.isBold() != base2.isBold()) {
+			return false;
+		}
+		if (base1.isItalic() != base2.isItalic()) {
+			return false;
+		}
+		if (base1.isObfuscated() != base2.isObfuscated()) {
+			return false;
+		}
+		if (base1.isStrikethrough() != base2.isStrikethrough()) {
+			return false;
+		}
+		if (base1.isUnderlined() != base2.isUnderlined()) {
+			return false;
+		}
+		return true;
+	}
+	
 	public static boolean areEventsSimilar(BaseComponent base1, BaseComponent base2) {
 		boolean clickSim = false;
 		boolean hoverSim = false;

@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -53,7 +54,7 @@ public class PlayernameDisplay {
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 
 		for (BaseComponent base : basecomponentlist) {
-			if (matched.contains(base)) {
+			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base))) {
 				newlist.add(base);
 			} else if (!(base instanceof TextComponent)) {
 				newlist.add(base);

@@ -2,6 +2,7 @@ package com.loohp.interactivechat;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -70,21 +71,26 @@ public class ConfigManager {
 		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
-		if (version.contains("legacy")) {
-			String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
-			Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
-			short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
-			InteractiveChat.itemFrame1 = new ItemStack(material, 1, data);
-		} else {
-			InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
-		}
-		if (version.contains("legacy")) {
-			String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
-			Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
-			short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
-			InteractiveChat.itemFrame2 = new ItemStack(material, 1, data);
-		} else {
-			InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
+		try {
+			if (version.contains("legacy")) {
+				String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
+				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+				InteractiveChat.itemFrame1 = new ItemStack(material, 1, data);
+			} else {
+				InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
+			}
+			if (version.contains("legacy")) {
+				String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
+				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+				InteractiveChat.itemFrame2 = new ItemStack(material, 1, data);
+			} else {
+				InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
+			}
+		} catch (Exception e) {
+			Bukkit.getLogger().severe("You have an invalid material name in the config! Please take a look at the Q&A section of the resource page! (ItemDisplay.Item.Frame)");
+			e.printStackTrace();
 		}
 		
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");

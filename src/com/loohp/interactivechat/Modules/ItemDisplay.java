@@ -95,10 +95,13 @@ public class ItemDisplay {
 					trim.remove(trim.size() - 1);
 				}
 				
+				String lastColor = "";
+				
 				for (int i = 0; i < trim.size(); i++) {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
-					before.setText(trim.get(i));
+					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
+					lastColor = ChatColorUtils.getLastColors(before.getText());
 					
 					boolean endwith = InteractiveChat.itemCaseSensitive ? text.endsWith(InteractiveChat.itemPlaceholder) : text.toLowerCase().endsWith(InteractiveChat.itemPlaceholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {

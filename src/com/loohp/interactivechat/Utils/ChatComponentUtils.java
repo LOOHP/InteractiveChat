@@ -7,6 +7,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ChatComponentUtils {
@@ -15,8 +17,13 @@ public class ChatComponentUtils {
 		if (!areEventsSimilar(base1, base2)) {
 			return false;
 		}
-		if (!base1.getColor().equals(base2.getColor())) {
+		if ((base1.getColor() == null && base2.getColor() != null) || (base1.getColor() != null && base2.getColor() == null)) {
 			return false;
+		}
+		if (base1.getColor() != null && base2.getColor() != null) {
+			if (!base1.getColor().equals(base2.getColor())) {
+				return false;
+			}
 		}
 		if (base1.isBold() != base2.isBold()) {
 			return false;
@@ -45,18 +52,44 @@ public class ChatComponentUtils {
 		if (base1.getClickEvent() == null && base2.getClickEvent() == null) {
 			clickSim = true;
 		} else {
-			if (base1.getClickEvent() != null && base2.getClickEvent() != null && base1.getClickEvent().equals(base2.getClickEvent())) {
-				clickSim = true;
+			if (base1.getClickEvent() != null && base2.getClickEvent() != null) {
+				ClickEvent click1 = base1.getClickEvent();
+				ClickEvent click2 = base2.getClickEvent();
+				if (click1.getAction().equals(click2.getAction())) {
+					String value1 = click1.getValue();
+					String value2 = click2.getValue();
+					if (value1.equals(value2)) {
+						clickSim = true;
+					}
+				}
 			}
 		}
 		if (base1.getHoverEvent() == null && base2.getHoverEvent() == null) {
 			hoverSim = true;
 		} else {
-			if (base1.getHoverEvent() != null && base2.getHoverEvent() != null && base1.getHoverEvent().equals(base2.getHoverEvent())) {
-				hoverSim = true;
+			if (base1.getHoverEvent() != null && base2.getHoverEvent() != null) {
+				HoverEvent hover1 = base1.getHoverEvent();
+				HoverEvent hover2 = base2.getHoverEvent();
+				if (hover1.getAction().equals(hover2.getAction())) {
+					BaseComponent[] basecomponentarray1 = hover1.getValue();
+					BaseComponent[] basecomponentarray2 = hover2.getValue();
+					hoverSim = true;
+					if (basecomponentarray1.length == basecomponentarray2.length) {
+						for (int i = 0; i < basecomponentarray1.length && i < basecomponentarray2.length ; i++) {
+							BaseComponent bc1 = basecomponentarray1[i];
+							BaseComponent bc2 = basecomponentarray2[i];
+							if (!areSimilar(bc1, bc2, true)) {
+								hoverSim = false;
+								break;
+							}
+						}
+					} else {
+						hoverSim = false;
+					}
+				}
 			}
 		}
-		
+
 		return clickSim && hoverSim;
 	}
 	

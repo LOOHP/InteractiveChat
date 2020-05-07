@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ public class CustomPlaceholderDisplay {
 	
 	private static HashMap<Player, HashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static Random random = new Random();
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
 		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
@@ -48,6 +50,9 @@ public class CustomPlaceholderDisplay {
 			
 			basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
 		}
+		
+		String henry = random.nextInt(100) < 80 ? "§7\"§fTerraria is love, Terraria is life§7\"\n              §7~§a§oHenry §e§o(IC Icon Artist)" : "§fShow §a§oHenry §e§o(IC Icon Artist) §fsome §cLOVE§f!\n§bClick me!\n                       §a~From the IC author";
+		basecomponent = processCustomPlaceholder(reciever, false, "Terraria", 0, true, henry, true, "OPEN_URL", "https://www.reddit.com/user/henryauyong", true, "§2Terraria", basecomponent, optplayer, messageKey, unix);
 		
 		return basecomponent;
 	}
@@ -106,10 +111,14 @@ public class CustomPlaceholderDisplay {
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
+
+				String lastColor = "";
+				
 				for (int i = 0; i < trim.size(); i++) {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
-					before.setText(trim.get(i));
+					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
+					lastColor = ChatColorUtils.getLastColors(before.getText());
 					
 					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {

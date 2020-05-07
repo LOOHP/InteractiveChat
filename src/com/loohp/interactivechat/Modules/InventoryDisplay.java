@@ -86,10 +86,14 @@ public class InventoryDisplay {
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
+				
+				String lastColor = "";
+				
 				for (int i = 0; i < trim.size(); i++) {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
-					before.setText(trim.get(i));
+					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
+					lastColor = ChatColorUtils.getLastColors(before.getText());
 					
 					boolean endwith = InteractiveChat.invCaseSensitive ? text.endsWith(InteractiveChat.invPlaceholder) : text.toLowerCase().endsWith(InteractiveChat.invPlaceholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {

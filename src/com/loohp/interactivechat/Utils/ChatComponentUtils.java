@@ -77,7 +77,7 @@ public class ChatComponentUtils {
 					TextComponent newTextComponent = new TextComponent(ChatColor.stripColor(before));
 					newTextComponent = (TextComponent) CustomStringUtils.copyFormatting(newTextComponent, textcomponent);
 					newTextComponent = (TextComponent) ChatColorUtils.applyColor(newTextComponent, color);
-					if (!newlist.isEmpty() && areSimilar(newTextComponent, newlist.get(newlist.size() - 1), false)) {
+					if (!newlist.isEmpty() && areSimilar(newTextComponent, newlist.get(newlist.size() - 1), false) && newlist.get(newlist.size() - 1) instanceof TextComponent) {
 						TextComponent lastTextComponent = (TextComponent) newlist.get(newlist.size() - 1);
 						lastTextComponent.setText(lastTextComponent.getText() + newTextComponent.getText());
 					} else {

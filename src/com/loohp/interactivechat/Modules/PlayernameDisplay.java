@@ -73,15 +73,17 @@ public class PlayernameDisplay {
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
+				
+				String lastColor = "";
+				StringBuilder sb = new StringBuilder();
+				
 				for (int i = 0; i < trim.size(); i++) {
 					TextComponent before = (TextComponent) textcomponent.duplicate();
-					before.setText(trim.get(i));
+					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
+					sb.append(before.getText());
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {
-						StringBuilder sb = new StringBuilder();
-						newlist.forEach((each) -> sb.append(each.toLegacyText())); 
-						
-						String lastColor = ChatColorUtils.getLastColors(sb.toString());
+						lastColor = ChatColorUtils.getLastColors(sb.toString());
 				    
 						TextComponent message = new TextComponent(matches.isEmpty() ? replaceText : matches.poll());
 						message = (TextComponent) CustomStringUtils.copyFormatting(message, before);
@@ -98,6 +100,8 @@ public class PlayernameDisplay {
 						
 						matched.add(message);
 						newlist.add(message);
+						
+						lastColor = ChatColorUtils.getLastColors(sb.append(message.getText()).toString());
 					}
 				}
 			}

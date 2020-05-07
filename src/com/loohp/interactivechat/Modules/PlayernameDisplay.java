@@ -54,7 +54,7 @@ public class PlayernameDisplay {
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 
 		for (BaseComponent base : basecomponentlist) {
-			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base))) {
+			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base, true))) {
 				newlist.add(base);
 			} else if (!(base instanceof TextComponent)) {
 				newlist.add(base);

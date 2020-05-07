@@ -4,13 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ChatComponentUtils {
 	
-	public static boolean areSimilar(BaseComponent base1, BaseComponent base2) {
+	public static boolean areSimilar(BaseComponent base1, BaseComponent base2, boolean compareText) {
 		if (!areEventsSimilar(base1, base2)) {
 			return false;
 		}
@@ -30,6 +31,9 @@ public class ChatComponentUtils {
 			return false;
 		}
 		if (base1.isUnderlined() != base2.isUnderlined()) {
+			return false;
+		}
+		if (compareText && !base1.toLegacyText().equals(base2.toLegacyText())) {
 			return false;
 		}
 		return true;
@@ -56,7 +60,7 @@ public class ChatComponentUtils {
 		return clickSim && hoverSim;
 	}
 	
-	public static BaseComponent cleanUpLegacyText(BaseComponent basecomponent) {
+	public static BaseComponent cleanUpLegacyText(BaseComponent basecomponent, Player player) {
 		List<BaseComponent> newlist = new LinkedList<BaseComponent>();
 		for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
 			if (!(base instanceof TextComponent)) {
@@ -73,15 +77,22 @@ public class ChatComponentUtils {
 					TextComponent newTextComponent = new TextComponent(ChatColor.stripColor(before));
 					newTextComponent = (TextComponent) CustomStringUtils.copyFormatting(newTextComponent, textcomponent);
 					newTextComponent = (TextComponent) ChatColorUtils.applyColor(newTextComponent, color);
-					newlist.add(newTextComponent);
+					if (!newlist.isEmpty() && areSimilar(newTextComponent, newlist.get(newlist.size() - 1), false)) {
+						TextComponent lastTextComponent = (TextComponent) newlist.get(newlist.size() - 1);
+						lastTextComponent.setText(lastTextComponent.getText() + newTextComponent.getText());
+					} else {
+						newlist.add(newTextComponent);
+					}
 				} while (text.contains("§"));
 			}
 		}
+
 		TextComponent product = new TextComponent("");
 		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}
+		
 		return product;
 	}
 

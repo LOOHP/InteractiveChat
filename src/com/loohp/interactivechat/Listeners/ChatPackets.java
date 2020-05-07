@@ -111,7 +111,7 @@ public class ChatPackets {
 		        
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, event.getPlayer(), rawMessageKey, unix);
 		        
-		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent) : basecomponent;
+		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, event.getPlayer()) : basecomponent;
 		        if (field == 0) {
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(basecomponentarray)));
 		        } else {

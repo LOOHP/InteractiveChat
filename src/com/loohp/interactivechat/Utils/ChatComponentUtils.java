@@ -3,9 +3,12 @@ package com.loohp.interactivechat.Utils;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import com.loohp.interactivechat.Listeners.ClientSettingPackets;
+import com.loohp.interactivechat.Listeners.ClientSettingPackets.ColorSettings;
+
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -93,6 +96,21 @@ public class ChatComponentUtils {
 		return clickSim && hoverSim;
 	}
 	
+	public static BaseComponent removeHoverEventColor(BaseComponent baseComponent) {
+		if (baseComponent.getHoverEvent() != null) {
+			for (BaseComponent each : baseComponent.getHoverEvent().getValue()) {
+				each.setColor(ChatColor.WHITE);
+				if (each instanceof TextComponent) {
+					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+				}
+				if (each.getHoverEvent() != null) {
+					each = removeHoverEventColor(each);
+				}
+			}
+		}
+		return baseComponent;
+	}
+	
 	public static BaseComponent cleanUpLegacyText(BaseComponent basecomponent, Player player) {
 		List<BaseComponent> newlist = new LinkedList<BaseComponent>();
 		for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
@@ -120,9 +138,37 @@ public class ChatComponentUtils {
 			}
 		}
 
+		ColorSettings colorsEnabled = ClientSettingPackets.getSettings(player);
 		TextComponent product = new TextComponent("");
 		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
+			if (colorsEnabled.equals(ColorSettings.OFF)) {
+				each.setColor(ChatColor.WHITE);
+				if (each instanceof TextComponent) {
+					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+				}
+				each = removeHoverEventColor(each);
+			}
+			product.addExtra(each);
+		}
+		
+		return product;
+	}
+	
+	public static BaseComponent respectClientColorSettingsWithoutCleanUp(BaseComponent basecomponent, Player player) {
+		List<BaseComponent> newlist = CustomStringUtils.loadExtras(basecomponent);
+		
+		ColorSettings colorsEnabled = ClientSettingPackets.getSettings(player);
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
+			BaseComponent each = newlist.get(i);
+			if (colorsEnabled.equals(ColorSettings.OFF)) {
+				each.setColor(ChatColor.WHITE);
+				if (each instanceof TextComponent) {
+					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+				}
+				each = removeHoverEventColor(each);
+			}
 			product.addExtra(each);
 		}
 		

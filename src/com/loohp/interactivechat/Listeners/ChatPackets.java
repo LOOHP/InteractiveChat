@@ -42,6 +42,7 @@ public class ChatPackets {
 		        }
 		        
 		        PacketContainer packet = event.getPacket();
+		        Player reciever = event.getPlayer();
 		        
 		        if (!InteractiveChat.version.contains("legacy") || InteractiveChat.version.equals("legacy1.12") || InteractiveChat.version.equals("legacy1.11")) {
 			        ChatType type = packet.getChatTypes().read(0);
@@ -80,7 +81,7 @@ public class ChatPackets {
 		        }, 5);
 		        
 		        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), event.getPlayer(), basecomponent, field, preEventSenderUUID);
+				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), reciever, basecomponent, field, preEventSenderUUID);
 				Bukkit.getPluginManager().callEvent(preEvent);
 				if (preEvent.getSender() != null) {
 					Player newsender = Bukkit.getPlayer(preEvent.getSender());
@@ -94,7 +95,7 @@ public class ChatPackets {
 		        }
 		        
 		        if (InteractiveChat.AllowMention && sender.isPresent()) {
-		        	basecomponent = MentionDisplay.process(basecomponent, event.getPlayer(), sender.get(), rawMessageKey, unix, event.isAsync());
+		        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
 		        }
 
 		        if (InteractiveChat.useItem) {
@@ -109,9 +110,9 @@ public class ChatPackets {
 		        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
 		        }
 		        
-		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, event.getPlayer(), rawMessageKey, unix);
+		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        
-		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, event.getPlayer()) : basecomponent;
+		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
 		        if (field == 0) {
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(basecomponentarray)));
 		        } else {
@@ -119,7 +120,7 @@ public class ChatPackets {
 		        }
 		        
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), event.getPlayer(), packet, postEventSenderUUID);
+		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID);
 		        Bukkit.getPluginManager().callEvent(postEvent);
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);

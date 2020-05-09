@@ -21,6 +21,7 @@ import com.earth2me.essentials.Essentials;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.EssentialsNicknames;
 import com.loohp.interactivechat.Listeners.ChatPackets;
+import com.loohp.interactivechat.Listeners.ClientSettingPackets;
 import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
@@ -194,6 +195,8 @@ public class InteractiveChat extends JavaPlugin {
 	    if (UpdaterEnabled) {
 	    	getServer().getPluginManager().registerEvents(new Updater(), this);
 	    }
+	    
+	    ClientSettingPackets.clientSettingsListener();
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    

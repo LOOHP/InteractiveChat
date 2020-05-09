@@ -125,11 +125,17 @@ public class CustomStringUtils {
 			
 		for (BaseComponent each : baseComp) {
 	        if (each.getExtra() == null || each.getExtra().isEmpty()) {
-	        	list.add(each);
+	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
+ 	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
+ 	        		text = (TextComponent) copyFormatting(text, each);
+ 	        	} else {
+ 	        		text.copyFormatting(each);
+ 	        	}
+ 	        	list.add(text);
 	        } else {
 	        	BaseComponent noExtra = each.duplicate();
 	        	noExtra.getExtra().clear();
-	        	TextComponent text = new TextComponent(noExtra.toLegacyText());
+	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
  	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
  	        		text = (TextComponent) copyFormatting(text, noExtra);
  	        	} else {

@@ -113,18 +113,18 @@ public class ChatColorUtils {
     	return basecomponent;
     }
     
-    public static String addColorToEachWord(String text, String color) {
+    public static String addColorToEachWord(String text, String leadingColor) {
     	StringBuilder sb = new StringBuilder();
-    	text = color + text;
+    	text = leadingColor + text;
     	do {
-    		color = getFirstColors(text);
+    		leadingColor = getFirstColors(text);
     		int pos = text.indexOf(" ") + 1;
     		pos = pos <= 0 ? text.length() : pos;
     		String before = text.substring(0, pos);
     		//Bukkit.getConsoleSender().sendMessage(color.replace("§", "&") + " " + text.replace("§", "&") + " " + before.replace("§", "&"));
     		sb.append(before);
-    		text = color + text.substring(pos);
-    	} while (text.length() > 0 && !text.equals(color));
+    		text = leadingColor + text.substring(pos);
+    	} while (text.length() > 0 && !text.equals(leadingColor));
     	return ChatColorFilter.removeUselessColorCodes(sb.toString());
     }
   

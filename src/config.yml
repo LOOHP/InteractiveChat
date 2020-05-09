@@ -11,6 +11,10 @@ Messages:
   #The message to send when a message is cancelled due to the placeholder limit
   LimitReached: "&cPlease do now use excessive amount of placeholders in one message!"
 
+  #The messages sent when a client has colors disabled in their own settings
+  ColorsDisabled: "&lYou have colors disabled in your client settings! All messages will be white and respect the settings!"
+  ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
+
 Settings:
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true

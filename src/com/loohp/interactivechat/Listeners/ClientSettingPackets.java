@@ -1,0 +1,69 @@
+package com.loohp.interactivechat.Listeners;
+
+import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.loohp.interactivechat.ConfigManager;
+import com.loohp.interactivechat.InteractiveChat;
+
+import net.md_5.bungee.api.ChatColor;
+
+public class ClientSettingPackets implements Listener {
+	
+	public static HashMap<Player, Boolean> colorSettingsMap = new HashMap<Player, Boolean>();
+	
+	public enum ColorSettings {
+		ON, 
+		OFF, 
+		WAITING
+	}
+	
+	public static ColorSettings getSettings(Player player) {
+		Boolean settings = colorSettingsMap.get(player);
+		return settings != null ? (settings ? ColorSettings.ON : ColorSettings.OFF) : ColorSettings.WAITING;
+	}
+	
+	@EventHandler
+	public void onLeave(PlayerQuitEvent event) {
+		colorSettingsMap.remove(event.getPlayer());
+	}
+	
+	public static void clientSettingsListener() {
+		Bukkit.getPluginManager().registerEvents(new ClientSettingPackets(), InteractiveChat.plugin);
+		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(InteractiveChat.plugin, ListenerPriority.MONITOR, PacketType.Play.Client.SETTINGS) {
+		    @Override
+		    public void onPacketReceiving(PacketEvent event) {
+		        if (!event.getPacketType().equals(PacketType.Play.Client.SETTINGS)) {
+		        	return;
+		        }
+		        
+		        PacketContainer packet = event.getPacket();
+		        Player player = event.getPlayer();
+		        
+		        boolean colorSettings = packet.getBooleans().read(0);
+		        Boolean originalColorSettings = colorSettingsMap.get(player);				        
+		        
+		        if ((originalColorSettings == null && !colorSettings) || (originalColorSettings != null && originalColorSettings && !colorSettings)) {
+		        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled")));
+		        }	        	
+		        
+		        colorSettingsMap.put(player, colorSettings);
+		        
+		        if (originalColorSettings != null && !originalColorSettings && colorSettings) {
+		        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled")));
+		        }        
+		    }
+		});	
+	}
+
+}

@@ -149,6 +149,7 @@ public class CustomStringUtils {
 	        				extraNoExtra.getExtra().clear();
 	        			}
 	        			text.setText(text.getText() + ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), ChatColorUtils.getLastColors(text.getText())));
+	        			//Bukkit.getConsoleSender().sendMessage(text.getText().replace("§", "&"));
 	        		} else if (!(extra instanceof TextComponent)) {
 	        			if (text != null) {
 	        				list.add(text);
@@ -163,7 +164,7 @@ public class CustomStringUtils {
 	        			if (extraNoExtra.getExtra() != null) {
 	        				extraNoExtra.getExtra().clear();
 	        			}
-	    	        	text = new TextComponent(extraNoExtra.toLegacyText());
+	    	        	text = new TextComponent(ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), extra.getColor() != null ? extra.getColor().toString() : ""));
 	    	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
 	     	        		text = (TextComponent) copyFormatting(text, extraNoExtra);
 	     	        	} else {

@@ -117,13 +117,13 @@ public class ChatColorUtils {
     	StringBuilder sb = new StringBuilder();
     	text = leadingColor + text;
     	do {
-    		leadingColor = getFirstColors(text);
     		int pos = text.indexOf(" ") + 1;
     		pos = pos <= 0 ? text.length() : pos;
-    		String before = text.substring(0, pos);
-    		//Bukkit.getConsoleSender().sendMessage(color.replace("§", "&") + " " + text.replace("§", "&") + " " + before.replace("§", "&"));
+    		String before = leadingColor + text.substring(0, pos);
+    		//Bukkit.getConsoleSender().sendMessage(leadingColor.replace("§", "&") + " " + text.replace("§", "&") + " " + before.replace("§", "&"));
     		sb.append(before);
-    		text = leadingColor + text.substring(pos);
+    		text = text.substring(pos);
+    		leadingColor = getLastColors(before);
     	} while (text.length() > 0 && !text.equals(leadingColor));
     	return ChatColorFilter.removeUselessColorCodes(sb.toString());
     }

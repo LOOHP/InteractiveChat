@@ -9,9 +9,12 @@ import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.ConfigManager;
@@ -40,7 +43,7 @@ public class ItemDisplay {
 	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.itemPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -69,6 +72,7 @@ public class ItemDisplay {
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
+		boolean trimmed = false;
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {
@@ -120,7 +124,7 @@ public class ItemDisplay {
 								if (player.hasPermission("interactivechat.module.item")) {
 									ItemStack item = null;							
 									boolean isAir = false;
-									if (InteractiveChat.version.contains("OLD")) {
+									if (InteractiveChat.version.isOld()) {
 										if (player.getItemInHand() == null) {
 		    								isAir = true;
 		    								item = new ItemStack(Material.AIR);
@@ -128,7 +132,7 @@ public class ItemDisplay {
 		    								isAir = true;
 		    								item = new ItemStack(Material.AIR);
 		    							} else {				            								
-		    								item = player.getItemInHand();
+		    								item = player.getItemInHand().clone();
 		    							}
 									} else {
 										if (player.getEquipment().getItemInMainHand() == null) {
@@ -138,10 +142,26 @@ public class ItemDisplay {
 											isAir = true;
 		    								item = new ItemStack(Material.AIR);
 										} else {									
-											item = player.getEquipment().getItemInMainHand();
+											item = player.getEquipment().getItemInMainHand().clone();
 										}
 									}											
 								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
+								    if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) {
+								    	trimmed = true;
+								    	ItemStack trimedItem = new ItemStack(item.getType());
+								    	trimedItem.addUnsafeEnchantments(item.getEnchantments());
+								    	if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
+								    		ItemStack loreItem = trimedItem.clone();
+							    			ItemMeta meta = loreItem.getItemMeta();
+							    			meta.setLore(item.getItemMeta().getLore());
+							    			loreItem.setItemMeta(meta);
+							    			String newjson = ItemNBTUtils.getNMSItemStackJson(loreItem);
+							    			if (newjson.length() <= 30000) {
+							    				trimedItem = loreItem;
+							    			}
+								    	}
+								    	itemJson = ItemNBTUtils.getNMSItemStackJson(trimedItem);
+								    }
 								    String message = "";
 								    String itemString = "";
 								    String amountString = "";
@@ -170,28 +190,53 @@ public class ItemDisplay {
 									String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
 									long time = InteractiveChat.keyTime.get(messageKey);
 									if (!InteractiveChat.itemDisplay.containsKey(time)) {
-										Inventory inv = Bukkit.createInventory(null, 27, title);
-										ItemStack empty = InteractiveChat.itemFrame1.clone();
-										if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-											empty = InteractiveChat.itemFrame2.clone();
+										if (useInventoryView(item)) {
+											Inventory inv = Bukkit.createInventory(null, 36, title);
+											ItemStack empty = InteractiveChat.itemFrame1.clone();
+											if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+												empty = InteractiveChat.itemFrame2.clone();
+											}
+											ItemMeta emptyMeta = empty.getItemMeta();
+											emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+											empty.setItemMeta(emptyMeta);
+											for (int j = 0; j < 9; j = j + 1) {
+												inv.setItem(j, empty);
+											}
+											inv.setItem(4, item);
+											Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
+											for (int j = 0; j < container.getSize(); j++) {
+												ItemStack shulkerItem = container.getItem(j);
+												if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
+													inv.setItem(j + 9, shulkerItem);
+												}
+											}										
+											InteractiveChat.itemDisplay.put(time, inv);	
+											HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
+											singleMap.put(time, inv);
+										} else {
+											Inventory inv = Bukkit.createInventory(null, 27, title);
+											ItemStack empty = InteractiveChat.itemFrame1.clone();
+											if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+												empty = InteractiveChat.itemFrame2.clone();
+											}
+											ItemMeta emptyMeta = empty.getItemMeta();
+											emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+											empty.setItemMeta(emptyMeta);
+											for (int j = 0; j < inv.getSize(); j = j + 1) {
+												inv.setItem(j, empty);
+											}
+											inv.setItem(13, item);				            							
+											InteractiveChat.itemDisplay.put(time, inv);	
+											HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
+											singleMap.put(time, inv);
 										}
-										ItemMeta emptyMeta = empty.getItemMeta();
-										emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-										empty.setItemMeta(emptyMeta);
-										for (int j = 0; j < inv.getSize(); j = j + 1) {
-											inv.setItem(j, empty);
-										}
-										inv.setItem(13, item);				            							
-										InteractiveChat.itemDisplay.put(time, inv);	
-										HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-										singleMap.put(time, inv);
 									}
 				            	
 					            	String[] parts = message.split("\\{Item\\}");
 					            	
 					            	if (message.startsWith("{Item}")) {
 					            		if (useTranslatable) {
-											if (!InteractiveChat.version.contains("legacy")) {
+											if (!InteractiveChat.version.isLegacy()) {
 												TranslatableComponent transItem = new TranslatableComponent(itemString);
 												transItem.setColor(RarityUtils.getRarityColor(item));
 												if (!isAir) {
@@ -248,7 +293,7 @@ public class ItemDisplay {
 										
 										if (u < parts.length - 1 || message.endsWith("{Item}")) {
 											if (useTranslatable) {
-												if (!InteractiveChat.version.contains("legacy")) {
+												if (!InteractiveChat.version.isLegacy()) {
 													TranslatableComponent transItem = new TranslatableComponent(itemString);
 													transItem.setColor(RarityUtils.getRarityColor(item));
 													if (!isAir) {
@@ -321,7 +366,27 @@ public class ItemDisplay {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}
+		
+		if (trimmed) {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds 30000 characters in the chat [THIS IS NOT A BUG]");
+		}
 		return product;
+	}
+	
+	private static boolean useInventoryView(ItemStack item) {
+		if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+			BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
+			if (bsm instanceof InventoryHolder) {
+				Inventory container = ((InventoryHolder) bsm).getInventory();
+				for (int i = 0; i < container.getSize(); i++) {
+					ItemStack containerItem = container.getItem(i);
+					if (containerItem != null && !containerItem.getType().equals(Material.AIR)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 }

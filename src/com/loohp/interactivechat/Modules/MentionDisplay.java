@@ -48,7 +48,7 @@ public class MentionDisplay {
 				if (!mentionEvent.isCancelled()) {
 					
 					int time = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
-					if (InteractiveChat.version.contains("OLD")) {
+					if (InteractiveChat.version.isOld()) {
 						OldTitleSender.sendTitle(reciever, title, subtitle, time);
 					} else {
 						reciever.sendTitle(title, subtitle, 10, time, 20);

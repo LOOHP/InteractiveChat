@@ -126,7 +126,7 @@ public class CustomStringUtils {
 		for (BaseComponent each : baseComp) {
 	        if (each.getExtra() == null || each.getExtra().isEmpty()) {
 	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
- 	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
+	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
  	        		text = (TextComponent) copyFormatting(text, each);
  	        	} else {
  	        		text.copyFormatting(each);
@@ -136,7 +136,7 @@ public class CustomStringUtils {
 	        	BaseComponent noExtra = each.duplicate();
 	        	noExtra.getExtra().clear();
 	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
- 	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
+ 	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
  	        		text = (TextComponent) copyFormatting(text, noExtra);
  	        	} else {
  	        		text.copyFormatting(noExtra);
@@ -165,7 +165,7 @@ public class CustomStringUtils {
 	        				extraNoExtra.getExtra().clear();
 	        			}
 	    	        	text = new TextComponent(ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), extra.getColor() != null ? extra.getColor().toString() : ""));
-	    	        	if (InteractiveChat.version.contains("legacy") && !InteractiveChat.version.equals("1.12") && !InteractiveChat.version.equals("1.11")) {
+	    	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
 	     	        		text = (TextComponent) copyFormatting(text, extraNoExtra);
 	     	        	} else {
 	     	        		text.copyFormatting(extraNoExtra);
@@ -206,7 +206,7 @@ public class CustomStringUtils {
 		if (set.isUnderlinedRaw() == null) {
 			set.setUnderlined(get.isUnderlinedRaw());
 		}
-		if (!InteractiveChat.version.contains("OLD")) {
+		if (!InteractiveChat.version.isOld()) {
 			if (set.getInsertion() == null) {
 				set.setInsertion(get.getInsertion());
 			}
@@ -229,7 +229,7 @@ public class CustomStringUtils {
 		set.setClickEvent(get.getClickEvent());
 		set.setColor(get.getColor());
 		set.setHoverEvent(get.getHoverEvent());
-		if (!InteractiveChat.version.contains("OLD")) {
+		if (!InteractiveChat.version.isOld()) {
 			set.setInsertion(get.getInsertion());
 		}
 		set.setItalic(get.isItalic());

@@ -14,7 +14,7 @@ public class RarityUtils {
 	private static HashMap<Material, ChatColor> rarityMapping = new HashMap<Material, ChatColor>();
 	
 	public static void setupRarity() {
-		if (InteractiveChat.version.contains("legacy")) {
+		if (InteractiveChat.version.isLegacy()) {
 			return;
 		}
 		
@@ -53,7 +53,7 @@ public class RarityUtils {
 		rarityMapping.put(Material.ENCHANTED_GOLDEN_APPLE, ChatColor.LIGHT_PURPLE);
 		rarityMapping.put(Material.STRUCTURE_BLOCK, ChatColor.LIGHT_PURPLE);
 		
-		if (InteractiveChat.version.equals("1.13") || InteractiveChat.version.equals("1.13.1")) {
+		if (InteractiveChat.version.equals(MCVersion.V1_13) || InteractiveChat.version.equals(MCVersion.V1_13_1)) {
 			return;
 		}
 		

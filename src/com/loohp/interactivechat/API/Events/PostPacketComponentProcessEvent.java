@@ -18,12 +18,12 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
 	UUID sender;
     boolean cancel;
 
-    public PostPacketComponentProcessEvent(boolean async, Player reciever, PacketContainer packet, UUID sender) {
+    public PostPacketComponentProcessEvent(boolean async, Player reciever, PacketContainer packet, UUID sender, boolean cancelled) {
     	super(async);
         this.reciever = reciever;
         this.packet = packet;
         this.sender = sender;
-        this.cancel = false;
+        this.cancel = cancelled;
     }
     
     @Override

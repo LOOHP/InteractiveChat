@@ -1,5 +1,9 @@
 package com.loohp.interactivechat;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +31,7 @@ import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.Updater.Updater;
+import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -34,7 +39,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Plugin plugin = null;
 	
-	public static String version = "";
+	public static MCVersion version;
 	
 	public static ProtocolManager protocolManager;
 	
@@ -133,35 +138,31 @@ public class InteractiveChat extends JavaPlugin {
 
 		Metrics metrics = new Metrics(this, pluginId);
 		
-		String packageName = getServer().getClass().getPackage().getName();
+		version = MCVersion.fromPackageName(getServer().getClass().getPackage().getName());
 
-        if (packageName.contains("1_15_R1")) {
-            version = "1.15";
-        } else if (packageName.contains("1_14_R1")) {
-            version = "1.14";
-        } else if (packageName.contains("1_13_R2")) {
-            version = "1.13.1";
-        } else if (packageName.contains("1_13_R1")) {
-            version = "1.13";
-        } else if (packageName.contains("1_12_R1")) {
-            version = "legacy1.12";
-        } else if (packageName.contains("1_11_R1")) {
-            version = "legacy1.11";
-        } else if (packageName.contains("1_10_R1")) {
-            version = "legacy1.10";
-        } else if (packageName.contains("1_9_R2")) {
-            version = "legacy1.9.4";
-        } else if (packageName.contains("1_9_R1")) {
-            version = "legacy1.9";
-        } else if (packageName.contains("1_8_R3")) {
-            version = "OLDlegacy1.8.4";
-        } else if (packageName.contains("1_8_R2")) {
-            version = "OLDlegacy1.8.3";
-        } else if (packageName.contains("1_8_R1")) {
-            version = "OLDlegacy1.8";
-	    } else {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported!");
+        if (!version.isSupported()) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported! (" + version.toString() + ")");
 	    }
+        
+        if (!getDataFolder().exists()) {
+        	getDataFolder().mkdirs();
+        }
+        File file = new File(getDataFolder(), "config.yml"); 
+        if (!file.exists()) {
+        	if (version.isOld()) {
+	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_old.yml")) {
+	                Files.copy(in, file.toPath());
+	            } catch (IOException e) {
+	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
+	            }
+        	} else if (version.isLegacy()) {
+	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_legacy.yml")) {
+	                Files.copy(in, file.toPath());
+	            } catch (IOException e) {
+	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
+	            }
+        	}
+        }
 		
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();

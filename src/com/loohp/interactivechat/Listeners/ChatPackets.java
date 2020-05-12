@@ -27,7 +27,9 @@ import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.MCVersion;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -44,7 +46,7 @@ public class ChatPackets {
 		        PacketContainer packet = event.getPacket();
 		        Player reciever = event.getPlayer();
 		        
-		        if (!InteractiveChat.version.contains("legacy") || InteractiveChat.version.equals("legacy1.12") || InteractiveChat.version.equals("legacy1.11")) {
+		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12) || InteractiveChat.version.equals(MCVersion.V1_11)) {
 			        ChatType type = packet.getChatTypes().read(0);
 			        if (type.equals(ChatType.GAME_INFO)) {
 			        	return;
@@ -99,7 +101,7 @@ public class ChatPackets {
 		        }
 
 		        if (InteractiveChat.useItem) {
-		        	basecomponent = ItemDisplay.process(basecomponent, sender, rawMessageKey, unix);
+		        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        }
 
 		        if (InteractiveChat.useInventory) {
@@ -113,20 +115,29 @@ public class ChatPackets {
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        
 		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
-		        if (field == 0) {
-		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(basecomponentarray)));
+		        String json = ComponentSerializer.toString(basecomponentarray);
+		        boolean longerThanMaxLength = false;
+		        if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 32767) {
+		        	longerThanMaxLength = true;
+		        }
+		        	
+		        if (field == 0) {		   
+		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 		        } else {
 		        	packet.getModifier().write(1, basecomponentarray);
 		        }
 		        
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID);
+		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID, longerThanMaxLength);
 		        Bukkit.getPluginManager().callEvent(postEvent);
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);
 		        	event.setCancelled(true);
 		        	event.setReadOnly(true);
-		        }
+		        	if (longerThanMaxLength) {
+		        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Max 32767) [THIS IS NOT A BUG]");
+		        	}
+		        }		        
 		    }
 		});	
 	}

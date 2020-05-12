@@ -7,11 +7,13 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import com.loohp.interactivechat.Utils.MCVersion;
+
 import net.md_5.bungee.api.ChatColor;
 
 public class ConfigManager {
 	
-	private static String version = InteractiveChat.version;
+	private static MCVersion version = InteractiveChat.version;
 	
 	public static FileConfiguration getConfig() {
 		return InteractiveChat.plugin.getConfig();
@@ -72,7 +74,7 @@ public class ConfigManager {
 		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
 		try {
-			if (version.contains("legacy")) {
+			if (version.isLegacy()) {
 				String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
 				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
@@ -80,7 +82,7 @@ public class ConfigManager {
 			} else {
 				InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
 			}
-			if (version.contains("legacy")) {
+			if (version.isLegacy()) {
 				String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
 				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;

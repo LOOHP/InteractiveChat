@@ -13,7 +13,7 @@ public class MaterialUtils {
 	
 	public static String getMinecraftLangName(ItemStack item) {
 		
-		if (InteractiveChat.version.contains("legacy")) {
+		if (InteractiveChat.version.isLegacy()) {
 			return LegacyMaterialUtils.getLegacyItemName(item);
 		}
 		
@@ -36,13 +36,13 @@ public class MaterialUtils {
 	}
 	
 	public static void reloadLang() {		
-		if (InteractiveChat.version.contains("legacy")) {
+		if (InteractiveChat.version.isLegacy()) {
 			LegacyMaterialUtils.reloadLegacyLang();
 		}
 	}
 	
 	public static void setupLang() {
-		if (InteractiveChat.version.contains("legacy")) {
+		if (InteractiveChat.version.isLegacy()) {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Translatable Components are not supported on this version");
 	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "InteractiveChat will use legacy item names method instead!");
 	    	LegacyMaterialUtils.setupLegacyLang();

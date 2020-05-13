@@ -27,6 +27,7 @@ import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
@@ -44,7 +45,7 @@ public class ChatPackets {
 		        }
 		        
 		        PacketContainer packet = event.getPacket();
-		        Player reciever = event.getPlayer();
+		        Player reciever = event.getPlayer();		    
 		        
 		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12) || InteractiveChat.version.equals(MCVersion.V1_11)) {
 			        ChatType type = packet.getChatTypes().read(0);
@@ -61,6 +62,10 @@ public class ChatPackets {
 		        	if (basecomponent.toPlainText().equals("")) {
 		        		return;
 		        	}
+		        }
+
+		        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       
+		        	return;
 		        }
 		        
 		        String rawMessageKey = basecomponent.toPlainText();
@@ -91,11 +96,11 @@ public class ChatPackets {
 						sender = Optional.of(newsender);
 					}
 				}
-		        
+
 		        if (InteractiveChat.usePlayerName) {
 		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
 		        }
-		        
+
 		        if (InteractiveChat.AllowMention && sender.isPresent()) {
 		        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
 		        }

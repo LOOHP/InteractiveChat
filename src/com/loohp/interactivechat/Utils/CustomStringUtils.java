@@ -125,22 +125,30 @@ public class CustomStringUtils {
 			
 		for (BaseComponent each : baseComp) {
 	        if (each.getExtra() == null || each.getExtra().isEmpty()) {
-	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
-	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
- 	        		text = (TextComponent) copyFormatting(text, each);
- 	        	} else {
- 	        		text.copyFormatting(each);
- 	        	}
- 	        	list.add(text);
+	        	if (each instanceof TextComponent) {
+		        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
+		        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
+	 	        		text = (TextComponent) copyFormatting(text, each);
+	 	        	} else {
+	 	        		text.copyFormatting(each);
+	 	        	}
+	 	        	list.add(text);
+	        	} else {
+	        		list.add(each);
+	        	}
 	        } else {
 	        	BaseComponent noExtra = each.duplicate();
 	        	noExtra.getExtra().clear();
-	        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
- 	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
- 	        		text = (TextComponent) copyFormatting(text, noExtra);
- 	        	} else {
- 	        		text.copyFormatting(noExtra);
- 	        	}
+	        	TextComponent text = each instanceof TextComponent ? new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : "")) : null;
+	        	if (each instanceof TextComponent || text != null) {
+	        		if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
+	 	        		text = (TextComponent) copyFormatting(text, noExtra);
+	 	        	} else {
+	 	        		text.copyFormatting(noExtra);
+	 	        	}
+	        	} else {
+	        		list.add(noExtra);
+	        	}
 	        	for (BaseComponent extra : loadExtras(each.getExtra())) {
 	        		extra = copyFormattingNoReplace(extra, noExtra);
 	        		if (extra instanceof TextComponent && text != null && ChatComponentUtils.areEventsSimilar(extra, text)) {

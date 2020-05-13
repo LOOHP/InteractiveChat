@@ -1,5 +1,10 @@
 package com.loohp.interactivechat.Utils;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import net.md_5.bungee.api.ChatColor;
 
 public class JsonUtils {
@@ -8,60 +13,49 @@ public class JsonUtils {
 
     private static final int RETAIN = "{\"text\":\"\",\"extra\":[".length();
 
-    public static String toJSON(String message)
-    {
-        if(message == null || message.isEmpty())
+    public static String toJSON(String message) {
+        if (message == null || message.isEmpty())
             return null;
-        if(JSON_BUILDER.length() > RETAIN)
+        if (JSON_BUILDER.length() > RETAIN)
             JSON_BUILDER.delete(RETAIN, JSON_BUILDER.length());
         String[] parts = message.split(Character.toString(ChatColor.COLOR_CHAR));
         boolean first = true;
         String colour = null;
         String format = null;
         boolean ignoreFirst = !parts[0].isEmpty() && ChatColor.getByChar(parts[0].charAt(0)) != null;
-        for(String part : parts)
-        {
+        for (String part : parts) {
             // If it starts with a colour, just ignore the empty String
             // before it
-            if(part.isEmpty())
-            {
+            if(part.isEmpty()) {
                 continue;
             }
             
             String newStyle = null;
-            if(!ignoreFirst)
-            {
+            if (!ignoreFirst) {
                 newStyle = getStyle(part.charAt(0));
-            }
-            else
-            {
+            } else {
                 ignoreFirst = false;    
             }
             
-            if(newStyle != null)
-            {
+            if (newStyle != null) {
                 part = part.substring(1);
                 if(newStyle.startsWith("\"c"))
                     colour = newStyle;
                 else
                     format = newStyle;
             }
-            if(!part.isEmpty())
-            {
-                if(first)
+            if (!part.isEmpty()) {
+                if (first) {
                     first = false;
-                else
-                {
+                } else {
                     JSON_BUILDER.append(",");
                 }
                 JSON_BUILDER.append("{");
-                if(colour != null)
-                {
+                if (colour != null) {
                     JSON_BUILDER.append(colour);
                     colour = null;
                 }
-                if(format != null)
-                {
+                if (format != null) {
                     JSON_BUILDER.append(format);
                     format = null;
                 }
@@ -74,12 +68,10 @@ public class JsonUtils {
 
     private static final StringBuilder STYLE = new StringBuilder();
 
-    private static String getStyle(char colour)
-    {
+    private static String getStyle(char colour) {
         if(STYLE.length() > 0)
             STYLE.delete(0, STYLE.length());
-        switch(colour)
-        {
+        switch(colour) {
             case 'k':
                 return "\"obfuscated\": true,";
             case 'l':
@@ -99,5 +91,55 @@ public class JsonUtils {
         if(cc == null)
             return null;
         return STYLE.append("\"color\":\"").append(cc.name().toLowerCase()).append("\",").toString();
+    }
+    
+    public static boolean containsKey(String json, String key) {
+    	try {
+			Object jsonObj = new JSONParser().parse(json);
+			if (jsonObj instanceof JSONObject) {
+				return containsKey((JSONObject) jsonObj, key);
+			} else if (jsonObj instanceof JSONArray) {
+				return containsKey((JSONArray) jsonObj, key);
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+    	return false;
+    }
+    
+    private static boolean containsKey(JSONObject json, String key) {
+    	boolean contains = false;
+    	for (Object obj : json.keySet()) {
+    		if (obj instanceof String) {
+    			if (((String) obj).equals(key)) {
+    				return true;
+    			}
+    		}
+    		Object jsonObj = json.get(obj);
+    		if (jsonObj instanceof JSONObject) {
+    			contains = containsKey((JSONObject) jsonObj, key);
+			} else if (jsonObj instanceof JSONArray) {
+				contains = containsKey((JSONArray) jsonObj, key);
+			}
+    		if (contains) {
+    			return true;
+    		}
+    	}
+    	return contains;
+    }
+    
+    private static boolean containsKey(JSONArray json, String key) {
+    	boolean contains = false;
+    	for (Object jsonObj : json) {
+    		if (jsonObj instanceof JSONObject) {
+    			contains = containsKey((JSONObject) jsonObj, key);
+			} else if (jsonObj instanceof JSONArray) {
+				contains = containsKey((JSONArray) jsonObj, key);
+			}
+    		if (contains) {
+    			return true;
+    		}
+    	}
+    	return contains;
     }
 }

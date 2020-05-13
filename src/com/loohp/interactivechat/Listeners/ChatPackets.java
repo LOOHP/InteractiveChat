@@ -62,7 +62,11 @@ public class ChatPackets {
 		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) field1;		    
 		        int field = (wcc != null) ? 0 : 1;
 		        BaseComponent basecomponent = basecomponentarray[0];
-		        if (basecomponent.toPlainText().equals("")) {
+		        try {
+		        	if (basecomponent.toLegacyText().equals("")) {
+		        		return;
+		        	}
+		        } catch (Exception e) {
 		        	return;
 		        }
 

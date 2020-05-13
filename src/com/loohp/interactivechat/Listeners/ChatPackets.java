@@ -55,13 +55,15 @@ public class ChatPackets {
 		        }
 		        
 		        WrappedChatComponent wcc = packet.getChatComponents().read(0);
-		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) packet.getModifier().read(1);
+		        Object field1 = packet.getModifier().read(1);
+		        if (wcc == null && field1 == null) {
+		        	return;
+		        }
+		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) field1;		    
 		        int field = (wcc != null) ? 0 : 1;
 		        BaseComponent basecomponent = basecomponentarray[0];
-		        if (wcc == null) {
-		        	if (basecomponent.toPlainText().equals("")) {
-		        		return;
-		        	}
+		        if (basecomponent.toPlainText().equals("")) {
+		        	return;
 		        }
 
 		        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       

@@ -47,11 +47,16 @@ public class ChatPackets {
 		        PacketContainer packet = event.getPacket();
 		        Player reciever = event.getPlayer();		    
 		        
-		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12) || InteractiveChat.version.equals(MCVersion.V1_11)) {
+		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
 			        ChatType type = packet.getChatTypes().read(0);
 			        if (type.equals(ChatType.GAME_INFO)) {
 			        	return;
 			        }
+		        } else {
+		        	byte type = packet.getBytes().read(0);
+		        	if (type == (byte) 2) {
+		        		return;
+		        	}
 		        }
 		        
 		        WrappedChatComponent wcc = packet.getChatComponents().read(0);

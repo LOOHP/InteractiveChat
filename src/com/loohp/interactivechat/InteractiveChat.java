@@ -30,6 +30,7 @@ import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
@@ -112,7 +113,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
 	public static HashMap<Player, Long> mentionCooldown = new HashMap<Player, Long>();	
-	public static HashMap<UUID, UUID> mentionPair = new HashMap<UUID, UUID>();
+	public static HashMap<UUID, MentionPair> mentionPair = new HashMap<UUID, MentionPair>();
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";
 	public static long mentionDuration = 2;

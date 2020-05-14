@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
@@ -65,6 +66,8 @@ public class Events implements Listener {
 		if (InteractiveChat.ChatManagerHook) {
 			return;
 		}
+		
+		checkMention(event);
 
 		String message = event.getMessage();
 		if (InteractiveChat.maxPlacholders >= 0) {
@@ -101,6 +104,8 @@ public class Events implements Listener {
 			return;
 		}
 		
+		checkMention(event);
+		
 		String message = event.getMessage();
 		if (InteractiveChat.maxPlacholders >= 0) {
 			int count = 0;
@@ -127,8 +132,7 @@ public class Events implements Listener {
 		InteractiveChat.messages.put(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 	}
 	
-	@EventHandler(priority=EventPriority.LOW)
-    public void onMention(AsyncPlayerChatEvent event) {
+    private void checkMention(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();		
 		Player sender = event.getPlayer();
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
@@ -156,7 +160,7 @@ public class Events implements Listener {
 	       						message = event.getMessage();
        						}
        						if (!player.equals(sender)) {
-       							InteractiveChat.mentionPair.put(player.getUniqueId(), sender.getUniqueId());
+       							InteractiveChat.mentionPair.put(player.getUniqueId(), new MentionPair(sender.getUniqueId(), player.getUniqueId(), InteractiveChat.mentionPair));
        						}
        						break;
        					} else {

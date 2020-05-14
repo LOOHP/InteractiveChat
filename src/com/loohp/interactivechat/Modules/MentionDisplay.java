@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
+import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.OldTitleSender;
 import com.loohp.interactivechat.Utils.SoundUtils;
@@ -27,7 +28,8 @@ public class MentionDisplay {
 	
 	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, Player sender, String messageKey, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
-    		if (InteractiveChat.mentionPair.get(beenpinged.getUniqueId()).equals(sender.getUniqueId())) {
+			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
+    		if (pair.getSender().equals(sender.getUniqueId())) {
     			Player reciever = beenpinged;
     			
     			String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
@@ -73,7 +75,7 @@ public class MentionDisplay {
 					}
 					
 					InteractiveChat.mentionCooldown.put(reciever, unix + 3000);
-					InteractiveChat.mentionPair.remove(reciever.getUniqueId());
+					pair.remove();
 				}
     		}
 		}

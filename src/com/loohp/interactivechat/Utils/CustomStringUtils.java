@@ -127,7 +127,7 @@ public class CustomStringUtils {
 	        if (each.getExtra() == null || each.getExtra().isEmpty()) {
 	        	if (each instanceof TextComponent) {
 		        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
-		        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
+		        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
 	 	        		text = (TextComponent) copyFormatting(text, each);
 	 	        	} else {
 	 	        		text.copyFormatting(each);
@@ -141,7 +141,7 @@ public class CustomStringUtils {
 	        	noExtra.getExtra().clear();
 	        	TextComponent text = each instanceof TextComponent ? new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : "")) : null;
 	        	if (each instanceof TextComponent || text != null) {
-	        		if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
+	        		if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
 	 	        		text = (TextComponent) copyFormatting(text, noExtra);
 	 	        	} else {
 	 	        		text.copyFormatting(noExtra);
@@ -173,7 +173,7 @@ public class CustomStringUtils {
 	        				extraNoExtra.getExtra().clear();
 	        			}
 	    	        	text = new TextComponent(ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), extra.getColor() != null ? extra.getColor().toString() : ""));
-	    	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12) && !InteractiveChat.version.equals(MCVersion.V1_11)) {
+	    	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
 	     	        		text = (TextComponent) copyFormatting(text, extraNoExtra);
 	     	        	} else {
 	     	        		text.copyFormatting(extraNoExtra);

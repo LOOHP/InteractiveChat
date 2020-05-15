@@ -66,8 +66,6 @@ public class Events implements Listener {
 		if (InteractiveChat.ChatManagerHook) {
 			return;
 		}
-		
-		checkMention(event);
 
 		String message = event.getMessage();
 		if (InteractiveChat.maxPlacholders >= 0) {
@@ -100,11 +98,13 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
+		
+		checkMention(event);
+		
+		
 		if (!InteractiveChat.ChatManagerHook) {
 			return;
 		}
-		
-		checkMention(event);
 		
 		String message = event.getMessage();
 		if (InteractiveChat.maxPlacholders >= 0) {
@@ -151,25 +151,28 @@ public class Events implements Listener {
        				int index = message.toLowerCase().indexOf(name.toLowerCase());
        				if (index >= 0) {
        					char escape = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-       					char escapeescape = (index - 2) < 0 ? ' ' : message.charAt(index - 2);
-       					if ((escape != '\\') || ((escape == '\\' && escapeescape == '\\'))) {
-       						if (escapeescape == '\\') {
-       							StringBuilder sb = new StringBuilder(message);
-	       						sb.deleteCharAt(index - 2);
-	       						event.setMessage(sb.toString());
-	       						message = event.getMessage();
-       						}
-       						if (!player.equals(sender)) {
-       							InteractiveChat.mentionPair.put(player.getUniqueId(), new MentionPair(sender.getUniqueId(), player.getUniqueId(), InteractiveChat.mentionPair));
-       						}
-       						break;
-       					} else {
-       						if (escape == '\\') {
-	       						StringBuilder sb = new StringBuilder(message);
-	       						sb.deleteCharAt(index - 1);
-	       						event.setMessage(sb.toString());
-	       						message = event.getMessage();
-       						}
+       					char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
+       					if (String.valueOf(escape).matches("[ \\\\]") && String.valueOf(after).matches("[ \\\\]")) {
+       						char escapeescape = (index - 2) < 0 ? ' ' : message.charAt(index - 2);
+           					if ((escape != '\\') || ((escape == '\\' && escapeescape == '\\'))) {
+           						if (escapeescape == '\\') {
+           							StringBuilder sb = new StringBuilder(message);
+    	       						sb.deleteCharAt(index - 2);
+    	       						event.setMessage(sb.toString());
+    	       						message = event.getMessage();
+           						}
+           						if (!player.equals(sender)) {
+           							InteractiveChat.mentionPair.put(player.getUniqueId(), new MentionPair(sender.getUniqueId(), player.getUniqueId(), InteractiveChat.mentionPair));
+           						}
+           						break;
+           					} else {
+           						if (escape == '\\') {
+    	       						StringBuilder sb = new StringBuilder(message);
+    	       						sb.deleteCharAt(index - 1);
+    	       						event.setMessage(sb.toString());
+    	       						message = event.getMessage();
+           						}
+           					}
        					}
        				}
        			}

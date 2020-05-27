@@ -11,17 +11,17 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class ChatColorFilter {
 	
 	public static String removeUselessColorCodes(String string) {
-		return string.replaceAll("(§[0-9a-fl-or])*(?=§[0-9a-fr])", "");
+		return string.replaceAll("(§[0-9a-fk-or])*(?=§[0-9a-fr])", "");
 	}
 	
 	public static String filterIllegalColorCodes(String string) {
-		return string.replaceAll("§[g-j,p,q,s-z,A-Z,\\-!$%^&*()_+|~=`{}\\[\\]:\";'<>?,.\\/\\\\]", "§r");
+		return string.replaceAll("§[^0-9a-fk-or]", "");
 	}
 	
 	public static BaseComponent filterExtraColorCodes(BaseComponent baseComponent) {
 		if (baseComponent instanceof TextComponent) {
     		TextComponent text = (TextComponent) baseComponent;
-    		if (text.getText().matches("^(§[0-9,a-f,l-o,r])*$")) {
+    		if (text.getText().matches("^(§[0-9a-fk-or])*$")) {
     			text.setText("");
     		}
     	}
@@ -36,7 +36,7 @@ public class ChatColorFilter {
 		    	BaseComponent base = itr.next();
 		    	if (base instanceof TextComponent) {
 		    		TextComponent text = (TextComponent) base;
-		    		if (text.getText().matches("^(§[0-9,a-f,l-o,r])*$")) {
+		    		if (text.getText().matches("^(§[0-9a-fk-or])*$")) {
 		    			itr.remove();
 		    		} else {
 		    			text.setText(ChatColorFilter.removeUselessColorCodes(text.getText()));

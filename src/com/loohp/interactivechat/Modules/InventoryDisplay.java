@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,8 +30,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class InventoryDisplay {
 	
-	private static HashMap<Player, HashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
-	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
+	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
@@ -45,9 +46,9 @@ public class InventoryDisplay {
 				}
 				
 				if (!placeholderCooldowns.containsKey(player)) {
-					placeholderCooldowns.put(player, new HashMap<String, Long>());
+					placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
 				}
-				HashMap<String, Long> spmap = placeholderCooldowns.get(player);
+				ConcurrentHashMap<String, Long> spmap = placeholderCooldowns.get(player);
 				if (spmap.containsKey(InteractiveChat.invPlaceholder)) {
 					if (spmap.get(InteractiveChat.invPlaceholder) > unix) {
 						if (!player.hasPermission("interactivechat.cooldown.bypass")) {

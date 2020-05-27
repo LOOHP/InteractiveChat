@@ -2,11 +2,11 @@ package com.loohp.interactivechat.Modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -28,8 +28,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class CustomPlaceholderDisplay {
 	
-	private static HashMap<Player, HashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
-	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
+	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	private static Random random = new Random();
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
@@ -70,9 +70,9 @@ public class CustomPlaceholderDisplay {
 				}
 				
 				if (!placeholderCooldowns.containsKey(player)) {
-					placeholderCooldowns.put(player, new HashMap<String, Long>());
+					placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
 				}
-				HashMap<String, Long> spmap = placeholderCooldowns.get(player);
+				ConcurrentHashMap<String, Long> spmap = placeholderCooldowns.get(player);
 				if (spmap.containsKey(placeholder)) {
 					if (spmap.get(placeholder) > unix) {
 						if (!player.hasPermission("interactivechat.cooldown.bypass")) {

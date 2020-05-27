@@ -143,5 +143,6 @@ public class ConfigManager {
 		InteractiveChat.mentionDuration = getConfig().getLong("Chat.MentionedTitleDuration");
 		
 		InteractiveChat.UpdaterEnabled = InteractiveChat.plugin.getConfig().getBoolean("Options.Updater");
+		InteractiveChat.cancelledMessage = InteractiveChat.plugin.getConfig().getBoolean("Options.ShowCancelledNotice");
 	}
 }

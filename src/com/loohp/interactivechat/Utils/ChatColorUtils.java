@@ -75,10 +75,10 @@ public class ChatColorUtils {
     	if (color.charAt(0) != '§') {
     		return false;
     	}
-    	if (color.matches("§[g-j,p,q,s-z,A-Z,\\-!$%^&*()_+|~=`{}\\[\\]:\\\";'<>?,.\\/\\\\]")) {
-    		return false;
+    	if (color.matches("§[0-9a-fk-or]")) {
+    		return true;
     	}
-    	return true;
+    	return false;
     }
     
     public static BaseComponent applyColor(BaseComponent basecomponent, String color) {

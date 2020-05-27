@@ -26,6 +26,7 @@ import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
+import com.loohp.interactivechat.Utils.ChatColorFilter;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -40,13 +41,15 @@ public class ChatPackets {
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(InteractiveChat.plugin, ListenerPriority.MONITOR, PacketType.Play.Server.CHAT) {
 		    @Override
 		    public void onPacketSending(PacketEvent event) {
+		    	int debug = 0;
+		    	try {
 		        if (!event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
 		        	return;
 		        }
-		        
+		        debug++;
 		        PacketContainer packet = event.getPacket();
 		        Player reciever = event.getPlayer();		    
-		        
+		        debug++;
 		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
 			        ChatType type = packet.getChatTypes().read(0);
 			        if (type.equals(ChatType.GAME_INFO)) {
@@ -58,15 +61,17 @@ public class ChatPackets {
 		        		return;
 		        	}
 		        }
-		        
+		        debug++;
 		        WrappedChatComponent wcc = packet.getChatComponents().read(0);
 		        Object field1 = packet.getModifier().read(1);
 		        if (wcc == null && field1 == null) {
 		        	return;
 		        }
+		        debug++;
 		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) field1;		    
 		        int field = (wcc != null) ? 0 : 1;
-		        BaseComponent basecomponent = basecomponentarray[0];
+		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorFilter.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
+		        debug++;
 		        try {
 		        	if (basecomponent.toLegacyText().equals("")) {
 		        		return;
@@ -74,30 +79,33 @@ public class ChatPackets {
 		        } catch (Exception e) {
 		        	return;
 		        }
-
+		        debug++;
 		        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       
 		        	return;
 		        }
-		        
+		        debug++;
 		        String rawMessageKey = basecomponent.toPlainText();
 		        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
 		        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
 		        }
+		        debug++;
 		        long unix = InteractiveChat.keyTime.get(rawMessageKey);
 		        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
 		        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
 		        }
+		        debug++;
 		        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
 		        Optional<Player> sender = commandsender.getSender() != null ? Optional.of(commandsender.getSender()) : SenderFinder.getSender(basecomponent, rawMessageKey);
 		        basecomponent = commandsender.getBaseComponent();
 		        if (sender.isPresent()) {
 		        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
 		        }
+		        debug++;
 		        Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
 		        	InteractiveChat.keyTime.remove(rawMessageKey);
 		        	InteractiveChat.keyPlayer.remove(rawMessageKey);
 		        }, 5);
-		        
+		        debug++;
 		        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), reciever, basecomponent, field, preEventSenderUUID);
 				Bukkit.getPluginManager().callEvent(preEvent);
@@ -107,53 +115,59 @@ public class ChatPackets {
 						sender = Optional.of(newsender);
 					}
 				}
-
+				debug++;
 		        if (InteractiveChat.usePlayerName) {
 		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
 		        }
-
+		        debug++;
 		        if (InteractiveChat.AllowMention && sender.isPresent()) {
 		        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
 		        }
-
+		        debug++;
 		        if (InteractiveChat.useItem) {
 		        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        }
-
+		        debug++;
 		        if (InteractiveChat.useInventory) {
 		        	basecomponent = InventoryDisplay.process(basecomponent, sender, rawMessageKey, unix);
 		        }
-		        
+		        debug++;
 		        if (InteractiveChat.useEnder) {
 		        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
 		        }
-		        
+		        debug++;
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
-		        
+		        debug++;
 		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
 		        String json = ComponentSerializer.toString(basecomponentarray);
 		        boolean longerThanMaxLength = false;
 		        if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 32767) {
 		        	longerThanMaxLength = true;
 		        }
-		        	
+		        debug++;
 		        if (field == 0) {		   
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 		        } else {
 		        	packet.getModifier().write(1, basecomponentarray);
 		        }
-		        
+		        debug++;
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID, longerThanMaxLength);
 		        Bukkit.getPluginManager().callEvent(postEvent);
+		        debug++;
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);
 		        	event.setCancelled(true);
 		        	event.setReadOnly(true);
-		        	if (longerThanMaxLength) {
+		        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
 		        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Max 32767) [THIS IS NOT A BUG]");
 		        	}
-		        }		        
+		        }
+		        debug++;
+		    	} catch (Exception e) {
+		    		Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "IC DEBUG " + event.getPlayer().getName() + " " + debug);
+		    		e.printStackTrace();
+		    	}
 		    }
 		});	
 	}

@@ -1,7 +1,7 @@
 package com.loohp.interactivechat.ObjectHolders;
 
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,9 +13,9 @@ public class CommandPlaceholderInfo {
 	String placeholder;
 	String uuidmatch;
 	UUID sender;
-	HashMap<String, CommandPlaceholderInfo> map;
+	ConcurrentHashMap<String, CommandPlaceholderInfo> map;
 	
-	public CommandPlaceholderInfo(Player sender, String placeholder, String uuidmatch, HashMap<String, CommandPlaceholderInfo> mapToRemoveFrom) {
+	public CommandPlaceholderInfo(Player sender, String placeholder, String uuidmatch, ConcurrentHashMap<String, CommandPlaceholderInfo> mapToRemoveFrom) {
 		this.placeholder = placeholder;
 		this.uuidmatch = uuidmatch;
 		this.sender = sender.getUniqueId();

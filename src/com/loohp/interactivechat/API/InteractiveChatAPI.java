@@ -1,7 +1,8 @@
 package com.loohp.interactivechat.API;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -29,7 +30,7 @@ public class InteractiveChatAPI {
 		InteractiveChat.mentionCooldown.put(player, time);
 	}
 	
-	public static HashMap<Player, Long> getMentionCooldownMap() {
+	public static Map<Player, Long> getMentionCooldownMap() {
 		return InteractiveChat.mentionCooldown;
 	}
 	
@@ -44,7 +45,7 @@ public class InteractiveChatAPI {
 	
 	public static void setPlayerPlaceholderCooldown(Player player, String placeholder, long time) {
 		if (!InteractiveChat.placeholderCooldowns.containsKey(player)) {
-			InteractiveChat.placeholderCooldowns.put(player, new HashMap<String, Long>());
+			InteractiveChat.placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
 		}
 		InteractiveChat.placeholderCooldowns.get(player).put(placeholder, time);
 	}
@@ -81,11 +82,11 @@ public class InteractiveChatAPI {
 		return false;
 	}
 	
-	public static HashMap<Long, Inventory> getInventoryShareList() {
+	public static Map<Long, Inventory> getInventoryShareList() {
 		return InteractiveChat.inventoryDisplay;
 	}
 	
-	public static HashMap<Long, Inventory> getEnderShareList() {
+	public static Map<Long, Inventory> getEnderShareList() {
 		return InteractiveChat.enderDisplay;
 	}
 }

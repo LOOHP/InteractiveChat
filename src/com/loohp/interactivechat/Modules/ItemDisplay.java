@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -39,8 +40,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ItemDisplay {
 	
-	private static HashMap<Player, HashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
-	private static HashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
+	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
@@ -56,9 +57,9 @@ public class ItemDisplay {
 				}
 				
 				if (!placeholderCooldowns.containsKey(player)) {
-					placeholderCooldowns.put(player, new HashMap<String, Long>());
+					placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
 				}
-				HashMap<String, Long> spmap = placeholderCooldowns.get(player);
+				ConcurrentHashMap<String, Long> spmap = placeholderCooldowns.get(player);
 				if (spmap.containsKey(InteractiveChat.itemPlaceholder)) {
 					if (spmap.get(InteractiveChat.itemPlaceholder) > unix) {
 						if (!player.hasPermission("interactivechat.cooldown.bypass")) {
@@ -366,7 +367,7 @@ public class ItemDisplay {
 			product.addExtra(each);
 		}
 		
-		if (trimmed) {
+		if (trimmed && InteractiveChat.cancelledMessage) {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds 30000 characters in the chat [THIS IS NOT A BUG]");
 		}
 		return product;

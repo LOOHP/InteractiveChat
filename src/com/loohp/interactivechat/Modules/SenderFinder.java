@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,7 +17,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class SenderFinder {
 	
-	private static HashMap<String, UUID> messages = InteractiveChat.messages;
+	private static ConcurrentHashMap<String, UUID> messages = InteractiveChat.messages;
 	
 	public static Optional<Player> getSender(BaseComponent basecomponent, String messageKey) {
 		Player keyPlayer = InteractiveChat.keyPlayer.get(messageKey);

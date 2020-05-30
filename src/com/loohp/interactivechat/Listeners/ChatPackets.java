@@ -68,8 +68,24 @@ public class ChatPackets {
 		        	return;
 		        }
 		        debug++;
-		        BaseComponent[] basecomponentarray = (wcc != null) ? ComponentSerializer.parse(wcc.getJson()) : (BaseComponent[]) field1;		    
-		        int field = (wcc != null) ? 0 : 1;
+		        BaseComponent[] basecomponentarray = null;
+		        int field = -1;
+		        try {
+			        if (wcc != null) {
+			        	basecomponentarray = ComponentSerializer.parse(wcc.getJson());
+			        	field = 0;
+			        } else {
+			        	basecomponentarray = (BaseComponent[]) field1;
+			        	field = 1;
+			        }
+		        } catch (Exception e) {
+		        	try {
+			        	basecomponentarray = (BaseComponent[]) field1;
+			        	field = 1;
+		        	} catch (Exception skip) {
+		        		return;
+		        	}
+		        }
 		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorFilter.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
 		        debug++;
 		        try {
@@ -105,7 +121,7 @@ public class ChatPackets {
 		        	InteractiveChat.keyTime.remove(rawMessageKey);
 		        	InteractiveChat.keyPlayer.remove(rawMessageKey);
 		        }, 5);
-		        debug++;
+		        debug++;		
 		        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), reciever, basecomponent, field, preEventSenderUUID);
 				Bukkit.getPluginManager().callEvent(preEvent);
@@ -138,17 +154,17 @@ public class ChatPackets {
 		        debug++;
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        debug++;
-		        basecomponentarray[0] = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
-		        String json = ComponentSerializer.toString(basecomponentarray);
+		        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
+		        String json = ComponentSerializer.toString(basecomponent);
 		        boolean longerThanMaxLength = false;
 		        if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 32767) {
 		        	longerThanMaxLength = true;
 		        }
 		        debug++;
-		        if (field == 0) {		   
+		        if (field == 0) {
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 		        } else {
-		        	packet.getModifier().write(1, basecomponentarray);
+		        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
 		        }
 		        debug++;
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;

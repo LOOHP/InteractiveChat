@@ -1,4 +1,4 @@
- package com.loohp.interactivechat;
+package com.loohp.interactivechat;
 
 import java.util.ArrayList;
 import java.util.List;

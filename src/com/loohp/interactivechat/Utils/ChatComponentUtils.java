@@ -193,7 +193,7 @@ public class ChatComponentUtils {
 			}
 			product.addExtra(each);
 		}
-		
+
 		return product;
 	}
 	

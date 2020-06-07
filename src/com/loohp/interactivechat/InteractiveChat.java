@@ -33,6 +33,7 @@ import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
 public class InteractiveChat extends JavaPlugin {
@@ -191,6 +192,7 @@ public class InteractiveChat extends JavaPlugin {
 		
 	    MaterialUtils.setupLang();
 	    RarityUtils.setupRarity();
+	    PotionUtils.setupPotions();
 	    
 	    Charts.setup(metrics);
 	    

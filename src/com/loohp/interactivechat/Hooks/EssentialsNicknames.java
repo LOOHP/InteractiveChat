@@ -44,7 +44,9 @@ public class EssentialsNicknames implements Listener {
 	
 	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEssentialsNickChange(NickChangeEvent event) {
-		InteractiveChat.essenNick.put(event.getAffected().getBase(), prefix + event.getValue());
+		try {
+			InteractiveChat.essenNick.put(event.getAffected().getBase(), prefix + event.getValue());
+		} catch (Exception ignore) {}
 	}
 	
 	@EventHandler

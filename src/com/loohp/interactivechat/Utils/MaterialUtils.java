@@ -43,8 +43,8 @@ public class MaterialUtils {
 	
 	public static void setupLang() {
 		if (InteractiveChat.version.isLegacy()) {
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Translatable Components are not supported on this version");
-	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "InteractiveChat will use legacy item names method instead!");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Translatable Components are not supported on this version");
+	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] InteractiveChat will use legacy item names method instead!");
 	    	LegacyMaterialUtils.setupLegacyLang();
 		}
 	}

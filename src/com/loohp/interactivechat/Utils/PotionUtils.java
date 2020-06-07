@@ -4,11 +4,17 @@ import java.util.HashMap;
 
 import org.bukkit.potion.PotionType;
 
+import com.loohp.interactivechat.InteractiveChat;
+
 public class PotionUtils {
 	
 	private static HashMap<PotionType, String> potionMapping = new HashMap<PotionType, String>();
 	
 	public static void setupPotions() {
+		if (InteractiveChat.version.isLegacy()) {
+			return;
+		}
+		
 		potionMapping.put(PotionType.WATER, "water");
 		potionMapping.put(PotionType.MUNDANE, "mundane");
 		potionMapping.put(PotionType.THICK, "thick");
@@ -33,11 +39,9 @@ public class PotionUtils {
 	}
 	
 	public static String getVanillaPotionName(PotionType type) {
-		String name = "";
 		if (potionMapping.containsKey(type)) {
-			name = potionMapping.get(type);
-			return name;
+			return potionMapping.get(type);
 		}
-		return null;
+		return potionMapping.get(PotionType.UNCRAFTABLE);
 	}
 }

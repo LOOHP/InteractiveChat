@@ -20,11 +20,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Utils.ChatColorFilter;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
-import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -36,7 +34,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ItemDisplay {
 	
@@ -103,7 +100,7 @@ public class ItemDisplay {
 				String lastColor = "";
 				
 				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = (TextComponent) textcomponent.duplicate();
+					TextComponent before = new TextComponent(textcomponent);
 					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
 					lastColor = ChatColorUtils.getLastColors(before.getText());
@@ -145,10 +142,10 @@ public class ItemDisplay {
 										} else {									
 											item = player.getEquipment().getItemInMainHand().clone();
 										}
-									}											
+									}
 								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
-								    if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) {
-								    	trimmed = true;
+								    Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
+								    if (((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) || (!InteractiveChat.version.isLegacy() && itemJson.length() > 200000)) {
 								    	ItemStack trimedItem = new ItemStack(item.getType());
 								    	trimedItem.addUnsafeEnchantments(item.getEnchantments());
 								    	if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
@@ -183,7 +180,7 @@ public class ItemDisplay {
 								    	useTranslatable = true;
 								    	itemString = MaterialUtils.getMinecraftLangName(item);
 								    }
-								    itemString = ChatColorFilter.filterIllegalColorCodes(itemString);
+								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
 								    message = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
 								    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
@@ -249,9 +246,7 @@ public class ItemDisplay {
 											    }
 											    newlist.add(transItem);
 											} else {
-												BaseComponent[] itembcJson = ComponentSerializer.parse(JsonUtils.toJSON(itemString));
-								            	BaseComponent itembaseJson = itembcJson[0];
-												TextComponent itemitemtextcomponent = (TextComponent) itembaseJson;
+												TextComponent itemitemtextcomponent = new TextComponent(itemString);
 												itemitemtextcomponent.setText(RarityUtils.getRarityColor(item) + itemitemtextcomponent.getText());
 												if (!isAir) {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
@@ -263,9 +258,7 @@ public class ItemDisplay {
 											    newlist.add(itemitemtextcomponent);
 											}
 										} else {
-											BaseComponent[] itembcJson = ComponentSerializer.parse(JsonUtils.toJSON(itemString));
-							            	BaseComponent itembaseJson = itembcJson[0];
-											TextComponent itemitemtextcomponent = (TextComponent) itembaseJson;
+											TextComponent itemitemtextcomponent = new TextComponent(itemString);
 											if (!isAir) {
 												itemitemtextcomponent.setHoverEvent(hoverItem);
 											}
@@ -279,9 +272,7 @@ public class ItemDisplay {
 
 									for (int u = 0; u < parts.length; u++) {
 										String str = parts[u];
-										BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(str));
-						            	BaseComponent baseJson = bcJson[0];
-										TextComponent itemtextcomponent = (TextComponent) baseJson;
+										TextComponent itemtextcomponent = new TextComponent(str);
 										if (!isAir) {
 											itemtextcomponent.setHoverEvent(hoverItem);
 										}
@@ -305,9 +296,7 @@ public class ItemDisplay {
 												    }
 												    newlist.add(transItem);
 												} else {
-													BaseComponent[] itembcJson = ComponentSerializer.parse(JsonUtils.toJSON(itemString));
-									            	BaseComponent itembaseJson = itembcJson[0];
-													TextComponent itemitemtextcomponent = (TextComponent) itembaseJson;
+													TextComponent itemitemtextcomponent = new TextComponent(itemString);
 													itemitemtextcomponent.setText(RarityUtils.getRarityColor(item) + itemitemtextcomponent.getText());
 													if (!isAir) {
 														itemitemtextcomponent.setHoverEvent(hoverItem);
@@ -319,9 +308,7 @@ public class ItemDisplay {
 												    newlist.add(itemitemtextcomponent);
 												}
 											} else {
-												BaseComponent[] itembcJson = ComponentSerializer.parse(JsonUtils.toJSON(itemString));
-								            	BaseComponent itembaseJson = itembcJson[0];
-												TextComponent itemitemtextcomponent = (TextComponent) itembaseJson;
+												TextComponent itemitemtextcomponent = new TextComponent(itemString);
 												if (!isAir) {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}
@@ -368,7 +355,7 @@ public class ItemDisplay {
 		}
 		
 		if (trimmed && InteractiveChat.cancelledMessage) {
-			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds 30000 characters in the chat [THIS IS NOT A BUG]");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
 		}
 		return product;
 	}

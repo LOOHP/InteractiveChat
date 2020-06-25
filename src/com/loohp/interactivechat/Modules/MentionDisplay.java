@@ -103,7 +103,7 @@ public class MentionDisplay {
 					trim.remove(trim.size() - 1);
 				}
 				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = (TextComponent) textcomponent.duplicate();
+					TextComponent before = new TextComponent(textcomponent);
 					before.setText(trim.get(i));
 					newlist.add(before);
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    

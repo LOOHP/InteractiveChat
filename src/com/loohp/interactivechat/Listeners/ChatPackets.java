@@ -26,7 +26,7 @@ import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
-import com.loohp.interactivechat.Utils.ChatColorFilter;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -86,7 +86,10 @@ public class ChatPackets {
 		        		return;
 		        	}
 		        }
-		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorFilter.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
+		        
+		        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponentarray));
+		        
+		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
 		        debug++;
 		        try {
 		        	if (basecomponent.toLegacyText().equals("")) {
@@ -157,7 +160,7 @@ public class ChatPackets {
 		        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
 		        String json = ComponentSerializer.toString(basecomponent);
 		        boolean longerThanMaxLength = false;
-		        if ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 32767) {
+		        if (((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
 		        	longerThanMaxLength = true;
 		        }
 		        debug++;
@@ -176,7 +179,7 @@ public class ChatPackets {
 		        	event.setCancelled(true);
 		        	event.setReadOnly(true);
 		        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-		        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Max 32767) [THIS IS NOT A BUG]");
+		        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
 		        	}
 		        }
 		        debug++;

@@ -78,7 +78,7 @@ public class PlayernameDisplay {
 				StringBuilder sb = new StringBuilder();
 				
 				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = (TextComponent) textcomponent.duplicate();
+					TextComponent before = new TextComponent(textcomponent);
 					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
 					sb.append(before.getText());

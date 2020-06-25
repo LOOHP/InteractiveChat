@@ -1,11 +1,13 @@
 package com.loohp.interactivechat.Utils;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Listeners.ClientSettingPackets;
 import com.loohp.interactivechat.Listeners.ClientSettingPackets.ColorSettings;
 
@@ -150,33 +152,18 @@ public class ChatComponentUtils {
 	public static BaseComponent cleanUpLegacyText(BaseComponent basecomponent, Player player) {
 		List<BaseComponent> newlist = new LinkedList<BaseComponent>();
 		for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
-			if (!(base instanceof TextComponent)) {
-				newlist.add(base);
+			if (base instanceof TextComponent) {
+				List<TextComponent> texts = Arrays.asList(TextComponent.fromLegacyText(base.toLegacyText())).stream().map(each -> (TextComponent) each).collect(Collectors.toList());
+				texts.forEach(each -> {
+					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+						each = (TextComponent) CustomStringUtils.copyFormattingNoReplace(each, base);
+	 	        	} else {
+	 	        		each.copyFormatting(base, false);
+	 	        	}
+				});
+				newlist.addAll(texts);
 			} else {
-				TextComponent textcomponent = (TextComponent) base;
-				String text = textcomponent.getText();
-				int loop = 0;
-				do {
-					loop++;
-					String color = ChatColorUtils.getFirstColors(text);
-					int pos = CustomStringUtils.ordinalIndexOf(text, "§", CustomStringUtils.occurrencesOfSubstring(color, "§") + 1);
-					pos = pos >= 0 ? pos : text.length();
-					String before = text.substring(0, pos);
-					text = text.substring(pos);
-					TextComponent newTextComponent = new TextComponent(ChatColor.stripColor(before));
-					newTextComponent = (TextComponent) CustomStringUtils.copyFormatting(newTextComponent, textcomponent);
-					newTextComponent = (TextComponent) ChatColorUtils.applyColor(newTextComponent, color);
-					if (!newlist.isEmpty() && areSimilar(newTextComponent, newlist.get(newlist.size() - 1), false) && newlist.get(newlist.size() - 1) instanceof TextComponent) {
-						TextComponent lastTextComponent = (TextComponent) newlist.get(newlist.size() - 1);
-						lastTextComponent.setText(lastTextComponent.getText() + newTextComponent.getText());
-					} else {
-						newlist.add(newTextComponent);
-					}
-					if (loop > 5000) {
-						Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Debug - cleanUpLegacyText loop 5000 - " + text.toString());
-						break;
-					}
-				} while (text.contains("§") && !text.equals("§"));
+				newlist.add(base);
 			}
 		}
 

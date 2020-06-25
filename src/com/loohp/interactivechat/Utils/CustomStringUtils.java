@@ -186,7 +186,7 @@ public class CustomStringUtils {
 	        }
 	    }
 	    
-	    return ChatColorFilter.filterUselessColorCodes(list);
+	    return list;
 	}
 	
 	public static BaseComponent copyFormattingNoReplace(BaseComponent set, BaseComponent get) {

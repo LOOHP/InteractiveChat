@@ -68,7 +68,8 @@ public class JsonUtils {
 
     private static final StringBuilder STYLE = new StringBuilder();
 
-    private static String getStyle(char colour) {
+    @SuppressWarnings("deprecation")
+	private static String getStyle(char colour) {
         if(STYLE.length() > 0)
             STYLE.delete(0, STYLE.length());
         switch(colour) {

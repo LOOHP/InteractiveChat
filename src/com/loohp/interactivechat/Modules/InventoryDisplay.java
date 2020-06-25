@@ -17,7 +17,6 @@ import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.JsonUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -26,7 +25,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class InventoryDisplay {
 	
@@ -91,7 +89,7 @@ public class InventoryDisplay {
 				String lastColor = "";
 				
 				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = (TextComponent) textcomponent.duplicate();
+					TextComponent before = new TextComponent(textcomponent);
 					before.setText(lastColor + trim.get(i));
 					newlist.add(before);
 					lastColor = ChatColorUtils.getLastColors(before.getText());
@@ -134,7 +132,7 @@ public class InventoryDisplay {
 									
 									String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
 									
-									BaseComponent[] bcJson = ComponentSerializer.parse(JsonUtils.toJSON(textComp));
+									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
 					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 					            	

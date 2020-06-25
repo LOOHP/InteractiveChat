@@ -107,17 +107,20 @@ public class ChatColorUtils {
 	    	} else {
 	    		basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
 	    		for (int i = 3; i < color.length(); i = i + 2) {
-	    			if (ChatColor.getByChar(color.charAt(i)).equals(ChatColor.BOLD)) {
-						basecomponent.setBold(true);
-		    		} else if (ChatColor.getByChar(color.charAt(i)).equals(ChatColor.ITALIC)) {
-						basecomponent.setItalic(true);
-		    		} else if (ChatColor.getByChar(color.charAt(i)).equals(ChatColor.MAGIC)) {
-						basecomponent.setObfuscated(true);
-		    		} else if (ChatColor.getByChar(color.charAt(i)).equals(ChatColor.STRIKETHROUGH)) {
-						basecomponent.setStrikethrough(true);
-		    		} else if (ChatColor.getByChar(color.charAt(i)).equals(ChatColor.UNDERLINE)) {
-						basecomponent.setUnderlined(true);
-					}
+	    			char cha = color.charAt(i);
+	    			if (cha == 'k' || cha == 'l' || cha == 'm' || cha == 'n' || cha == 'o') { 
+		    			if (ChatColor.getByChar(cha).equals(ChatColor.BOLD)) {
+							basecomponent.setBold(true);
+			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.ITALIC)) {
+							basecomponent.setItalic(true);
+			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.MAGIC)) {
+							basecomponent.setObfuscated(true);
+			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.STRIKETHROUGH)) {
+							basecomponent.setStrikethrough(true);
+			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.UNDERLINE)) {
+							basecomponent.setUnderlined(true);
+						}
+	    			}
 	    		}
 	    	}
     	}

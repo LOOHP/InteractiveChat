@@ -87,8 +87,6 @@ public class ChatPackets {
 		        	}
 		        }
 		        
-		        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponentarray));
-		        
 		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
 		        debug++;
 		        try {

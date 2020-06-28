@@ -144,7 +144,7 @@ public class ItemDisplay {
 										}
 									}
 								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
-								    Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
+								    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
 								    if (((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) || (!InteractiveChat.version.isLegacy() && itemJson.length() > 200000)) {
 								    	ItemStack trimedItem = new ItemStack(item.getType());
 								    	trimedItem.addUnsafeEnchantments(item.getEnchantments());

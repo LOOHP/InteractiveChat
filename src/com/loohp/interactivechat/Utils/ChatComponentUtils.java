@@ -205,15 +205,23 @@ public class ChatComponentUtils {
 	}
 	
 	public static BaseComponent join(BaseComponent base, BaseComponent... basecomponentarray) {
-		BaseComponent product = base;
-		for (BaseComponent each : basecomponentarray) {
-			product.addExtra(each);
+		if (basecomponentarray.length <= 0) {
+			return base;
+		} else {
+			BaseComponent product = base;
+			for (BaseComponent each : basecomponentarray) {
+				product.addExtra(each);
+			}
+			return product;
 		}
-		return product;
 	}
 	
 	public static BaseComponent join(BaseComponent[] basecomponentarray) {
-		return join(basecomponentarray[0], Arrays.copyOfRange(basecomponentarray, 1, basecomponentarray.length));
+		if (basecomponentarray.length <= 1) {
+			return basecomponentarray[0];
+		} else {
+			return join(basecomponentarray[0], Arrays.copyOfRange(basecomponentarray, 1, basecomponentarray.length));
+		}
 	}
 
 }

@@ -203,5 +203,17 @@ public class ChatComponentUtils {
 		
 		return product;
 	}
+	
+	public static BaseComponent join(BaseComponent base, BaseComponent... basecomponentarray) {
+		BaseComponent product = base;
+		for (BaseComponent each : basecomponentarray) {
+			product.addExtra(each);
+		}
+		return product;
+	}
+	
+	public static BaseComponent join(BaseComponent[] basecomponentarray) {
+		return join(basecomponentarray[0], Arrays.copyOfRange(basecomponentarray, 1, basecomponentarray.length));
+	}
 
 }

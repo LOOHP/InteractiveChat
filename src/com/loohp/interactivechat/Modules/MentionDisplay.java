@@ -38,7 +38,7 @@ public class MentionDisplay {
 				if (SoundUtils.isValid(ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
 					sound = Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound"));
 				} else {
-					Bukkit.getConsoleSender().sendMessage("Invalid Sound: " + ConfigManager.getConfig().getString("Chat.MentionedSound"));
+					Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + ConfigManager.getConfig().getString("Chat.MentionedSound"));
 				}
 				
 				boolean inCooldown = true;

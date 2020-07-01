@@ -52,7 +52,7 @@ public class ChatPackets {
 		        debug++;
 		        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
 			        ChatType type = packet.getChatTypes().read(0);
-			        if (type.equals(ChatType.GAME_INFO)) {
+			        if (type == null || type.equals(ChatType.GAME_INFO)) {
 			        	return;
 			        }
 		        } else {
@@ -86,8 +86,8 @@ public class ChatPackets {
 		        		return;
 		        	}
 		        }
-		        
-		        BaseComponent basecomponent = ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray)))[0];
+
+		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
 		        debug++;
 		        try {
 		        	if (basecomponent.toLegacyText().equals("")) {

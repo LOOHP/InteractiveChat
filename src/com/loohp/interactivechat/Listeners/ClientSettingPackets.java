@@ -20,7 +20,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ClientSettingPackets implements Listener {
 	
-	public static HashMap<Player, Boolean> colorSettingsMap = new HashMap<Player, Boolean>();
+	private static HashMap<Player, Boolean> colorSettingsMap = new HashMap<Player, Boolean>();
 	
 	public enum ColorSettings {
 		ON, 

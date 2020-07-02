@@ -37,6 +37,7 @@ public class Updater implements Listener {
 		}, 100);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void sendUpdateMessage(CommandSender sender, String version) {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,8 @@ import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Updater.Updater;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
@@ -129,6 +132,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean UpdaterEnabled = true;
 	public static boolean cancelledMessage = true;
+	
+	public static boolean legacyChatAPI = false;
 
 	@Override
 	public void onEnable() {	
@@ -174,6 +179,7 @@ public class InteractiveChat extends JavaPlugin {
 	    getCommand("interactivechat").setExecutor(new Commands());
 	    
 	    ConfigManager.loadConfig();
+	    ItemNBTUtils.setup();
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    ChatPackets.chatMessageListener();
@@ -201,6 +207,18 @@ public class InteractiveChat extends JavaPlugin {
 	    }
 	    
 	    ClientSettingPackets.clientSettingsListener();
+	    
+	    try {
+			Class<?> chatHoverEventClass = Class.forName("net.md_5.bungee.api.chat.HoverEvent");
+			legacyChatAPI = !Arrays.asList(chatHoverEventClass.getDeclaredClasses()).stream().anyMatch(each -> each.getCanonicalName().equals("net.md_5.bungee.api.chat.HoverEvent.Content"));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		};
+		
+		if (legacyChatAPI) {
+			ChatComponentUtils.setupLegacy();
+			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
+		}
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    

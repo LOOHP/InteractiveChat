@@ -55,6 +55,7 @@ public class CustomPlaceholderDisplay {
 		return basecomponent;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static BaseComponent processCustomPlaceholder(Player parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, String clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
 		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {

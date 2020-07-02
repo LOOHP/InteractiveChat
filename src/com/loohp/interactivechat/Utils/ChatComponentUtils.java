@@ -1,5 +1,8 @@
 package com.loohp.interactivechat.Utils;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,9 +18,25 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.HoverEvent.Content;
+import net.md_5.bungee.api.chat.HoverEvent.ContentEntity;
+import net.md_5.bungee.api.chat.HoverEvent.ContentItem;
+import net.md_5.bungee.api.chat.HoverEvent.ContentText;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ChatComponentUtils {
+	
+	private static Class<?> chatHoverEventClass;
+	private static MethodHandle hoverEventGetValueMethod;
+	
+	public static void setupLegacy() {
+		try {
+			chatHoverEventClass = Class.forName("net.md_5.bungee.api.chat.HoverEvent");
+			hoverEventGetValueMethod = MethodHandles.lookup().findVirtual(chatHoverEventClass, "getValue", MethodType.methodType(BaseComponent[].class));
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static boolean areSimilar(BaseComponent base1, BaseComponent base2, boolean compareText) {
 		if (!areEventsSimilar(base1, base2)) {
@@ -111,19 +130,81 @@ public class ChatComponentUtils {
 				HoverEvent hover1 = base1.getHoverEvent();
 				HoverEvent hover2 = base2.getHoverEvent();
 				if (hover1.getAction().equals(hover2.getAction())) {
-					BaseComponent[] basecomponentarray1 = hover1.getValue();
-					BaseComponent[] basecomponentarray2 = hover2.getValue();
-					if (basecomponentarray1.length == basecomponentarray2.length) {
-						hoverSim = true;
-						for (int i = 0; i < basecomponentarray1.length && i < basecomponentarray2.length ; i++) {
-							BaseComponent bc1 = basecomponentarray1[i];
-							BaseComponent bc2 = basecomponentarray2[i];
-							if (!(bc1 == null && bc2 == null) && (bc1 == null || bc2 == null)) {
-								hoverSim = false;
-								break;
-							} else if (areSimilarNoEvents(bc1, bc2, true)) {
-								hoverSim = false;
-								break;
+					if (InteractiveChat.legacyChatAPI) {
+						try {
+							BaseComponent[] basecomponentarray1 = (BaseComponent[]) hoverEventGetValueMethod.invoke(hover1);
+							BaseComponent[] basecomponentarray2 = (BaseComponent[]) hoverEventGetValueMethod.invoke(hover2);
+							if (basecomponentarray1.length == basecomponentarray2.length) {
+								hoverSim = true;
+								for (int i = 0; i < basecomponentarray1.length && i < basecomponentarray2.length ; i++) {
+									BaseComponent bc1 = basecomponentarray1[i];
+									BaseComponent bc2 = basecomponentarray2[i];
+									if (!(bc1 == null && bc2 == null) && (bc1 == null || bc2 == null)) {
+										hoverSim = false;
+										break;
+									} else if (!areSimilarNoEvents(bc1, bc2, true)) {
+										hoverSim = false;
+										break;
+									}
+								}
+							}
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
+					} else {
+						List<Content> contents1 = hover1.getContents();
+						List<Content> contents2 = hover2.getContents();
+						if (hover1.getAction().equals(hover2.getAction()) && contents1.size() == contents2.size()) {
+							hoverSim = true;
+							for (int i = 0; i < contents1.size() && i < contents2.size() ; i++) {
+								Content c1 = contents1.get(i);
+								Content c2 = contents2.get(i);
+								if (c1 instanceof ContentText && c2 instanceof ContentText) {
+									ContentText ct1 = (ContentText) c1;
+									ContentText ct2 = (ContentText) c2;
+									if (ct1.getValue() instanceof BaseComponent[] && ct2.getValue() instanceof BaseComponent[]) {
+										BaseComponent[] basecomponentarray1 = (BaseComponent[]) ct1.getValue();
+										BaseComponent[] basecomponentarray2 = (BaseComponent[]) ct2.getValue();
+										if (basecomponentarray1.length == basecomponentarray2.length) {
+											hoverSim = true;
+											for (int j = 0; j < basecomponentarray1.length && j < basecomponentarray2.length ; j++) {
+												BaseComponent bc1 = basecomponentarray1[j];
+												BaseComponent bc2 = basecomponentarray2[j];
+												if (!(bc1 == null && bc2 == null) && (bc1 == null || bc2 == null)) {
+													hoverSim = false;
+													break;
+												} else if (!areSimilarNoEvents(bc1, bc2, true)) {
+													hoverSim = false;
+													break;
+												}
+											}
+										}
+									} else if (ct1.getValue() instanceof String && ct2.getValue() instanceof String) {
+										String str1 = (String) ct1.getValue();
+										String str2 = (String) ct2.getValue();
+										if (!str1.equals(str2)) {
+											hoverSim = false;
+											break;
+										}
+									}
+								} else if (c1 instanceof ContentEntity && c2 instanceof ContentEntity) {
+									ContentEntity ce1 = (ContentEntity) c1;
+									ContentEntity ce2 = (ContentEntity) c2;
+									if (!(ce1.getId().equals(ce2.getId()) && ce1.getType().equals(ce2.getType()) && areSimilarNoEvents(ce1.getName(), ce2.getName(), true))) {
+										hoverSim = false;
+										break;
+									}
+								} else if (c1 instanceof ContentItem && c2 instanceof ContentItem) {
+									ContentItem ci1 = (ContentItem) c1;
+									ContentItem ci2 = (ContentItem) c2;
+									if (!(ci1.getCount() == ci2.getCount() && ci1.getId().equals(ci2.getId()) && ci1.getTag().equals(ci2.getTag()))) {
+										hoverSim = false;
+										break;
+									}
+								} else {
+									hoverSim = false;
+									break;
+								}
 							}
 						}
 					}
@@ -136,13 +217,41 @@ public class ChatComponentUtils {
 	
 	public static BaseComponent removeHoverEventColor(BaseComponent baseComponent) {
 		if (baseComponent.getHoverEvent() != null) {
-			for (BaseComponent each : baseComponent.getHoverEvent().getValue()) {
-				each.setColor(ChatColor.WHITE);
-				if (each instanceof TextComponent) {
-					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+			if (InteractiveChat.legacyChatAPI) {
+				try {
+					for (BaseComponent each : (BaseComponent[]) hoverEventGetValueMethod.invoke(baseComponent.getHoverEvent())) {
+						each.setColor(ChatColor.WHITE);
+						if (each instanceof TextComponent) {
+							((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+						}
+						if (each.getHoverEvent() != null) {
+							each = removeHoverEventColor(each);
+						}
+					}
+				} catch (Throwable e) {
+					e.printStackTrace();
 				}
-				if (each.getHoverEvent() != null) {
-					each = removeHoverEventColor(each);
+			} else {
+				int j = 0;
+				List<Content> contents = baseComponent.getHoverEvent().getContents();
+				for (Content content : contents) {
+					if (content instanceof ContentText) {
+						Object value = ((ContentText) content).getValue();
+						if (value instanceof BaseComponent[]) {
+							for (BaseComponent each : (BaseComponent[]) value) {
+								each.setColor(ChatColor.WHITE);
+								if (each instanceof TextComponent) {
+									((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+								}
+								if (each.getHoverEvent() != null) {
+									each = removeHoverEventColor(each);
+								}
+							}
+						} else if (value instanceof String) {
+							contents.set(j, new ContentText(((String) value).replaceAll("§[0-9a-e]", "§f")));
+						}
+					}
+					j++;
 				}
 			}
 		}

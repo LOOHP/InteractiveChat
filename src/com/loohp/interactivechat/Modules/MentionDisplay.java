@@ -82,6 +82,7 @@ public class MentionDisplay {
 		return basecomponent;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static BaseComponent processPlayer(String placeholder, Player reciever, Player sender, BaseComponent basecomponent, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();

@@ -49,6 +49,7 @@ public class PlayernameDisplay {
 		return basecomponent;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static BaseComponent processPlayer(String placeholder, Player player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();

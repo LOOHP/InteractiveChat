@@ -13,6 +13,7 @@ import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.OldTitleSender;
 import com.loohp.interactivechat.Utils.SoundUtils;
@@ -32,8 +33,8 @@ public class MentionDisplay {
     		if (pair.getSender().equals(sender.getUniqueId())) {
     			Player reciever = beenpinged;
     			
-    			String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
-				String subtitle = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
+    			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
+				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
 				Sound sound = null;
 				if (SoundUtils.isValid(ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
 					sound = Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound"));
@@ -108,9 +109,9 @@ public class MentionDisplay {
 					before.setText(trim.get(i));
 					newlist.add(before);
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    
-						TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
+						TextComponent message = new TextComponent(ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
 						message = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
-						String hover = ChatColor.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
+						String hover = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
 						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
 						
 						newlist.add(message);

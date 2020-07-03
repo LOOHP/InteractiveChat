@@ -8,18 +8,19 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -31,32 +32,46 @@ public class CustomPlaceholderDisplay {
 	private static Random random = new Random();
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
-		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
-			ConfigurationSection s = ConfigManager.getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
-			Player parseplayer = (s.getString("ParsePlayer").equalsIgnoreCase("sender") && optplayer.isPresent()) ? optplayer.get() : reciever;
-			boolean casesensitive = s.getBoolean("CaseSensitive");
-			String placeholder = s.getString("Text");
-			placeholder = (s.getBoolean("ParseKeyword")) ? PlaceholderAPI.setPlaceholders(parseplayer, placeholder) : placeholder;
-			long cooldown = s.getLong("Cooldown") * 1000;
-			boolean hoverEnabled = s.getBoolean("Hover.Enable");
-			String hoverText = String.join("\n", s.getStringList("Hover.Text"));
-			boolean clickEnabled = s.getBoolean("Click.Enable");
-			String clickAction = s.getString("Click.Action").toUpperCase();
-			String clickValue = s.getString("Click.Value");
-			boolean replaceEnabled = s.getBoolean("Replace.Enable");
-			String replaceText = s.getString("Replace.ReplaceText");
+		for (int i = 0; i < InteractiveChat.placeholderList.size(); i++) {
+			
+			ICPlaceholder icplaceholder = InteractiveChat.placeholderList.get(i);
+			if (icplaceholder.isBuildIn()) {
+				continue;
+			}
+			CustomPlaceholder cp = icplaceholder.getCustomPlaceholder().get();
+			
+			Player parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : reciever;
+			boolean casesensitive = cp.isCaseSensitive();
+			
+			if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
+				Player sender = optplayer.get();
+				if (!sender.hasPermission("interactivechat.module.custom." + cp.getPosition())) {
+					continue;
+				}
+			}
+			
+			String placeholder = cp.getKeyword();
+			placeholder = (cp.getParseKeyword()) ? PlaceholderAPI.setPlaceholders(parseplayer, placeholder) : placeholder;
+			long cooldown = cp.getCooldown();
+			boolean hoverEnabled = cp.getHover().isEnabled();
+			String hoverText = cp.getHover().getText();
+			boolean clickEnabled = cp.getClick().isEnabled();
+			Action clickAction = cp.getClick().getAction();
+			String clickValue = cp.getClick().getValue();
+			boolean replaceEnabled = cp.getReplace().isEnabled();
+			String replaceText = cp.getReplace().getReplaceText();
 			
 			basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
 		}
 		
 		String henry = random.nextInt(100) < 80 ? "§7\"§fTerraria is love, Terraria is life§7\"\n              §7~§a§oHenry §e§o(IC Icon Artist)" : "§fShow §a§oHenry §e§o(IC Icon Artist) §fsome §cLOVE§f!\n§bClick me!\n                       §a~From the IC author";
-		basecomponent = processCustomPlaceholder(reciever, false, "Terraria", 0, true, henry, true, "OPEN_URL", "https://www.reddit.com/user/henryauyong", true, "§2Terraria", basecomponent, optplayer, messageKey, unix);
+		basecomponent = processCustomPlaceholder(reciever, false, "Terraria", 0, true, henry, true, Action.OPEN_URL, "https://www.reddit.com/user/henryauyong", true, "§2Terraria", basecomponent, optplayer, messageKey, unix);
 		
 		return basecomponent;
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processCustomPlaceholder(Player parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, String clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
+	public static BaseComponent processCustomPlaceholder(Player parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
 		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -135,7 +150,7 @@ public class CustomPlaceholderDisplay {
 							
 							String textComp = placeholder;
 							if (replaceEnabled) {
-								textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+								textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
 							}
 							BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
 			            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
@@ -148,8 +163,8 @@ public class CustomPlaceholderDisplay {
 								}
 								
 								if (clickEnabled) {
-									String clicktext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
-									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction), clicktext));
+									String clicktext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, clickValue));
+									message.setClickEvent(new ClickEvent(clickAction, clicktext));
 								}
 								
 								newlist.add(message);

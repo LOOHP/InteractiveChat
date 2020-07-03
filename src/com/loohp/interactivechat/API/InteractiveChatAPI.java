@@ -3,15 +3,21 @@ package com.loohp.interactivechat.API;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 
 public class InteractiveChatAPI {
 	
 	public static List<String> getPlaceholderList() {
+		return InteractiveChat.placeholderList.stream().map(each -> each.getKeyword()).collect(Collectors.toList());
+	}
+	
+	public static List<ICPlaceholder> getICPlaceholderList() {
 		return InteractiveChat.placeholderList;
 	}
 	

@@ -19,7 +19,6 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -115,7 +114,7 @@ public class InventoryDisplay {
 									
 									String replaceText = InteractiveChat.invReplaceText;
 									
-									String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
+									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
 									
 									if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
 										Inventory inv = Bukkit.createInventory(null, 45, title);
@@ -131,14 +130,14 @@ public class InventoryDisplay {
 		    							singleMap.put(time, inv);
 									}
 									
-									String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
 									
 									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
 					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 					            	
 					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
-									String invtext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
+									String invtext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
 					            	
 					            	for (BaseComponent baseComponent : baseJson) {
 					            		TextComponent message = (TextComponent) baseComponent;
@@ -163,7 +162,7 @@ public class InventoryDisplay {
 									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder)).create()));
 								}
 								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-									String invtext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+									String invtext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), invtext));
 								}
 								

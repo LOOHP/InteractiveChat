@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +31,7 @@ import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
@@ -49,6 +51,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static String space0 = "\u200B";
 	public static String space1 = "\u200A";
+	public static String nullString = null;
 	
 	public static boolean EssentialsHook = false;
 	public static boolean ChatManagerHook = false;
@@ -111,7 +114,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = new ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>>();
 	public static ConcurrentHashMap<Player, Long> universalCooldowns = new ConcurrentHashMap<Player, Long>();
 	
-	public static List<String> placeholderList = new ArrayList<String>();
+	public static List<ICPlaceholder> placeholderList = new ArrayList<ICPlaceholder>();
 	public static int maxPlacholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
@@ -134,6 +137,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean cancelledMessage = true;
 	
 	public static boolean legacyChatAPI = false;
+	public static boolean useCustomPlaceholderPermissions = false;
+	
+	public static Optional<Character> chatAltColorCode = Optional.empty();
 
 	@Override
 	public void onEnable() {	

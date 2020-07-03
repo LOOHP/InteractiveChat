@@ -19,7 +19,6 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -115,7 +114,7 @@ public class EnderchestDisplay {
 									
 									String replaceText = InteractiveChat.enderReplaceText;	
 									
-									String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.enderTitle));
+									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.enderTitle));
 									
 									if (!InteractiveChat.enderDisplay.containsKey(time)) {
 										Inventory inv = Bukkit.createInventory(null, 27, title);
@@ -131,14 +130,14 @@ public class EnderchestDisplay {
 		    							singleMap.put(time, inv);
 									}
 									
-									String textComp = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
 									
 									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
 					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 					            	
 					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
-									String endertext = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
+									String endertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
 					            	
 					            	for (BaseComponent baseComponent : baseJson) {
 					            		TextComponent message = (TextComponent) baseComponent;
@@ -162,7 +161,7 @@ public class EnderchestDisplay {
 									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder)).create()));
 								}
 								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-									String endertext = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+									String endertext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), endertext));
 								}
 								

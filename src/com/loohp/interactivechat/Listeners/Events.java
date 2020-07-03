@@ -18,7 +18,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
@@ -43,9 +45,10 @@ public class Events implements Listener {
 		for (String parsecommand : InteractiveChat.commandList) {
 			if (command.matches(parsecommand)) {
 				command = MessageUtils.preprocessMessage(command);
-				for (String placeholder : InteractiveChat.placeholderList) {
-					if (command.contains(placeholder)) {
-						String regexPlaceholder = CustomStringUtils.escapeMetaCharacters(placeholder);
+				for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+					String placeholder = icplaceholder.getKeyword();
+					if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
+						String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
 						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
 						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(event.getPlayer(), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
@@ -70,19 +73,20 @@ public class Events implements Listener {
 		String message = event.getMessage();
 		if (InteractiveChat.maxPlacholders >= 0) {
 			int count = 0;
-			for (String findStr : InteractiveChat.placeholderList) {
+			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+				String findStr = icplaceholder.getKeyword();
 				int lastIndex = 0;	
 				while(lastIndex != -1) {	
-				    lastIndex = message.indexOf(findStr,lastIndex);	
+				    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
 				    if(lastIndex != -1) {
-				        count ++;
+				        count++;
 				        lastIndex += findStr.length();
 				    }
 				}
 			}
 			if (count > InteractiveChat.maxPlacholders) {
 				event.setCancelled(true);
-				String cancelmessage = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
+				String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
 				event.getPlayer().sendMessage(cancelmessage);
 				return;
 			}
@@ -90,46 +94,52 @@ public class Events implements Listener {
 		
 		event.setMessage(MessageUtils.preprocessMessage(message));
 		
-		InteractiveChat.messages.put(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+		InteractiveChat.messages.put(ChatColor.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
-	public void checkChatforChatManager(AsyncPlayerChatEvent event) {
+	public void checkChatforChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
+		
+		translateAltColorCode(event);
+		
 		if (event.isCancelled()) {
 			return;
 		}
 		
 		checkMention(event);
-		
-		
+				
 		if (!InteractiveChat.ChatManagerHook) {
 			return;
 		}
 		
 		String message = event.getMessage();
+		Player player = event.getPlayer();
+		
 		if (InteractiveChat.maxPlacholders >= 0) {
 			int count = 0;
-			for (String findStr : InteractiveChat.placeholderList) {
+			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+				String findStr = icplaceholder.getKeyword();
 				int lastIndex = 0;	
 				while(lastIndex != -1) {	
-				    lastIndex = message.indexOf(findStr,lastIndex);	
+				    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
 				    if(lastIndex != -1) {
-				        count ++;
+				        count++;
 				        lastIndex += findStr.length();
 				    }
 				}
 			}
 			if (count > InteractiveChat.maxPlacholders) {
 				event.setCancelled(true);
-				String cancelmessage = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
-				event.getPlayer().sendMessage(cancelmessage);
+				String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.limitReachMessage));
+				player.sendMessage(cancelmessage);
 				return;
 			}
 		}
 		
-		event.setMessage(MessageUtils.preprocessMessage(message));
+		message = MessageUtils.preprocessMessage(message);
+		event.setMessage(message);
 		
-		InteractiveChat.messages.put(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+		InteractiveChat.messages.put(ChatColor.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), player.getUniqueId());
 	}
 	
     private void checkMention(AsyncPlayerChatEvent event) {
@@ -163,8 +173,27 @@ public class Events implements Listener {
 			}
 		}
 	}
+    
+	private void translateAltColorCode(AsyncPlayerChatEvent event) {
+		if (event.isCancelled()) {
+			return;
+		}
+		
+		if (!InteractiveChat.chatAltColorCode.isPresent()) {
+			return;
+		}
+		
+		Player player = event.getPlayer();
+		
+		if (!player.hasPermission("interactivechat.chatcolor.translate")) {
+			return;
+		}
+		
+		String message = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
+		event.setMessage(message);
+	}
 	
-	@EventHandler
+	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getClickedInventory() == null) {
 			return;

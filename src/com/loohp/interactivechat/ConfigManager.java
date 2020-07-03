@@ -1,15 +1,24 @@
 package com.loohp.interactivechat;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
-import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
 
 public class ConfigManager {
 	
@@ -32,13 +41,18 @@ public class ConfigManager {
 	public static void loadConfig() {
 		InteractiveChat.aliasesMapping.clear();
 		
+		String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
+		InteractiveChat.chatAltColorCode = colorCodeString.length() == 1 ? Optional.of(colorCodeString.charAt(0)) : Optional.empty();
+		
+		InteractiveChat.useCustomPlaceholderPermissions = getConfig().getBoolean("Settings.UseCustomPlaceholderPermissions");
+		
 		InteractiveChat.FilterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
 		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
 		
-		InteractiveChat.NoPermission = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
-		InteractiveChat.InvExpired = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
-		InteractiveChat.ReloadPlugin = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
+		InteractiveChat.NoPermission = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
+		InteractiveChat.InvExpired = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
+		InteractiveChat.ReloadPlugin = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -48,30 +62,30 @@ public class ConfigManager {
 		InteractiveChat.invCaseSensitive = getConfig().getBoolean("ItemDisplay.Inventory.CaseSensitive");
 		InteractiveChat.enderCaseSensitive = getConfig().getBoolean("ItemDisplay.EnderChest.CaseSensitive");
 	
-		InteractiveChat.itemPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Keyword"));
-		InteractiveChat.invPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Keyword"));
-		InteractiveChat.enderPlaceholder = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Keyword"));
+		InteractiveChat.itemPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Keyword"));
+		InteractiveChat.invPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Keyword"));
+		InteractiveChat.enderPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Keyword"));
 		
 		for (String alias : getConfig().getStringList("ItemDisplay.Item.Aliases")) {
-			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
 			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.itemPlaceholder);
 		}
 		for (String alias : getConfig().getStringList("ItemDisplay.Inventory.Aliases")) {
-			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
 			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.invPlaceholder);
 		}
 		for (String alias : getConfig().getStringList("ItemDisplay.EnderChest.Aliases")) {
-			alias = ChatColor.translateAlternateColorCodes('&', alias);
+			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
 			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.enderPlaceholder);
 		}
 		
-		InteractiveChat.itemReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
-		InteractiveChat.invReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text"));
-		InteractiveChat.enderReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Text"));
+		InteractiveChat.itemReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
+		InteractiveChat.invReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text"));
+		InteractiveChat.enderReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Text"));
 		
-		InteractiveChat.itemTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.InventoryTitle"));
-		InteractiveChat.invTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
-		InteractiveChat.enderTitle = ChatColor.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
+		InteractiveChat.itemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.InventoryTitle"));
+		InteractiveChat.invTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
+		InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
 		try {
 			if (version.isLegacy()) {
@@ -98,36 +112,51 @@ public class ConfigManager {
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");
 		InteractiveChat.usePlayerNameHoverEnable = getConfig().getBoolean("Player.Hover.Enable");
 		List<String> stringList = getConfig().getStringList("Player.Hover.Text");
-		InteractiveChat.usePlayerNameHoverText = ChatColor.translateAlternateColorCodes('&', String.join("\n", stringList));
+		InteractiveChat.usePlayerNameHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList));
 		InteractiveChat.usePlayerNameClickEnable = getConfig().getBoolean("Player.Click.Enable");
-		InteractiveChat.usePlayerNameClickAction = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Action"));
-		InteractiveChat.usePlayerNameClickValue = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Value"));
+		InteractiveChat.usePlayerNameClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Action"));
+		InteractiveChat.usePlayerNameClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Value"));
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 		
 		InteractiveChat.PlayerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
 		List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
-		InteractiveChat.PlayerNotFoundHoverText = ChatColor.translateAlternateColorCodes('&', String.join("\n", stringList2));
+		InteractiveChat.PlayerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));
 		InteractiveChat.PlayerNotFoundClickEnable = getConfig().getBoolean("Settings.PlayerNotFound.Click.Enable");
-		InteractiveChat.PlayerNotFoundClickAction = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Action"));
-		InteractiveChat.PlayerNotFoundClickValue = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Value"));
+		InteractiveChat.PlayerNotFoundClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Action"));
+		InteractiveChat.PlayerNotFoundClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Value"));
 		InteractiveChat.PlayerNotFoundReplaceEnable = getConfig().getBoolean("Settings.PlayerNotFound.Replace.Enable");
-		InteractiveChat.PlayerNotFoundReplaceText = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
+		InteractiveChat.PlayerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 		
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
-			InteractiveChat.placeholderList.add(InteractiveChat.itemPlaceholder);
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive));
 		}
 		if (InteractiveChat.useInventory) {
-			InteractiveChat.placeholderList.add(InteractiveChat.invPlaceholder);
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive));
 		}
 		if (InteractiveChat.useEnder) {
-			InteractiveChat.placeholderList.add(InteractiveChat.enderPlaceholder);
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive));
 		}
-		for (int customNo = 1; getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)) == true; customNo = customNo + 1) {
-			String placeholder = getConfig().getString("CustomPlaceholders." + String.valueOf(customNo) + ".Text");
-			InteractiveChat.placeholderList.add(placeholder);			
-			for (String alias : getConfig().getStringList("CustomPlaceholders." + String.valueOf(customNo) + ".Aliases")) {
-				alias = ChatColor.translateAlternateColorCodes('&', alias);
+		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
+			ConfigurationSection s = ConfigManager.getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
+			ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer"));
+			boolean casesensitive = s.getBoolean("CaseSensitive");			
+			String placeholder = s.getString("Text");
+			boolean parseKeyword = s.getBoolean("ParseKeyword");
+			long cooldown = s.getLong("Cooldown") * 1000;
+			boolean hoverEnabled = s.getBoolean("Hover.Enable");
+			String hoverText = String.join("\n", s.getStringList("Hover.Text"));
+			boolean clickEnabled = s.getBoolean("Click.Enable");
+			String clickAction = s.getString("Click.Action").toUpperCase();
+			String clickValue = s.getString("Click.Value");
+			boolean replaceEnabled = s.getBoolean("Replace.Enable");
+			String replaceText = s.getString("Replace.ReplaceText");
+			List<String> aliases = s.getStringList("Aliases");
+
+			InteractiveChat.placeholderList.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText)));
+			
+			for (String alias : aliases) {
+				alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
 				InteractiveChat.aliasesMapping.put(alias, placeholder);
 			}
 		}

@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.Updater.Updater;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -92,7 +93,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			}
 		}
 		
-		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Bukkit.spigot().getConfig().getString("messages.unknown-command")));
+		sender.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', Bukkit.spigot().getConfig().getString("messages.unknown-command")));
 		return true;
 	}
 

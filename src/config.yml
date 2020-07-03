@@ -17,6 +17,10 @@ Messages:
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
 
 Settings:
+  #Use indiviual permissions for custom placeholders
+  #For example the first custom placeholder will have the permission
+  #interactivechat.module.custom.1
+  UseCustomPlaceholderPermissions: false
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true
   #A list of private message commands on your server
@@ -71,6 +75,10 @@ Settings:
       ReplaceText: '&c{Placeholer}&r'
 
 Chat:
+  #Convert alternate color code character
+  #Only one character is allowed, leave blank to disable this feature
+  TranslateAltColorCode: '&'
+
   #Enable the mention title and sound
   AllowMention: true
 

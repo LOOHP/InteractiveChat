@@ -182,10 +182,10 @@ public class ItemDisplay {
 								    }
 								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
-								    message = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
+								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
 								    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
 								    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
-									String title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
+									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
 									long time = InteractiveChat.keyTime.get(messageKey);
 									if (!InteractiveChat.itemDisplay.containsKey(time)) {
 										if (useInventoryView(item)) {
@@ -336,7 +336,7 @@ public class ItemDisplay {
 									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.itemPlaceholder)).create()));
 								}
 								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-									String text1 = ChatColor.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
+									String text1 = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), text1));
 								}
 								

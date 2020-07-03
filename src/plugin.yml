@@ -1,6 +1,6 @@
 name: InteractiveChat
 author: loohp
-version: 2.4.0
+version: 2.5.0
 main: com.loohp.interactivechat.InteractiveChat
 api-version: 1.13
 description: Make the chat interactive
@@ -35,6 +35,9 @@ permissions:
     default: true
   interactivechat.mention.player:
     description: Allows you to mention others
+    default: true
+  interactivechat.chatcolor.translate:
+    description: Allows you to use alternate color code
     default: true
   interactivechat.update:
     description: Allows you to recieve update notifications

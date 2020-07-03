@@ -15,8 +15,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
-
-import net.md_5.bungee.api.ChatColor;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 
 public class ClientSettingPackets implements Listener {
 	
@@ -54,13 +53,13 @@ public class ClientSettingPackets implements Listener {
 		        Boolean originalColorSettings = colorSettingsMap.get(player);				        
 		        
 		        if ((originalColorSettings == null && !colorSettings) || (originalColorSettings != null && originalColorSettings && !colorSettings)) {
-		        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled")));
+		        	player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled")));
 		        }	        	
 		        
 		        colorSettingsMap.put(player, colorSettings);
 		        
 		        if (originalColorSettings != null && !originalColorSettings && colorSettings) {
-		        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled")));
+		        	player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled")));
 		        }        
 		    }
 		});	

@@ -162,6 +162,7 @@ public class ChatPackets {
 		        	longerThanMaxLength = true;
 		        }
 		        debug++;
+		        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponent));
 		        if (field == 0) {
 		        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 		        } else {

@@ -17,6 +17,7 @@ import com.loohp.interactivechat.Listeners.ClientSettingPackets.ColorSettings;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Content;
 import net.md_5.bungee.api.chat.HoverEvent.ContentEntity;
@@ -265,10 +266,11 @@ public class ChatComponentUtils {
 				List<TextComponent> texts = Arrays.asList(TextComponent.fromLegacyText(base.toLegacyText())).stream().map(each -> (TextComponent) each).collect(Collectors.toList());
 				texts.forEach(each -> {
 					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
-						each = (TextComponent) CustomStringUtils.copyFormattingNoReplace(each, base);
+						each = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(each, base);
 	 	        	} else {
-	 	        		each.copyFormatting(base, false);
+	 	        		each.copyFormatting(base, FormatRetention.EVENTS, false);
 	 	        	}
+					//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("§", "&"));
 				});
 				newlist.addAll(texts);
 			} else {

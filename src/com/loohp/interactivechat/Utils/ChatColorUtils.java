@@ -87,7 +87,7 @@ public class ChatColorUtils {
         		break;
         	}
         	i++;
-        }
+        }              
 
         return result;
     }

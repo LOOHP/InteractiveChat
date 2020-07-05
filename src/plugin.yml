@@ -40,7 +40,7 @@ permissions:
     description: Allows you to use alternate color code
     default: true
   interactivechat.customfont.translate:
-    description: Allows you to use alternate color code
+    description: Allows you to use font formatting code
     default: true
   interactivechat.update:
     description: Allows you to recieve update notifications

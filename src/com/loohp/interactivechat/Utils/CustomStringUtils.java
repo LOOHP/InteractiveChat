@@ -132,7 +132,7 @@ public class CustomStringUtils {
 	 	        	} else {
 	 	        		text.copyFormatting(each);
 	 	        	}
-	 	        	list.add(text);
+	 	        	list.add(text);	 	        	
 	        	} else {
 	        		list.add(each);
 	        	}
@@ -150,8 +150,12 @@ public class CustomStringUtils {
 	        		list.add(noExtra);
 	        	}
 	        	for (BaseComponent extra : loadExtras(each.getExtra())) {
-	        		extra = copyFormattingNoReplace(extra, noExtra);
-	        		if (extra instanceof TextComponent && text != null && ChatComponentUtils.areEventsSimilar(extra, text)) {
+	        		if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+	        			extra = copyFormattingNoReplace(extra, noExtra);
+	 	        	} else {
+	 	        		extra.copyFormatting(noExtra, false);
+	 	        	}	       
+	        		if (extra instanceof TextComponent && text != null && ChatComponentUtils.areEventsSimilar(extra, text) && ChatComponentUtils.areFontsSimilar(extra, text)) {
 	        			TextComponent extraNoExtra = (TextComponent) extra.duplicate();
 	        			if (extraNoExtra.getExtra() != null) {
 	        				extraNoExtra.getExtra().clear();
@@ -219,6 +223,11 @@ public class CustomStringUtils {
 				set.setInsertion(get.getInsertion());
 			}
 		}
+		if (InteractiveChat.version.isPost1_16()) {
+			if (set.getFontRaw() == null) {
+				set.setFont(get.getFontRaw());
+			}
+		}
 		return set;
 	}
 	
@@ -244,6 +253,9 @@ public class CustomStringUtils {
 		set.setObfuscated(get.isObfuscated());
 		set.setStrikethrough(get.isStrikethrough());
 		set.setUnderlined(get.isUnderlined());
+		if (InteractiveChat.version.isPost1_16()) {
+			set.setFont(get.getFontRaw());
+		}
 		return set;
 	}
 	

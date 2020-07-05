@@ -3,9 +3,13 @@ package com.loohp.interactivechat.Utils;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
@@ -29,6 +33,8 @@ public class ChatComponentUtils {
 	
 	private static Class<?> chatHoverEventClass;
 	private static MethodHandle hoverEventGetValueMethod;
+	
+	private static Pattern fontFormating = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?font=[0-9a-zA-Z:_]*[^\\[]*?\\]");
 	
 	public static void setupLegacy() {
 		try {
@@ -66,6 +72,14 @@ public class ChatComponentUtils {
 		if (base1.isUnderlined() != base2.isUnderlined()) {
 			return false;
 		}
+		if ((base1.getFontRaw() == null && base2.getFontRaw() != null) || (base1.getFontRaw() != null && base2.getFontRaw() == null)) {
+			return false;
+		}
+		if (base1.getFontRaw() != null && base2.getFontRaw() != null) {
+			if (!base1.getFontRaw().equals(base2.getFontRaw())) {
+				return false;
+			}
+		}
 		if (compareText && !base1.toLegacyText().equals(base2.toLegacyText())) {
 			return false;
 		}
@@ -96,8 +110,28 @@ public class ChatComponentUtils {
 		if (base1.isUnderlined() != base2.isUnderlined()) {
 			return false;
 		}
+		if ((base1.getFontRaw() == null && base2.getFontRaw() != null) || (base1.getFontRaw() != null && base2.getFontRaw() == null)) {
+			return false;
+		}
+		if (base1.getFontRaw() != null && base2.getFontRaw() != null) {
+			if (!base1.getFontRaw().equals(base2.getFontRaw())) {
+				return false;
+			}
+		}
 		if (compareText && !base1.toLegacyText().equals(base2.toLegacyText())) {
 			return false;
+		}
+		return true;
+	}
+	
+	public static boolean areFontsSimilar(BaseComponent base1, BaseComponent base2) {
+		if ((base1.getFontRaw() == null && base2.getFontRaw() != null) || (base1.getFontRaw() != null && base2.getFontRaw() == null)) {
+			return false;
+		}
+		if (base1.getFontRaw() != null && base2.getFontRaw() != null) {
+			if (!base1.getFontRaw().equals(base2.getFontRaw())) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -270,6 +304,9 @@ public class ChatComponentUtils {
 	 	        	} else {
 	 	        		each.copyFormatting(base, FormatRetention.EVENTS, false);
 	 	        	}
+					if (InteractiveChat.version.isPost1_16()) {
+						each.setFont(base.getFontRaw());
+					}
 					//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("§", "&"));
 				});
 				newlist.addAll(texts);
@@ -333,6 +370,117 @@ public class ChatComponentUtils {
 		} else {
 			return join(basecomponentarray[0], Arrays.copyOfRange(basecomponentarray, 1, basecomponentarray.length));
 		}
+	}
+	
+	public static BaseComponent translatePluginFontFormatting(BaseComponent basecomponent) {
+		List<BaseComponent> list = CustomStringUtils.loadExtras(basecomponent);
+		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		Optional<String> currentFont = Optional.empty();
+		
+		for (BaseComponent each : list) {
+			if (each.getFontRaw() != null) {
+				currentFont = Optional.of(each.getFontRaw());
+			}
+			
+			if (each instanceof TextComponent) {
+				List<TextComponent> textlist = new LinkedList<TextComponent>();
+				TextComponent textcomponent = (TextComponent) each;
+				String text = textcomponent.getText();
+				
+				while (true) {
+		    		Matcher matcher = fontFormating.matcher(text);
+		    		
+		    		if (matcher.find()) {
+			    	    String foramtedFont = matcher.group().toLowerCase();
+			    	    
+			    	    String colorCodesInside = ChatColorUtils.getLastColors(foramtedFont);
+			    	    String striped = ChatColor.stripColor(foramtedFont);
+			    	    
+			    	    int lengthDiff = foramtedFont.length() - striped.length();
+			    	    
+			    	    foramtedFont = striped;
+			    	    
+			    	    int start = matcher.start();
+			    	    int pos = foramtedFont.indexOf("font");
+			    	    int end = matcher.end() - lengthDiff;
+			    	    
+			    	    if (pos < 0) {
+			    	    	continue;
+			    	    }
+			    	    
+			    	    int fontLength = foramtedFont.indexOf(",", pos);
+			    	    if (fontLength < 0) {
+			    	    	fontLength = foramtedFont.indexOf(" ", pos);
+			    	    }
+			    	    if (fontLength < 0) {
+			    	    	fontLength = foramtedFont.indexOf("]", pos);
+			    	    }
+			    	    fontLength = fontLength - pos;
+			    	    
+			    	    StringBuilder sb = new StringBuilder(text);
+			    	    
+			    	    sb.delete(start, matcher.end());
+			    	    sb.insert(start, foramtedFont);
+
+			    	    int absPos = sb.indexOf("font", start);
+			
+			    	    String nextFont = foramtedFont.substring(pos + 5, pos + fontLength);
+			    	    
+			    	    sb.delete(absPos, absPos + fontLength);
+			    	    sb.insert(end - fontLength, colorCodesInside);
+
+			    	    while (sb.charAt(absPos) == ',' || sb.charAt(absPos) == ' ') {
+			    	    	sb.deleteCharAt(absPos);
+			    	    }
+			    	    
+			    	    while (sb.charAt(absPos - 1) == ',' || sb.charAt(absPos - 1) == ' ') {
+			    	    	sb.deleteCharAt(absPos - 1);
+			    	    	absPos--;
+			    	    }
+			    	    
+			    	    if (sb.charAt(absPos) == ']' && sb.charAt(absPos - 1) == '[') {
+			    	    	sb.deleteCharAt(absPos - 1);
+			    	    	sb.deleteCharAt(absPos - 1);			    	    	
+			    	    }
+			    	    
+			    	    absPos--;
+			    	    
+			    	    TextComponent before = new TextComponent(textcomponent);
+			    	    before.setText(sb.substring(0, absPos));
+			    	    if (currentFont.isPresent()) {
+			    	    	before.setFont(currentFont.get());
+			    	    }
+			    	    textlist.add(before);
+			    	    
+			    	    text = sb.substring(absPos);
+			    	    
+			    	    currentFont = (nextFont.length() == 0 || nextFont.equalsIgnoreCase("null") || nextFont.equalsIgnoreCase("reset")) ? Optional.empty() : Optional.of(nextFont);
+		    		} else {
+		    			TextComponent before = new TextComponent(textcomponent);
+			    	    before.setText(text);
+			    	    if (currentFont.isPresent()) {
+			    	    	before.setFont(currentFont.get());
+			    	    }
+			    	    textlist.add(before);
+		    			break;
+		    		}
+		    	}				
+				newlist.addAll(textlist);				
+			} else {
+				if (currentFont.isPresent()) {
+	    	    	each.setFont(currentFont.get());
+	    	    }
+				newlist.add(each);
+			}
+		}
+		
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < newlist.size(); i++) {
+			BaseComponent each = newlist.get(i);
+			product.addExtra(each);
+		}
+		
+		return product;
 	}
 
 }

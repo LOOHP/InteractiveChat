@@ -98,5 +98,9 @@ public enum MCVersion {
 	public boolean isSupported() {
 		return !unsupported;
 	}
+	
+	public boolean isPost1_16() {
+		return this.ordinal() <= MCVersion.V1_16.ordinal();
+	}
 
 }

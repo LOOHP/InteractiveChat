@@ -155,7 +155,13 @@ public class ChatPackets {
 		        debug++;
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        debug++;
-		        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);
+		        if (InteractiveChat.version.isPost1_16()) {
+			        if (!sender.isPresent() || (sender.isPresent() && sender.get().hasPermission("interactivechat.customfont.translate"))) {
+			        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
+			        }
+		        }
+		        debug++;		        
+		        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
 		        String json = ComponentSerializer.toString(basecomponent);
 		        boolean longerThanMaxLength = false;
 		        if (((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {

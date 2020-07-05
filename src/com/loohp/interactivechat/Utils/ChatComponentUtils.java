@@ -126,12 +126,14 @@ public class ChatComponentUtils {
 	}
 	
 	public static boolean areFontsSimilar(BaseComponent base1, BaseComponent base2) {
-		if ((base1.getFontRaw() == null && base2.getFontRaw() != null) || (base1.getFontRaw() != null && base2.getFontRaw() == null)) {
-			return false;
-		}
-		if (base1.getFontRaw() != null && base2.getFontRaw() != null) {
-			if (!base1.getFontRaw().equals(base2.getFontRaw())) {
+		if (InteractiveChat.version.isPost1_16()) {
+			if ((base1.getFontRaw() == null && base2.getFontRaw() != null) || (base1.getFontRaw() != null && base2.getFontRaw() == null)) {
 				return false;
+			}
+			if (base1.getFontRaw() != null && base2.getFontRaw() != null) {
+				if (!base1.getFontRaw().equals(base2.getFontRaw())) {
+					return false;
+				}
 			}
 		}
 		return true;

@@ -16,7 +16,7 @@ public class ChatColorUtils {
 	
 	private static Set<Character> colors = new HashSet<Character>();
 	private static Pattern colorFormating = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
-	private static Pattern colorEscape = Pattern.compile("\\\\\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
+	private static Pattern colorEscape = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
 	
 	static {
 		colors.add('0');
@@ -215,11 +215,11 @@ public class ChatColorUtils {
 	    	    if (sb.charAt(absPos) == ']' && sb.charAt(absPos - 1) == '[') {
 	    	    	sb.deleteCharAt(absPos - 1);
 	    	    	sb.deleteCharAt(absPos - 1);
-	    	    }
-	    	    
-	    	    if (absPos > 2 && sb.charAt(absPos - 2) == '\\' && sb.charAt(absPos - 3) == '\\') {
-	    	    	sb.deleteCharAt(absPos - 2);
-	    	    }
+	    	    	
+	    	    	if (absPos > 2 && sb.charAt(absPos - 2) == '\\' && sb.charAt(absPos - 3) == '\\') {
+		    	    	sb.deleteCharAt(absPos - 2);
+		    	    }
+	    	    }	    	  
 	    	    
 	    	    text = sb.toString();	    	    
     		} else {

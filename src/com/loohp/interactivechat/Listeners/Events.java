@@ -41,6 +41,9 @@ public class Events implements Listener {
 	
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
+		
+		translateAltColorCode(event);
+		
 		String command = event.getMessage();
 		for (String parsecommand : InteractiveChat.commandList) {
 			if (command.matches(parsecommand)) {
@@ -175,6 +178,25 @@ public class Events implements Listener {
 	}
     
 	private void translateAltColorCode(AsyncPlayerChatEvent event) {
+		if (event.isCancelled()) {
+			return;
+		}
+		
+		if (!InteractiveChat.chatAltColorCode.isPresent()) {
+			return;
+		}
+		
+		Player player = event.getPlayer();
+		
+		if (!player.hasPermission("interactivechat.chatcolor.translate")) {
+			return;
+		}
+		
+		String message = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
+		event.setMessage(message);
+	}
+	
+	private void translateAltColorCode(PlayerCommandPreprocessEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}

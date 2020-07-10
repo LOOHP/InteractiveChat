@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -215,10 +214,10 @@ public class InteractiveChat extends JavaPlugin {
 	    ClientSettingPackets.clientSettingsListener();
 	    
 	    try {
-			Class<?> chatHoverEventClass = Class.forName("net.md_5.bungee.api.chat.HoverEvent");
-			legacyChatAPI = !Arrays.asList(chatHoverEventClass.getDeclaredClasses()).stream().anyMatch(each -> each.getCanonicalName().equals("net.md_5.bungee.api.chat.HoverEvent.Content"));
+			Class.forName("net.md_5.bungee.api.chat.hover.content.Content");
+			legacyChatAPI = false;
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			legacyChatAPI = true;
 		};
 		
 		if (legacyChatAPI) {

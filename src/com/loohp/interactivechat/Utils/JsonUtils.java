@@ -1,9 +1,14 @@
 package com.loohp.interactivechat.Utils;
 
+import java.util.TreeMap;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -142,5 +147,16 @@ public class JsonUtils {
     		}
     	}
     	return contains;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public static String toString(JSONObject json) {
+    	JSONObject toSave = json;
+        
+    	TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+    	treeMap.putAll(toSave);
+    	
+    	Gson g = new GsonBuilder().create();
+        return g.toJson(treeMap);
     }
 }

@@ -230,8 +230,7 @@ public class ItemDisplay {
 										}
 									}
 				            	
-					            	String[] parts = message.split("\\{Item\\}");
-					            	
+					            	String[] parts = message.split("\\{Item\\}");					            	
 					            	if (message.startsWith("{Item}")) {
 					            		if (useTranslatable) {
 											if (!InteractiveChat.version.isLegacy()) {
@@ -357,6 +356,7 @@ public class ItemDisplay {
 		if (trimmed && InteractiveChat.cancelledMessage) {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
 		}
+		
 		return product;
 	}
 	

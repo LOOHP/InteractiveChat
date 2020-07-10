@@ -18,6 +18,8 @@ public class ChatColorUtils {
 	private static Pattern colorFormating = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
 	private static Pattern colorEscape = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
 	
+	private static String validColorHex = "^#[0-9a-fA-F]{6}$";
+	
 	static {
 		colors.add('0');
 		colors.add('1');
@@ -38,7 +40,7 @@ public class ChatColorUtils {
 	}
 	
 	public static String filterIllegalColorCodes(String string) {
-		return InteractiveChat.version.equals(MCVersion.V1_16) ? string.replaceAll("§[^0-9A-Fa-fk-or]", "") : string.replaceAll("§[^0-9a-fk-or]", "");
+		return InteractiveChat.version.equals(MCVersion.V1_16) ? string.replaceAll("§[^0-9A-Fa-fk-orx]", "") : string.replaceAll("§[^0-9a-fk-or]", "");
 	}
 	
     public static String getLastColors(String input) {
@@ -175,7 +177,7 @@ public class ChatColorUtils {
     	}
     	
     	int pos = hex.indexOf("#");
-    	if (pos < 0 || hex.length() < (pos + 7)) {
+    	if (!hex.matches(validColorHex) || pos < 0 || hex.length() < (pos + 7)) {
     		return "§x§F§F§F§F§F§F";
     	}
     	return "§x§" + String.valueOf(hex.charAt(1)) + "§" + String.valueOf(hex.charAt(2)) + "§" + String.valueOf(hex.charAt(3)) + "§" + String.valueOf(hex.charAt(4)) + "§" + String.valueOf(hex.charAt(5)) + "§" + String.valueOf(hex.charAt(6));

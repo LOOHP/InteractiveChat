@@ -37,6 +37,12 @@ public class ChatColorUtils {
 		colors.add('d');
 		colors.add('e');
 		colors.add('f');
+		colors.add('k');
+		colors.add('l');
+		colors.add('m');
+		colors.add('n');
+		colors.add('o');
+		colors.add('r');
 	}
 	
 	public static String filterIllegalColorCodes(String string) {
@@ -51,6 +57,7 @@ public class ChatColorUtils {
         		String color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
         		if ((i - 13) >= 0 && input.charAt(i - 12) == 'x' && input.charAt(i - 13) == '§') {
             		color = input.substring(i - 13, i + 1);
+            		i -= 13;
             	}
         		if (isLegal(color)) {
         			result = color + result;
@@ -78,6 +85,7 @@ public class ChatColorUtils {
         	color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
         	if (input.charAt(i) == 'x') {
         		color = input.substring(i - 1, i + 13);
+        		i += 13;
         	}
         	if (isLegal(color)) {
 	        	if (!found) {

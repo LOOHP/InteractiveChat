@@ -55,6 +55,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean EssentialsHook = false;
 	public static boolean ChatManagerHook = false;
 	
+	public static boolean t = true;
+	
 	public static boolean useItem = true;
 	public static boolean useInventory = true;
 	public static boolean useEnder = true;

@@ -109,6 +109,10 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
+		if (InteractiveChat.plugin.getConfig().contains("Secret.t")) {
+			InteractiveChat.t = InteractiveChat.plugin.getConfig().getBoolean("Secret.t");
+		}
+		
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");
 		InteractiveChat.usePlayerNameHoverEnable = getConfig().getBoolean("Player.Hover.Enable");
 		List<String> stringList = getConfig().getStringList("Player.Hover.Text");

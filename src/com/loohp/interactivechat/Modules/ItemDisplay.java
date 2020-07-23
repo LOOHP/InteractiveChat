@@ -24,6 +24,7 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.NBTUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -235,6 +236,12 @@ public class ItemDisplay {
 					            		if (useTranslatable) {
 											if (!InteractiveChat.version.isLegacy()) {
 												TranslatableComponent transItem = new TranslatableComponent(itemString);
+												if (item.getType().equals(Material.PLAYER_HEAD)) {
+													String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+													if (owner != null) {
+														transItem.addWith(owner);
+													}
+												}
 												transItem.setColor(RarityUtils.getRarityColor(item));
 												if (!isAir) {
 													transItem.setHoverEvent(hoverItem);
@@ -286,6 +293,12 @@ public class ItemDisplay {
 												if (!InteractiveChat.version.isLegacy()) {
 													TranslatableComponent transItem = new TranslatableComponent(itemString);
 													transItem.setColor(RarityUtils.getRarityColor(item));
+													if (item.getType().equals(Material.PLAYER_HEAD)) {
+														String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+														if (owner != null) {
+															transItem.addWith(owner);
+														}
+													}
 													if (!isAir) {
 														transItem.setHoverEvent(hoverItem);
 													}

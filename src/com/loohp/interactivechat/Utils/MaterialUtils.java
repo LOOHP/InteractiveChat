@@ -31,6 +31,13 @@ public class MaterialUtils {
 			String namespace = PotionUtils.getVanillaPotionName(meta.getBasePotionData().getType());
 			path = new StringBuilder().append(path).append(".effect.").append(namespace).toString();
 		}
+		
+		if (item.getType().equals(Material.PLAYER_HEAD)) {
+			String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+			if (owner != null) {
+				path += ".named";
+			}
+		}
 	
 		return path;
 	}

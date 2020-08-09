@@ -13,6 +13,13 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class CustomStringUtils {
 	
+	public static String replaceFromTo(String stringToReplace, int from, int to, String withString) {
+		StringBuilder sb = new StringBuilder(stringToReplace);
+		sb.delete(from, to);
+		sb.insert(from, withString);
+		return sb.toString();
+	}
+	
 	public static List<String> getAllMatches(String regex, String str) {
 		List<String> allMatches = new LinkedList<String>();
 		Matcher m = Pattern.compile(regex).matcher(str);

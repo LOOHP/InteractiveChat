@@ -215,6 +215,31 @@ public class Events implements Listener {
 		event.setMessage(message);
 	}
 	
+	@EventHandler(priority=EventPriority.LOWEST)
+	public void onInventoryClickLowest(InventoryClickEvent event) {
+		if (event.getClickedInventory() == null) {
+			return;
+		}
+		if (event.getClickedInventory().getType().equals(InventoryType.CREATIVE)) {
+			return;
+		}
+		if (event.getView().getTopInventory() == null) {
+			return;
+		}
+		if (InteractiveChat.inventoryDisplay.containsValue(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			return;
+		}
+		if (InteractiveChat.enderDisplay.containsValue(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			return;
+		}
+		if (InteractiveChat.itemDisplay.containsValue(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			return;
+		}
+ 	}
+	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getClickedInventory() == null) {

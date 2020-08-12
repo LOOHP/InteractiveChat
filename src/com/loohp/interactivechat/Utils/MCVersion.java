@@ -2,6 +2,7 @@ package com.loohp.interactivechat.Utils;
 
 public enum MCVersion {
 	
+	V1_16_2("1.16.2"),
 	V1_16("1.16"),
 	V1_15("1.15"),
 	V1_14("1.14"),
@@ -51,7 +52,9 @@ public enum MCVersion {
 	}
 	
 	public static MCVersion fromPackageName(String packageName) {
-		if (packageName.contains("1_16_R1")) {
+		if (packageName.contains("1_16_R2")) {
+			return V1_16_2;
+		} else if (packageName.contains("1_16_R1")) {
 			return V1_16;
 		} else if (packageName.contains("1_15_R1")) {
 			return V1_15;

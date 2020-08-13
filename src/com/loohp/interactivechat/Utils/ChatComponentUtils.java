@@ -1,8 +1,5 @@
 package com.loohp.interactivechat.Utils;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -31,22 +28,10 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class ChatComponentUtils {
 	
-	private static Class<?> chatHoverEventClass;
-	private static MethodHandle hoverEventGetValueMethod;
-	
 	private static Pattern fontFormating = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?font=[0-9a-zA-Z:_]*[^\\[]*?\\]");
 	private static Pattern fontEscape = Pattern.compile("\\\\\\[ *?font=[0-9a-zA-Z:_]* *?\\]");
 	
 	private static String validFont = "^([0-9a-zA-Z_]+:)?[0-9a-zA-Z_]+$";
-	
-	public static void setupLegacy() {
-		try {
-			chatHoverEventClass = Class.forName("net.md_5.bungee.api.chat.HoverEvent");
-			hoverEventGetValueMethod = MethodHandles.lookup().findVirtual(chatHoverEventClass, "getValue", MethodType.methodType(BaseComponent[].class));
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public static boolean areSimilar(BaseComponent base1, BaseComponent base2, boolean compareText) {
 		if (!areEventsSimilar(base1, base2)) {
@@ -175,25 +160,23 @@ public class ChatComponentUtils {
 				HoverEvent hover2 = base2.getHoverEvent();
 				if (hover1.getAction().equals(hover2.getAction())) {
 					if (InteractiveChat.legacyChatAPI) {
-						try {
-							BaseComponent[] basecomponentarray1 = (BaseComponent[]) hoverEventGetValueMethod.invoke(hover1);
-							BaseComponent[] basecomponentarray2 = (BaseComponent[]) hoverEventGetValueMethod.invoke(hover2);
-							if (basecomponentarray1.length == basecomponentarray2.length) {
-								hoverSim = true;
-								for (int i = 0; i < basecomponentarray1.length && i < basecomponentarray2.length ; i++) {
-									BaseComponent bc1 = basecomponentarray1[i];
-									BaseComponent bc2 = basecomponentarray2[i];
-									if (!(bc1 == null && bc2 == null) && (bc1 == null || bc2 == null)) {
-										hoverSim = false;
-										break;
-									} else if (!areSimilarNoEvents(bc1, bc2, true)) {
-										hoverSim = false;
-										break;
-									}
+						@SuppressWarnings("deprecation")
+						BaseComponent[] basecomponentarray1 = hover1.getValue();
+						@SuppressWarnings("deprecation")
+						BaseComponent[] basecomponentarray2 = hover2.getValue();
+						if (basecomponentarray1.length == basecomponentarray2.length) {
+							hoverSim = true;
+							for (int i = 0; i < basecomponentarray1.length && i < basecomponentarray2.length ; i++) {
+								BaseComponent bc1 = basecomponentarray1[i];
+								BaseComponent bc2 = basecomponentarray2[i];
+								if (!(bc1 == null && bc2 == null) && (bc1 == null || bc2 == null)) {
+									hoverSim = false;
+									break;
+								} else if (!areSimilarNoEvents(bc1, bc2, true)) {
+									hoverSim = false;
+									break;
 								}
 							}
-						} catch (Throwable e) {
-							e.printStackTrace();
 						}
 					} else {
 						List<Content> contents1 = hover1.getContents();
@@ -259,18 +242,15 @@ public class ChatComponentUtils {
 		return clickSim && hoverSim;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static BaseComponent removeHoverEventColor(BaseComponent baseComponent) {
 		if (baseComponent.getHoverEvent() != null) {
 			if (InteractiveChat.legacyChatAPI) {
-				try {
-					for (BaseComponent each : (BaseComponent[]) hoverEventGetValueMethod.invoke(baseComponent.getHoverEvent())) {
-						each.setColor(ChatColor.WHITE);
-						if (each instanceof TextComponent) {
-							((TextComponent) each).setText(ChatColor.stripColor(((TextComponent) each).getText()));
-						}
+				for (BaseComponent each : baseComponent.getHoverEvent().getValue()) {
+					each.setColor(ChatColor.WHITE);
+					if (each instanceof TextComponent) {
+						((TextComponent) each).setText(ChatColor.stripColor(((TextComponent) each).getText()));
 					}
-				} catch (Throwable e) {
-					e.printStackTrace();
 				}
 			} else {
 				int j = 0;

@@ -41,6 +41,7 @@ public class ChatPackets {
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(InteractiveChat.plugin, ListenerPriority.MONITOR, PacketType.Play.Server.CHAT) {
 		    @Override
 		    public void onPacketSending(PacketEvent event) {
+		    	InteractiveChat.messagesCounter.getAndIncrement();
 		    	int debug = 0;
 		    	try {
 		        if (!event.getPacketType().equals(PacketType.Play.Server.CHAT)) {

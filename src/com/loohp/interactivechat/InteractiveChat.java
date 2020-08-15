@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -142,6 +143,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean useCustomPlaceholderPermissions = false;
 	
 	public static Optional<Character> chatAltColorCode = Optional.empty();
+	
+	public static AtomicLong messagesCounter = new AtomicLong(0);
 
 	@Override
 	public void onEnable() {	

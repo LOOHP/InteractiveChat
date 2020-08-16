@@ -15,7 +15,7 @@ public class Charts {
             }
         }));
 		
-		metrics.addCustomChart(new Metrics.SingleLineChart("total_amount_of_chat_messages_processing_per_interval", new Callable<Integer>() {
+		metrics.addCustomChart(new Metrics.SingleLineChart("total_amount_of_messages_processing_per_interval", new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
             	long amount = InteractiveChat.messagesCounter.getAndSet(0);

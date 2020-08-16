@@ -63,8 +63,10 @@ public class PlayernameDisplay {
 					TranslatableComponent trans = (TranslatableComponent) base;
 					List<BaseComponent> withs = trans.getWith();
 					List<BaseComponent> withMatched = new ArrayList<BaseComponent>();
-					for (int i = 0; i < withs.size(); i++) {
-						withs.set(i, processPlayer(placeholder, player, replaceText, withs.get(i), withMatched, messageKey, unix));
+					if (withs != null) {
+						for (int i = 0; i < withs.size(); i++) {
+							withs.set(i, processPlayer(placeholder, player, replaceText, withs.get(i), withMatched, messageKey, unix));
+						}
 					}
 					newlist.add(base);
 				} else {

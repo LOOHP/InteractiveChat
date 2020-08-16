@@ -180,7 +180,7 @@ public class ItemDisplay {
 								    } else {
 								    	useTranslatable = true;
 								    	itemString = MaterialUtils.getMinecraftLangName(item);
-								    }
+								    }							
 								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
 								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));

@@ -37,7 +37,7 @@ public class ItemNBTUtils {
 	public static String getNMSItemStackJson(ItemStack itemStack) {
 	    try {
 	    	Object nmsNbtTagCompoundObj = nbtTagCompoundConstructor.newInstance();
-	    	Object nmsItemStackObj = asNMSCopyMethod.invoke(itemStack);
+	    	Object nmsItemStackObj = asNMSCopyMethod.invoke(itemStack, itemStack);
 	    	Object itemAsJsonObject = saveNmsItemStackMethod.invoke(nmsItemStackObj, nmsNbtTagCompoundObj);
 	        return itemAsJsonObject.toString();
 	    } catch (Throwable t) {

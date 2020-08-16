@@ -24,6 +24,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
 	
@@ -58,7 +59,17 @@ public class PlayernameDisplay {
 			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base, true))) {
 				newlist.add(base);
 			} else if (!(base instanceof TextComponent)) {
-				newlist.add(base);
+				if (base instanceof TranslatableComponent) {
+					TranslatableComponent trans = (TranslatableComponent) base;
+					List<BaseComponent> withs = trans.getWith();
+					List<BaseComponent> withMatched = new ArrayList<BaseComponent>();
+					for (int i = 0; i < withs.size(); i++) {
+						withs.set(i, processPlayer(placeholder, player, replaceText, withs.get(i), withMatched, messageKey, unix));
+					}
+					newlist.add(base);
+				} else {
+					newlist.add(base);
+				}
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();

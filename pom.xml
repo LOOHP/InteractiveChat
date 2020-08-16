@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>InteractiveChat</groupId>
   <artifactId>InteractiveChat</artifactId>
-  <version>2.6.11</version>
+  <version>2.6.12</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>

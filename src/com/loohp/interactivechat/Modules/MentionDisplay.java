@@ -35,11 +35,29 @@ public class MentionDisplay {
     			
     			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
+				
+				String settings = ConfigManager.getConfig().getString("Chat.MentionedSound");
 				Sound sound = null;
-				if (SoundUtils.isValid(ConfigManager.getConfig().getString("Chat.MentionedSound"))) {
-					sound = Sound.valueOf(ConfigManager.getConfig().getString("Chat.MentionedSound"));
+				float volume = 3.0F;
+				float pitch = 1.0F;
+				
+				String[] settingsArgs = settings.split(":");
+				if (settingsArgs.length == 3) {
+					settings = settingsArgs[0];
+					try {
+						volume = Float.parseFloat(settingsArgs[1]);
+					} catch (Exception ignore) {}
+					try {
+						pitch = Float.parseFloat(settingsArgs[2]);
+					} catch (Exception ignore) {}
+				} else if (settingsArgs.length > 0) {
+					settings = settingsArgs[0];
+				}
+				
+				if (SoundUtils.isValid(settings)) {
+					sound = Sound.valueOf(settings);
 				} else {
-					Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + ConfigManager.getConfig().getString("Chat.MentionedSound"));
+					Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + settings);
 				}
 				
 				boolean inCooldown = true;
@@ -57,17 +75,17 @@ public class MentionDisplay {
 						reciever.sendTitle(title, subtitle, 10, time, 20);
 					}
 					if (sound != null) {
-						reciever.playSound(reciever.getLocation(), sound, 3.0F, 1.0F);
+						reciever.playSound(reciever.getLocation(), sound, volume, pitch);
 					}
 					
 					List<String> names = new ArrayList<String>();
-					names.add(ChatColor.stripColor(reciever.getName()));
-					if (!names.contains(ChatColor.stripColor(reciever.getDisplayName()))) {
-						names.add(ChatColor.stripColor(reciever.getDisplayName()));
+					names.add(ChatColorUtils.stripColor(reciever.getName()));
+					if (!names.contains(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
+						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
 					}
 					if (InteractiveChat.EssentialsHook) {
 						if (InteractiveChat.essenNick.containsKey(reciever)) {
-							names.add(ChatColor.stripColor(InteractiveChat.essenNick.get(reciever)));
+							names.add(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(reciever)));
 						}
 					}
 					

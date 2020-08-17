@@ -7,10 +7,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -61,13 +61,13 @@ public class SenderFinder {
 		
 		HashMap<String, Player> names = new HashMap<String, Player>();
 		Bukkit.getOnlinePlayers().forEach((each) -> {
-			names.put(ChatColor.stripColor(each.getName()), each);
-			if (!ChatColor.stripColor(each.getName()).equals(ChatColor.stripColor(each.getDisplayName()))) {
-				names.put(ChatColor.stripColor(each.getDisplayName()), each);
+			names.put(ChatColorUtils.stripColor(each.getName()), each);
+			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+				names.put(ChatColorUtils.stripColor(each.getDisplayName()), each);
 			}
 		});
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColor.stripColor(name), player));
+			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColorUtils.stripColor(name), player));
 		}
 		
 		Player currentplayer = null;

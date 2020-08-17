@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Queue;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -31,13 +30,13 @@ public class PlayernameDisplay {
 	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<Player> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<ReplaceTextBundle>();
 		Bukkit.getOnlinePlayers().forEach((each) -> {
-			names.add(new ReplaceTextBundle(ChatColor.stripColor(each.getName()), each, each.getName()));
-			if (!ChatColor.stripColor(each.getName()).equals(ChatColor.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColor.stripColor(each.getDisplayName()), each, each.getDisplayName()));
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), each, each.getDisplayName()));
 			}
 		});	
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColor.stripColor(name), player, name)));
+			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), player, name)));
 		}
 		
 		Collections.sort(names);

@@ -74,6 +74,18 @@ Settings:
       #Use {Placeholer} for the name of the placeholder that was unable to be parsed
       ReplaceText: '&c{Placeholer}&r'
 
+Commands:
+  #Whether or not to make commands displayed in chat clickable
+  Enabled: true
+
+  Format: "[{Command}]"
+
+  #What happens when the player clicks the command
+  #List of actions:
+  #RUN_COMMAND
+  #SUGGEST_COMMAND
+  Action: SUGGEST_COMMAND
+
 Chat:
   #Convert alternate color code character
   #Only one character is allowed, leave blank to disable this feature

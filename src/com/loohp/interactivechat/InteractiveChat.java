@@ -40,6 +40,7 @@ import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class InteractiveChat extends JavaPlugin {
@@ -99,6 +100,11 @@ public class InteractiveChat extends JavaPlugin {
 	public static ItemStack itemFrame2;
 	
 	public static boolean AllowMention = true;
+	
+	public static boolean clickableCommands = true;
+	public static String clickableCommandsPrefix = "[";
+	public static String clickableCommandsSuffix = "]";
+	public static ClickEvent.Action clickableCommandsAction = ClickEvent.Action.SUGGEST_COMMAND;
 	
 	public static String NoPermission = "&cYou do not have permission to use that command!";
 	public static String InvExpired = "&cThis inventory view has expired!";

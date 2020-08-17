@@ -45,6 +45,10 @@ public class ChatColorUtils {
 		colors.add('r');
 	}
 	
+	public static String stripColor(String string) {
+		return string.replaceAll("§[0-9A-Fa-fk-orx]", "");
+	}
+	
 	public static String filterIllegalColorCodes(String string) {
 		return InteractiveChat.version.isPost1_16() ? string.replaceAll("§[^0-9A-Fa-fk-orx]", "") : string.replaceAll("§[^0-9a-fk-or]", "");
 	}

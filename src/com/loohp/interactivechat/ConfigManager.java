@@ -175,7 +175,13 @@ public class ConfigManager {
 		InteractiveChat.mentionHover = String.join("\n", stringList3);
 		InteractiveChat.mentionDuration = getConfig().getLong("Chat.MentionedTitleDuration");
 		
-		InteractiveChat.UpdaterEnabled = InteractiveChat.plugin.getConfig().getBoolean("Options.Updater");
-		InteractiveChat.cancelledMessage = InteractiveChat.plugin.getConfig().getBoolean("Options.ShowCancelledNotice");
+		InteractiveChat.UpdaterEnabled = getConfig().getBoolean("Options.Updater");
+		InteractiveChat.cancelledMessage = getConfig().getBoolean("Options.ShowCancelledNotice");
+		
+		InteractiveChat.clickableCommands = getConfig().getBoolean("Commands.Enabled");
+		String[] commandsFormat = getConfig().getString("Commands.Format").split("\\{Command\\}");
+		InteractiveChat.clickableCommandsPrefix = commandsFormat[0];
+		InteractiveChat.clickableCommandsSuffix = commandsFormat[commandsFormat.length - 1];
+		InteractiveChat.clickableCommandsAction = ClickEvent.Action.valueOf(getConfig().getString("Commands.Action"));
 	}
 }

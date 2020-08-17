@@ -249,7 +249,7 @@ public class ChatComponentUtils {
 				for (BaseComponent each : baseComponent.getHoverEvent().getValue()) {
 					each.setColor(ChatColor.WHITE);
 					if (each instanceof TextComponent) {
-						((TextComponent) each).setText(ChatColor.stripColor(((TextComponent) each).getText()));
+						((TextComponent) each).setText(ChatColorUtils.stripColor(((TextComponent) each).getText()));
 					}
 				}
 			} else {
@@ -262,7 +262,7 @@ public class ChatComponentUtils {
 							for (BaseComponent each : (BaseComponent[]) value) {
 								each.setColor(ChatColor.WHITE);
 								if (each instanceof TextComponent) {
-									((TextComponent) each).setText(ChatColor.stripColor(((TextComponent) each).getText()));
+									((TextComponent) each).setText(ChatColorUtils.stripColor(((TextComponent) each).getText()));
 								}
 							}
 						} else if (value instanceof String) {
@@ -305,7 +305,7 @@ public class ChatComponentUtils {
 			if (colorsEnabled.equals(ColorSettings.OFF)) {
 				each.setColor(ChatColor.WHITE);
 				if (each instanceof TextComponent) {
-					((TextComponent) each).setText(ChatColor.stripColor(((TextComponent) each).getText()));
+					((TextComponent) each).setText(ChatColorUtils.stripColor(((TextComponent) each).getText()));
 				}
 				each = removeHoverEventColor(each);
 			}
@@ -371,7 +371,7 @@ public class ChatComponentUtils {
 			    	    String foramtedFont = matcher.group().toLowerCase();
 			    	    
 			    	    String colorCodesInside = ChatColorUtils.getLastColors(foramtedFont);
-			    	    String striped = ChatColor.stripColor(foramtedFont);
+			    	    String striped = ChatColorUtils.stripColor(foramtedFont);
 			    	    
 			    	    int lengthDiff = foramtedFont.length() - striped.length();
 			    	    

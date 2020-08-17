@@ -25,7 +25,6 @@ import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 
 public class Events implements Listener {
 	
@@ -97,7 +96,7 @@ public class Events implements Listener {
 		
 		event.setMessage(MessageUtils.preprocessMessage(message));
 		
-		InteractiveChat.messages.put(ChatColor.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
@@ -142,7 +141,7 @@ public class Events implements Listener {
 		message = MessageUtils.preprocessMessage(message);
 		event.setMessage(message);
 		
-		InteractiveChat.messages.put(ChatColor.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), player.getUniqueId());
+		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), player.getUniqueId());
 	}
 	
     private void checkMention(AsyncPlayerChatEvent event) {
@@ -151,13 +150,13 @@ public class Events implements Listener {
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				List<String> playernames = new ArrayList<String>();
-    			playernames.add(ChatColor.stripColor(player.getName()));
+    			playernames.add(ChatColorUtils.stripColor(player.getName()));
     			if (!player.getName().equals(player.getDisplayName())) {
-    				playernames.add(ChatColor.stripColor(player.getDisplayName()));
+    				playernames.add(ChatColorUtils.stripColor(player.getDisplayName()));
     			}
     			if (InteractiveChat.EssentialsHook) {
     				if (InteractiveChat.essenNick.containsKey(player)) {
-    					playernames.add(ChatColor.stripColor(InteractiveChat.essenNick.get(player)));
+    					playernames.add(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(player)));
     				}
     			}
        			for (String name : playernames) {

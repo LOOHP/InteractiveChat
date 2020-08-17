@@ -246,7 +246,7 @@ public class ItemDisplay {
 												if (!isAir) {
 													transItem.setHoverEvent(hoverItem);
 												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 													transItem.setClickEvent(clickItem);
 											    }
@@ -257,7 +257,7 @@ public class ItemDisplay {
 												if (!isAir) {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 													itemitemtextcomponent.setClickEvent(clickItem);
 											    }
@@ -268,7 +268,7 @@ public class ItemDisplay {
 											if (!isAir) {
 												itemitemtextcomponent.setHoverEvent(hoverItem);
 											}
-										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 												itemitemtextcomponent.setClickEvent(clickItem);
 										    }
@@ -282,7 +282,7 @@ public class ItemDisplay {
 										if (!isAir) {
 											itemtextcomponent.setHoverEvent(hoverItem);
 										}
-									    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+									    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 											itemtextcomponent.setClickEvent(clickItem);
 									    }
@@ -302,7 +302,7 @@ public class ItemDisplay {
 													if (!isAir) {
 														transItem.setHoverEvent(hoverItem);
 													}
-												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 														ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 														transItem.setClickEvent(clickItem);
 												    }
@@ -313,7 +313,7 @@ public class ItemDisplay {
 													if (!isAir) {
 														itemitemtextcomponent.setHoverEvent(hoverItem);
 													}
-												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 														ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 														itemitemtextcomponent.setClickEvent(clickItem);
 												    }
@@ -324,7 +324,7 @@ public class ItemDisplay {
 												if (!isAir) {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled") == true) {
+											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
 													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
 													itemitemtextcomponent.setClickEvent(clickItem);
 											    }
@@ -339,15 +339,15 @@ public class ItemDisplay {
 								}
 							} else {
 								TextComponent message = null;
-								if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
+								if (InteractiveChat.PlayerNotFoundReplaceEnable) {
 									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
 								} else {
 									message = new TextComponent(InteractiveChat.itemPlaceholder);
 								}
-								if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
+								if (InteractiveChat.PlayerNotFoundHoverEnable) {
 									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.itemPlaceholder)).create()));
 								}
-								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
+								if (InteractiveChat.PlayerNotFoundClickEnable) {
 									String text1 = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), text1));
 								}

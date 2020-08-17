@@ -17,6 +17,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
+import com.loohp.interactivechat.Modules.CommandsDisplay;
 import com.loohp.interactivechat.Modules.CustomPlaceholderDisplay;
 import com.loohp.interactivechat.Modules.EnderchestDisplay;
 import com.loohp.interactivechat.Modules.InventoryDisplay;
@@ -155,6 +156,10 @@ public class ChatPackets {
 		        }
 		        debug++;
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+		        debug++;
+		        if (InteractiveChat.clickableCommands) {
+		        	basecomponent = CommandsDisplay.process(basecomponent);
+		        }
 		        debug++;
 		        if (InteractiveChat.version.isPost1_16()) {
 			        if (!sender.isPresent() || (sender.isPresent() && sender.get().hasPermission("interactivechat.customfont.translate"))) {

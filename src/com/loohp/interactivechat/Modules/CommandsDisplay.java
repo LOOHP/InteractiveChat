@@ -3,6 +3,8 @@ package com.loohp.interactivechat.Modules;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
@@ -21,6 +23,7 @@ public class CommandsDisplay {
 		int indexOfParsingStart = -1;
 		for (int i = 0; i < basecomponentlist.size(); i++) {
 			BaseComponent base = basecomponentlist.get(i);
+			
 			if (!parsingCommand && !(base instanceof TextComponent)) {
 				newlist.add(base);
 			} else {
@@ -35,7 +38,8 @@ public class CommandsDisplay {
 							StringBuilder cmd = new StringBuilder();
 							List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
 							for (int u = indexOfParsingStart; u < i; u++) {
-								BaseComponent part = basecomponentlist.get(i);
+								BaseComponent part = basecomponentlist.get(u);
+								Bukkit.getConsoleSender().sendMessage(ChatColorUtils.stripColor(part.toLegacyText()));
 								cmdCompList.add(part);
 								cmd.append(ChatColorUtils.stripColor(part.toLegacyText()));
 							}
@@ -60,32 +64,8 @@ public class CommandsDisplay {
 								before.setText(before.getText().substring(0, begin));
 								newlist.add(before);
 								textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(begin + InteractiveChat.clickableCommandsPrefix.length()));
-								indexOfParsingStart = i;
-							}
-						}
-						
-						if (parsingCommand) {
-							int end = textComp.getText().indexOf(InteractiveChat.clickableCommandsSuffix);
-							if (i + 1 == basecomponentlist.size() || end >= 0) {
-								end = end < 0 ? textComp.getText().length() : end;
-								TextComponent before = new TextComponent(textComp);
-								before.setText(before.getText().substring(0, end));
-								StringBuilder cmd = new StringBuilder();
-								List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
-								for (int u = indexOfParsingStart; u < i; u++) {
-									BaseComponent part = basecomponentlist.get(i);
-									cmdCompList.add(part);
-									cmd.append(ChatColorUtils.stripColor(part.toLegacyText()));
-								}
-								cmdCompList.add(before);
-								cmd.append(ChatColorUtils.stripColor(before.toLegacyText()));
-								ClickEvent click = new ClickEvent(InteractiveChat.clickableCommandsAction, cmd.toString());
-								for (BaseComponent each : cmdCompList) {
-									each.setClickEvent(click);
-									newlist.add(each);
-								}
-								textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(end + InteractiveChat.clickableCommandsSuffix.length()));
-								parsingCommand = false;
+								basecomponentlist.add(i + 1, textComp);
+								indexOfParsingStart = i + 1;
 							}
 						}
 					}
@@ -97,7 +77,7 @@ public class CommandsDisplay {
 						StringBuilder cmd = new StringBuilder();
 						List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
 						for (int u = indexOfParsingStart; u < i; u++) {
-							BaseComponent part = basecomponentlist.get(i);
+							BaseComponent part = basecomponentlist.get(u);
 							cmdCompList.add(part);
 							cmd.append(ChatColorUtils.stripColor(part.toLegacyText()));
 						}

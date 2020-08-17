@@ -57,15 +57,20 @@ public class CommandsDisplay {
 					if (!parsingCommand) {
 						int begin = textComp.getText().indexOf(InteractiveChat.clickableCommandsPrefix);
 						if (begin >= 0) {
-							String remaining = ChatColorUtils.stripColor(textComp.getText().substring(begin));
-							if (remaining.length() > InteractiveChat.clickableCommandsPrefix.length() && remaining.charAt(InteractiveChat.clickableCommandsPrefix.length()) == '/') {
-								parsingCommand = true;
-								TextComponent before = new TextComponent(textComp);
-								before.setText(before.getText().substring(0, begin));
-								newlist.add(before);
-								textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(begin + InteractiveChat.clickableCommandsPrefix.length()));
-								basecomponentlist.add(i + 1, textComp);
-								indexOfParsingStart = i + 1;
+							if (begin == 0 || textComp.getText().charAt(begin - 1) != '\\' || (begin > 1 && textComp.getText().charAt(begin - 1) == '\\' && textComp.getText().charAt(begin - 2) == '\\')) {
+								String remaining = ChatColorUtils.stripColor(textComp.getText().substring(begin));
+								if (remaining.length() > InteractiveChat.clickableCommandsPrefix.length() && remaining.charAt(InteractiveChat.clickableCommandsPrefix.length()) == '/') {
+									parsingCommand = true;
+									TextComponent before = new TextComponent(textComp);
+									before.setText(before.getText().substring(0, begin));
+									if (before.getText().endsWith("\\")) {
+										before.setText(before.getText().substring(0, before.getText().length() - 1));
+									}
+									newlist.add(before);
+									textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(begin + InteractiveChat.clickableCommandsPrefix.length()));
+									basecomponentlist.add(i + 1, textComp);
+									indexOfParsingStart = i + 1;
+								}
 							}
 						}
 					}

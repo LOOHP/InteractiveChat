@@ -11,10 +11,12 @@ import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class CommandsDisplay {
 	
+	@SuppressWarnings("deprecation")
 	public static BaseComponent process(BaseComponent basecomponent) {		
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
@@ -37,16 +39,44 @@ public class CommandsDisplay {
 							before.setText(before.getText().substring(0, end));
 							StringBuilder cmd = new StringBuilder();
 							List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
+							
+							String[] formmat = InteractiveChat.clickableCommandsFormat.split("\\{Command\\}");
+							String prepend = formmat[0];
+							String color = ChatColorUtils.getLastColors(prepend);
+							String append = formmat[formmat.length - 1];
+							
 							for (int u = indexOfParsingStart; u < i; u++) {
 								BaseComponent part = basecomponentlist.get(u);
 								Bukkit.getConsoleSender().sendMessage(ChatColorUtils.stripColor(part.toLegacyText()));
+								if (InteractiveChat.clickableCommandsEnforceColors) {
+									if (part instanceof TextComponent) {
+										((TextComponent) part).setText(color + ChatColorUtils.stripColor(((TextComponent) part).getText()));
+									} else {
+										part = ChatColorUtils.applyColor(part, color);
+									}
+								}
 								cmdCompList.add(part);
 								cmd.append(ChatColorUtils.stripColor(part.toLegacyText()));
 							}
+							if (InteractiveChat.clickableCommandsEnforceColors) {
+								before.setText(color + ChatColorUtils.stripColor(before.getText()));
+							}
 							cmdCompList.add(before);
+							//Bukkit.getConsoleSender().sendMessage(((TextComponent) before).getText().replace("§", "&"));
 							cmd.append(ChatColorUtils.stripColor(before.toLegacyText()));
+							
+							HoverEvent hover = null;
+							if (InteractiveChat.clickableCommandsHoverText != null) {
+								hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(InteractiveChat.clickableCommandsHoverText)});
+							}
 							ClickEvent click = new ClickEvent(InteractiveChat.clickableCommandsAction, cmd.toString());
+							cmdCompList.add(0, new TextComponent(prepend));
+							cmdCompList.add(new TextComponent(append));
+							
 							for (BaseComponent each : cmdCompList) {
+								if (hover != null) {
+									each.setHoverEvent(hover);
+								}
 								each.setClickEvent(click);
 								newlist.add(each);
 							}
@@ -81,15 +111,37 @@ public class CommandsDisplay {
 					if (i + 1 == basecomponentlist.size()) {
 						StringBuilder cmd = new StringBuilder();
 						List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
-						for (int u = indexOfParsingStart; u < i; u++) {
+						String[] formmat = InteractiveChat.clickableCommandsFormat.split("\\{Command\\}");
+						String prepend = formmat[0];
+						String color = ChatColorUtils.getLastColors(prepend);
+						String append = formmat[formmat.length - 1];
+						
+						for (int u = indexOfParsingStart; u <= i; u++) {
 							BaseComponent part = basecomponentlist.get(u);
+							Bukkit.getConsoleSender().sendMessage(ChatColorUtils.stripColor(part.toLegacyText()));
+							if (InteractiveChat.clickableCommandsEnforceColors) {
+								if (part instanceof TextComponent) {
+									((TextComponent) part).setText(color + ChatColorUtils.stripColor(((TextComponent) part).getText()));
+								} else {
+									part = ChatColorUtils.applyColor(part, color);
+								}
+							}
 							cmdCompList.add(part);
 							cmd.append(ChatColorUtils.stripColor(part.toLegacyText()));
 						}
-						cmdCompList.add(base);
-						cmd.append(ChatColorUtils.stripColor(base.toLegacyText()));
+						
+						HoverEvent hover = null;
+						if (InteractiveChat.clickableCommandsHoverText != null) {
+							hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(InteractiveChat.clickableCommandsHoverText)});
+						}
 						ClickEvent click = new ClickEvent(InteractiveChat.clickableCommandsAction, cmd.toString());
+						cmdCompList.add(0, new TextComponent(prepend));
+						cmdCompList.add(new TextComponent(append));
+						
 						for (BaseComponent each : cmdCompList) {
+							if (hover != null) {
+								each.setHoverEvent(hover);
+							}
 							each.setClickEvent(click);
 							newlist.add(each);
 						}

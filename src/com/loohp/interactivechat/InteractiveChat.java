@@ -105,6 +105,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static String clickableCommandsPrefix = "[";
 	public static String clickableCommandsSuffix = "]";
 	public static ClickEvent.Action clickableCommandsAction = ClickEvent.Action.SUGGEST_COMMAND;
+	public static String clickableCommandsFormat = "";
+	public static String clickableCommandsHoverText = null;
+	public static boolean clickableCommandsEnforceColors = true;
 	
 	public static String NoPermission = "&cYou do not have permission to use that command!";
 	public static String InvExpired = "&cThis inventory view has expired!";

@@ -77,14 +77,20 @@ Settings:
 Commands:
   #Whether or not to make commands displayed in chat clickable
   Enabled: true
-
+  #The formatting to trigger the command display function
   Format: "[{Command}]"
-
+  #The text to replace the matched section of the message
+  #Use "{Command}" for the command
+  Text: "&b[&e{Command}&b]"
+  EnforceReplaceTextColor: true
   #What happens when the player clicks the command
   #List of actions:
   #RUN_COMMAND
   #SUGGEST_COMMAND
   Action: SUGGEST_COMMAND
+
+  HoverMessage: 
+    - "&eClick to use command!"
 
 Chat:
   #Convert alternate color code character

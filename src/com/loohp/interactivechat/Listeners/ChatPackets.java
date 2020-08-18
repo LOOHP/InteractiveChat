@@ -118,12 +118,7 @@ public class ChatPackets {
 		        basecomponent = commandsender.getBaseComponent();
 		        if (sender.isPresent()) {
 		        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
-		        }
-		        debug++;
-		        Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
-		        	InteractiveChat.keyTime.remove(rawMessageKey);
-		        	InteractiveChat.keyPlayer.remove(rawMessageKey);
-		        }, 5);
+		        }		 
 		        debug++;		
 		        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 				PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), reciever, basecomponent, field, preEventSenderUUID);
@@ -170,7 +165,7 @@ public class ChatPackets {
 		        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
 		        String json = ComponentSerializer.toString(basecomponent);
 		        boolean longerThanMaxLength = false;
-		        if (((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
+		        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
 		        	longerThanMaxLength = true;
 		        }
 		        debug++;
@@ -180,10 +175,14 @@ public class ChatPackets {
 		        } else {
 		        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
 		        }
-		        debug++;
 		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID, longerThanMaxLength);
 		        Bukkit.getPluginManager().callEvent(postEvent);
+		        debug++;	  
+		        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+		        	InteractiveChat.keyTime.remove(rawMessageKey);
+		        	InteractiveChat.keyPlayer.remove(rawMessageKey);
+		        }, 5);
 		        debug++;
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);

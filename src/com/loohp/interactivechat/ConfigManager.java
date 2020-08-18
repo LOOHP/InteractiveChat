@@ -121,6 +121,7 @@ public class ConfigManager {
 		InteractiveChat.usePlayerNameClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Action"));
 		InteractiveChat.usePlayerNameClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Value"));
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
+		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");
 		
 		InteractiveChat.PlayerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
 		List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
@@ -186,5 +187,7 @@ public class ConfigManager {
 		InteractiveChat.clickableCommandsFormat = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Commands.Text"));
 		InteractiveChat.clickableCommandsHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("Commands.HoverMessage")));
 		InteractiveChat.clickableCommandsEnforceColors = getConfig().getBoolean("Commands.EnforceReplaceTextColor");
+		
+		InteractiveChat.block30000 = getConfig().getBoolean("Settings.BlockMessagesLongerThan30000RegardlessOfVersion");
 	}
 }

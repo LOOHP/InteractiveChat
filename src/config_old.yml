@@ -16,6 +16,7 @@ Messages:
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
 
 Settings:
+  BlockMessagesLongerThan30000RegardlessOfVersion: false
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true
   #A list of private message commands on your server
@@ -185,6 +186,7 @@ ItemDisplay:
 Player:
   #Let InteractiveChat handle all player names that appears in chat (literally ALL)
   UsePlayerNameInteraction: true
+  UseOnTranslatableComponents: true
   #Whether or not names have to be capitalized correctly to be replaced
   CaseSensitive: true
   Hover:

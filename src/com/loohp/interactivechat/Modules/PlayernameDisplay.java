@@ -24,6 +24,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class PlayernameDisplay {
 	
@@ -58,13 +59,27 @@ public class PlayernameDisplay {
 			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base, true))) {
 				newlist.add(base);
 			} else if (!(base instanceof TextComponent)) {
-				if (base instanceof TranslatableComponent) {
+				if (InteractiveChat.usePlayerNameOnTranslatables && base instanceof TranslatableComponent) {
 					TranslatableComponent trans = (TranslatableComponent) base;
 					List<BaseComponent> withs = trans.getWith();
-					List<BaseComponent> withMatched = new ArrayList<BaseComponent>();
 					if (withs != null) {
 						for (int i = 0; i < withs.size(); i++) {
-							withs.set(i, processPlayer(placeholder, player, replaceText, withs.get(i), withMatched, messageKey, unix));
+							if (withs.get(i) instanceof TextComponent) {
+								TextComponent text = (TextComponent) withs.get(i);
+								Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(text));
+								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
+									TextComponent message = new TextComponent(ChatColorUtils.stripColor(replaceText));
+									if (InteractiveChat.usePlayerNameHoverEnable) {
+										String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
+										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
+									}
+									if (InteractiveChat.usePlayerNameClickEnable) {
+										String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameClickValue);
+										message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
+									}
+									withs.set(i, message);
+								}
+							}
 						}
 					}
 					newlist.add(base);

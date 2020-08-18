@@ -17,6 +17,7 @@ Messages:
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
 
 Settings:
+  BlockMessagesLongerThan30000RegardlessOfVersion: false
   #Use indiviual permissions for custom placeholders
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1
@@ -194,6 +195,7 @@ ItemDisplay:
 Player:
   #Let InteractiveChat handle all player names that appears in chat (literally ALL)
   UsePlayerNameInteraction: true
+  UseOnTranslatableComponents: true
   #Whether or not names have to be capitalized correctly to be replaced
   CaseSensitive: true
   Hover:

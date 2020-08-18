@@ -87,6 +87,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static String usePlayerNameClickAction = "SUGGEST_COMMAND";
 	public static String usePlayerNameClickValue = "";
 	public static boolean usePlayerNameCaseSensitive = true;
+	public static boolean usePlayerNameOnTranslatables = true;
 	
 	public static boolean PlayerNotFoundHoverEnable = true;
 	public static String PlayerNotFoundHoverText = "&cUnable to parse placeholder..";
@@ -150,6 +151,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean legacyChatAPI = false;
 	public static boolean useCustomPlaceholderPermissions = false;
+	
+	public static boolean block30000 = false;
 	
 	public static Optional<Character> chatAltColorCode = Optional.empty();
 	

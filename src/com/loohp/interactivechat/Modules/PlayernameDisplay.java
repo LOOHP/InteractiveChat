@@ -24,7 +24,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class PlayernameDisplay {
 	
@@ -66,7 +65,6 @@ public class PlayernameDisplay {
 						for (int i = 0; i < withs.size(); i++) {
 							if (withs.get(i) instanceof TextComponent) {
 								TextComponent text = (TextComponent) withs.get(i);
-								Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(text));
 								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
 									TextComponent message = new TextComponent(ChatColorUtils.stripColor(replaceText));
 									if (InteractiveChat.usePlayerNameHoverEnable) {

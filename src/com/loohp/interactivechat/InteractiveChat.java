@@ -41,7 +41,10 @@ import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.HoverEvent.Action;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class InteractiveChat extends JavaPlugin {
 	
@@ -232,9 +235,11 @@ public class InteractiveChat extends JavaPlugin {
 	    ClientSettingPackets.clientSettingsListener();
 	    
 	    try {
-			new TextComponent("Legacy Bungeecord Chat API Test").getHoverEvent().getContents();
+			TextComponent test = new TextComponent("Legacy Bungeecord Chat API Test");
+			test.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new Text("Test Hover Text")));
+			test.getHoverEvent().getContents();
 			legacyChatAPI = false;
-		} catch (Exception | NoSuchMethodError e) {
+		} catch (Throwable e) {
 			legacyChatAPI = true;
 			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		};

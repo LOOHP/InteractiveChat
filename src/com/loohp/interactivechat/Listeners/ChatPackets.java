@@ -87,9 +87,8 @@ public class ChatPackets {
 		        	} catch (Exception skip) {
 		        		return;
 		        	}
-		        }
-
-		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
+		        }		    
+		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));	     
 		        debug++;
 		        try {
 		        	if (basecomponent.toLegacyText().equals("")) {

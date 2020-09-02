@@ -193,6 +193,7 @@ public class Events implements Listener {
 		
 		String message = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
 		event.setMessage(message);
+		//Bukkit.getConsoleSender().sendMessage(message.replace(ChatColor.COLOR_CHAR, '&'));
 	}
 	
 	private void translateAltColorCode(PlayerCommandPreprocessEvent event) {

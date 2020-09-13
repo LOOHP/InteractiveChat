@@ -25,11 +25,13 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
@@ -47,6 +49,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		
 		getProxy().registerChannel("interchat:main");		   
         getProxy().getPluginManager().registerListener(this, this);
+        
+        getProxy().getPluginManager().registerCommand(this, new Commands());
+        
         getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
         
         metrics = new Metrics(plugin, 8839);
@@ -90,6 +95,18 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 pluginMessagesCounter.incrementAndGet();
             }
         }
+    }
+    
+    @EventHandler
+    public void onSwitch(ServerSwitchEvent event) {
+    	new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+		    	if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEskakE")) {
+					event.getPlayer().sendMessage(new TextComponent(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
+				}
+			}
+    	}, 200);
     }
     
     @EventHandler

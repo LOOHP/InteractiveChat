@@ -93,16 +93,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     
     @EventHandler
     public void onJoin(PostLoginEvent event) {
-    	new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					sendPlayerListData();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-    	}, 1000);
+    	try {
+			sendPlayerListData();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
     
     @EventHandler

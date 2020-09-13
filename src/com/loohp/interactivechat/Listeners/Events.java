@@ -1,8 +1,9 @@
 package com.loohp.interactivechat.Listeners;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -172,30 +173,42 @@ public class Events implements Listener {
 		String message = event.getMessage();		
 		Player sender = event.getPlayer();
 		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
+			Map<String, UUID> playernames = new HashMap<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				List<String> playernames = new ArrayList<String>();
-    			playernames.add(ChatColorUtils.stripColor(player.getName()));
+    			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
     			if (!player.getName().equals(player.getDisplayName())) {
-    				playernames.add(ChatColorUtils.stripColor(player.getDisplayName()));
+    				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
     			}
     			if (InteractiveChat.EssentialsHook) {
     				if (InteractiveChat.essenNick.containsKey(player)) {
-    					playernames.add(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(player)));
+    					playernames.put(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(player)), player.getUniqueId());
     				}
     			}
-       			for (String name : playernames) {
-       				int index = message.toLowerCase().indexOf(name.toLowerCase());
-       				if (index >= 0) {
-       					char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-       					char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
-       					if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
-       						if (!player.equals(sender)) {
-       							InteractiveChat.mentionPair.put(player.getUniqueId(), new MentionPair(sender.getUniqueId(), player.getUniqueId(), InteractiveChat.mentionPair));
-       						}
-       						break;
-       					}
-       				}
-       			}
+			}
+			for (Entry<UUID, PlayerWrapper> entry : InteractiveChat.remotePlayers.entrySet()) {
+				playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
+			}
+			for (Entry<String, UUID> entry : playernames.entrySet()) {
+				String name = entry.getKey();
+				UUID uuid = entry.getValue();
+   				int index = message.toLowerCase().indexOf(name.toLowerCase());
+   				if (index >= 0) {
+   					char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
+   					char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
+   					if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
+   						if (!uuid.equals(sender.getUniqueId())) {
+   							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid, InteractiveChat.mentionPair));
+   							if (InteractiveChat.bungeecordMode) {
+   								try {
+									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+   							}
+   						}
+   						break;
+   					}
+   				}
 			}
 		}
 	}

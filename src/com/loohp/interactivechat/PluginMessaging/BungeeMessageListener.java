@@ -94,7 +94,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x02:
 	        	UUID sender = DataTypeIO.readUUID(input);
 	        	UUID receiver = DataTypeIO.readUUID(input);
-	        	InteractiveChat.mentionPair.put(sender, new MentionPair(sender, receiver, InteractiveChat.mentionPair));
+	        	InteractiveChat.mentionPair.put(receiver, new MentionPair(sender, receiver, InteractiveChat.mentionPair));
 	        	break;
 	        case 0x03:
 	        	UUID uuid = DataTypeIO.readUUID(input);

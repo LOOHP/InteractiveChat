@@ -87,6 +87,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         for (ServerInfo server : getProxy().getServers().values()) {
             if (!server.getSocketAddress().equals(senderServer) && server.getPlayers().size() > 0) {
                 server.sendData("interchat:main", event.getData());
+                pluginMessagesCounter.incrementAndGet();
             }
         }
     }
@@ -142,6 +143,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        
 	        for (ServerInfo server : getProxy().getServers().values()) {
 	            server.sendData("interchat:main", out.toByteArray());
+	            pluginMessagesCounter.incrementAndGet();
 	        }
 		}
     }
@@ -183,6 +185,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        
 	        for (ServerInfo server : getProxy().getServers().values()) {
 	            server.sendData("interchat:main", out.toByteArray());
+	            pluginMessagesCounter.incrementAndGet();
 	        }
 		}
     }

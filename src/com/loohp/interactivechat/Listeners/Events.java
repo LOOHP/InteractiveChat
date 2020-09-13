@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.Listeners;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,8 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
@@ -53,7 +56,14 @@ public class Events implements Listener {
 						String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
 						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(event.getPlayer(), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new PlayerWrapper(event.getPlayer()), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						if (InteractiveChat.bungeecordMode) {
+							try {
+								BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
 						event.setMessage(command);
 						break;
 					}
@@ -97,6 +107,13 @@ public class Events implements Listener {
 		event.setMessage(MessageUtils.preprocessMessage(message));
 		
 		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+		if (InteractiveChat.bungeecordMode) {
+			try {
+				BungeeMessageSender.addMessage(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
@@ -142,6 +159,13 @@ public class Events implements Listener {
 		event.setMessage(message);
 		
 		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), player.getUniqueId());
+		if (InteractiveChat.bungeecordMode) {
+			try {
+				BungeeMessageSender.addMessage(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
     private void checkMention(AsyncPlayerChatEvent event) {

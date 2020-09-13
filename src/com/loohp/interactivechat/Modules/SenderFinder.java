@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
@@ -19,8 +20,8 @@ public class SenderFinder {
 	
 	private static ConcurrentHashMap<String, UUID> messages = InteractiveChat.messages;
 	
-	public static Optional<Player> getSender(BaseComponent basecomponent, String messageKey) {
-		Player keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
+	public static Optional<PlayerWrapper> getSender(BaseComponent basecomponent, String messageKey) {
+		PlayerWrapper keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
 		if (keyPlayer != null) {
 			return Optional.of(keyPlayer);
 		}
@@ -33,7 +34,11 @@ public class SenderFinder {
 				Player player = Bukkit.getPlayer(entry.getValue());
 				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> messages.remove(entry.getKey()), 5);
 				if (player != null) {
-					return Optional.of(player);
+					return Optional.of(new PlayerWrapper(player));
+				}
+				PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(entry.getValue());
+				if (wplayer != null) {
+					return Optional.of(wplayer);
 				}
 			}
 		}
@@ -55,24 +60,31 @@ public class SenderFinder {
 			Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> messages.remove(finalmostsimular), 5);
 			Player player = Bukkit.getPlayer(uuid);
 			if (player != null) {
-				return Optional.of(player);
+				return Optional.of(new PlayerWrapper(player));
+			}
+			PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(uuid);
+			if (wplayer != null) {
+				return Optional.of(wplayer);
 			}
 		}
 		
-		HashMap<String, Player> names = new HashMap<String, Player>();
+		HashMap<String, UUID> names = new HashMap<String, UUID>();
 		Bukkit.getOnlinePlayers().forEach((each) -> {
-			names.put(ChatColorUtils.stripColor(each.getName()), each);
+			names.put(ChatColorUtils.stripColor(each.getName()), each.getUniqueId());
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.put(ChatColorUtils.stripColor(each.getDisplayName()), each);
+				names.put(ChatColorUtils.stripColor(each.getDisplayName()), each.getUniqueId());
 			}
 		});
+		InteractiveChat.remotePlayers.entrySet().forEach(entry -> {
+			names.put(ChatColorUtils.stripColor(entry.getValue().getDisplayName()), entry.getKey());
+		});
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColorUtils.stripColor(name), player));
+			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColorUtils.stripColor(name), player.getUniqueId()));
 		}
 		
-		Player currentplayer = null;
+		UUID currentplayer = null;
 		int currentpos = 99999;
-		for (Entry<String, Player> entry : names.entrySet()) {
+		for (Entry<String, UUID> entry : names.entrySet()) {
 			int pos = chat.toLowerCase().indexOf(entry.getKey().toLowerCase());
 			if (pos >= 0 && pos < currentpos) {
 				currentpos = pos;
@@ -81,7 +93,14 @@ public class SenderFinder {
 		}
 		
 		if (currentplayer != null) {
-			return Optional.of(currentplayer);
+			Player player = Bukkit.getPlayer(currentplayer);
+			if (player != null) {
+				return Optional.of(new PlayerWrapper(player));
+			}
+			PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(currentplayer);
+			if (wplayer != null) {
+				return Optional.of(wplayer);
+			}
 		}
 
 		return Optional.empty();

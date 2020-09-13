@@ -13,12 +13,13 @@ import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.OldTitleSender;
+import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.SoundUtils;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -27,14 +28,14 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class MentionDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, Player sender, String messageKey, long unix, boolean async) {
+	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, PlayerWrapper sender, String messageKey, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
 			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
     		if (pair.getSender().equals(sender.getUniqueId())) {
     			Player reciever = beenpinged;
     			
-    			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
-				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
+    			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
+				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
 				
 				String settings = ConfigManager.getConfig().getString("Chat.MentionedSound");
 				Sound sound = null;
@@ -102,7 +103,7 @@ public class MentionDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, Player reciever, Player sender, BaseComponent basecomponent, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, Player reciever, PlayerWrapper sender, BaseComponent basecomponent, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {

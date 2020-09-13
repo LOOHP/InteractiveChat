@@ -9,15 +9,15 @@ import java.util.Optional;
 import java.util.Queue;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.PlaceholderParser;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -27,16 +27,19 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<Player> sender, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<PlayerWrapper> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<ReplaceTextBundle>();
-		Bukkit.getOnlinePlayers().forEach((each) -> {
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+		Bukkit.getOnlinePlayers().forEach(each -> {
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new PlayerWrapper(each), each.getName()));
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), each, each.getDisplayName()));
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), new PlayerWrapper(each), each.getDisplayName()));
 			}
 		});	
+		InteractiveChat.remotePlayers.values().forEach(each -> {
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+		});
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), player, name)));
+			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new PlayerWrapper(player), name)));
 		}
 		
 		Collections.sort(names);
@@ -50,7 +53,7 @@ public class PlayernameDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, Player player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, PlayerWrapper player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 
@@ -68,11 +71,11 @@ public class PlayernameDisplay {
 								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
 									TextComponent message = new TextComponent(ChatColorUtils.stripColor(replaceText));
 									if (InteractiveChat.usePlayerNameHoverEnable) {
-										String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
+										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText);
 										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
 									}
 									if (InteractiveChat.usePlayerNameClickEnable) {
-										String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameClickValue);
+										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
 										message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
 									}
 									withs.set(i, message);
@@ -116,11 +119,11 @@ public class PlayernameDisplay {
 						message.setText(lastColor + message.getText());
 
 						if (InteractiveChat.usePlayerNameHoverEnable) {
-							String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameHoverText);
+							String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText);
 							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
 						}
 						if (InteractiveChat.usePlayerNameClickEnable) {
-							String playertext = PlaceholderAPI.setPlaceholders(player, InteractiveChat.usePlayerNameClickValue);
+							String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
 							message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
 						}
 						

@@ -16,6 +16,9 @@ Messages:
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
 
 Settings:
+  #Bungeecord Mode
+  Bungeecord: false
+  
   BlockMessagesLongerThan30000RegardlessOfVersion: false
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true

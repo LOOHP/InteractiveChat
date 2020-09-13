@@ -4,7 +4,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
 
@@ -15,7 +14,7 @@ public class CommandPlaceholderInfo {
 	UUID sender;
 	ConcurrentHashMap<String, CommandPlaceholderInfo> map;
 	
-	public CommandPlaceholderInfo(Player sender, String placeholder, String uuidmatch, ConcurrentHashMap<String, CommandPlaceholderInfo> mapToRemoveFrom) {
+	public CommandPlaceholderInfo(PlayerWrapper sender, String placeholder, String uuidmatch, ConcurrentHashMap<String, CommandPlaceholderInfo> mapToRemoveFrom) {
 		this.placeholder = placeholder;
 		this.uuidmatch = uuidmatch;
 		this.sender = sender.getUniqueId();
@@ -31,8 +30,8 @@ public class CommandPlaceholderInfo {
 		return uuidmatch;
 	}
 	
-	public Player getSender() {
-		return Bukkit.getPlayer(sender);
+	public UUID getSender() {
+		return sender;
 	}
 	
 	private void run() {

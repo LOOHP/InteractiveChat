@@ -1,8 +1,8 @@
 package com.loohp.interactivechat.Modules;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +15,13 @@ import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.PlaceholderParser;
+import com.loohp.interactivechat.Utils.PlayerUtils;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -31,11 +34,11 @@ public class InventoryDisplay {
 	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
-			if (optplayer.isPresent()) {
-				Player player = optplayer.get();
+			if (optplayer.isPresent() && optplayer.get().isLocal()) {
+				Player player = optplayer.get().getLocalPlayer();
 				Long uc = universalCooldowns.get(player);
 				if (uc != null) {
 					if (uc > unix) {
@@ -107,14 +110,14 @@ public class InventoryDisplay {
 								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							}
 							if (optplayer.isPresent()) {
-								Player player = optplayer.get();
-								if (player.hasPermission("interactivechat.module.inventory")) {
+								PlayerWrapper player = optplayer.get();
+								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
 									
 									long time = InteractiveChat.keyTime.get(messageKey);
 									
 									String replaceText = InteractiveChat.invReplaceText;
 									
-									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.invTitle));
+									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
 									
 									if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
 										Inventory inv = Bukkit.createInventory(null, 45, title);
@@ -126,18 +129,25 @@ public class InventoryDisplay {
 		    								}
 		    							}			            							
 		    							InteractiveChat.inventoryDisplay.put(time, inv);	
-		    							HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-		    							singleMap.put(time, inv);
+		    							if (InteractiveChat.bungeecordMode) {
+			    							if (player.isLocal()) {
+			    								try {
+													BungeeMessageSender.forwardInventory(player.getUniqueId(), null, inv);
+												} catch (IOException e) {
+													e.printStackTrace();
+												}
+			    							}
+		    							}
 									}
 									
-									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, replaceText));
+									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
 									
 									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
 					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
 					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 					            	
 					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
-									String invtext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, String.join("\n", hoverList)));
+									String invtext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
 					            	
 					            	for (BaseComponent baseComponent : baseJson) {
 					            		TextComponent message = (TextComponent) baseComponent;

@@ -18,11 +18,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.earth2me.essentials.Essentials;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.EssentialsNicknames;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -33,18 +37,22 @@ import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageListener;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.milkbowl.vault.permission.Permission;
 
 public class InteractiveChat extends JavaPlugin {
 	
@@ -60,6 +68,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean EssentialsHook = false;
 	public static boolean ChatManagerHook = false;
+	
+	public static Permission perms = null;
 	
 	public static boolean t = true;
 	
@@ -119,7 +129,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static ConcurrentHashMap<String, UUID> messages = new ConcurrentHashMap<String, UUID>();
 	public static ConcurrentHashMap<String, Long> keyTime = new ConcurrentHashMap<String, Long>();
-	public static ConcurrentHashMap<String, Player> keyPlayer = new ConcurrentHashMap<String, Player>();
+	public static ConcurrentHashMap<String, PlayerWrapper> keyPlayer = new ConcurrentHashMap<String, PlayerWrapper>();
 	
 	public static ConcurrentHashMap<Long, HashSet<String>> cooldownbypass = new ConcurrentHashMap<Long, HashSet<String>>();
 	
@@ -160,6 +170,10 @@ public class InteractiveChat extends JavaPlugin {
 	public static Optional<Character> chatAltColorCode = Optional.empty();
 	
 	public static AtomicLong messagesCounter = new AtomicLong(0);
+	
+	public static Boolean bungeecordMode = false;
+	public static BiMap<UUID, PlayerWrapper> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
+	public static int remoteDelay = 500;
 
 	@Override
 	public void onEnable() {	
@@ -210,6 +224,9 @@ public class InteractiveChat extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    ChatPackets.chatMessageListener();
 	    
+	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
 			EssentialsHook = true;
@@ -241,8 +258,21 @@ public class InteractiveChat extends JavaPlugin {
 			legacyChatAPI = false;
 		} catch (Throwable e) {
 			legacyChatAPI = true;
-			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
+			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		};
+		
+		if (bungeecordMode) {
+			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
+			getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
+		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", new BungeeMessageListener(this));
+		    
+		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+		    	for (Player player : Bukkit.getOnlinePlayers()) {
+		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameHoverText);
+		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameClickValue);
+		    	}
+		    }, 0, 100);
+		}
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    
@@ -250,12 +280,12 @@ public class InteractiveChat extends JavaPlugin {
 			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
 			
 			if (EssentialsHook) {
-				Essentials essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-				Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+				Essentials essen = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
+				getServer().getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
 					if (essen.getUser(player.getUniqueId()).getNickname() != null) {
 						if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
 							String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-							InteractiveChat.essenNick.put(player, essen.getConfig().getString("nickname-prefix") + essentialsNick);
+							essenNick.put(player, essen.getConfig().getString("nickname-prefix") + essentialsNick);
 						}
 					}
 				}, 100);

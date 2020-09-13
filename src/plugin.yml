@@ -5,7 +5,7 @@ main: com.loohp.interactivechat.InteractiveChat
 api-version: 1.13
 description: Make the chat interactive
 softdepend: [Essentials, VentureChat, DeluxeChat, EssentialsChat, DeathMessagesPrime, ChatManager]
-depend: [ProtocolLib, PlaceholderAPI]
+depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat
 
 commands:

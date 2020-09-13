@@ -1,0 +1,4 @@
+name: InteractiveChatBungee
+main: com.loohp.interactivechat.Bungee.InteractiveChatBungee
+version: ${project.version}
+author: LOOHP

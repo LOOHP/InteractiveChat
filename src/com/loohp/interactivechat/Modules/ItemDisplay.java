@@ -1,8 +1,8 @@
 package com.loohp.interactivechat.Modules;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -20,14 +20,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.NBTUtils;
+import com.loohp.interactivechat.Utils.PlaceholderParser;
+import com.loohp.interactivechat.Utils.PlayerUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -42,11 +45,11 @@ public class ItemDisplay {
 	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<Player> optplayer, Player reciever, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.itemPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
-			if (optplayer.isPresent()) {
-				Player player = optplayer.get();
+			if (optplayer.isPresent() && optplayer.get().isLocal()) {
+				Player player = optplayer.get().getLocalPlayer();
 				Long uc = universalCooldowns.get(player);
 				if (uc != null) {
 					if (uc > unix) {
@@ -69,6 +72,21 @@ public class ItemDisplay {
 			}
 			InteractiveChat.cooldownbypass.get(unix).add(InteractiveChat.itemPlaceholder);
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
+		}
+		
+		if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
+			PlayerWrapper player = optplayer.get();
+			ItemStack[] equipment;
+			if (InteractiveChat.version.isOld()) {
+				equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInHand()};
+			} else {
+				equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInMainHand(), player.getEquipment().getItemInOffHand()};
+			}
+			try {
+				BungeeMessageSender.forwardEquipment(player.getUniqueId(), equipment);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		boolean trimmed = false;
@@ -119,19 +137,19 @@ public class ItemDisplay {
 								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							}
 							if (optplayer.isPresent()) {
-								Player player = optplayer.get();
-								if (player.hasPermission("interactivechat.module.item")) {
+								PlayerWrapper player = optplayer.get();
+								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 250)) {
 									ItemStack item = null;							
 									boolean isAir = false;
 									if (InteractiveChat.version.isOld()) {
-										if (player.getItemInHand() == null) {
+										if (player.getEquipment().getItemInHand() == null) {
 		    								isAir = true;
 		    								item = new ItemStack(Material.AIR);
-		    							} else if (player.getItemInHand().getType().equals(Material.AIR)) {
+		    							} else if (player.getEquipment().getItemInHand().getType().equals(Material.AIR)) {
 		    								isAir = true;
 		    								item = new ItemStack(Material.AIR);
 		    							} else {				            								
-		    								item = player.getItemInHand().clone();
+		    								item = player.getEquipment().getItemInHand().clone();
 		    							}
 									} else {
 										if (player.getEquipment().getItemInMainHand() == null) {
@@ -143,7 +161,7 @@ public class ItemDisplay {
 										} else {									
 											item = player.getEquipment().getItemInMainHand().clone();
 										}
-									}
+									}									
 								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
 								    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
 								    if ((itemJson.length() > 30000 && InteractiveChat.block30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) || (!InteractiveChat.version.isLegacy() && itemJson.length() > 200000)) {
@@ -183,10 +201,10 @@ public class ItemDisplay {
 								    }							
 								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
-								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
+								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
 								    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
 								    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
-									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.itemTitle));
+									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
 									long time = InteractiveChat.keyTime.get(messageKey);
 									if (!InteractiveChat.itemDisplay.containsKey(time)) {
 										if (useInventoryView(item)) {
@@ -210,8 +228,6 @@ public class ItemDisplay {
 												}
 											}										
 											InteractiveChat.itemDisplay.put(time, inv);	
-											HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-											singleMap.put(time, inv);
 										} else {
 											Inventory inv = Bukkit.createInventory(null, 27, title);
 											ItemStack empty = InteractiveChat.itemFrame1.clone();
@@ -226,8 +242,6 @@ public class ItemDisplay {
 											}
 											inv.setItem(13, item);				            							
 											InteractiveChat.itemDisplay.put(time, inv);	
-											HashMap<Long, Inventory> singleMap = new HashMap<Long, Inventory>();
-											singleMap.put(time, inv);
 										}
 									}
 				            	

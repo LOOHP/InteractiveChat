@@ -3,8 +3,7 @@ package com.loohp.interactivechat.Modules;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.bukkit.entity.Player;
+import java.util.UUID;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
@@ -18,7 +17,7 @@ public class ProcessCommands {
 	
 	public static ProcessCommandsReturn process(BaseComponent basecomponent) {
 		
-		Player sender = null;
+		UUID sender = null;
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {

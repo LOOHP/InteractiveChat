@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.Listeners;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,11 +27,13 @@ import com.loohp.interactivechat.Modules.MentionDisplay;
 import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
+import com.loohp.interactivechat.Utils.PlayerUtils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -113,7 +116,32 @@ public class ChatPackets {
 		        }
 		        debug++;
 		        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
-		        Optional<Player> sender = commandsender.getSender() != null ? Optional.of(commandsender.getSender()) : SenderFinder.getSender(basecomponent, rawMessageKey);
+		        Optional<PlayerWrapper> sender = Optional.empty();
+		        if (commandsender.getSender() != null) {
+		        	sender = Optional.ofNullable(new PlayerWrapper(Bukkit.getPlayer(commandsender.getSender())));
+		        	if (!sender.isPresent()) {
+		        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
+		        	}
+		        }
+		        if (!sender.isPresent()) {
+		        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+		        }
+		        if (sender.isPresent() && !sender.get().isLocal()) {
+		        	if (event.isFiltered()) {
+		        		PacketContainer clone = packet.deepClone();
+		        		Bukkit.getScheduler().runTaskLater(plugin, () -> {
+							try {
+								InteractiveChat.protocolManager.sendServerPacket(reciever, clone, false);
+							} catch (InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
+		        		event.setReadOnly(false);
+		        		event.setCancelled(true);
+		        		event.setReadOnly(true);
+		        		return;
+		        	}
+		        }
 		        basecomponent = commandsender.getBaseComponent();
 		        if (sender.isPresent()) {
 		        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
@@ -125,7 +153,7 @@ public class ChatPackets {
 				if (preEvent.getSender() != null) {
 					Player newsender = Bukkit.getPlayer(preEvent.getSender());
 					if (newsender != null) {
-						sender = Optional.of(newsender);
+						sender = Optional.of(new PlayerWrapper(newsender));
 					}
 				}
 				debug++;
@@ -156,7 +184,7 @@ public class ChatPackets {
 		        }
 		        debug++;
 		        if (InteractiveChat.version.isPost1_16()) {
-			        if (!sender.isPresent() || (sender.isPresent() && sender.get().hasPermission("interactivechat.customfont.translate"))) {
+			        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
 			        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
 			        }
 		        }

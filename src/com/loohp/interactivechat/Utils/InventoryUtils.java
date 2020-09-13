@@ -39,7 +39,7 @@ public class InventoryUtils {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 	        Inventory inventory = null;
-	        if (title.equals("")) {
+	        if (title == null || title.equals("")) {
 	       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
 	        } else {
 	       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt(), title);

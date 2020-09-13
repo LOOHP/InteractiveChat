@@ -18,6 +18,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 
 public class ConfigManager {
@@ -39,6 +40,8 @@ public class ConfigManager {
 	
 	@SuppressWarnings("deprecation")
 	public static void loadConfig() {
+		InteractiveChat.bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
+		
 		InteractiveChat.aliasesMapping.clear();
 		
 		String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
@@ -105,7 +108,7 @@ public class ConfigManager {
 				InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
 			}
 		} catch (Exception e) {
-			Bukkit.getLogger().severe("You have an invalid material name in the config! Please take a look at the Q&A section of the resource page! (ItemDisplay.Item.Frame)");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Item.Frame)");
 			e.printStackTrace();
 		}
 		

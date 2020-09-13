@@ -1,14 +1,12 @@
 package com.loohp.interactivechat.ObjectHolders;
 
-import org.bukkit.entity.Player;
-
 public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 	
 	String placeholder;
-	Player player;
+	PlayerWrapper player;
 	String replaceText;
 	
-	public ReplaceTextBundle(String placeholder, Player player, String replaceText) {
+	public ReplaceTextBundle(String placeholder, PlayerWrapper player, String replaceText) {
 		this.placeholder = placeholder;
 		this.player = player;
 		this.replaceText = replaceText;
@@ -18,7 +16,7 @@ public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 		return placeholder;
 	}
 	
-	public Player getPlayer() {
+	public PlayerWrapper getPlayer() {
 		return player;
 	}
 	

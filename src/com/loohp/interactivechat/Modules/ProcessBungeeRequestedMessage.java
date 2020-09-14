@@ -102,6 +102,11 @@ public class ProcessBungeeRequestedMessage {
 	        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
 	        }
         }
+        
+        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        	InteractiveChat.keyTime.remove(rawMessageKey);
+        	InteractiveChat.keyPlayer.remove(rawMessageKey);
+        }, 5);
         		        
         basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
         

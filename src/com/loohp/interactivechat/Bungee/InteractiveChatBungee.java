@@ -80,6 +80,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	private Map<Integer, UUID> requestedMessages = new ConcurrentHashMap<>(); 
 	
 	public static List<String> parseCommands = new ArrayList<>();
+	
+	public static int delay = 200;
 
 	@Override
 	public void onEnable() {
@@ -393,7 +395,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 									e.printStackTrace();
 								}
 							}
-						}, 150);
+						}, delay + 50);
 						return;
 					}
 				}
@@ -521,8 +523,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				return 0;
 			}
 		}).max().orElse(0);
+		
+		delay = highestPing * 2 + 200;
 
-		output.writeInt(highestPing * 2 + 200);
+		output.writeInt(delay);
 
 		int packetNumber = random.nextInt();
 		int packetId = 0x01;

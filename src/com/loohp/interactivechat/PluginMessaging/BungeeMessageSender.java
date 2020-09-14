@@ -2,6 +2,7 @@ package com.loohp.interactivechat.PluginMessaging;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.ValuePairs;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.CustomArrayUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
@@ -82,11 +84,14 @@ public class BungeeMessageSender {
     	return forwardData(0x04, out.toByteArray());
     }
     
-    public static boolean forwardPlaceholders(UUID player, String placeholder, String text) throws IOException {
+	public static boolean forwardPlaceholders(UUID player, List<ValuePairs<String, String>> pairs) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
-    	DataTypeIO.writeString(out, placeholder, StandardCharsets.UTF_8);
-    	DataTypeIO.writeString(out, text, StandardCharsets.UTF_8);
+    	out.writeInt(pairs.size());
+    	for (ValuePairs<String, String> pair : pairs) {
+    		DataTypeIO.writeString(out, pair.getFirst(), StandardCharsets.UTF_8);
+        	DataTypeIO.writeString(out, pair.getSecond(), StandardCharsets.UTF_8);
+    	}
     	return forwardData(0x05, out.toByteArray());
     }
     

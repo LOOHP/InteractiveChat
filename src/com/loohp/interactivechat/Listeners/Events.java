@@ -1,12 +1,15 @@
 package com.loohp.interactivechat.Listeners;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +20,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
@@ -29,6 +34,7 @@ import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 public class Events implements Listener {
 	
@@ -253,31 +259,6 @@ public class Events implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.LOWEST)
-	public void onInventoryClickLowest(InventoryClickEvent event) {
-		if (event.getClickedInventory() == null) {
-			return;
-		}
-		if (event.getClickedInventory().getType().equals(InventoryType.CREATIVE)) {
-			return;
-		}
-		if (event.getView().getTopInventory() == null) {
-			return;
-		}
-		if (InteractiveChat.inventoryDisplay.containsValue(event.getView().getTopInventory())) {
-			event.setCancelled(true);
-			return;
-		}
-		if (InteractiveChat.enderDisplay.containsValue(event.getView().getTopInventory())) {
-			event.setCancelled(true);
-			return;
-		}
-		if (InteractiveChat.itemDisplay.containsValue(event.getView().getTopInventory())) {
-			event.setCancelled(true);
-			return;
-		}
- 	}
-	
-	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getClickedInventory() == null) {
 			return;
@@ -288,18 +269,61 @@ public class Events implements Listener {
 		if (event.getView().getTopInventory() == null) {
 			return;
 		}
-		if (InteractiveChat.inventoryDisplay.containsValue(event.getView().getTopInventory())) {
+		boolean block = false;
+		if (!block && InteractiveChat.inventoryDisplay.inverse().containsKey(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			block = true;
+		}
+		if (!block && InteractiveChat.enderDisplay.inverse().containsKey(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			block = true;
+		}
+		if (!block && InteractiveChat.itemDisplay.inverse().containsKey(event.getView().getTopInventory())) {
+			event.setCancelled(true);
+			block = true;
+		}
+		if (block && event.getRawSlot() < event.getView().getTopInventory().getSize()) {
+			if (event.getCurrentItem() != null) {
+				if (event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) {
+					((Player) event.getWhoClicked()).openBook(event.getCurrentItem().clone());
+				} else if (event.getCurrentItem().getType().equals(Material.WRITABLE_BOOK)) {
+					ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+					BookMeta ori = (BookMeta) event.getCurrentItem().getItemMeta();
+					BookMeta dis = (BookMeta) book.getItemMeta();
+					List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
+					dis.spigot().setPages(pages);
+					dis.setTitle("Temp Book");
+					dis.setAuthor("InteractiveChat");
+					book.setItemMeta(dis);
+					((Player) event.getWhoClicked()).openBook(book);
+				}
+			}
+		}
+ 	}
+	/*
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onInventoryClickHighest(InventoryClickEvent event) {
+		if (event.getClickedInventory() == null) {
+			return;
+		}
+		if (event.getClickedInventory().getType().equals(InventoryType.CREATIVE)) {
+			return;
+		}
+		if (event.getView().getTopInventory() == null) {
+			return;
+		}
+		if (InteractiveChat.inventoryDisplay.inverse().containsKey(event.getView().getTopInventory())) {
 			event.setCancelled(true);
 			return;
 		}
-		if (InteractiveChat.enderDisplay.containsValue(event.getView().getTopInventory())) {
+		if (InteractiveChat.enderDisplay.inverse().containsKey(event.getView().getTopInventory())) {
 			event.setCancelled(true);
 			return;
 		}
-		if (InteractiveChat.itemDisplay.containsValue(event.getView().getTopInventory())) {
+		if (InteractiveChat.itemDisplay.inverse().containsKey(event.getView().getTopInventory())) {
 			event.setCancelled(true);
 			return;
 		}
  	}
-		
+	*/
 }

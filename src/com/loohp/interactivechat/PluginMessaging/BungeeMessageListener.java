@@ -137,9 +137,12 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	if (player2 == null) {
 	        		break;
 	        	}
-	        	String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        	String text = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        	player2.getRemotePlaceholdersMapping().put(placeholder, text);
+	        	int size1 = input.readInt();
+	        	for (int i = 0; i < size1; i++) {
+	        		String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        	String text = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        	player2.getRemotePlaceholdersMapping().put(placeholder, text);
+	        	}
 	        	break;
 	        case 0x06:
 	        	String message = DataTypeIO.readString(input, StandardCharsets.UTF_8);

@@ -133,9 +133,9 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static ConcurrentHashMap<Long, HashSet<String>> cooldownbypass = new ConcurrentHashMap<Long, HashSet<String>>();
 	
-	public static ConcurrentHashMap<Long, Inventory> itemDisplay = new ConcurrentHashMap<Long, Inventory>();
-	public static ConcurrentHashMap<Long, Inventory> inventoryDisplay = new ConcurrentHashMap<Long, Inventory>();
-	public static ConcurrentHashMap<Long, Inventory> enderDisplay = new ConcurrentHashMap<Long, Inventory>();
+	public static BiMap<Long, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<Long, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<Long, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	
 	public static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = new ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>>();
 	public static ConcurrentHashMap<Player, Long> universalCooldowns = new ConcurrentHashMap<Player, Long>();

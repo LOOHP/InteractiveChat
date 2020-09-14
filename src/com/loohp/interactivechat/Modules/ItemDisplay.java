@@ -138,7 +138,7 @@ public class ItemDisplay {
 							}
 							if (optplayer.isPresent()) {
 								PlayerWrapper player = optplayer.get();
-								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 250)) {
+								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
 									ItemStack item = null;							
 									boolean isAir = false;
 									if (InteractiveChat.version.isOld()) {

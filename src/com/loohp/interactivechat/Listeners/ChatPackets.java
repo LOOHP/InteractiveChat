@@ -91,7 +91,7 @@ public class ChatPackets {
 		        		return;
 		        	}
 		        }		    
-		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));	     
+		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
 		        debug++;
 		        try {
 		        	if (basecomponent.toLegacyText().equals("")) {
@@ -118,8 +118,10 @@ public class ChatPackets {
 		        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
 		        Optional<PlayerWrapper> sender = Optional.empty();
 		        if (commandsender.getSender() != null) {
-		        	sender = Optional.ofNullable(new PlayerWrapper(Bukkit.getPlayer(commandsender.getSender())));
-		        	if (!sender.isPresent()) {
+		        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
+		        	if (bukkitplayer != null) {
+		        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
+		        	} else {
 		        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
 		        	}
 		        }
@@ -129,7 +131,7 @@ public class ChatPackets {
 		        if (sender.isPresent() && !sender.get().isLocal()) {
 		        	if (event.isFiltered()) {
 		        		PacketContainer clone = packet.deepClone();
-		        		Bukkit.getScheduler().runTaskLater(plugin, () -> {
+		        		Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
 							try {
 								InteractiveChat.protocolManager.sendServerPacket(reciever, clone, false);
 							} catch (InvocationTargetException e) {

@@ -20,6 +20,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Modules.ProcessBungeeRequestedMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
@@ -155,13 +156,36 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x07:
 	        	UUID uuid4 = DataTypeIO.readUUID(input);
-	        	PlayerWrapper player4 = InteractiveChat.remotePlayers.get(uuid4);
+	        	Player bukkitplayer = Bukkit.getPlayer(uuid4);
+	        	PlayerWrapper player4;
+	        	if (bukkitplayer != null) {
+	        		player4 = new PlayerWrapper(bukkitplayer);
+	        	} else {
+	        		player4 = InteractiveChat.remotePlayers.get(uuid4);
+	        	}
 	        	if (player4 == null) {
 	        		break;
 	        	}
 	        	String placeholder1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(player4, placeholder1, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+	        	break;
+	        case 0x08:
+	        	int requestId = input.readInt();
+	        	UUID uuid5 = DataTypeIO.readUUID(input);
+	        	Player bukkitplayer1 = Bukkit.getPlayer(uuid5);
+	        	if (bukkitplayer1 == null) {
+	        		break;
+	        	}
+	        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+	        		String processed = ProcessBungeeRequestedMessage.processAndRespond(bukkitplayer1, component);
+	        		try {
+						BungeeMessageSender.respondProcessedMessage(requestId, processed);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+	        	});
 	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {

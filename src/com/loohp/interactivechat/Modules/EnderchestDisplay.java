@@ -111,7 +111,7 @@ public class EnderchestDisplay {
 							}
 							if (optplayer.isPresent()) {
 								PlayerWrapper player = optplayer.get();
-								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
+								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 5)) {
 									
 									long time = InteractiveChat.keyTime.get(messageKey);
 									

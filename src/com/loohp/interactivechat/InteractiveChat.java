@@ -17,7 +17,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,6 +43,7 @@ import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
+import com.loohp.interactivechat.Utils.PlayerUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
@@ -56,7 +56,7 @@ import net.milkbowl.vault.permission.Permission;
 
 public class InteractiveChat extends JavaPlugin {
 	
-	public static Plugin plugin = null;
+	public static InteractiveChat plugin = null;
 	
 	public static MCVersion version;
 	
@@ -177,7 +177,7 @@ public class InteractiveChat extends JavaPlugin {
 
 	@Override
 	public void onEnable() {	
-		plugin = (Plugin)getServer().getPluginManager().getPlugin("InteractiveChat");
+		plugin = this;
 		
 		getServer().getPluginManager().registerEvents(new Debug(), this);
 		
@@ -222,6 +222,7 @@ public class InteractiveChat extends JavaPlugin {
 	    ItemNBTUtils.setup();
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
+	    getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
 	    ChatPackets.chatMessageListener();
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
@@ -260,6 +261,8 @@ public class InteractiveChat extends JavaPlugin {
 			legacyChatAPI = true;
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		};
+		
+		bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
 		
 		if (bungeecordMode) {
 			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");

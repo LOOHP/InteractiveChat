@@ -109,4 +109,16 @@ public class BungeeMessageSender {
     	DataTypeIO.writeString(out, uuidmatch, StandardCharsets.UTF_8);
     	return forwardData(0x07, out.toByteArray());
     }
+    
+    public static boolean respondProcessedMessage(int requestId, String component) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeInt(requestId);
+    	DataTypeIO.writeString(out, component, StandardCharsets.UTF_8);
+    	return forwardData(0x08, out.toByteArray());
+    }
+    
+    public static boolean reloadBungeeConfig() throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	return forwardData(0x09, out.toByteArray());
+    }
 }

@@ -1,5 +1,6 @@
 package com.loohp.interactivechat;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
@@ -36,6 +38,13 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
 				MaterialUtils.reloadLang();
+				if (InteractiveChat.bungeecordMode) {
+					try {
+						BungeeMessageSender.reloadBungeeConfig();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 				sender.sendMessage(InteractiveChat.ReloadPlugin);
 			} else {
 				sender.sendMessage(InteractiveChat.NoPermission);

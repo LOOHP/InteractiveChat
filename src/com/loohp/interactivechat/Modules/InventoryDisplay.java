@@ -111,7 +111,7 @@ public class InventoryDisplay {
 							}
 							if (optplayer.isPresent()) {
 								PlayerWrapper player = optplayer.get();
-								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
+								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
 									
 									long time = InteractiveChat.keyTime.get(messageKey);
 									

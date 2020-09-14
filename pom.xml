@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>InteractiveChat</groupId>
 	<artifactId>InteractiveChat</artifactId>
-	<version>3.0.1</version>
+	<version>3.1.0</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -135,6 +135,13 @@
 			<scope>system</scope>
 			<version>1.0</version>
 			<systemPath>${basedir}/lib/spigot-1.16.1.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>bungeecord-proxy-1.16-R0.4-SNAPSHOT</groupId>
+			<artifactId>bungeecord-proxy-1.16-R0.4-SNAPSHOT</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.16-R0.4-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>

@@ -39,9 +39,7 @@ public class ConfigManager {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static void loadConfig() {
-		InteractiveChat.bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
-		
+	public static void loadConfig() {		
 		InteractiveChat.aliasesMapping.clear();
 		
 		String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");

@@ -1,0 +1,116 @@
+package com.loohp.interactivechat.Modules;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
+import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
+import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.JsonUtils;
+import com.loohp.interactivechat.Utils.PlayerUtils;
+
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
+
+public class ProcessBungeeRequestedMessage {
+	
+	public static String processAndRespond(Player reciever, String component) {
+		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(component)));
+        
+        try {
+        	if (basecomponent.toLegacyText().equals("")) {
+        		return component;
+        	}
+        } catch (Exception e) {
+        	return component;
+        }
+        
+        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       
+        	return component;
+        }
+        
+        String rawMessageKey = basecomponent.toPlainText();
+        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
+        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
+        }
+        
+        long unix = InteractiveChat.keyTime.get(rawMessageKey);
+        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
+        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
+        }
+        
+        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
+        Optional<PlayerWrapper> sender = Optional.empty();
+        if (commandsender.getSender() != null) {
+        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
+        	if (bukkitplayer != null) {
+        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
+        	} else {
+        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
+        	}
+        }
+        if (!sender.isPresent()) {
+        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+        }
+        basecomponent = commandsender.getBaseComponent();
+        if (sender.isPresent()) {
+        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
+        }
+        
+        if (sender.isPresent() && !sender.get().isLocal()) {
+        	try {
+				TimeUnit.MILLISECONDS.sleep(InteractiveChat.remoteDelay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        }
+		
+        if (InteractiveChat.usePlayerName) {
+        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
+        }
+        
+        if (InteractiveChat.AllowMention && sender.isPresent()) {
+        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, !Bukkit.isPrimaryThread());
+        }
+        
+        if (InteractiveChat.useItem) {
+        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        }
+        
+        if (InteractiveChat.useInventory) {
+        	basecomponent = InventoryDisplay.process(basecomponent, sender, rawMessageKey, unix);
+        }
+        
+        if (InteractiveChat.useEnder) {
+        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
+        }
+        
+        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        
+        if (InteractiveChat.clickableCommands) {
+        	basecomponent = CommandsDisplay.process(basecomponent);
+        }
+        
+        if (InteractiveChat.version.isPost1_16()) {
+	        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 5))) {
+	        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
+	        }
+        }
+        		        
+        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
+        
+        String json = ComponentSerializer.toString(basecomponent);
+        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
+        	return "{\"text\":\"\"}";
+        }
+        
+		return ComponentSerializer.toString(basecomponent);
+	}
+
+}

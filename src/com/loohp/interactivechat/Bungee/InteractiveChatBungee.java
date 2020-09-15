@@ -723,7 +723,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		}).max().orElse(0);
 		
-		delay = highestPing * 2 + 200;
+		delay = highestPing * 2 + 100;
 
 		output.writeInt(delay);
 

@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.Modules;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
@@ -63,12 +65,16 @@ public class ProcessBungeeRequestedMessage {
         	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
         }
         
+        String server;
         if (sender.isPresent() && !sender.get().isLocal()) {
         	try {
 				TimeUnit.MILLISECONDS.sleep(InteractiveChat.remoteDelay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+        	server = sender.get().getServer();
+        } else {
+        	server = PlayerWrapper.currentServerRepresentation;
         }
 		
         if (InteractiveChat.usePlayerName) {
@@ -91,7 +97,11 @@ public class ProcessBungeeRequestedMessage {
         	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
         }
         
-        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
+        if (server.equals(PlayerWrapper.currentServerRepresentation) || serverPlaceholderList == null) {
+        	serverPlaceholderList = InteractiveChat.placeholderList;
+        }
+        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, serverPlaceholderList, unix);
         
         if (InteractiveChat.clickableCommands) {
         	basecomponent = CommandsDisplay.process(basecomponent);

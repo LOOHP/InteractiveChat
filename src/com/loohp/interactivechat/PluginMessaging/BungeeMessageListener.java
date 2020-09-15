@@ -3,8 +3,10 @@ package com.loohp.interactivechat.PluginMessaging;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -22,11 +24,19 @@ import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Modules.ProcessBungeeRequestedMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper.RemoteEquipment;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
+
+import net.md_5.bungee.api.chat.ClickEvent;
 
 public class BungeeMessageListener implements PluginMessageListener {
 
@@ -76,10 +86,17 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	Set<UUID> current = new HashSet<>(InteractiveChat.remotePlayers.keySet());
 	        	Set<UUID> newSet = new HashSet<>();
 	        	for (int i = 0; i < playerAmount; i++) {
+	        		String server = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        		UUID uuid = DataTypeIO.readUUID(input);
 	        		String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        		if (InteractiveChat.remotePlayers.containsKey(uuid)) {
+	        			PlayerWrapper player = InteractiveChat.remotePlayers.get(uuid);
+	        			if (!player.getRemoteServer().equals(server)) {
+	        				player.setRemoteServer(server);
+	        			}
+	        		}
 	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			InteractiveChat.remotePlayers.put(uuid, new PlayerWrapper(name, uuid, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
+	        			InteractiveChat.remotePlayers.put(uuid, new PlayerWrapper(server, name, uuid, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
 	        		}
 	        		newSet.add(uuid);
 	        	}
@@ -186,6 +203,45 @@ public class BungeeMessageListener implements PluginMessageListener {
 						e.printStackTrace();
 					}
 	        	});
+	        	break;
+	        case 0x09:
+	        	String server = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	int size2 = input.readInt();
+	        	List<ICPlaceholder> list = new ArrayList<>(size2);
+	        	for (int i = 0; i < size2; i++) {
+	        		boolean isBulitIn = input.readBoolean();
+	        		if (isBulitIn) {
+	        			list.add(new ICPlaceholder(DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readBoolean()));
+	        		} else {
+	        			int customNo = input.readInt();
+	        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
+	        			String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        			List<String> aliases = new ArrayList<>();
+	        			int aliasSize = input.readInt();
+	        			for (int u = 0; u < aliasSize; u++) {
+	        				aliases.add(DataTypeIO.readString(input, StandardCharsets.UTF_8));
+	        			}
+	        			boolean parseKeyword = input.readBoolean();
+	        			boolean casesensitive = input.readBoolean();
+	        			long cooldown = input.readLong();
+	        			boolean hoverEnabled = input.readBoolean();
+	        			String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        			boolean clickEnabled = input.readBoolean();
+	        			String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        			String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        			boolean replaceEnabled = input.readBoolean();
+	        			String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+
+	        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText)));
+	        		}
+	        	}
+	        	InteractiveChat.remotePlaceholderList.put(server, list);
+	        	break;
+	        case 0x10:
+	        	BungeeMessageSender.resetAndForwardPlaceholderList(InteractiveChat.placeholderList);
+	        	break;
+	        case 0x11:
+	        	BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping);
 	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {

@@ -179,7 +179,7 @@ public class ChatPackets {
 		        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
 		        }
 		        debug++;
-		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, InteractiveChat.placeholderList, unix);
 		        debug++;
 		        if (InteractiveChat.clickableCommands) {
 		        	basecomponent = CommandsDisplay.process(basecomponent);

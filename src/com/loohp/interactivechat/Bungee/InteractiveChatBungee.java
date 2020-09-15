@@ -32,9 +32,16 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.Bungee.Metrics.Charts;
 import com.loohp.interactivechat.Bungee.Metrics.Metrics;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.CustomArrayUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
+import com.loohp.interactivechat.Utils.MessageUtils;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -46,9 +53,11 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -80,6 +89,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	private Map<Integer, UUID> requestedMessages = new ConcurrentHashMap<>(); 
 	
 	public static List<String> parseCommands = new ArrayList<>();
+	
+	public static Map<String, Map<String, String>> aliasesMapping = new HashMap<>();
+	public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
 	
 	public static int delay = 200;
 
@@ -159,7 +171,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		int packetNumber = in.readInt();
 		int packetId = in.readShort();
 		
-		if (packetId == 0x08 || packetId == 0x09) {
+		if (packetId == 0x08 || packetId == 0x09 || packetId == 0x10 || packetId == 0x11) {
 			boolean isEnding = in.readBoolean();
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
@@ -208,6 +220,49 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        case 0x09:
 		        	loadConfig();
 		        	break;
+		        case 0x10:
+		        	int size = input.readInt();
+		        	Map<String, String> map = new HashMap<>();
+		        	for (int i = 0; i < size; i++) {
+		        		String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        		String value = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        		map.put(key, value);
+		        	}
+		        	aliasesMapping.put(((Server) event.getSender()).getInfo().getName(), map);
+		        	break;
+		        case 0x11:
+		        	int size1 = input.readInt();
+		        	List<ICPlaceholder> list = new ArrayList<>(size1);
+		        	for (int i = 0; i < size1; i++) {
+		        		boolean isBulitIn = input.readBoolean();
+		        		if (isBulitIn) {
+		        			list.add(new ICPlaceholder(DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readBoolean()));
+		        		} else {
+		        			int customNo = input.readInt();
+		        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
+		        			String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			List<String> aliases = new ArrayList<>();
+		        			int aliasSize = input.readInt();
+		        			for (int u = 0; u < aliasSize; u++) {
+		        				aliases.add(DataTypeIO.readString(input, StandardCharsets.UTF_8));
+		        			}
+		        			boolean parseKeyword = input.readBoolean();
+		        			boolean casesensitive = input.readBoolean();
+		        			long cooldown = input.readLong();
+		        			boolean hoverEnabled = input.readBoolean();
+		        			String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			boolean clickEnabled = input.readBoolean();
+		        			String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			boolean replaceEnabled = input.readBoolean();
+		        			String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+
+		        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText)));
+		        		}
+		        	}
+		        	placeholderList.put(((Server) event.getSender()).getInfo().getName(), list);
+		        	forwardPlaceholderList(list, ((Server) event.getSender()).getInfo());
+		        	break;
 		        }
 	        } catch (IOException | DataFormatException e) {
 				e.printStackTrace();
@@ -222,16 +277,98 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 	}
 	
+	private void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, ServerInfo serverFrom) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		DataTypeIO.writeString(output, serverFrom.getName(), StandardCharsets.UTF_8);
+		output.writeInt(serverPlaceholderList.size());
+    	for (ICPlaceholder placeholder : serverPlaceholderList) {
+    		boolean isBuiltIn = placeholder.isBuildIn();
+    		output.writeBoolean(isBuiltIn);
+    		if (isBuiltIn) {
+    			DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
+    			output.writeBoolean(placeholder.isCaseSensitive());
+    		} else {
+    			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
+    			output.writeInt(customPlaceholder.getPosition());
+    			output.writeByte(customPlaceholder.getParsePlayer().getOrder());
+    			DataTypeIO.writeString(output, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
+    			output.writeInt(customPlaceholder.getAliases().size());
+    			for (String each : customPlaceholder.getAliases()) {
+    				DataTypeIO.writeString(output, each, StandardCharsets.UTF_8);
+    			}
+    			output.writeBoolean(customPlaceholder.getParseKeyword());
+    			output.writeBoolean(customPlaceholder.isCaseSensitive());
+    			output.writeLong(customPlaceholder.getCooldown());
+    			
+    			CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
+    			output.writeBoolean(hover.isEnabled());
+    			DataTypeIO.writeString(output, hover.getText(), StandardCharsets.UTF_8);
+    			
+    			CustomPlaceholderClickEvent click = customPlaceholder.getClick();
+    			output.writeBoolean(click.isEnabled());
+    			DataTypeIO.writeString(output, click.getAction() == null ? "" : click.getAction().name(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(output, click.getValue(), StandardCharsets.UTF_8);
+    			
+    			CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
+    			output.writeBoolean(replace.isEnabled());
+    			DataTypeIO.writeString(output, replace.getReplaceText(), StandardCharsets.UTF_8);
+    		}
+    	}
+
+		int packetNumber = random.nextInt();
+		int packetId = 0x09;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			for (ServerInfo server : getProxy().getServers().values()) {
+				if (!server.getSocketAddress().equals(serverFrom.getSocketAddress())) {
+					server.sendData("interchat:main", out.toByteArray());
+					pluginMessagesCounter.incrementAndGet();
+				}
+			}
+		}
+	}
+	
 	@EventHandler
 	public void onBungeeChat(ChatEvent event) {
-		UUID uuid = ((ProxiedPlayer) event.getSender()).getUniqueId();
+		ProxiedPlayer player = (ProxiedPlayer) event.getSender();
+		UUID uuid = player.getUniqueId();
 		String message = event.getMessage();
 		
-		if (message.startsWith("/")) {
+		Map<String, String> serverAliasesMapping = aliasesMapping.get(player.getServer().getInfo().getName());
+		List<ICPlaceholder> serverPlaceholderList = placeholderList.get(player.getServer().getInfo().getName());
+		System.out.println((serverAliasesMapping != null) + " " + (serverPlaceholderList != null));
+		if (serverAliasesMapping != null && serverPlaceholderList != null) {
+			if (message.startsWith("/")) {
+				if (InteractiveChatBungee.parseCommands.stream().anyMatch(each -> event.getMessage().matches(each))) {
+					message = MessageUtils.preprocessMessage(message, serverPlaceholderList, serverAliasesMapping);
+				}
+			} else {
+				message = MessageUtils.preprocessMessage(message, serverPlaceholderList, serverAliasesMapping);
+			}
+			event.setMessage(message);
+		}
+		
+		String newMessage = event.getMessage();
+		
+		if (newMessage.startsWith("/")) {
 			for (String parsecommand : InteractiveChatBungee.parseCommands) {
 				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
-				if (message.matches(parsecommand)) {
-					String command = message.trim();
+				if (newMessage.matches(parsecommand)) {
+					String command = newMessage.trim();
 					String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 					command += uuidmatch;
 					event.setMessage(command);
@@ -248,9 +385,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				@Override
 				public void run() {
 					List<String> messages = forwardedMessages.get(uuid);
-					if (!messages.remove(message)) {
+					if (!messages.remove(newMessage)) {
 						try {
-							sendMessagePair(uuid, message);
+							sendMessagePair(uuid, newMessage);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -441,6 +578,26 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 	@EventHandler
 	public void onSwitch(ServerSwitchEvent event) {
+		ServerInfo to = event.getPlayer().getServer().getInfo();
+		if (!placeholderList.containsKey(to.getName())) {
+			try {
+				requestPlaceholderList(to);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!aliasesMapping.containsKey(to.getName())) {
+			try {
+				requestAliasesMapping(to);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			sendPlayerListData();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -450,13 +607,54 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		}, 200);
 	}
+	
+	private void requestPlaceholderList(ServerInfo server) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
-	@EventHandler
-	public void onJoin(PostLoginEvent event) {
-		try {
-			sendPlayerListData();
-		} catch (IOException e) {
-			e.printStackTrace();
+		int packetNumber = random.nextInt();
+		int packetId = 0x10;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendData("interchat:main", out.toByteArray());
+			pluginMessagesCounter.incrementAndGet();
+		}
+	}
+	
+	private void requestAliasesMapping(ServerInfo server) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		int packetNumber = random.nextInt();
+		int packetId = 0x11;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendData("interchat:main", out.toByteArray());
+			pluginMessagesCounter.incrementAndGet();
 		}
 	}
 
@@ -480,6 +678,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
 		output.writeInt(players.size());
 		for (ProxiedPlayer player : players) {
+			DataTypeIO.writeString(output, player.getServer().getInfo().getName(), StandardCharsets.UTF_8);
 			DataTypeIO.writeUUID(output, player.getUniqueId());
 			DataTypeIO.writeString(output, player.getDisplayName(), StandardCharsets.UTF_8);
 		}

@@ -167,6 +167,10 @@ public class ConfigManager {
 			}
 		}
 		
+		if (InteractiveChat.bungeecordMode) {
+			InteractiveChat.queueRemoteUpdate = true;
+		}
+		
 		InteractiveChat.commandList = getConfig().getStringList("Settings.CommandsToParse");
 		
 		InteractiveChat.maxPlacholders = getConfig().getInt("Settings.MaxPlaceholders");

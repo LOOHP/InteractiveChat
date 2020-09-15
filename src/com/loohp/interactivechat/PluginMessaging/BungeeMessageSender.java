@@ -3,6 +3,8 @@ package com.loohp.interactivechat.PluginMessaging;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -14,6 +16,11 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ValuePairs;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.CustomArrayUtils;
@@ -120,5 +127,54 @@ public class BungeeMessageSender {
     public static boolean reloadBungeeConfig() throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	return forwardData(0x09, out.toByteArray());
+    }
+    
+    public static boolean resetAndForwardAliasMapping(Map<String, String> mapping) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeInt(mapping.size());
+    	for (Entry<String, String> entry : mapping.entrySet()) {
+    		DataTypeIO.writeString(out, entry.getKey(), StandardCharsets.UTF_8);
+    		DataTypeIO.writeString(out, entry.getValue(), StandardCharsets.UTF_8);
+    	}
+    	return forwardData(0x10, out.toByteArray());
+    }
+    
+    public static boolean resetAndForwardPlaceholderList(List<ICPlaceholder> placeholderList) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeInt(placeholderList.size());
+    	for (ICPlaceholder placeholder : placeholderList) {
+    		boolean isBuiltIn = placeholder.isBuildIn();
+    		out.writeBoolean(isBuiltIn);
+    		if (isBuiltIn) {
+    			DataTypeIO.writeString(out, placeholder.getKeyword(), StandardCharsets.UTF_8);
+    			out.writeBoolean(placeholder.isCaseSensitive());
+    		} else {
+    			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
+    			out.writeInt(customPlaceholder.getPosition());
+    			out.writeByte(customPlaceholder.getParsePlayer().getOrder());
+    			DataTypeIO.writeString(out, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
+    			out.writeInt(customPlaceholder.getAliases().size());
+    			for (String each : customPlaceholder.getAliases()) {
+    				DataTypeIO.writeString(out, each, StandardCharsets.UTF_8);
+    			}
+    			out.writeBoolean(customPlaceholder.getParseKeyword());
+    			out.writeBoolean(customPlaceholder.isCaseSensitive());
+    			out.writeLong(customPlaceholder.getCooldown());
+    			
+    			CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
+    			out.writeBoolean(hover.isEnabled());
+    			DataTypeIO.writeString(out, hover.getText(), StandardCharsets.UTF_8);
+    			
+    			CustomPlaceholderClickEvent click = customPlaceholder.getClick();
+    			out.writeBoolean(click.isEnabled());
+    			DataTypeIO.writeString(out, click.getAction() == null ? "" : click.getAction().name(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(out, click.getValue(), StandardCharsets.UTF_8);
+    			
+    			CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
+    			out.writeBoolean(replace.isEnabled());
+    			DataTypeIO.writeString(out, replace.getReplaceText(), StandardCharsets.UTF_8);
+    		}
+    	}
+    	return forwardData(0x11, out.toByteArray());
     }
 }

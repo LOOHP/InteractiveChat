@@ -33,10 +33,10 @@ public class CustomPlaceholderDisplay {
 	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	private static Random random = new Random();
 	
-	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, long unix) {
-		for (int i = 0; i < InteractiveChat.placeholderList.size(); i++) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, List<ICPlaceholder> placeholderList, long unix) {
+		for (int i = 0; i < placeholderList.size(); i++) {
 			
-			ICPlaceholder icplaceholder = InteractiveChat.placeholderList.get(i);
+			ICPlaceholder icplaceholder = placeholderList.get(i);
 			if (icplaceholder.isBuildIn()) {
 				continue;
 			}

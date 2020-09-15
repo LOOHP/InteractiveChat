@@ -13,16 +13,20 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerWrapper {
+	
+	public static final String currentServerRepresentation = "current";
 
 	private UUID uuid;
 
+	private String remoteServer;
 	private String remoteName;
 	private EntityEquipment remoteEquipment;
 	private Inventory remoteInventory;
 	private Inventory remoteEnderchest;
 	private final Map<String, String> remotePlaceholders;
 
-	public PlayerWrapper(String name, UUID uuid, RemoteEquipment equipment, Inventory inventory, Inventory enderchest) {
+	public PlayerWrapper(String server, String name, UUID uuid, RemoteEquipment equipment, Inventory inventory, Inventory enderchest) {
+		remoteServer = server;
 		remoteName = name;
 		this.uuid = uuid;
 		remoteEquipment = equipment;
@@ -42,6 +46,18 @@ public class PlayerWrapper {
 
 	public Player getLocalPlayer() {
 		return Bukkit.getPlayer(uuid);
+	}
+	
+	public void setRemoteServer(String server) {
+		remoteServer = server;
+	}
+	
+	public String getRemoteServer() {
+		return remoteServer;
+	}
+	
+	public String getServer() {
+		return isLocal() ? currentServerRepresentation : remoteServer;
 	}
 
 	public String getName() {

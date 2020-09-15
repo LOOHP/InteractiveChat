@@ -61,13 +61,19 @@ public class CustomPlaceholder extends ICPlaceholder {
 	}
 	
 	public enum ParsePlayer {
-		VIEWER("viewer"),
-		SENDER("sender");
+		VIEWER("viewer", 0),
+		SENDER("sender", 1);
 		
 		String name;
+		int ord;
 		
-		ParsePlayer(String name) {
+		ParsePlayer(String name, int ord) {
 			this.name = name;
+			this.ord = ord;
+		}
+		
+		public int getOrder() {
+			return ord;
 		}
 		
 		@Override
@@ -76,10 +82,21 @@ public class CustomPlaceholder extends ICPlaceholder {
 		}
 		
 		public static ParsePlayer fromString(String name) {
-			if (name.equalsIgnoreCase("sender")) {
-				return SENDER;
+			for (ParsePlayer parsePlayer : values()) {
+				if (name.equalsIgnoreCase(parsePlayer.toString())) {
+					return SENDER;
+				}
 			}
-			return SENDER;
+			return VIEWER;
+		}
+		
+		public static ParsePlayer fromOrder(int order) {
+			for (ParsePlayer parsePlayer : values()) {
+				if (order == parsePlayer.getOrder()) {
+					return SENDER;
+				}
+			}
+			return VIEWER;
 		}
 	}
 	

@@ -56,7 +56,7 @@ public class Events implements Listener {
 		String command = event.getMessage();
 		for (String parsecommand : InteractiveChat.commandList) {
 			if (command.matches(parsecommand)) {
-				command = MessageUtils.preprocessMessage(command);
+				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 				for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 					String placeholder = icplaceholder.getKeyword();
 					if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
@@ -111,7 +111,7 @@ public class Events implements Listener {
 			}
 		}
 		
-		event.setMessage(MessageUtils.preprocessMessage(message));
+		event.setMessage(MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping));
 		
 		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 		if (InteractiveChat.bungeecordMode) {
@@ -162,7 +162,7 @@ public class Events implements Listener {
 			}
 		}
 		
-		message = MessageUtils.preprocessMessage(message);
+		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 		event.setMessage(message);
 		
 		InteractiveChat.messages.put(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), player.getUniqueId());

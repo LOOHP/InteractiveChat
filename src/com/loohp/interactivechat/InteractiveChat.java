@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +40,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.PluginMessaging.BungeeMessageListener;
+import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -173,7 +176,9 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Boolean bungeecordMode = false;
 	public static BiMap<UUID, PlayerWrapper> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
+	public static Map<String, List<ICPlaceholder>> remotePlaceholderList = new HashMap<>();
 	public static int remoteDelay = 500;
+	public static boolean queueRemoteUpdate = false;
 
 	@Override
 	public void onEnable() {	
@@ -218,6 +223,21 @@ public class InteractiveChat extends JavaPlugin {
 
 	    getCommand("interactivechat").setExecutor(new Commands());
 	    
+	    bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
+	    
+		if (bungeecordMode) {
+			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
+			getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
+		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", new BungeeMessageListener(this));
+		    
+		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+		    	for (Player player : Bukkit.getOnlinePlayers()) {
+		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameHoverText);
+		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameClickValue);
+		    	}
+		    }, 0, 100);
+		}
+	    
 	    ConfigManager.loadConfig();
 	    ItemNBTUtils.setup();
 	    
@@ -261,21 +281,6 @@ public class InteractiveChat extends JavaPlugin {
 			legacyChatAPI = true;
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		};
-		
-		bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
-		
-		if (bungeecordMode) {
-			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
-			getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
-		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", new BungeeMessageListener(this));
-		    
-		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-		    	for (Player player : Bukkit.getOnlinePlayers()) {
-		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameHoverText);
-		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameClickValue);
-		    	}
-		    }, 0, 100);
-		}
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    
@@ -294,6 +299,18 @@ public class InteractiveChat extends JavaPlugin {
 				}, 100);
 			}
 		}
+	    
+	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+	    	if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {
+	    		try {
+					if (BungeeMessageSender.resetAndForwardPlaceholderList(InteractiveChat.placeholderList) && BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping)) {
+						queueRemoteUpdate = false;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    }, 0, 100);
 	}
 
 	@Override

@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -130,37 +130,39 @@ public class InteractiveChat extends JavaPlugin {
 	public static String InvExpired = "&cThis inventory view has expired!";
 	public static String ReloadPlugin = "&aInteractive Chat has been reloaded!";
 	
-	public static ConcurrentHashMap<String, UUID> messages = new ConcurrentHashMap<String, UUID>();
-	public static ConcurrentHashMap<String, Long> keyTime = new ConcurrentHashMap<String, Long>();
-	public static ConcurrentHashMap<String, PlayerWrapper> keyPlayer = new ConcurrentHashMap<String, PlayerWrapper>();
-	
-	public static ConcurrentHashMap<Long, HashSet<String>> cooldownbypass = new ConcurrentHashMap<Long, HashSet<String>>();
+	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
+	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
+	public static Map<String, PlayerWrapper> keyPlayer = new ConcurrentHashMap<>();
 	
 	public static BiMap<Long, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<Long, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<Long, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	
-	public static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = new ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>>();
-	public static ConcurrentHashMap<Player, Long> universalCooldowns = new ConcurrentHashMap<Player, Long>();
+	public static Map<Long, Set<String>> cooldownbypass = new ConcurrentHashMap<>();
 	
-	public static List<ICPlaceholder> placeholderList = new ArrayList<ICPlaceholder>();
+	public static long universalCooldown = -1;
+	
+	public static Map<UUID, Map<String, Long>> placeholderCooldowns = new HashMap<>();
+	public static Map<UUID, Long> universalCooldowns = new ConcurrentHashMap<>();
+	
+	public static List<ICPlaceholder> placeholderList = new ArrayList<>();
 	public static int maxPlacholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
-	public static ConcurrentHashMap<Player, Long> mentionCooldown = new ConcurrentHashMap<Player, Long>();	
-	public static ConcurrentHashMap<UUID, MentionPair> mentionPair = new ConcurrentHashMap<UUID, MentionPair>();
+	public static Map<Player, Long> mentionCooldown = new ConcurrentHashMap<>();	
+	public static Map<UUID, MentionPair> mentionPair = new ConcurrentHashMap<>();
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";
 	public static long mentionDuration = 2;
 	
 	public static List<String> commandList = new ArrayList<String>();
-	public static ConcurrentHashMap<String, CommandPlaceholderInfo> commandPlaceholderMatch = new ConcurrentHashMap<String, CommandPlaceholderInfo>();
+	public static Map<String, CommandPlaceholderInfo> commandPlaceholderMatch = new ConcurrentHashMap<>();
 	
-	public static ConcurrentHashMap<Player, String> essenNick = new ConcurrentHashMap<Player, String>();
+	public static Map<Player, String> essenNick = new ConcurrentHashMap<>();
 	
 	public static boolean FilterUselessColorCodes = true;
 	
-	public static ConcurrentHashMap<String, String> aliasesMapping = new ConcurrentHashMap<String, String>();
+	public static Map<String, String> aliasesMapping = new ConcurrentHashMap<>();
 	
 	public static boolean UpdaterEnabled = true;
 	public static boolean cancelledMessage = true;

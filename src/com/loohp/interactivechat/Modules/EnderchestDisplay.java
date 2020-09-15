@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.ConfigManager;
@@ -30,34 +31,35 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class EnderchestDisplay {
 	
-	private static ConcurrentHashMap<Player, ConcurrentHashMap<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
-	private static ConcurrentHashMap<Player, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
+	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
 	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.enderCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.enderPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.enderPlaceholder) && contain) {
-			if (optplayer.isPresent() && optplayer.get().isLocal()) {
-				Player player = optplayer.get().getLocalPlayer();
-				Long uc = universalCooldowns.get(player);
+			if (optplayer.isPresent()) {
+				PlayerWrapper player = optplayer.get();
+				Long uc = universalCooldowns.get(player.getUniqueId());
 				if (uc != null) {
 					if (uc > unix) {
 						return basecomponent;
 					}
 				}
 				
-				if (!placeholderCooldowns.containsKey(player)) {
-					placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
+				if (!placeholderCooldowns.containsKey(player.getUniqueId())) {
+					placeholderCooldowns.put(player.getUniqueId(), new ConcurrentHashMap<String, Long>());
 				}
-				ConcurrentHashMap<String, Long> spmap = placeholderCooldowns.get(player);
-				if (spmap.containsKey(InteractiveChat.enderPlaceholder)) {
-					if (spmap.get(InteractiveChat.enderPlaceholder) > unix) {
-						if (!player.hasPermission("interactivechat.cooldown.bypass")) {
+				Map<String, Long> spmap = placeholderCooldowns.get(player.getUniqueId());
+				if (spmap.containsKey(InteractiveChat.itemPlaceholder)) {
+					if (spmap.get(InteractiveChat.itemPlaceholder) > unix) {
+						if (!PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.cooldown.bypass", false, 5)) {
 							return basecomponent;
 						}
 					}
 				}
-				spmap.put(InteractiveChat.enderPlaceholder, unix + ConfigManager.getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
+				spmap.put(InteractiveChat.itemPlaceholder, unix + ConfigManager.getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
+				InteractiveChat.universalCooldowns.put(player.getUniqueId(), unix + InteractiveChat.universalCooldown);
 			}
 			InteractiveChat.cooldownbypass.get(unix).add(InteractiveChat.enderPlaceholder);
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));

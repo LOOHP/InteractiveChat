@@ -350,7 +350,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		
 		Map<String, String> serverAliasesMapping = aliasesMapping.get(player.getServer().getInfo().getName());
 		List<ICPlaceholder> serverPlaceholderList = placeholderList.get(player.getServer().getInfo().getName());
-		System.out.println((serverAliasesMapping != null) + " " + (serverPlaceholderList != null));
 		if (serverAliasesMapping != null && serverPlaceholderList != null) {
 			if (message.startsWith("/")) {
 				if (InteractiveChatBungee.parseCommands.stream().anyMatch(each -> event.getMessage().matches(each))) {

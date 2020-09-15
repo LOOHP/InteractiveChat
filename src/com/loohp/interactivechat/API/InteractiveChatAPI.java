@@ -1,13 +1,18 @@
 package com.loohp.interactivechat.API;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 
@@ -18,7 +23,7 @@ public class InteractiveChatAPI {
 	}
 	
 	public static List<ICPlaceholder> getICPlaceholderList() {
-		return InteractiveChat.placeholderList;
+		return new ArrayList<>(InteractiveChat.placeholderList);
 	}
 	
 	public static String getVersion() {
@@ -37,34 +42,50 @@ public class InteractiveChatAPI {
 	}
 	
 	public static Map<Player, Long> getMentionCooldownMap() {
-		return InteractiveChat.mentionCooldown;
+		return new HashMap<>(InteractiveChat.mentionCooldown);
 	}
 	
 	public static long getPlayerPlaceholderCooldown(Player player, String placeholder) {
-		if (InteractiveChat.placeholderCooldowns.containsKey(player)) {
-			if (InteractiveChat.placeholderCooldowns.get(player).containsKey(placeholder)) {
-				return InteractiveChat.placeholderCooldowns.get(player).get(placeholder);
+		return getPlayerPlaceholderCooldown(player.getUniqueId(), placeholder);
+	}
+	
+	public static long getPlayerPlaceholderCooldown(UUID uuid, String placeholder) {
+		if (InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
+			if (InteractiveChat.placeholderCooldowns.get(uuid).containsKey(placeholder)) {
+				return InteractiveChat.placeholderCooldowns.get(uuid).get(placeholder);
 			}
 		}
 		return -1;
 	}
 	
 	public static void setPlayerPlaceholderCooldown(Player player, String placeholder, long time) {
-		if (!InteractiveChat.placeholderCooldowns.containsKey(player)) {
-			InteractiveChat.placeholderCooldowns.put(player, new ConcurrentHashMap<String, Long>());
+		setPlayerPlaceholderCooldown(player.getUniqueId(), placeholder, time);
+	}
+	
+	public static void setPlayerPlaceholderCooldown(UUID uuid, String placeholder, long time) {
+		if (!InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
+			InteractiveChat.placeholderCooldowns.put(uuid, new ConcurrentHashMap<String, Long>());
 		}
-		InteractiveChat.placeholderCooldowns.get(player).put(placeholder, time);
+		InteractiveChat.placeholderCooldowns.get(uuid).put(placeholder, time);
 	}
 	
 	public static long getPlayerUniversalCooldown(Player player) {
-		if (InteractiveChat.universalCooldowns.containsKey(player)) {
-			return InteractiveChat.universalCooldowns.get(player);
+		return getPlayerUniversalCooldown(player.getUniqueId());
+	}
+	
+	public static long getPlayerUniversalCooldown(UUID uuid) {
+		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
+			return InteractiveChat.universalCooldowns.get(uuid);
 		}
 		return -1;
 	}
 	
 	public static void setPlayerUniversalCooldown(Player player, long time) {
-		InteractiveChat.universalCooldowns.put(player, time);
+		setPlayerUniversalCooldown(player.getUniqueId(), time);
+	}
+	
+	public static void setPlayerUniversalCooldown(UUID uuid, long time) {
+		InteractiveChat.universalCooldowns.put(uuid, time);
 	}
 	
 	public static boolean isPlaceholderOnCooldown(Player player, String placeholder) {
@@ -72,15 +93,24 @@ public class InteractiveChatAPI {
 		return isPlaceholderOnCooldown(player, placeholder, unix);
 	}
 	
+	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder) {
+		long unix = System.currentTimeMillis();
+		return isPlaceholderOnCooldown(uuid, placeholder, unix);
+	}
+	
 	public static boolean isPlaceholderOnCooldown(Player player, String placeholder, long time) {
-		if (InteractiveChat.universalCooldowns.containsKey(player)) {
-			if (InteractiveChat.universalCooldowns.get(player) > time) {
+		return isPlaceholderOnCooldown(player.getUniqueId(), placeholder, time);
+	}
+	
+	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder, long time) {
+		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
+			if (InteractiveChat.universalCooldowns.get(uuid) > time) {
 				return true;
 			}
 		}
-		if (InteractiveChat.placeholderCooldowns.containsKey(player)) {
-			if (InteractiveChat.placeholderCooldowns.get(player).containsKey(placeholder)) {
-				if (InteractiveChat.placeholderCooldowns.get(player).get(placeholder) > time) {
+		if (InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
+			if (InteractiveChat.placeholderCooldowns.get(uuid).containsKey(placeholder)) {
+				if (InteractiveChat.placeholderCooldowns.get(uuid).get(placeholder) > time) {
 					return true;
 				}
 			}
@@ -88,11 +118,15 @@ public class InteractiveChatAPI {
 		return false;
 	}
 	
-	public static Map<Long, Inventory> getInventoryShareList() {
-		return InteractiveChat.inventoryDisplay;
+	public static BiMap<Long, Inventory> getItemShareList() {
+		return HashBiMap.create(InteractiveChat.itemDisplay);
 	}
 	
-	public static Map<Long, Inventory> getEnderShareList() {
-		return InteractiveChat.enderDisplay;
+	public static BiMap<Long, Inventory> getInventoryShareList() {
+		return HashBiMap.create(InteractiveChat.inventoryDisplay);
+	}
+	
+	public static BiMap<Long, Inventory> getEnderShareList() {
+		return HashBiMap.create(InteractiveChat.enderDisplay);
 	}
 }

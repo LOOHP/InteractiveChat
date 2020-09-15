@@ -51,6 +51,8 @@ public class ConfigManager {
 		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
 		
+		InteractiveChat.universalCooldown = getConfig().getLong("Settings.UniversalCooldown") * 1000;
+		
 		InteractiveChat.NoPermission = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
 		InteractiveChat.InvExpired = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
 		InteractiveChat.ReloadPlugin = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));

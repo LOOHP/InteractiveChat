@@ -71,6 +71,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean EssentialsHook = false;
 	public static boolean ChatManagerHook = false;
+	public static Boolean VanishHook = false;
+	public static Boolean CMIHook = false;
 	
 	public static Permission perms = null;
 	
@@ -249,6 +251,15 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
+        
+        if (getServer().getPluginManager().getPlugin("SuperVanish") != null || getServer().getPluginManager().getPlugin("PremiumVanish") != null) {
+        	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into SuperVanish/PremiumVanish!");
+			VanishHook = true;
+		}
+		if (getServer().getPluginManager().getPlugin("CMI") != null) {
+			getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into CMI!");
+			CMIHook = true;
+		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");

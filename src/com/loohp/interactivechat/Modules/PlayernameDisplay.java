@@ -17,6 +17,7 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
+import com.loohp.interactivechat.Utils.VanishUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -30,6 +31,9 @@ public class PlayernameDisplay {
 	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<PlayerWrapper> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<ReplaceTextBundle>();
 		Bukkit.getOnlinePlayers().forEach(each -> {
+			if (VanishUtils.isVanished(each)) {
+				return;
+			}
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new PlayerWrapper(each), each.getName()));
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), new PlayerWrapper(each), each.getDisplayName()));
@@ -39,7 +43,12 @@ public class PlayernameDisplay {
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
 		});
 		if (InteractiveChat.EssentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new PlayerWrapper(player), name)));
+			InteractiveChat.essenNick.forEach((player, name) -> {
+				if (VanishUtils.isVanished(player)) {
+					return;
+				}
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new PlayerWrapper(player), name));
+			});
 		}
 		
 		Collections.sort(names);

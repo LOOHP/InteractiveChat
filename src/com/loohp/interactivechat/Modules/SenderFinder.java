@@ -1,7 +1,6 @@
 package com.loohp.interactivechat.Modules;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,8 +17,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class SenderFinder {
 	
-	private static Map<String, UUID> messages = InteractiveChat.messages;
-	
 	public static Optional<PlayerWrapper> getSender(BaseComponent basecomponent, String messageKey) {
 		PlayerWrapper keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
 		if (keyPlayer != null) {
@@ -28,11 +25,12 @@ public class SenderFinder {
 		
 		String chat = basecomponent.toPlainText();
 		
-		for (Entry<String, UUID> entry : messages.entrySet()) {
+		for (Entry<String, UUID> entry : InteractiveChat.messages.entrySet()) {
 			String msg = entry.getKey();
 			if (chat.contains(msg)) {
-				Player player = Bukkit.getPlayer(entry.getValue());
-				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> messages.remove(entry.getKey()), 5);
+				UUID uuid = entry.getValue();
+				Player player = Bukkit.getPlayer(uuid);
+				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.values(), 5);
 				if (player != null) {
 					return Optional.of(new PlayerWrapper(player));
 				}
@@ -45,7 +43,7 @@ public class SenderFinder {
 		
 		String mostsimular = null;
 		double currentsim = 0.5;
-		for (Entry<String, UUID> entry : messages.entrySet()) {
+		for (Entry<String, UUID> entry : InteractiveChat.messages.entrySet()) {
 			String msg = entry.getKey();
 			double sim = CustomStringUtils.similarity(chat, msg);
 			if (sim > currentsim) {
@@ -55,9 +53,9 @@ public class SenderFinder {
 		}
 		
 		if (mostsimular != null) {
-			UUID uuid = messages.get(mostsimular);
+			UUID uuid = InteractiveChat.messages.get(mostsimular);
 			String finalmostsimular = mostsimular;
-			Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> messages.remove(finalmostsimular), 5);
+			Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
 			Player player = Bukkit.getPlayer(uuid);
 			if (player != null) {
 				return Optional.of(new PlayerWrapper(player));

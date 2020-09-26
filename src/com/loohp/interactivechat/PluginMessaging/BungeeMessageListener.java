@@ -129,7 +129,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	player.getEquipment().setChestplate(equipment[1]);
 	        	player.getEquipment().setLeggings(equipment[2]);
 	        	player.getEquipment().setBoots(equipment[3]);
-	        	if (size < 6) {
+	        	if (InteractiveChat.version.isOld()) {
 	        		player.getEquipment().setItemInHand(equipment[4]);
 	        	} else {
 	        		player.getEquipment().setItemInMainHand(equipment[4]);
@@ -170,6 +170,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        		break;
 	        	}
 	        	InteractiveChat.messages.put(message, uuid3);
+	    		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(message), 60);
 	        	break;
 	        case 0x07:
 	        	UUID uuid4 = DataTypeIO.readUUID(input);

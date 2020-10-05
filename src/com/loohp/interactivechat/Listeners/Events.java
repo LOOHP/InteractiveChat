@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
@@ -290,18 +290,21 @@ public class Events implements Listener {
 		}
 		if (block && event.getRawSlot() < event.getView().getTopInventory().getSize()) {
 			if (event.getCurrentItem() != null) {
-				if (event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) {
+				XMaterial xmaterial = XMaterial.matchXMaterial(event.getCurrentItem());
+				if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
 					((Player) event.getWhoClicked()).openBook(event.getCurrentItem().clone());
-				} else if (event.getCurrentItem().getType().equals(Material.WRITABLE_BOOK)) {
-					ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-					BookMeta ori = (BookMeta) event.getCurrentItem().getItemMeta();
-					BookMeta dis = (BookMeta) book.getItemMeta();
-					List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
-					dis.spigot().setPages(pages);
-					dis.setTitle("Temp Book");
-					dis.setAuthor("InteractiveChat");
-					book.setItemMeta(dis);
-					((Player) event.getWhoClicked()).openBook(book);
+				} else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {
+					ItemStack book = XMaterial.WRITTEN_BOOK.parseItem();
+					if (book != null && book.getItemMeta() instanceof BookMeta) { 
+						BookMeta ori = (BookMeta) event.getCurrentItem().getItemMeta();
+						BookMeta dis = (BookMeta) book.getItemMeta();
+						List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
+						dis.spigot().setPages(pages);
+						dis.setTitle("Temp Book");
+						dis.setAuthor("InteractiveChat");
+						book.setItemMeta(dis);
+						((Player) event.getWhoClicked()).openBook(book);
+					}
 				}
 			}
 		}

@@ -211,7 +211,7 @@ public class ChatPackets {
 		        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
 		        	InteractiveChat.keyTime.remove(rawMessageKey);
 		        	InteractiveChat.keyPlayer.remove(rawMessageKey);
-		        }, 5);
+		        }, 10);
 		        debug++;
 		        if (postEvent.isCancelled()) {
 		        	event.setReadOnly(false);

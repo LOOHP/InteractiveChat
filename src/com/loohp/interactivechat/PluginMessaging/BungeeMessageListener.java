@@ -189,7 +189,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(player4, placeholder1, uuidmatch, InteractiveChat.commandPlaceholderMatch));
 	        	break;
 	        case 0x08:
-	        	int requestId = input.readInt();
+	        	UUID messageId = DataTypeIO.readUUID(input);
 	        	UUID uuid5 = DataTypeIO.readUUID(input);
 	        	Player bukkitplayer1 = Bukkit.getPlayer(uuid5);
 	        	if (bukkitplayer1 == null) {
@@ -199,7 +199,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 	        		String processed = ProcessBungeeRequestedMessage.processAndRespond(bukkitplayer1, component);
 	        		try {
-						BungeeMessageSender.respondProcessedMessage(requestId, processed);
+						BungeeMessageSender.respondProcessedMessage(processed, messageId);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

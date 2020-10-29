@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.DataFormatException;
 
@@ -86,7 +89,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	private Map<Integer, Byte[]> incomming = new HashMap<>();
 	
 	private Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
-	private Map<Integer, UUID> requestedMessages = new ConcurrentHashMap<>(); 
+	private Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
+	
+	private Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
 	
@@ -163,6 +168,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		if (!event.getTag().equals("interchat:main")) {
 			return;
 		}
+		
+		event.setCancelled(true);
 
 		SocketAddress senderServer = event.getSender().getSocketAddress();
 		
@@ -193,28 +200,66 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));	        	
 		        switch (packetId) {
 		        case 0x08:
-		        	int requestId = input.readInt();		   
+		        	UUID messageId = DataTypeIO.readUUID(input);
 		        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	UUID uuid = requestedMessages.get(requestId);
-		        	if (uuid != null) {
-		        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
-		        		UserConnection userConnection = (UserConnection) getProxy().getPlayer(uuid);
-		        		ChannelWrapper channelWrapper;
-		        		Field channelField = null;
+		        	UUID playerUUID = requestedMessages.get(messageId);
+		        	List<UUID> messageQueue = requestedMessageProcesses.get(playerUUID);
+		        	
+		        	//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " <- " + component));
+		        	
+		        	if (playerUUID != null && messageQueue != null) {
+		        		new Thread(new Runnable() {
+		        			@Override
+		        			public void run() {
+				        		CompletableFuture<Void> future = new CompletableFuture<Void>();
+				        		new Thread(new Runnable() {
+				        			@Override
+				        			public void run() {
+				        				while (true) {
+				        					if (messageQueue.indexOf(messageId) == 0) {
+				        						future.complete(null);
+				        						break;
+				        					}
+				        					if (future.isDone()) {
+				        						break;
+				        					}
+				        					try {
+												TimeUnit.MILLISECONDS.sleep(10);
+											} catch (InterruptedException e) {
+												e.printStackTrace();
+											}
+				        				}
+				        			}
+				        		}).start();
+				        		
+				        		try {
+									future.get(delay + 2000, TimeUnit.MILLISECONDS);
+								} catch (InterruptedException | ExecutionException | TimeoutException e) {}
+				        		if (!future.isDone()) {
+				        			future.complete(null);
+	        					}			     
+				        		
+				        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+				        		UserConnection userConnection = (UserConnection) getProxy().getPlayer(playerUUID);
+				        		ChannelWrapper channelWrapper;
+				        		Field channelField = null;
 
-		        		try {
-		        			channelField = userConnection.getClass().getDeclaredField("ch");
-		        			channelField.setAccessible(true);
-		        			channelWrapper = (ChannelWrapper) channelField.get(userConnection);
-		        		} catch (NoSuchFieldException | IllegalAccessException e) {
-		        			throw new RuntimeException(e);
-		        		} finally {
-		        			if (channelField != null) {
-		        				channelField.setAccessible(false);
+				        		try {
+				        			channelField = userConnection.getClass().getDeclaredField("ch");
+				        			channelField.setAccessible(true);
+				        			channelWrapper = (ChannelWrapper) channelField.get(userConnection);
+				        		} catch (NoSuchFieldException | IllegalAccessException e) {
+				        			throw new RuntimeException(e);
+				        		} finally {
+				        			if (channelField != null) {
+				        				channelField.setAccessible(false);
+				        			}
+				        		}
+				        		
+				        		messageQueue.remove(messageId);
+				        		channelWrapper.write(chatPacket);
 		        			}
-		        		}
-		        		
-		        		channelWrapper.write(chatPacket);
+		        		}).start();
 		        	}
 		        	break;
 		        case 0x09:
@@ -495,6 +540,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public void onPlayerConnected(PostLoginEvent event) {
 		ProxiedPlayer player = event.getPlayer();
 		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
+		List<UUID> messageQueue = Collections.synchronizedList(new LinkedList<>());
+		requestedMessageProcesses.put(player.getUniqueId(), messageQueue);
 		
 		UserConnection userConnection = (UserConnection) player;
 		ChannelWrapper channelWrapper;
@@ -522,11 +569,14 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 						packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
 					} else {
+						UUID messageId = UUID.randomUUID();
+						messageQueue.add(messageId);
+						//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
 						new Timer().schedule(new TimerTask() {
 							@Override
 							public void run() {
 								try {
-									requestMessageProcess(player, packet.getMessage());
+									requestMessageProcess(player, packet.getMessage(), messageId);
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -540,12 +590,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		});
 	}
 	
-	private void requestMessageProcess(ProxiedPlayer player, String component) throws IOException {
+	private void requestMessageProcess(ProxiedPlayer player, String component, UUID messageId) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		int requestId = random.nextInt();
 		
-		output.writeInt(requestId);
+		DataTypeIO.writeUUID(output, messageId);
 		DataTypeIO.writeUUID(output, player.getUniqueId());
 		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
 		
@@ -572,7 +620,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			pluginMessagesCounter.incrementAndGet();
 		}
 		
-		requestedMessages.put(requestId, player.getUniqueId());
+		requestedMessages.put(messageId, player.getUniqueId());
 	}
 
 	@EventHandler
@@ -660,6 +708,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onLeave(PlayerDisconnectEvent event) {
 		forwardedMessages.remove(event.getPlayer().getUniqueId());
+		requestedMessageProcesses.remove(event.getPlayer().getUniqueId());
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {

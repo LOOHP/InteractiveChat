@@ -204,7 +204,10 @@ public class ChatPackets {
 		        } else {
 		        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
 		        }
-		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
+		        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
+		        if (packet.getUUIDs().size() > 0) {
+		        	packet.getUUIDs().write(0, postEventSenderUUID);
+		        }
 		        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID, longerThanMaxLength);
 		        Bukkit.getPluginManager().callEvent(postEvent);
 		        debug++;	  

@@ -50,7 +50,7 @@ permissions:
     default: true
   interactivechat.mention.toggle.others:
     description: Allows you to toggle mentions of other players
-    default: true
+    default: op
   interactivechat.chatcolor.translate:
     description: Allows you to use alternate color code
     default: true

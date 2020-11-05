@@ -163,7 +163,7 @@ public class ChatPackets {
 		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
 		        }
 		        debug++;
-		        if (InteractiveChat.AllowMention && sender.isPresent()) {
+		        if (InteractiveChat.AllowMention && sender.isPresent() && !InteractiveChat.playerDataManager.getPlayerData(reciever).isMentionDisabled()) {
 		        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
 		        }
 		        debug++;

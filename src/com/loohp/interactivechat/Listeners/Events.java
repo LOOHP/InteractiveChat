@@ -184,7 +184,7 @@ public class Events implements Listener {
     private void checkMention(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();		
 		Player sender = event.getPlayer();
-		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player")) {
+		if (InteractiveChat.AllowMention == true && sender.hasPermission("interactivechat.mention.player") && !InteractiveChat.playerDataManager.getPlayerData(sender).isMentionDisabled()) {
 			Map<String, UUID> playernames = new HashMap<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
     			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());

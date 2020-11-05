@@ -14,6 +14,13 @@ Messages:
   #The messages sent when a client has colors disabled in their own settings
   ColorsDisabled: "&lYou have colors disabled in your client settings! All messages will be white and respect the settings!"
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
+  
+  #The message sent when a player toggle mentions
+  EnableMentions: "&aPlayer Mentions Enabled!"
+  DisableMentions: "&ePlayer Mentions Disabled!"
+
+  PlayerOnlyCommand: "&cThis command cannot be used in the console!"
+  InvalidPlayer: "&cThat is not a valid player!"
 
 Settings:
   #Bungeecord Mode

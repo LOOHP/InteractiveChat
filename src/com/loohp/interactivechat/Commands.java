@@ -12,6 +12,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
@@ -70,6 +71,65 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
+		if (args[0].equalsIgnoreCase("mentiontoggle")) {
+			if (sender.hasPermission("interactivechat.mention.toggle")) {
+				if (args.length == 1) {
+					if (sender instanceof Player) {
+						Player player = (Player) sender;
+						PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
+						if (pd.isMentionDisabled()) {
+							pd.setMentionDisabled(false);
+							pd.saveConfig();
+							sender.sendMessage(InteractiveChat.mentionEnable);
+						} else {
+							pd.setMentionDisabled(true);
+							pd.saveConfig();
+							sender.sendMessage(InteractiveChat.mentionDisable);
+						}
+						if (InteractiveChat.bungeecordMode) {
+							try {
+								BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId(), pd.getConfig());
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					} else {
+						sender.sendMessage(InteractiveChat.Console);
+					}
+				} else {
+					if (sender.hasPermission("interactivechat.mention.toggle.others")) {
+						Player player = Bukkit.getPlayer(args[1]);
+						if (player != null) {
+							PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
+							if (pd.isMentionDisabled()) {
+								pd.setMentionDisabled(false);
+								pd.saveConfig();
+								sender.sendMessage(InteractiveChat.mentionEnable);
+							} else {
+								pd.setMentionDisabled(true);
+								pd.saveConfig();
+								sender.sendMessage(InteractiveChat.mentionDisable);
+							}
+							if (InteractiveChat.bungeecordMode) {
+								try {
+									BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId(), pd.getConfig());
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						} else {
+							sender.sendMessage(InteractiveChat.InvalidPlayer);
+						}
+					} else {
+						sender.sendMessage(InteractiveChat.NoPermission);
+					}
+				}
+			} else {
+				sender.sendMessage(InteractiveChat.NoPermission);
+			}
+			return true;
+		}
+		
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args[0].equals("viewinv")) {
@@ -121,6 +181,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.update")) {
 				tab.add("update");
 			}
+			if (sender.hasPermission("interactivechat.mention.toggle")) {
+				tab.add("mentiontoggle");
+			}
 			return tab;
 		case 1:
 			if (sender.hasPermission("interactivechat.reload")) {
@@ -131,6 +194,22 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.update")) {
 				if ("update".startsWith(args[0].toLowerCase())) {
 					tab.add("update");
+				}
+			}
+			if (sender.hasPermission("interactivechat.mention.toggle")) {
+				if ("mentiontoggle".startsWith(args[0].toLowerCase())) {
+					tab.add("mentiontoggle");
+				}
+			}
+			return tab;
+		case 2:
+			if (sender.hasPermission("interactivechat.mention.toggle.others")) {
+				if ("mentiontoggle".equalsIgnoreCase(args[0])) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						if (player.getName().toLowerCase().startsWith(args[1])) {
+							tab.add(player.getName());
+						}
+					}
 				}
 			}
 			return tab;

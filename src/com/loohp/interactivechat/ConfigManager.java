@@ -56,6 +56,8 @@ public class ConfigManager {
 		InteractiveChat.NoPermission = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
 		InteractiveChat.InvExpired = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
 		InteractiveChat.ReloadPlugin = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
+		InteractiveChat.Console = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand"));
+		InteractiveChat.InvalidPlayer = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -182,6 +184,9 @@ public class ConfigManager {
 		List<String> stringList3 = getConfig().getStringList("Chat.MentionHoverText");
 		InteractiveChat.mentionHover = String.join("\n", stringList3);
 		InteractiveChat.mentionDuration = getConfig().getLong("Chat.MentionedTitleDuration");
+		
+		InteractiveChat.mentionEnable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.EnableMentions"));
+		InteractiveChat.mentionDisable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.DisableMentions"));
 		
 		InteractiveChat.UpdaterEnabled = getConfig().getBoolean("Options.Updater");
 		InteractiveChat.cancelledMessage = getConfig().getBoolean("Options.ShowCancelledNotice");

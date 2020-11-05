@@ -22,6 +22,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Modules.ProcessBungeeRequestedMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
@@ -243,6 +244,16 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x11:
 	        	BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping);
+	        	break;
+	        case 0x12:
+	        	UUID playerUUID = DataTypeIO.readUUID(input);
+	        	String data1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	PlayerDataManager manager = InteractiveChat.playerDataManager;
+	        	if (manager.getPlayerData(playerUUID) != null) {
+	        		manager.mergeOnline(playerUUID, data1);
+	        	} else {
+	        		manager.mergeOffline(playerUUID, data1);
+	        	}
 	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {

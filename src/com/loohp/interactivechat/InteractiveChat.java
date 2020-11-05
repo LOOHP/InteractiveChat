@@ -28,6 +28,7 @@ import com.earth2me.essentials.Essentials;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.EssentialsNicknames;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -131,6 +132,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String NoPermission = "&cYou do not have permission to use that command!";
 	public static String InvExpired = "&cThis inventory view has expired!";
 	public static String ReloadPlugin = "&aInteractive Chat has been reloaded!";
+	public static String Console = "";
+	public static String InvalidPlayer = "";
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
@@ -156,6 +159,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";
 	public static long mentionDuration = 2;
+	public static String mentionEnable = "";
+	public static String mentionDisable = "";
 	
 	public static List<String> commandList = new ArrayList<String>();
 	public static Map<String, CommandPlaceholderInfo> commandPlaceholderMatch = new ConcurrentHashMap<>();
@@ -183,6 +188,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<String, List<ICPlaceholder>> remotePlaceholderList = new HashMap<>();
 	public static int remoteDelay = 500;
 	public static boolean queueRemoteUpdate = false;
+	
+	public static PlayerDataManager playerDataManager;
 
 	@Override
 	public void onEnable() {	
@@ -284,6 +291,8 @@ public class InteractiveChat extends JavaPlugin {
 	    }
 	    
 	    ClientSettingPackets.clientSettingsListener();
+	    
+	    playerDataManager = new PlayerDataManager(this);
 	    
 	    try {
 			TextComponent test = new TextComponent("Legacy Bungeecord Chat API Test");

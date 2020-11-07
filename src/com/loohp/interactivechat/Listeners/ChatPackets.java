@@ -18,6 +18,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
+import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.Modules.CommandsDisplay;
 import com.loohp.interactivechat.Modules.CustomPlaceholderDisplay;
 import com.loohp.interactivechat.Modules.EnderchestDisplay;
@@ -163,8 +164,11 @@ public class ChatPackets {
 		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
 		        }
 		        debug++;
-		        if (InteractiveChat.AllowMention && sender.isPresent() && !InteractiveChat.playerDataManager.getPlayerData(reciever).isMentionDisabled()) {
-		        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
+		        if (InteractiveChat.AllowMention && sender.isPresent()) {
+		        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
+		        	if (data == null || !data.isMentionDisabled()) {
+		        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
+		        	}
 		        }
 		        debug++;
 		        if (InteractiveChat.useItem) {

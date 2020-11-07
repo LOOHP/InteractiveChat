@@ -29,8 +29,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.DataFormatException;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -90,7 +88,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	private static Random random = new Random();
 	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
 	
-	private Map<Integer, Byte[]> incomming = new HashMap<>();
+	private Map<Integer, byte[]> incomming = new HashMap<>();
 	
 	private Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
 	private Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
@@ -191,16 +189,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
 	        
-	        Byte[] chain = incomming.remove(packetNumber);
+	        byte[] chain = incomming.remove(packetNumber);
 	    	if (chain != null) {
 	    		ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-	    		buff.put(ArrayUtils.toPrimitive(chain));
+	    		buff.put(chain);
 	    		buff.put(data);
 	    		data = buff.array();
 	    	}
 	        
 	        if (!isEnding) {
-	        	incomming.put(packetNumber, ArrayUtils.toObject(data));
+	        	incomming.put(packetNumber, data);
 	        	return;
 	        }
 	        

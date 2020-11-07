@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,7 +41,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 public class BungeeMessageListener implements PluginMessageListener {
 
     InteractiveChat plugin;
-    private Map<Integer, Byte[]> incomming = new HashMap<>();
+    private Map<Integer, byte[]> incomming = new HashMap<>();
 
     public BungeeMessageListener(InteractiveChat instance) {
         plugin = instance;
@@ -64,16 +63,16 @@ public class BungeeMessageListener implements PluginMessageListener {
         byte[] data = new byte[bytes.length - 7];
         in.readFully(data);
         
-        Byte[] chain = incomming.remove(packetNumber);
+        byte[] chain = incomming.remove(packetNumber);
     	if (chain != null) {
     		ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-    		buff.put(ArrayUtils.toPrimitive(chain));
+    		buff.put(chain);
     		buff.put(data);
     		data = buff.array();
     	}
         
         if (!isEnding) {
-        	incomming.put(packetNumber, ArrayUtils.toObject(data));
+        	incomming.put(packetNumber, data);
         	return;
         }
         

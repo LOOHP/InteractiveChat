@@ -166,7 +166,7 @@ public class CustomPlaceholderDisplay {
 			            	for (BaseComponent baseComponent : baseJson) {
 			            		TextComponent message = (TextComponent) baseComponent;
 			            		if (hoverEnabled) {
-									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(PlaceholderParser.parse(player, hoverText)).create()));
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, hoverText))).create()));
 								}
 								
 								if (clickEnabled) {

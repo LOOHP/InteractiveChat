@@ -164,15 +164,15 @@ public class EnderchestDisplay {
 								}
 							} else {
 								TextComponent message = null;
-								if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
+								if (InteractiveChat.PlayerNotFoundReplaceEnable) {
 									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
 								} else {
 									message = new TextComponent(InteractiveChat.enderPlaceholder);
 								}
-								if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
+								if (InteractiveChat.PlayerNotFoundHoverEnable) {
 									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder)).create()));
 								}
-								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
+								if (InteractiveChat.PlayerNotFoundClickEnable) {
 									String endertext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
 									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), endertext));
 								}

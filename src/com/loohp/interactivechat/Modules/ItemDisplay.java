@@ -181,6 +181,7 @@ public class ItemDisplay {
 							    			}
 								    	}
 								    	itemJson = ItemNBTUtils.getNMSItemStackJson(trimedItem);
+								    	trimmed = true;
 								    }
 								    String message = "";
 								    String itemString = "";

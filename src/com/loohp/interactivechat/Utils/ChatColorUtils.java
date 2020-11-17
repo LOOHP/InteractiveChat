@@ -87,7 +87,7 @@ public class ChatColorUtils {
         String color = "";
         while (i < input.length()) {
         	color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
-        	if (input.charAt(i) == 'x') {
+        	if (input.charAt(i - 1) == '§' && input.charAt(i) == 'x' && input.length() > i + 13) {
         		color = input.substring(i - 1, i + 13);
         		i += 13;
         	}

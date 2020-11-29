@@ -26,7 +26,7 @@ Settings:
   #Bungeecord Mode
   Bungeecord: false
   
-  BlockMessagesLongerThan30000RegardlessOfVersion: false
+  BlockMessagesLongerThan30000RegardlessOfVersion: true
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true
   #A list of private message commands on your server

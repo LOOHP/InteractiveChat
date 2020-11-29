@@ -27,7 +27,7 @@ Settings:
   #Bungeecord Mode
   Bungeecord: false
   
-  BlockMessagesLongerThan30000RegardlessOfVersion: false
+  BlockMessagesLongerThan30000RegardlessOfVersion: true
   #Use indiviual permissions for custom placeholders
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1

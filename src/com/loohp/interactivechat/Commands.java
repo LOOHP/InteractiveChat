@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
+import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MaterialUtils;
 
@@ -58,11 +59,15 @@ public class Commands implements CommandExecutor, TabCompleter {
 				sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
 				sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
 				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-					String version = Updater.checkUpdate();
-					if (version.equals("latest")) {
-						sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
+					UpdaterResponse version = Updater.checkUpdate();
+					if (version.getResult().equals("latest")) {
+						if (version.isDevBuildLatest()) {
+							sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
+						} else {
+							Updater.sendUpdateMessage(sender, version.getResult(), version.getSpigotPluginId(), true);
+						}
 					} else {
-						Updater.sendUpdateMessage(sender, version);
+						Updater.sendUpdateMessage(sender, version.getResult(), version.getSpigotPluginId());
 					}
 				});
 			} else {

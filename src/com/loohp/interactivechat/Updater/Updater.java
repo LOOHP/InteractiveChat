@@ -81,9 +81,9 @@ public class Updater implements Listener {
             Version spigotmc = new Version(spigotPluginVersion);
             Version devBuild = new Version(devBuildVersion);
             if (currentRelease.compareTo(spigotmc) < 0) {
-                return new UpdaterResponse(spigotPluginVersion, spigotPluginId, currentDevBuild.compareTo(devBuild) > 0);
+                return new UpdaterResponse(spigotPluginVersion, spigotPluginId, currentDevBuild.compareTo(devBuild) >= 0);
             } else {
-            	return new UpdaterResponse("latest", spigotPluginId, currentDevBuild.compareTo(devBuild) > 0);
+            	return new UpdaterResponse("latest", spigotPluginId, currentDevBuild.compareTo(devBuild) >= 0);
             }
         } catch (Exception e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Failed to check against \"api.loohpjames.com\" for the latest version.. It could be an internet issue or \"api.loohpjames.com\" is down. If you want disable the update checker, you can disable in config.yml, but we still highly-recommend you to keep your plugin up to date!");

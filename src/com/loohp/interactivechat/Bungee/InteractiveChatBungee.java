@@ -626,7 +626,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					Chat packet = (Chat) obj;
 					if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 						packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-					} else {
+					} else if (player.getServer() != null) {
 						UUID messageId = UUID.randomUUID();
 						messageQueue.add(messageId);
 						//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
@@ -654,7 +654,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		DataTypeIO.writeUUID(output, messageId);
 		DataTypeIO.writeUUID(output, player.getUniqueId());
 		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
-		
+
 		ServerInfo server = player.getServer().getInfo();
 
 		int packetNumber = random.nextInt();

@@ -95,7 +95,8 @@ public class ChatPackets {
 		        BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
 		        debug++;
 		        try {
-		        	if (basecomponent.toLegacyText().equals("")) {
+		        	String text = basecomponent.toLegacyText();
+		        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
 		        		return;
 		        	}
 		        } catch (Exception e) {

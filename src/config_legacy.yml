@@ -38,7 +38,10 @@ Settings:
     - "(?i)/pm.*"
     - "(?i)/tell.*"
     - "(?i)/r.*"
-
+  #A list of chat messages to ignore
+  #This list is in REGEX so you can do some more advanced matches.
+  MessagesToIgnore:
+    - ".*\\[.*Discord.*\\].*"
   #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
   #Placeholders will not be parsed when a player is in cooldown
   UniversalCooldown: 0

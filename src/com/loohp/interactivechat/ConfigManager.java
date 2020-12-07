@@ -2,6 +2,7 @@ package com.loohp.interactivechat;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -201,5 +202,7 @@ public class ConfigManager {
 		InteractiveChat.clickableCommandsEnforceColors = getConfig().getBoolean("Commands.EnforceReplaceTextColor");
 		
 		InteractiveChat.block30000 = getConfig().getBoolean("Settings.BlockMessagesLongerThan30000RegardlessOfVersion");
+		
+		InteractiveChat.messageToIgnore = getConfig().getStringList("Settings.MessagesToIgnore").stream().collect(Collectors.toSet());
 	}
 }

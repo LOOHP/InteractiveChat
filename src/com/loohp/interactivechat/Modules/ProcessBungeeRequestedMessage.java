@@ -61,6 +61,12 @@ public class ProcessBungeeRequestedMessage {
         	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
         }
         basecomponent = commandsender.getBaseComponent();
+        
+        String text = basecomponent.toLegacyText();
+        if (InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+        	return component;
+        }
+        
         if (sender.isPresent()) {
         	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
         }

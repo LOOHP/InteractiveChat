@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -164,6 +165,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static List<String> commandList = new ArrayList<String>();
 	public static Map<String, CommandPlaceholderInfo> commandPlaceholderMatch = new ConcurrentHashMap<>();
+	
+	public static Set<String> messageToIgnore = new HashSet<>();
 	
 	public static Map<Player, String> essenNick = new ConcurrentHashMap<>();
 	

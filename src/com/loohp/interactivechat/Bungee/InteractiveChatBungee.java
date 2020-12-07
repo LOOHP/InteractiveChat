@@ -784,9 +784,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
 		output.writeInt(players.size());
 		for (ProxiedPlayer player : players) {
-			DataTypeIO.writeString(output, player.getServer().getInfo().getName(), StandardCharsets.UTF_8);
-			DataTypeIO.writeUUID(output, player.getUniqueId());
-			DataTypeIO.writeString(output, player.getDisplayName(), StandardCharsets.UTF_8);
+			if (player.getServer() != null) {
+				DataTypeIO.writeString(output, player.getServer().getInfo().getName(), StandardCharsets.UTF_8);
+				DataTypeIO.writeUUID(output, player.getUniqueId());
+				DataTypeIO.writeString(output, player.getDisplayName(), StandardCharsets.UTF_8);
+			}
 		}
 
 		int packetNumber = random.nextInt();

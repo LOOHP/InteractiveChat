@@ -42,28 +42,30 @@ public class Updater implements Listener {
 	
 	@SuppressWarnings("deprecation")
 	public static void sendUpdateMessage(CommandSender sender, String version, int spigotPluginId, boolean devbuild) {
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
-			if (!devbuild) {
-				player.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
-				TextComponent url = new TextComponent(ChatColor.GOLD + "https://www.spigotmc.org/resources/" + spigotPluginId);
-				url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
-				url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/" + spigotPluginId));
-				player.spigot().sendMessage(url);
+		if (!version.equals("error")) {
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				if (!devbuild) {
+					player.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
+					TextComponent url = new TextComponent(ChatColor.GOLD + "https://www.spigotmc.org/resources/" + spigotPluginId);
+					url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
+					url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/" + spigotPluginId));
+					player.spigot().sendMessage(url);
+				} else {
+					sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest release!");
+					TextComponent url = new TextComponent(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
+					url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
+					url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ci.loohpjames.com/job/" + PLUGIN_NAME));
+					player.spigot().sendMessage(url);
+				}
 			} else {
-				sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest release!");
-				TextComponent url = new TextComponent(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
-				url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
-				url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ci.loohpjames.com/job/" + PLUGIN_NAME));
-				player.spigot().sendMessage(url);
-			}
-		} else {
-			if (!devbuild) {
-				sender.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
-				sender.sendMessage(ChatColor.GOLD + "Download: https://www.spigotmc.org/resources/" + spigotPluginId);
-			} else {
-				sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest release!");
-				sender.sendMessage(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
+				if (!devbuild) {
+					sender.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
+					sender.sendMessage(ChatColor.GOLD + "Download: https://www.spigotmc.org/resources/" + spigotPluginId);
+				} else {
+					sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest release!");
+					sender.sendMessage(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
+				}
 			}
 		}
 	}

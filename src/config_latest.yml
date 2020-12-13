@@ -1,5 +1,6 @@
 Options:
   Updater: true
+  ShowCancelledNotice: true
 
 Messages:
   NoPermission: "&cYou do not have permission to use that command!"
@@ -14,7 +15,7 @@ Messages:
   #The messages sent when a client has colors disabled in their own settings
   ColorsDisabled: "&lYou have colors disabled in your client settings! All messages will be white and respect the settings!"
   ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
-  
+
   #The message sent when a player toggle mentions
   EnableMentions: "&aPlayer Mentions Enabled!"
   DisableMentions: "&ePlayer Mentions Disabled!"
@@ -27,6 +28,10 @@ Settings:
   Bungeecord: false
   
   BlockMessagesLongerThan30000RegardlessOfVersion: true
+  #Use indiviual permissions for custom placeholders
+  #For example the first custom placeholder will have the permission
+  #interactivechat.module.custom.1
+  UseCustomPlaceholderPermissions: false
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true
   #A list of private message commands on your server
@@ -102,6 +107,10 @@ Commands:
     - "&eClick to use command!"
 
 Chat:
+  #Convert alternate color code character
+  #Only one character is allowed, leave blank to disable this feature
+  TranslateAltColorCode: '&'
+
   #Enable the mention title and sound
   AllowMention: true
 
@@ -155,8 +164,8 @@ ItemDisplay:
     #The item used for the frame of the Item GUI
     #Only exists in versions on or above 1.13
     Frame:
-      Primary: STAINED_GLASS_PANE:2
-      Secondary: STAINED_GLASS_PANE:15
+      Primary: MAGENTA_STAINED_GLASS_PANE
+      Secondary: BLACK_STAINED_GLASS_PANE
 
   Inventory:    
     #Enable players to show their inventory

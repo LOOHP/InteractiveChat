@@ -46,7 +46,7 @@ Settings:
   #A list of chat messages to ignore
   #This list is in REGEX so you can do some more advanced matches.
   MessagesToIgnore:
-    - ".*\\[.*Discord.*\\].*"
+    - ".*\\[.*IGNORE.*\\].*"
   #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
   #Placeholders will not be parsed when a player is in cooldown
   UniversalCooldown: 0
@@ -237,102 +237,4 @@ Player:
 
 #Note that all settings have to be present even if they are set to false
 #Just copy everything and change each setting so you do not end up messing up
-CustomPlaceholders:
-  '1':
-    #Should the placholders be parsed with the message sender or the reciever
-    #Either 'sender' or 'viewer'
-    ParsePlayer: sender
-    #The keyword to look for in the chat
-    Text: "[money]"
-    Aliases:
-      - "(?i)(\\[m\\])"
-    #Parse Placeholders in the keyword text
-    ParseKeyword: false
-    #Whether or the keyword check is case sensitive
-    CaseSensitive: true
-    #Cooldown of this placeholder
-    Cooldown: 0
-    #Hover message settings
-    Hover:
-      #Add a hover message
-      Enable: true
-      #Text for the hover message
-      #Supports multiple lines
-      Text: 
-        - "&6%player_name%'s Balance: $%vault_eco_balance_commas%"
-    #Click action settings
-    Click:
-      #Add a click action
-      Enable: true
-      #The action to do when clicked
-      #List of actions:
-      #OPEN_URL
-      #OPEN_FILE
-      #RUN_COMMAND
-      #SUGGEST_COMMAND
-      #CHANGE_PAGE
-      #COPY_TO_CLIPBOARD
-      Action: SUGGEST_COMMAND
-      #The value for the action above
-      #for example '/say yellow is her fav color' for the action RUN_COMMAND
-      Value: "/pay %player_name% "
-    #Replace keyword settings
-    Replace:
-      #Whether the keyword should be replaced with another text
-      Enable: true
-      #The text to replace the keyword
-      ReplaceText: "[%player_name%'s Balance]"
-  '2':
-    ParsePlayer: viewer
-    Text: "SunKnights"
-    Aliases: []
-    ParseKeyword: false
-    CaseSensitive: false
-    Cooldown: 0
-    Hover:
-      Enable: true
-      Text: 
-        - "&eVisit the author's server!"
-        - "&bClick me!"
-    Click:
-      Enable: true
-      Action: OPEN_URL
-      Value: "https://sunknights.fun"
-    Replace:
-      Enable: true
-      ReplaceText: "&6&lSun&e&lKnights"
-  '3':
-    ParsePlayer: sender
-    Text: "[gametime]"
-    Aliases: []
-    ParseKeyword: false
-    CaseSensitive: true
-    Cooldown: 0
-    Hover:
-      Enable: false
-      Text: []
-    Click:
-      Enable: false
-      Action: ""
-      Value: ""
-    Replace:
-      Enable: true
-      ReplaceText: "%player_world_time_24%"
-  '4':
-    ParsePlayer: viewer
-    Text: "[Hover]"
-    Aliases: []
-    ParseKeyword: false
-    CaseSensitive: false
-    Cooldown: 0
-    Hover:
-      Enable: true
-      Text: 
-        - "&bHover Text is cool!"
-    Click:
-      Enable: false
-      Action: ""
-      Value: ""
-    Replace:
-      Enable: false
-      ReplaceText: ""
+CustomPlaceholders: []

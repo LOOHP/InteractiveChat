@@ -227,6 +227,12 @@ public class InteractiveChat extends JavaPlugin {
 	            } catch (IOException e) {
 	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
 	            }
+        	} else {
+	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_latest.yml")) {
+	                Files.copy(in, file.toPath());
+	            } catch (IOException e) {
+	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
+	            }
         	}
         }
 		

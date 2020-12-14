@@ -155,14 +155,29 @@ public class PlayerDataManager implements Listener {
 		}
 		
 		public void reloadConfig() {
+			createIfNotExist();
 			config = YamlConfiguration.loadConfiguration(file);
 		}
 		
 		public void saveConfig() {
+			createIfNotExist();
 			try {
 				config.save(file);
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+		
+		private void createIfNotExist() {
+			if (!file.exists()) {
+				try {
+					PrintWriter pw = new PrintWriter(file);
+					pw.println();
+					pw.flush();
+					pw.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		

@@ -50,17 +50,17 @@ public class ClientSettingPackets implements Listener {
 		        Player player = event.getPlayer();
 		        
 		        boolean colorSettings = packet.getBooleans().read(0);
-		        Boolean originalColorSettings = colorSettingsMap.get(player);				        
+		        ColorSettings originalColorSettings = getSettings(player);				        
 		        
-		        if ((originalColorSettings == null && !colorSettings) || (originalColorSettings != null && originalColorSettings && !colorSettings)) {
-		        	player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled")));
-		        }	        	
+		        if ((originalColorSettings.equals(ColorSettings.WAITING) || originalColorSettings.equals(ColorSettings.ON)) && !colorSettings) {
+		        	Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled"))), 5);
+		        }	        			        		    
+		        
+		        if (originalColorSettings.equals(ColorSettings.OFF) && colorSettings) {
+		        	Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled"))), 5);
+		        }
 		        
 		        colorSettingsMap.put(player, colorSettings);
-		        
-		        if (originalColorSettings != null && !originalColorSettings && colorSettings) {
-		        	player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled")));
-		        }        
 		    }
 		});	
 	}

@@ -1,13 +1,13 @@
 package com.loohp.interactivechat.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bukkit.entity.Player;
 
@@ -276,26 +276,109 @@ public class ChatComponentUtils {
 		return baseComponent;
 	}
 	
+	public static BaseComponent removeFormattingColor(BaseComponent baseComponent) {
+		baseComponent.setColor(ChatColor.RESET);
+		baseComponent = removeHoverEventColor(baseComponent);
+		List<BaseComponent> extras = baseComponent.getExtra();
+		if (extras != null) {
+			for (BaseComponent extra : extras) {
+				removeFormattingColor(extra);
+			}
+		}
+		return baseComponent;
+	}
+	
 	public static BaseComponent cleanUpLegacyText(BaseComponent basecomponent, Player player) {
 		List<BaseComponent> newlist = new LinkedList<BaseComponent>();
+		List<BaseComponent> list = CustomStringUtils.loadExtras(basecomponent);
+		if (list.isEmpty()) {
+			return new TextComponent("");
+		}
+		
+		BaseComponent current = null;
 		for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
+			List<BaseComponent> thislist = new LinkedList<BaseComponent>();
 			if (base instanceof TextComponent) {
-				List<TextComponent> texts = Arrays.asList(TextComponent.fromLegacyText(base.toLegacyText())).stream().map(each -> (TextComponent) each).collect(Collectors.toList());
-				for (TextComponent each : texts) {
+				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(base.toLegacyText())).map(each -> (TextComponent) each).collect(Collectors.toList());
+				if (!texts.isEmpty()) {
+					TextComponent current2 = texts.get(0);
 					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
-						each = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(each, base);
+						current2 = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current2, base);
 	 	        	} else {
-	 	        		each.copyFormatting(base, FormatRetention.EVENTS, false);
+	 	        		current2.copyFormatting(base, FormatRetention.EVENTS, false);
 	 	        	}
 					if (InteractiveChat.version.isPost1_16()) {
-						each.setFont(base.getFont());
+						current2.setFont(base.getFont());
 					}
-					//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("§", "&"));
+					
+					for (TextComponent each : texts.subList(1, texts.size())) {
+						if (areEventsSimilar(current2, each)) {
+							current2.addExtra(each);
+						} else {
+							thislist.add(current2);
+							current2 = each;
+							
+							if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+								current2 = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current2, base);
+			 	        	} else {
+			 	        		current2.copyFormatting(base, FormatRetention.EVENTS, false);
+			 	        	}
+							if (InteractiveChat.version.isPost1_16()) {
+								current2.setFont(base.getFont());
+							}
+							//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("§", "&"));
+						}
+					}
+					thislist.add(current2);
 				}
-				newlist.addAll(texts);
 			} else {
-				newlist.add(base);
+				thislist.add(base);
 			}
+			
+			if (current == null) {
+				current = new TextComponent("");
+				if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+					current = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current, base);
+ 	        	} else {
+ 	        		current.copyFormatting(base, FormatRetention.EVENTS, false);
+ 	        	}
+				if (InteractiveChat.version.isPost1_16()) {
+					current.setFont(base.getFont());
+				}
+				
+				for (BaseComponent each : thislist) {
+					each.setClickEvent(null);
+					each.setHoverEvent(null);
+					current.addExtra(each);
+				}
+			} else if (areEventsSimilar(current, base)) {
+				for (BaseComponent each : thislist) {
+					each.setClickEvent(null);
+					each.setHoverEvent(null);
+					current.addExtra(each);
+				}
+			} else {
+				newlist.add(current);
+				
+				current = new TextComponent("");
+				if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+					current = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current, base);
+ 	        	} else {
+ 	        		current.copyFormatting(base, FormatRetention.EVENTS, false);
+ 	        	}
+				if (InteractiveChat.version.isPost1_16()) {
+					current.setFont(base.getFont());
+				}
+				
+				for (BaseComponent each : thislist) {
+					each.setClickEvent(null);
+					each.setHoverEvent(null);
+					current.addExtra(each);
+				}
+			}
+		}
+		if (current != null) {
+			newlist.add(current);
 		}
 
 		ColorSettings colorsEnabled = ClientSettingPackets.getSettings(player);
@@ -303,11 +386,7 @@ public class ChatComponentUtils {
 		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
 			if (colorsEnabled.equals(ColorSettings.OFF)) {
-				each.setColor(ChatColor.WHITE);
-				if (each instanceof TextComponent) {
-					((TextComponent) each).setText(ChatColorUtils.stripColor(((TextComponent) each).getText()));
-				}
-				each = removeHoverEventColor(each);
+				removeFormattingColor(each);
 			}
 			product.addExtra(each);
 		}

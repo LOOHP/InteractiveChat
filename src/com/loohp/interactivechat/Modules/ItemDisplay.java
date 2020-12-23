@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.Events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
@@ -164,7 +165,12 @@ public class ItemDisplay {
 										} else {									
 											item = player.getEquipment().getItemInMainHand().clone();
 										}
-									}									
+									}
+									
+									ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, reciever, basecomponent, i, item);
+									Bukkit.getPluginManager().callEvent(event);
+									item = event.getItemStack();
+									
 								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
 								    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
 								    if ((itemJson.length() > 30000 && InteractiveChat.block30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && itemJson.length() > 30000) || (!InteractiveChat.version.isLegacy() && itemJson.length() > 200000)) {

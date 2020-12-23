@@ -182,11 +182,11 @@ public class ChatPackets {
 		        }
 		        debug++;
 		        if (InteractiveChat.useInventory) {
-		        	basecomponent = InventoryDisplay.process(basecomponent, sender, rawMessageKey, unix);
+		        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        }
 		        debug++;
 		        if (InteractiveChat.useEnder) {
-		        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
+		        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
 		        }
 		        debug++;
 		        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, InteractiveChat.placeholderList, unix);

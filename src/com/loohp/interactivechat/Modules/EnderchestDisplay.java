@@ -12,10 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent;
+import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
@@ -35,7 +38,7 @@ public class EnderchestDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.enderCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.enderPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.enderPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -129,7 +132,12 @@ public class EnderchestDisplay {
 		    										inv.setItem(j, player.getEnderChest().getItem(j).clone());
 		    									}
 		    								}
-		    							}			            							
+		    							}
+		    							
+		    							InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, basecomponent, i, inv, InventoryPlaceholderType.ENDERCHEST);
+										Bukkit.getPluginManager().callEvent(event);
+										inv = event.getInventory();
+										
 		    							InteractiveChat.enderDisplay.put(time, inv);	
 		    							if (InteractiveChat.bungeecordMode) {
 			    							if (player.isLocal()) {

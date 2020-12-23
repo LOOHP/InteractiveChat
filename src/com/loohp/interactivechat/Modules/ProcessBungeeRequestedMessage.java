@@ -96,11 +96,11 @@ public class ProcessBungeeRequestedMessage {
         }
         
         if (InteractiveChat.useInventory) {
-        	basecomponent = InventoryDisplay.process(basecomponent, sender, rawMessageKey, unix);
+        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
         }
         
         if (InteractiveChat.useEnder) {
-        	basecomponent = EnderchestDisplay.process(basecomponent, sender, rawMessageKey, unix);
+        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
         }
         
         List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);

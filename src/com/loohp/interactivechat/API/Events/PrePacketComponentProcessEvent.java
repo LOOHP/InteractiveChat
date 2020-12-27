@@ -44,7 +44,7 @@ public class PrePacketComponentProcessEvent extends Event {
     	return component;
     }
     
-    public void setChatComponent(BaseComponent component) {
+    public void setBaseComponent(BaseComponent component) {
     	this.component = component;
     }
     

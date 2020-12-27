@@ -165,6 +165,7 @@ public class ChatPackets {
 						sender = Optional.of(new PlayerWrapper(newsender));
 					}
 				}
+				basecomponent = preEvent.getBaseComponent();
 				debug++;
 		        if (InteractiveChat.usePlayerName) {
 		        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);

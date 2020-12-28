@@ -186,7 +186,7 @@ public class ChatPackets implements Listener {
 			        }		 
 			        debug++;		
 			        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-					PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(event.isAsync(), reciever, basecomponent, field, preEventSenderUUID);
+					PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, field, preEventSenderUUID);
 					Bukkit.getPluginManager().callEvent(preEvent);
 					if (preEvent.getSender() != null) {
 						Player newsender = Bukkit.getPlayer(preEvent.getSender());
@@ -203,7 +203,7 @@ public class ChatPackets implements Listener {
 			        if (InteractiveChat.AllowMention && sender.isPresent()) {
 			        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 			        	if (data == null || !data.isMentionDisabled()) {
-			        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, event.isAsync());
+			        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, true);
 			        	}
 			        }
 			        debug++;
@@ -248,7 +248,7 @@ public class ChatPackets implements Listener {
 			        if (packet.getUUIDs().size() > 0) {
 			        	packet.getUUIDs().write(0, postEventSenderUUID);
 			        }
-			        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(event.isAsync(), reciever, packet, postEventSenderUUID, longerThanMaxLength);
+			        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, longerThanMaxLength);
 			        Bukkit.getPluginManager().callEvent(postEvent);
 			        debug++;	  
 			        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {

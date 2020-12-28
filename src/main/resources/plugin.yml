@@ -1,0 +1,62 @@
+name: InteractiveChat
+author: loohp
+version: ${project.version}
+main: com.loohp.interactivechat.InteractiveChat
+api-version: 1.13
+description: Make the chat interactive
+softdepend: 
+  - Essentials
+  - DeluxeChat
+  - EssentialsChat
+  - DeathMessagesPrime
+  - ChatManager
+  - CMI
+  - SuperVanish
+  - PremiumVanish
+  - VentureChat
+depend: [ProtocolLib, PlaceholderAPI, Vault]
+prefix: InteractiveChat
+
+commands:
+  interactivechat:
+    usage: /<command>
+    aliases: [ic]
+    description: Plugin main command
+
+permissions:
+  interactivechat.reload:
+    description: Allows you to reload the plugin
+    default: op
+  interactivechat.cooldown.bypass:
+    description: Allows you to bypass cooldown
+    default: op
+  interactivechat.module.item:
+    description: Allows you to use the item placeholder
+    default: true
+  interactivechat.module.inventory:
+    description: Allows you to use the inventory placeholder
+    default: true
+  interactivechat.module.enderchest:
+    description: Allows you to use the ender chest placeholder
+    default: true
+  interactivechat.module.custom:
+    description: Allows you to use custom placeholders in chat
+    default: true
+  interactivechat.mention.player:
+    description: Allows you to mention others
+    default: true
+  interactivechat.mention.toggle:
+    description: Allows you to toggle your own mentions
+    default: true
+  interactivechat.mention.toggle.others:
+    description: Allows you to toggle mentions of other players
+    default: op
+  interactivechat.chatcolor.translate:
+    description: Allows you to use alternate color code
+    default: true
+  interactivechat.customfont.translate:
+    description: Allows you to use font formatting code
+    default: true
+  interactivechat.update:
+    description: Allows you to recieve update notifications
+    default: op

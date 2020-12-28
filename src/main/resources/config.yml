@@ -1,0 +1,240 @@
+Options:
+  Updater: true
+  ShowCancelledNotice: true
+
+Messages:
+  NoPermission: "&cYou do not have permission to use that command!"
+
+  #After 5 minutes the [inv]/[ender] generated inventory view will expire
+  InvExpired: "&cThis inventory view has expired!"
+  ReloadPlugin: "&aInteractive Chat has been reloaded!"
+
+  #The message to send when a message is cancelled due to the placeholder limit
+  LimitReached: "&cPlease do now use excessive amount of placeholders in one message!"
+
+  #The messages sent when a client has colors disabled in their own settings
+  ColorsDisabled: "&lYou have colors disabled in your client settings! All messages will be white and respect the settings!"
+  ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
+
+  #The message sent when a player toggle mentions
+  EnableMentions: "&aPlayer Mentions Enabled!"
+  DisableMentions: "&ePlayer Mentions Disabled!"
+
+  PlayerOnlyCommand: "&cThis command cannot be used in the console!"
+  InvalidPlayer: "&cThat is not a valid player!"
+
+Settings:
+  #Bungeecord Mode
+  Bungeecord: false
+  
+  BlockMessagesLongerThan30000RegardlessOfVersion: true
+  #Use indiviual permissions for custom placeholders
+  #For example the first custom placeholder will have the permission
+  #interactivechat.module.custom.1
+  UseCustomPlaceholderPermissions: false
+  #Turn this off if some colors are missing
+  FilterUselessColorCodes: true
+  #A list of private message commands on your server
+  #The plugin will attempt to parse placeholder inside these commands.
+  #This list is in REGEX so you can do some more advanced matches.
+  CommandsToParse:
+    - "(?i)/emsg.*"
+    - "(?i)/msg.*"
+    - "(?i)/pm.*"
+    - "(?i)/tell.*"
+    - "(?i)/r.*"
+  #A list of chat messages to ignore
+  #This list is in REGEX so you can do some more advanced matches.
+  MessagesToIgnore:
+    - ".*\\[.*IGNORE.*\\].*"
+  #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
+  #Placeholders will not be parsed when a player is in cooldown
+  UniversalCooldown: 0
+  #Maximum Placholders that can be used in one message
+  #Message will be cancelled if the limit is reached
+  #Put in -1 to disable the limit
+  MaxPlaceholders: -1
+  #Settings for if the plugin is unable to fetch a placeholder
+  PlayerNotFound:
+    #Hover message settings
+    Hover:
+      #Add a hover message
+      Enable: true
+      #Text for the hover message
+      #Supports multiple lines
+      Text: 
+        - "&cUnable to parse placeholder.."
+    #Click action settings
+    Click:
+      #Add a click action
+      Enable: false
+      #The action to do when clicked
+      #List of actions:
+      #OPEN_URL
+      #OPEN_FILE
+      #RUN_COMMAND
+      #SUGGEST_COMMAND
+      #CHANGE_PAGE
+      #COPY_TO_CLIPBOARD
+      Action: SUGGEST_COMMAND
+      #The value for the action above
+      #for example '/say yellow is her fav color' for the action RUN_COMMAND
+      Value: ""
+    #Replace keyword settings
+    Replace:
+      #Whether the keyword should be replaced with another text
+      Enable: true
+      #The text to replace the keyword
+      #Use {Placeholer} for the name of the placeholder that was unable to be parsed
+      ReplaceText: '&c{Placeholer}&r'
+
+Commands:
+  #Whether or not to make commands displayed in chat clickable
+  Enabled: true
+  #The formatting to trigger the command display function
+  Format: "[{Command}]"
+  #The text to replace the matched section of the message
+  #Use "{Command}" for the command
+  Text: "&b[&e{Command}&b]"
+  EnforceReplaceTextColor: true
+  #What happens when the player clicks the command
+  #List of actions:
+  #RUN_COMMAND
+  #SUGGEST_COMMAND
+  Action: SUGGEST_COMMAND
+
+  HoverMessage: 
+    - "&eClick to use command!"
+
+Chat:
+  #Convert alternate color code character
+  #Only one character is allowed, leave blank to disable this feature
+  TranslateAltColorCode: '&'
+
+  #Enable the mention title and sound
+  AllowMention: true
+
+  #The sound to play when a player is mentioned
+  #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP
+
+  #The title to show when mentioned
+  MentionedTitle: "&c&lMentioned"
+
+  #How long should the title be shown when mentioned
+  #Duration in seconds
+  MentionedTitleDuration: 1.5
+
+  #This is currently unused
+  UnknownPlayerMentionSubtitle: "&fSomeone had mentioned you in the chat!"
+  
+  #The subtitle to show when mentioned
+  KnownPlayerMentionSubtitle: "&3%player_name% &fmentioned you in the chat!"
+
+  #Highlight the mentioned playername for the player mentioned
+  #Use {MentionedPlayer} for the highlighted player name
+  MentionHighlight: "&e{MentionedPlayer}"
+
+  #The text to show when the player mentioned hover over the highlighted text
+  #Use {Sender} and {Reciever}
+  MentionHoverText:
+    - "&b{Sender} mentioned you!"
+
+ItemDisplay:
+  Item:
+    #Enable players to show their items in main hand
+    Enabled: true
+    #Should the item keyword be case sensitive
+    CaseSensitive: false
+    #The keyword to trigger the item display function
+    Keyword: "[item]"
+    Aliases:
+      - "(?i)(\\[i\\])"
+    #The text to replace the keyword
+    #Special Placeholders:
+    #Use {Item} for item display name
+    #Use {Amount} for the item amount
+    Text: "&f[&f{Item} &bx{Amount}&f]"
+    #The title of the inventory view
+    InventoryTitle: "%player_name%'s Item"
+    #Cooldown of this placeholder
+    Cooldown: 0
+    #Enable the click GUI
+    GUIEnabled: true
+    #The item used for the frame of the Item GUI
+    #Only exists in versions on or above 1.13
+    Frame:
+      Primary: MAGENTA_STAINED_GLASS_PANE
+      Secondary: BLACK_STAINED_GLASS_PANE
+
+  Inventory:    
+    #Enable players to show their inventory
+    Enabled: true
+    #Should the inventory keyword be case sensitive
+    CaseSensitive: false
+    #The keyword to trigger the inventory display function
+    Keyword: "[inv]"
+    Aliases:
+      - "(?i)(\\[inventory\\])"
+    #The text to replace the keyword
+    Text: "&f[&b%player_name%'s Inventory&f]"
+    #The title of the inventory view
+    InventoryTitle: "%player_name%'s Inventory"
+    #Cooldown of this placeholder
+    Cooldown: 0
+    #Hover Message
+    HoverMessage:
+      - "&bClick to view!"
+
+  EnderChest:    
+    #Enable players to show their ender chest
+    Enabled: true
+    #Should the ender chest keyword be case sensitive
+    CaseSensitive: false
+    #The keyword to trigger the ender chest display function
+    Keyword: "[ender]"
+    Aliases:
+      - "(?i)(\\[e\\])"
+    #The text to replace the keyword
+    Text: "&f[&d%player_name%'s Ender Chest&f]"
+    #The title of the ender chest inventory view
+    InventoryTitle: "%player_name%'s Ender Chest"
+    #Cooldown of this placeholder
+    Cooldown: 0
+    #Hover Message
+    HoverMessage: 
+      - "&bClick to view!"
+
+Player:
+  #Let InteractiveChat handle all player names that appears in chat (literally ALL)
+  UsePlayerNameInteraction: true
+  UseOnTranslatableComponents: true
+  #Whether or not names have to be capitalized correctly to be replaced
+  CaseSensitive: true
+  Hover:
+    #Add a hover message to all player names in chat
+    Enable: true
+    #The text to show in the hover message
+    #Supports multiple lines
+    Text: 
+      - "&aWorld: %multiverse_world_alias%"
+      - "&cHealth: %player_health_rounded%"
+  Click:
+    #Add a click action to all player names in chat
+    Enable: true
+    #The action to do when a player name is clicked
+    #List of actions:
+    #OPEN_URL
+    #OPEN_FILE
+    #RUN_COMMAND
+    #SUGGEST_COMMAND
+    #CHANGE_PAGE
+    #COPY_TO_CLIPBOARD
+    Action: SUGGEST_COMMAND
+    #The value for the action above
+    #for example '/say yellow is her fav color' for the action RUN_COMMAND
+    Value: "/msg %player_name% "
+
+#Note that all settings have to be present even if they are set to false
+#Just copy everything and change each setting so you do not end up messing up
+CustomPlaceholders: []

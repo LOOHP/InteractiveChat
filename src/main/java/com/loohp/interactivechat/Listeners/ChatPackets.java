@@ -68,7 +68,7 @@ public class ChatPackets implements Listener {
 		        
 		        List<UUID> q = messagesOrder.get(reciever.getUniqueId());
 		        if (q == null) {
-		        	q = Collections.synchronizedList(new LinkedList<>());
+		        	q = Collections.synchronizedList(new LinkedList<UUID>());
 		        	messagesOrder.put(reciever.getUniqueId(), q);		  
 		        }
 		        UUID messageUUID = UUID.randomUUID();

@@ -57,7 +57,7 @@ public class ChatPackets implements Listener {
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
 		    @Override
 		    public void onPacketSending(PacketEvent event) {
-		    	if (!event.isFiltered()) {
+		    	if (!event.isFiltered() || !event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
 		    		return;
 		    	}
 		    	event.setReadOnly(false);
@@ -79,11 +79,6 @@ public class ChatPackets implements Listener {
 			    	InteractiveChat.messagesCounter.getAndIncrement();
 			    	int debug = 0;
 			    	try {
-			        if (!event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
-			        	return;
-			        }
-			        debug++;
-			          
 			        debug++;
 			        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
 				        ChatType type = packet.getChatTypes().read(0);
@@ -93,6 +88,7 @@ public class ChatPackets implements Listener {
 			        } else {
 			        	byte type = packet.getBytes().read(0);
 			        	if (type == (byte) 2) {
+			        		queue.remove(messageUUID);
 			        		return;
 			        	}
 			        }
@@ -100,6 +96,7 @@ public class ChatPackets implements Listener {
 			        WrappedChatComponent wcc = packet.getChatComponents().read(0);
 			        Object field1 = packet.getModifier().read(1);
 			        if (wcc == null && field1 == null) {
+			        	queue.remove(messageUUID);
 			        	return;
 			        }
 			        debug++;
@@ -118,6 +115,7 @@ public class ChatPackets implements Listener {
 				        	basecomponentarray = (BaseComponent[]) field1;
 				        	field = 1;
 			        	} catch (Exception skip) {
+			        		queue.remove(messageUUID);
 			        		return;
 			        	}
 			        }
@@ -125,19 +123,23 @@ public class ChatPackets implements Listener {
 			        try {
 			        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
 			        } catch (Exception e) {
+			        	queue.remove(messageUUID);
 			        	return;
 			        }
 			        debug++;
 			        try {
 			        	String text = basecomponent.toLegacyText();
 			        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+			        		queue.remove(messageUUID);
 			        		return;
 			        	}
 			        } catch (Exception e) {
+			        	queue.remove(messageUUID);
 			        	return;
 			        }
 			        debug++;
-			        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       
+			        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
+			        	queue.remove(messageUUID);
 			        	return;
 			        }
 			        debug++;
@@ -174,9 +176,7 @@ public class ChatPackets implements Listener {
 									e.printStackTrace();
 								}
 							}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
-			        		event.setReadOnly(false);
-			        		event.setCancelled(true);
-			        		event.setReadOnly(true);
+			        		queue.remove(messageUUID);
 			        		return;
 			        	}
 			        }
@@ -257,12 +257,11 @@ public class ChatPackets implements Listener {
 			        }, 10);
 			        debug++;
 			        if (postEvent.isCancelled()) {
-			        	event.setReadOnly(false);
-			        	event.setCancelled(true);
-			        	event.setReadOnly(true);
 			        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
 			        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
 			        	}
+			        	queue.remove(messageUUID);
+			        	return;
 			        }
 			        debug++;
 			        
@@ -274,6 +273,7 @@ public class ChatPackets implements Listener {
 			        InteractiveChat.protocolManager.sendServerPacket(reciever, packet, false);			   
 			    	} catch (Exception e) {
 			    		Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "IC DEBUG " + event.getPlayer().getName() + " " + debug);
+			    		queue.remove(messageUUID);
 			    		e.printStackTrace();
 			    	}
 		    	});

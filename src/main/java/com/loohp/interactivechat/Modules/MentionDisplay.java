@@ -112,7 +112,7 @@ public class MentionDisplay {
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
-				String regex = "(?i)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder));
+				String regex = "(?i)(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder));
 				
 				if (!text.matches(".*" + regex + ".*")) {
 					newlist.add(textcomponent);

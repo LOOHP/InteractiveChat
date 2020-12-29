@@ -114,7 +114,7 @@ public class ItemDisplay {
 					}
 				}
 				
-				String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) + ")";
+				String regex = InteractiveChat.itemCaseSensitive ? "(?<!§)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)(?<!§)(" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);

@@ -127,7 +127,7 @@ public class CustomPlaceholderDisplay {
 					}
 				}
 				
-				String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
+				String regex = casesensitive ? "(?<!§)" + CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(?<!§)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);

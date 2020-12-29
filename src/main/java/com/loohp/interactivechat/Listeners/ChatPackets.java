@@ -1,14 +1,13 @@
 package com.loohp.interactivechat.Listeners;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -51,7 +50,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatPackets implements Listener {
 	
-	private static Map<UUID, List<UUID>> messagesOrder = new ConcurrentHashMap<>();
+	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	
 	public static void chatMessageListener() {		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
@@ -66,14 +65,16 @@ public class ChatPackets implements Listener {
 		    	PacketContainer packet = event.getPacket().deepClone();
 		        Player reciever = event.getPlayer();
 		        
-		        List<UUID> q = messagesOrder.get(reciever.getUniqueId());
+		        Queue<UUID> q = messagesOrder.get(reciever.getUniqueId());
 		        if (q == null) {
-		        	q = Collections.synchronizedList(new LinkedList<UUID>());
+		        	q = new ConcurrentLinkedQueue<>();
 		        	messagesOrder.put(reciever.getUniqueId(), q);		  
 		        }
 		        UUID messageUUID = UUID.randomUUID();
 		        q.add(messageUUID);
-		        List<UUID> queue = q;
+		        Queue<UUID> queue = q;
+		        
+		        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> queue.remove(messageUUID), 60);
 		    	
 		    	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 			    	InteractiveChat.messagesCounter.getAndIncrement();
@@ -266,7 +267,7 @@ public class ChatPackets implements Listener {
 			        debug++;
 			        
 			        long timeout = System.currentTimeMillis() + 1000;
-			        while (!queue.get(0).equals(messageUUID) && System.currentTimeMillis() < timeout) {
+			        while (queue.peek() != null && !queue.peek().equals(messageUUID) && System.currentTimeMillis() < timeout) {
 			        	TimeUnit.NANOSECONDS.sleep(100000);
 			        }
 			        queue.remove(messageUUID);

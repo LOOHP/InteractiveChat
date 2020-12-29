@@ -84,12 +84,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.27.0-GA</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.github.cryptomorin</groupId>
 			<artifactId>XSeries</artifactId>
 			<version>7.2.1.2</version>

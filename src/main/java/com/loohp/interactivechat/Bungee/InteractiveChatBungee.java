@@ -166,7 +166,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					e.printStackTrace();
 				}
 			}
-		}, 0, 10000);
+		}, 0, 5000);
 	}
 
 	@EventHandler
@@ -831,7 +831,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		}).max().orElse(0);
 		
-		delay = highestPing * 2 + 100;
+		delay = highestPing * 2 + 200;
 
 		output.writeInt(delay);
 

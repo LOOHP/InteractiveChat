@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
@@ -46,13 +47,13 @@ public class PlaceholderParser {
 	}
 	
 	public static Map<String, String> getAllPlaceholdersContained(Player player, String str) {
-		Collection<PlaceholderExpansion> expansions = PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().getExpansions();
-		Set<String> identifier = expansions.parallelStream().map(each -> each.getIdentifier()).collect(Collectors.toSet());
 		Map<String, String> matchingPlaceholders = new HashMap<>();
-		for (String word : str.split(" ")) {
-			if (identifier.parallelStream().anyMatch(each -> word.startsWith("%" + each))) {
-				matchingPlaceholders.put(word, PlaceholderAPI.setPlaceholders(player, word));
-			}
+		Collection<PlaceholderExpansion> expansions = PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().getExpansions();
+		Pattern regex = Pattern.compile("(?i)%(" + expansions.parallelStream().map(each -> each.getIdentifier()).collect(Collectors.joining("|")) + ")_.*%");
+		Matcher matcher = regex.matcher(str);
+		while (matcher.find()) {
+			String matching = matcher.group();
+			matchingPlaceholders.put(matching, PlaceholderAPI.setPlaceholders(player, matching));
 		}
 		return matchingPlaceholders;
 	}

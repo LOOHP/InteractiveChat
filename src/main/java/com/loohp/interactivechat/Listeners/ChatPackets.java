@@ -59,11 +59,29 @@ public class ChatPackets implements Listener {
 		    	if (!event.isFiltered() || !event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
 		    		return;
 		    	}
+		    	
+		    	InteractiveChat.messagesCounter.getAndIncrement();
+		    	
+		    	PacketContainer packetOriginal = event.getPacket();
+		    	
+		    	if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
+			        ChatType type = packetOriginal.getChatTypes().read(0);
+			        if (type == null || type.equals(ChatType.GAME_INFO)) {
+			        	return;
+			        }
+		        } else {
+		        	byte type = packetOriginal.getBytes().read(0);
+		        	if (type == (byte) 2) {
+		        		return;
+		        	}
+		        }
+		    	
 		    	event.setReadOnly(false);
 		    	event.setCancelled(true);
 		    	event.setReadOnly(false);
-		    	PacketContainer packet = event.getPacket().deepClone();
+		    	
 		        Player reciever = event.getPlayer();
+		        PacketContainer packet = packetOriginal.deepClone();
 		        
 		        Queue<UUID> q = messagesOrder.get(reciever.getUniqueId());
 		        if (q == null) {
@@ -74,209 +92,10 @@ public class ChatPackets implements Listener {
 		        q.add(messageUUID);
 		        Queue<UUID> queue = q;
 		        
-		        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> queue.remove(messageUUID), 60);
+		        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> queue.remove(messageUUID), (InteractiveChat.bungeecordMode ? (int) Math.ceil((double) InteractiveChat.remoteDelay / 50) : 0) + 60);
 		    	
 		    	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-			    	InteractiveChat.messagesCounter.getAndIncrement();
-			    	int debug = 0;
-			    	try {
-			        debug++;
-			        if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
-				        ChatType type = packet.getChatTypes().read(0);
-				        if (type == null || type.equals(ChatType.GAME_INFO)) {
-				        	return;
-				        }
-			        } else {
-			        	byte type = packet.getBytes().read(0);
-			        	if (type == (byte) 2) {
-			        		queue.remove(messageUUID);
-			        		return;
-			        	}
-			        }
-			        debug++;
-			        WrappedChatComponent wcc = packet.getChatComponents().read(0);
-			        Object field1 = packet.getModifier().read(1);
-			        if (wcc == null && field1 == null) {
-			        	queue.remove(messageUUID);
-			        	return;
-			        }
-			        debug++;
-			        BaseComponent[] basecomponentarray = null;
-			        int field = -1;
-			        try {
-				        if (wcc != null) {
-				        	basecomponentarray = ComponentSerializer.parse(wcc.getJson());
-				        	field = 0;
-				        } else {
-				        	basecomponentarray = (BaseComponent[]) field1;
-				        	field = 1;
-				        }
-			        } catch (Exception e) {
-			        	try {
-				        	basecomponentarray = (BaseComponent[]) field1;
-				        	field = 1;
-			        	} catch (Exception skip) {
-			        		queue.remove(messageUUID);
-			        		return;
-			        	}
-			        }
-			        BaseComponent basecomponent;
-			        try {
-			        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
-			        } catch (Exception e) {
-			        	queue.remove(messageUUID);
-			        	return;
-			        }
-			        debug++;
-			        try {
-			        	String text = basecomponent.toLegacyText();
-			        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
-			        		queue.remove(messageUUID);
-			        		return;
-			        	}
-			        } catch (Exception e) {
-			        	queue.remove(messageUUID);
-			        	return;
-			        }
-			        debug++;
-			        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
-			        	queue.remove(messageUUID);
-			        	return;
-			        }
-			        debug++;
-			        String rawMessageKey = basecomponent.toPlainText();
-			        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
-			        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
-			        }
-			        debug++;
-			        long unix = InteractiveChat.keyTime.get(rawMessageKey);
-			        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
-			        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
-			        }
-			        debug++;
-			        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
-			        Optional<PlayerWrapper> sender = Optional.empty();
-			        if (commandsender.getSender() != null) {
-			        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
-			        	if (bukkitplayer != null) {
-			        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
-			        	} else {
-			        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
-			        	}
-			        }
-			        if (!sender.isPresent()) {
-			        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
-			        }
-			        if (sender.isPresent() && !sender.get().isLocal()) {
-			        	if (event.isFiltered()) {
-			        		PacketContainer clone = packet.deepClone();
-			        		Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-								try {
-									InteractiveChat.protocolManager.sendServerPacket(reciever, clone, false);
-								} catch (InvocationTargetException e) {
-									e.printStackTrace();
-								}
-							}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
-			        		queue.remove(messageUUID);
-			        		return;
-			        	}
-			        }
-			        basecomponent = commandsender.getBaseComponent();
-			        if (sender.isPresent()) {
-			        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
-			        }		 
-			        debug++;		
-			        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-					PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, field, preEventSenderUUID);
-					Bukkit.getPluginManager().callEvent(preEvent);
-					if (preEvent.getSender() != null) {
-						Player newsender = Bukkit.getPlayer(preEvent.getSender());
-						if (newsender != null) {
-							sender = Optional.of(new PlayerWrapper(newsender));
-						}
-					}
-					basecomponent = preEvent.getBaseComponent();
-					debug++;
-			        if (InteractiveChat.usePlayerName) {
-			        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
-			        }
-			        debug++;
-			        if (InteractiveChat.AllowMention && sender.isPresent()) {
-			        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
-			        	if (data == null || !data.isMentionDisabled()) {
-			        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, true);
-			        	}
-			        }
-			        debug++;
-			        if (InteractiveChat.useItem) {
-			        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
-			        }
-			        debug++;
-			        if (InteractiveChat.useInventory) {
-			        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
-			        }
-			        debug++;
-			        if (InteractiveChat.useEnder) {
-			        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
-			        }
-			        debug++;
-			        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, InteractiveChat.placeholderList, unix);
-			        debug++;
-			        if (InteractiveChat.clickableCommands) {
-			        	basecomponent = CommandsDisplay.process(basecomponent);
-			        }
-			        debug++;
-			        if (InteractiveChat.version.isPost1_16()) {
-				        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
-				        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
-				        }
-			        }
-			        debug++;		        
-			        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
-			        String json = ComponentSerializer.toString(basecomponent);
-			        boolean longerThanMaxLength = false;
-			        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
-			        	longerThanMaxLength = true;
-			        }
-			        debug++;
-			        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponent));
-			        if (field == 0) {
-			        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-			        } else {
-			        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
-			        }
-			        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
-			        if (packet.getUUIDs().size() > 0) {
-			        	packet.getUUIDs().write(0, postEventSenderUUID);
-			        }
-			        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, longerThanMaxLength);
-			        Bukkit.getPluginManager().callEvent(postEvent);
-			        debug++;	  
-			        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
-			        	InteractiveChat.keyTime.remove(rawMessageKey);
-			        	InteractiveChat.keyPlayer.remove(rawMessageKey);
-			        }, 10);
-			        debug++;
-			        if (postEvent.isCancelled()) {
-			        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-			        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
-			        	}
-			        	queue.remove(messageUUID);
-			        	return;
-			        }
-			        debug++;
-			        
-			        long timeout = System.currentTimeMillis() + 1000;
-			        while (queue.peek() != null && !queue.peek().equals(messageUUID) && System.currentTimeMillis() < timeout) {
-			        	TimeUnit.NANOSECONDS.sleep(100000);
-			        }
-			        queue.remove(messageUUID);
-			        InteractiveChat.protocolManager.sendServerPacket(reciever, packet, false);			   
-			    	} catch (Exception e) {
-			    		Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "IC DEBUG " + event.getPlayer().getName() + " " + debug);
-			    		queue.remove(messageUUID);
-			    		e.printStackTrace();
-			    	}
+		    		processPacket(reciever, packet, messageUUID, queue, event.isFiltered());
 		    	});
 		    }
 		});	
@@ -285,6 +104,200 @@ public class ChatPackets implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		messagesOrder.remove(event.getPlayer().getUniqueId());
+	}
+	
+	private static void orderAndSend(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue) throws InterruptedException {
+		long timeout = System.currentTimeMillis() + (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 1000;
+        while (queue.peek() != null && !queue.peek().equals(messageUUID) && System.currentTimeMillis() < timeout) {
+        	TimeUnit.NANOSECONDS.sleep(100000);
+        }
+        queue.remove(messageUUID);
+        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			try {
+				InteractiveChat.protocolManager.sendServerPacket(reciever, packet, false);
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+	
+	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
+		PacketContainer backup = packet.deepClone();		    		
+    	try {
+	        WrappedChatComponent wcc = packet.getChatComponents().read(0);
+	        Object field1 = packet.getModifier().read(1);
+	        if (wcc == null && field1 == null) {
+	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	return;
+	        }
+
+	        BaseComponent[] basecomponentarray = null;
+	        int field = -1;
+	        try {
+		        if (wcc != null) {
+		        	basecomponentarray = ComponentSerializer.parse(wcc.getJson());
+		        	field = 0;
+		        } else {
+		        	basecomponentarray = (BaseComponent[]) field1;
+		        	field = 1;
+		        }
+	        } catch (Exception e) {
+	        	try {
+		        	basecomponentarray = (BaseComponent[]) field1;
+		        	field = 1;
+	        	} catch (Exception skip) {
+	        		orderAndSend(reciever, packet, messageUUID, queue);
+	        		return;
+	        	}
+	        }
+	        BaseComponent basecomponent;
+	        try {
+	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
+	        } catch (Exception e) {
+	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	return;
+	        }
+
+	        try {
+	        	String text = basecomponent.toLegacyText();
+	        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+	        		orderAndSend(reciever, packet, messageUUID, queue);
+	        		return;
+	        	}
+	        } catch (Exception e) {
+	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	return;
+	        }
+
+	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
+	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	return;
+	        }
+
+	        String rawMessageKey = basecomponent.toPlainText();
+	        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
+	        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
+	        }
+
+	        long unix = InteractiveChat.keyTime.get(rawMessageKey);
+	        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
+	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
+	        }
+
+	        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
+	        Optional<PlayerWrapper> sender = Optional.empty();
+	        if (commandsender.getSender() != null) {
+	        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
+	        	if (bukkitplayer != null) {
+	        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
+	        	} else {
+	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
+	        	}
+	        }
+	        if (!sender.isPresent()) {
+	        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+	        }
+	        if (sender.isPresent() && !sender.get().isLocal()) {
+	        	if (isFiltered) {
+	        		Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
+	        			processPacket(reciever, packet, messageUUID, queue, false);
+					}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
+	        		return;
+	        	}
+	        }
+	        basecomponent = commandsender.getBaseComponent();
+	        if (sender.isPresent()) {
+	        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
+	        }		 
+
+	        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
+			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, field, preEventSenderUUID);
+			Bukkit.getPluginManager().callEvent(preEvent);
+			if (preEvent.getSender() != null) {
+				Player newsender = Bukkit.getPlayer(preEvent.getSender());
+				if (newsender != null) {
+					sender = Optional.of(new PlayerWrapper(newsender));
+				}
+			}
+			basecomponent = preEvent.getBaseComponent();
+			
+	        if (InteractiveChat.usePlayerName) {
+	        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
+	        }
+
+	        if (InteractiveChat.AllowMention && sender.isPresent()) {
+	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
+	        	if (data == null || !data.isMentionDisabled()) {
+	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, true);
+	        	}
+	        }
+
+	        if (InteractiveChat.useItem) {
+	        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        }
+
+	        if (InteractiveChat.useInventory) {
+	        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        }
+
+	        if (InteractiveChat.useEnder) {
+	        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        }
+
+	        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, InteractiveChat.placeholderList, unix);
+
+	        if (InteractiveChat.clickableCommands) {
+	        	basecomponent = CommandsDisplay.process(basecomponent);
+	        }
+
+	        if (InteractiveChat.version.isPost1_16()) {
+		        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
+		        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
+		        }
+	        }
+        
+	        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
+	        String json = ComponentSerializer.toString(basecomponent);
+	        boolean longerThanMaxLength = false;
+	        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
+	        	longerThanMaxLength = true;
+	        }
+
+	        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponent));
+	        if (field == 0) {
+	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+	        } else {
+	        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
+	        }
+	        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
+	        if (packet.getUUIDs().size() > 0) {
+	        	packet.getUUIDs().write(0, postEventSenderUUID);
+	        }
+	        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, longerThanMaxLength);
+	        Bukkit.getPluginManager().callEvent(postEvent);
+
+	        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+	        	InteractiveChat.keyTime.remove(rawMessageKey);
+	        	InteractiveChat.keyPlayer.remove(rawMessageKey);
+	        }, 10);
+
+	        if (postEvent.isCancelled()) {
+	        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+	        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
+	        	}
+	        	queue.remove(messageUUID);
+	        	return;
+	        }
+	        
+	        orderAndSend(reciever, packet, messageUUID, queue);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		try {
+				orderAndSend(reciever, backup, messageUUID, queue);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+    	}
 	}
 
 }

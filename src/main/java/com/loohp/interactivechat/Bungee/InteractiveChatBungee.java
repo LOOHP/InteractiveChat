@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,7 +29,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.Bungee.Metrics.Charts;
 import com.loohp.interactivechat.Bungee.Metrics.Metrics;
@@ -41,7 +39,6 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.CompressionUtils;
-import com.loohp.interactivechat.Utils.CustomArrayUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
 import com.loohp.interactivechat.Utils.MessageUtils;
 
@@ -51,10 +48,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -85,15 +79,15 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 	public static Plugin plugin;
 	public static Metrics metrics;
-	private static Random random = new Random();
+	protected static Random random = new Random();
 	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
 	
-	private Map<Integer, byte[]> incomming = new HashMap<>();
+	private static Map<Integer, byte[]> incomming = new HashMap<>();
 	
-	private Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
-	private Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
+	protected static Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
+	protected static Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
 	
-	private Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
+	protected static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
 	
@@ -129,7 +123,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		getProxy().registerChannel("interchat:main");
 		getProxy().getPluginManager().registerListener(this, this);
 
-		getProxy().getPluginManager().registerCommand(this, new Commands());
+		getProxy().getPluginManager().registerCommand(this, new CommandsBungee());
 
 		getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
 
@@ -160,8 +154,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			@Override
 			public void run() {
 				try {
-					sendPlayerListData();
-					sendDelay();
+					PluginMessageSendingBungee.sendPlayerListData();
+					PluginMessageSendingBungee.sendDelay();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -312,14 +306,14 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        		}
 		        	}
 		        	placeholderList.put(((Server) event.getSender()).getInfo().getName(), list);
-		        	forwardPlaceholderList(list, ((Server) event.getSender()).getInfo());
+		        	PluginMessageSendingBungee.forwardPlaceholderList(list, ((Server) event.getSender()).getInfo());
 		        	break;
 		        case 0x12:
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
 		        	String playerdata = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        	Configuration playerconfig = yamlConfigProvider.load(playerdata);
 		        	yamlConfigProvider.save(playerconfig, new File(playerDataFolder, uuid2.toString()));
-		        	forwardPlayerData(uuid2, playerdata, ((Server) event.getSender()).getInfo());
+		        	PluginMessageSendingBungee.forwardPlayerData(uuid2, playerdata, ((Server) event.getSender()).getInfo());
 		        	break;
 		        }
 	        } catch (IOException | DataFormatException e) {
@@ -329,103 +323,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			for (ServerInfo server : getProxy().getServers().values()) {
 				if (!server.getSocketAddress().equals(senderServer) && server.getPlayers().size() > 0) {
 					server.sendData("interchat:main", event.getData());
-					pluginMessagesCounter.incrementAndGet();
-				}
-			}
-		}
-	}
-	
-	private void forwardPlayerData(UUID uuid, String playerdata, ServerInfo serverFrom) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeUUID(output, uuid);
-    	DataTypeIO.writeString(output, playerdata, StandardCharsets.UTF_8);
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x12;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				if (!server.getSocketAddress().equals(serverFrom.getSocketAddress())) {
-					server.sendData("interchat:main", out.toByteArray());
-					pluginMessagesCounter.incrementAndGet();
-				}
-			}
-		}
-	}
-	
-	private void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, ServerInfo serverFrom) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeString(output, serverFrom.getName(), StandardCharsets.UTF_8);
-		output.writeInt(serverPlaceholderList.size());
-    	for (ICPlaceholder placeholder : serverPlaceholderList) {
-    		boolean isBuiltIn = placeholder.isBuildIn();
-    		output.writeBoolean(isBuiltIn);
-    		if (isBuiltIn) {
-    			DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
-    			output.writeBoolean(placeholder.isCaseSensitive());
-    		} else {
-    			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
-    			output.writeInt(customPlaceholder.getPosition());
-    			output.writeByte(customPlaceholder.getParsePlayer().getOrder());
-    			DataTypeIO.writeString(output, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
-    			output.writeInt(customPlaceholder.getAliases().size());
-    			for (String each : customPlaceholder.getAliases()) {
-    				DataTypeIO.writeString(output, each, StandardCharsets.UTF_8);
-    			}
-    			output.writeBoolean(customPlaceholder.getParseKeyword());
-    			output.writeBoolean(customPlaceholder.isCaseSensitive());
-    			output.writeLong(customPlaceholder.getCooldown());
-    			
-    			CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
-    			output.writeBoolean(hover.isEnabled());
-    			DataTypeIO.writeString(output, hover.getText(), StandardCharsets.UTF_8);
-    			
-    			CustomPlaceholderClickEvent click = customPlaceholder.getClick();
-    			output.writeBoolean(click.isEnabled());
-    			DataTypeIO.writeString(output, click.getAction() == null ? "" : click.getAction().name(), StandardCharsets.UTF_8);
-    			DataTypeIO.writeString(output, click.getValue(), StandardCharsets.UTF_8);
-    			
-    			CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
-    			output.writeBoolean(replace.isEnabled());
-    			DataTypeIO.writeString(output, replace.getReplaceText(), StandardCharsets.UTF_8);
-    		}
-    	}
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x09;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				if (!server.getSocketAddress().equals(serverFrom.getSocketAddress())) {
-					server.sendData("interchat:main", out.toByteArray());
 					pluginMessagesCounter.incrementAndGet();
 				}
 			}
@@ -462,7 +359,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					command += uuidmatch;
 					event.setMessage(command);
 					try {
-						sendCommandMatch(uuid, "", uuidmatch);
+						PluginMessageSendingBungee.sendCommandMatch(uuid, "", uuidmatch);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -476,74 +373,13 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					List<String> messages = forwardedMessages.get(uuid);
 					if (!messages.remove(newMessage)) {
 						try {
-							sendMessagePair(uuid, newMessage);
+							PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 					}
 				}
 			}, 100);
-		}
-	}
-	
-	private void sendCommandMatch(UUID uuid, String placeholder, String uuidmatch) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeUUID(output, uuid);
-    	DataTypeIO.writeString(output, placeholder, StandardCharsets.UTF_8);
-    	DataTypeIO.writeString(output, uuidmatch, StandardCharsets.UTF_8);
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x07;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-	
-	private void sendMessagePair(UUID uuid, String message) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeString(output, message, StandardCharsets.UTF_8);
-    	DataTypeIO.writeUUID(output, uuid);
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x06;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				pluginMessagesCounter.incrementAndGet();
-			}
 		}
 	}
 	
@@ -595,7 +431,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				Configuration playerconfig = yamlConfigProvider.load(playerFile);
 				StringWriter writer = new StringWriter();
 				yamlConfigProvider.save(playerconfig, writer);
-				forwardPlayerData(uuid, writer.toString(), player.getServer().getInfo());
+				PluginMessageSendingBungee.forwardPlayerData(uuid, writer.toString(), player.getServer().getInfo());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -634,7 +470,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 							@Override
 							public void run() {
 								try {
-									requestMessageProcess(player, packet.getMessage(), messageId);
+									PluginMessageSendingBungee.requestMessageProcess(player, packet.getMessage(), messageId);
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -647,59 +483,26 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		});
 	}
-	
-	private void requestMessageProcess(ProxiedPlayer player, String component, UUID messageId) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-		
-		DataTypeIO.writeUUID(output, messageId);
-		DataTypeIO.writeUUID(output, player.getUniqueId());
-		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
-
-		ServerInfo server = player.getServer().getInfo();
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x08;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			server.sendData("interchat:main", out.toByteArray());
-			pluginMessagesCounter.incrementAndGet();
-		}
-		
-		requestedMessages.put(messageId, player.getUniqueId());
-	}
 
 	@EventHandler
 	public void onSwitch(ServerSwitchEvent event) {
 		ServerInfo to = event.getPlayer().getServer().getInfo();
 		if (!placeholderList.containsKey(to.getName())) {
 			try {
-				requestPlaceholderList(to);
+				PluginMessageSendingBungee.requestPlaceholderList(to);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		if (!aliasesMapping.containsKey(to.getName())) {
 			try {
-				requestAliasesMapping(to);
+				PluginMessageSendingBungee.requestAliasesMapping(to);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		try {
-			sendPlayerListData();
+			PluginMessageSendingBungee.sendPlayerListData();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -712,56 +515,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		}, 200);
 	}
-	
-	private void requestPlaceholderList(ServerInfo server) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x10;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			server.sendData("interchat:main", out.toByteArray());
-			pluginMessagesCounter.incrementAndGet();
-		}
-	}
-	
-	private void requestAliasesMapping(ServerInfo server) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x11;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			server.sendData("interchat:main", out.toByteArray());
-			pluginMessagesCounter.incrementAndGet();
-		}
-	}
 
 	@EventHandler
 	public void onLeave(PlayerDisconnectEvent event) {
@@ -771,108 +524,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			@Override
 			public void run() {
 				try {
-					sendPlayerListData();
+					PluginMessageSendingBungee.sendPlayerListData();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}, 1000);
 	}
-
-	private void sendPlayerListData() throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
-		output.writeInt(players.size());
-		for (ProxiedPlayer player : players) {
-			if (player.getServer() != null) {
-				DataTypeIO.writeString(output, player.getServer().getInfo().getName(), StandardCharsets.UTF_8);
-				DataTypeIO.writeUUID(output, player.getUniqueId());
-				DataTypeIO.writeString(output, player.getDisplayName(), StandardCharsets.UTF_8);
-			}
-		}
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x00;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-
-	private void sendDelay() throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		List<CompletableFuture<Integer>> futures = new LinkedList<>();
-
-		for (ServerInfo server : getProxy().getServers().values()) {
-			futures.add(getPing(server));
-		}
-		int highestPing = futures.stream().mapToInt(each -> {
-			try {
-				return each.get();
-			} catch (InterruptedException | ExecutionException e) {
-				return 0;
-			}
-		}).max().orElse(0);
-		
-		delay = highestPing * 2 + 200;
-
-		output.writeInt(delay);
-
-		int packetNumber = random.nextInt();
-		int packetId = 0x01;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : getProxy().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-
-	private CompletableFuture<Integer> getPing(ServerInfo server) {
-		CompletableFuture<Integer> future = new CompletableFuture<>();
-		long start = System.currentTimeMillis();
-		Callback<ServerPing> callback = new Callback<ServerPing>() {
-			@Override
-			public void done(ServerPing result, Throwable error) {
-				if (error == null) {
-					future.complete((int) (System.currentTimeMillis() - start));
-				} else {
-					future.complete(0);
-				}
-			}
-		};
-		server.ping(callback);
-		return future;
-	}
+	
 }

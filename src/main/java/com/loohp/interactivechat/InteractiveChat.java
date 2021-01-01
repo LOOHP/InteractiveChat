@@ -32,9 +32,13 @@ import com.earth2me.essentials.Essentials;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.loohp.interactivechat.BungeeMessaging.BungeeMessageListener;
+import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
+import com.loohp.interactivechat.BungeeMessaging.ServerPingListener;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
-import com.loohp.interactivechat.Hooks.EssentialsNicknames;
+import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
+import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ChatPackets;
 import com.loohp.interactivechat.Listeners.ClientSettingPackets;
 import com.loohp.interactivechat.Listeners.Events;
@@ -44,8 +48,6 @@ import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
-import com.loohp.interactivechat.PluginMessaging.BungeeMessageListener;
-import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -54,7 +56,6 @@ import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
-import com.loohp.interactivechat.VentureChatInjection.PacketListener;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -75,10 +76,12 @@ public class InteractiveChat extends JavaPlugin {
 	public static String space1 = "\u200A";
 	public static String nullString = null;
 	
-	public static boolean EssentialsHook = false;
-	public static boolean ChatManagerHook = false;
+	public static Boolean EssentialsHook = false;
+	public static Boolean ChatManagerHook = false;
 	public static Boolean VanishHook = false;
 	public static Boolean CMIHook = false;
+	public static Boolean MultiChatHook = false;
+	public static Boolean VentureChatHook = false;
 	
 	public static Permission perms = null;
 	
@@ -253,6 +256,8 @@ public class InteractiveChat extends JavaPlugin {
 			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
 			getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
 		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", new BungeeMessageListener(this));
+		    getServer().getPluginManager().registerEvents(new ServerPingListener(), this);
+		    ServerPingListener.listen();
 		    
 		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 		    	for (Player player : Bukkit.getOnlinePlayers()) {
@@ -294,6 +299,11 @@ public class InteractiveChat extends JavaPlugin {
 			ChatManagerHook = true;
 		}
 	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("MultiChat") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MultiChat!");
+	    	MultiChatHook = true;
+		}
+	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
 	    	protocolManager.getPacketListeners().forEach(each -> {
 	    		if (each.getPlugin().getName().equals("VentureChat")) {
@@ -308,6 +318,7 @@ public class InteractiveChat extends JavaPlugin {
 	    		}
 	    	});
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+	    	VentureChatHook = true;
 		}
 		
 	    MaterialUtils.setupLang();

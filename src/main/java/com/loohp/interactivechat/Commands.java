@@ -12,8 +12,8 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.Utils.ChatColorUtils;

@@ -294,5 +294,40 @@ public class PlayerWrapper {
 		public Entity getHolder() {
 			return null;
 		}
+
+		@Override
+		public void setBoots(ItemStack arg0, boolean arg1) {
+			setBoots(arg0);
+		}
+
+		@Override
+		public void setChestplate(ItemStack arg0, boolean arg1) {
+			setChestplate(arg0);
+		}
+
+		@Override
+		public void setHelmet(ItemStack arg0, boolean arg1) {
+			setHelmet(arg0);
+		}
+
+		@Override
+		public void setItem(EquipmentSlot arg0, ItemStack arg1, boolean arg2) {
+			setItem(arg0, arg1);
+		}
+
+		@Override
+		public void setItemInMainHand(ItemStack arg0, boolean arg1) {
+			setItemInMainHand(arg0);
+		}
+
+		@Override
+		public void setItemInOffHand(ItemStack arg0, boolean arg1) {
+			setItemInOffHand(arg0);
+		}
+
+		@Override
+		public void setLeggings(ItemStack arg0, boolean arg1) {
+			setLeggings(arg0);
+		}
 	}
 }

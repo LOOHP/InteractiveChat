@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
-	<version>3.2.5.4</version>
+	<version>3.2.5.5</version>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>
@@ -32,6 +32,10 @@
 					<relocations>
 						<relocation>
 							<pattern>com.cryptomorin.xseries</pattern>
+							<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.googlecode.json-simple</pattern>
 							<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
 						</relocation>
 					</relocations>
@@ -84,6 +88,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.github.cryptomorin</groupId>
 			<artifactId>XSeries</artifactId>
 			<version>7.2.1.2</version>
@@ -117,7 +127,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.16.1-R0.1-SNAPSHOT</version>
+			<version>1.16.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -154,11 +164,11 @@
 			<systemPath>${basedir}/lib/spigot-1.8.8.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>Spigot-1.16.1</groupId>
-			<artifactId>Spigot-1.16.1</artifactId>
+			<groupId>Spigot-1.16.4</groupId>
+			<artifactId>Spigot-1.16.4</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.16.1.jar</systemPath>
+			<systemPath>${basedir}/lib/spigot-1.16.4.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>bungeecord-proxy-1.16-R0.4-SNAPSHOT</groupId>

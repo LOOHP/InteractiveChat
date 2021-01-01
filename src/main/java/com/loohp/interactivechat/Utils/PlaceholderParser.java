@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.ObjectHolders.ValuePairs;
-import com.loohp.interactivechat.PluginMessaging.BungeeMessageSender;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;

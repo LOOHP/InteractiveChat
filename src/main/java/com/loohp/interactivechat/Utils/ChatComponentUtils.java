@@ -360,13 +360,14 @@ public class ChatComponentUtils {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
-					each = (TextComponent) preventFurtherInheritanceFormatting(each);
+					each = preventFurtherInheritanceFormatting(each);
 					current.addExtra(each);
 				}
 			} else if (areEventsSimilar(current, base)) {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
+					each = preventFurtherInheritanceFormatting(each);
 					current.addExtra(each);
 				}
 			} else {
@@ -385,6 +386,7 @@ public class ChatComponentUtils {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
+					each = preventFurtherInheritanceFormatting(each);
 					current.addExtra(each);
 				}
 			}

@@ -100,12 +100,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.11</version>
-			<scope>complie</scope>
-		</dependency>
-		<dependency>
 			<groupId>CMIAPI</groupId>
 			<artifactId>CMIAPI</artifactId>
 			<scope>system</scope>

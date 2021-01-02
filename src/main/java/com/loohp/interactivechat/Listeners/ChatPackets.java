@@ -250,7 +250,7 @@ public class ChatPackets implements Listener {
 	        	basecomponent = CommandsDisplay.process(basecomponent);
 	        }
 
-	        if (InteractiveChat.version.isPost1_16()) {
+	        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 		        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
 		        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
 		        }

@@ -2,54 +2,29 @@ package com.loohp.interactivechat.Utils;
 
 public enum MCVersion {
 	
-	V1_16_4("1.16.4"),
-	V1_16_2("1.16.2"),
-	V1_16("1.16"),
-	V1_15("1.15"),
-	V1_14("1.14"),
-	V1_13_1("1.13.1"),
-	V1_13("1.13"),
-	V1_12("1.12", true),
-	V1_11("1.11", true),
-	V1_10("1.10", true),
-	V1_9_4("1.9.4", true),
-	V1_9("1.9", true),
-	V1_8_4("1.8.4", true, true),
-	V1_8_3("1.8.3", true, true),
-	V1_8("1.8", true, true),
-	OUTDATED("Outdated", true, true, true);
+	V1_16_4("1.16.4", 14),
+	V1_16_2("1.16.2", 13),
+	V1_16("1.16", 12),
+	V1_15("1.15", 11),
+	V1_14("1.14", 10),
+	V1_13_1("1.13.1", 9),
+	V1_13("1.13", 8),
+	V1_12("1.12", 7),
+	V1_11("1.11", 6),
+	V1_10("1.10", 5),
+	V1_9_4("1.9.4", 4),
+	V1_9("1.9", 3),
+	V1_8_4("1.8.4", 2),
+	V1_8_3("1.8.3", 1),
+	V1_8("1.8", 0),
+	UNSUPPORTED("Unsupported", -1);
 	
-	String name;
-	boolean legacy;
-	boolean old;
-	boolean unsupported;
+	private String name;
+	private int shortNum;
 	
-	MCVersion(String name) {
+	MCVersion(String name, int shortNum) {
 		this.name = name;
-		this.legacy = false;
-		this.old = false;
-		this.unsupported = false;
-	}
-	
-	MCVersion(String name, boolean legacy) {
-		this.name = name;
-		this.legacy = legacy;
-		this.old = false;
-		this.unsupported = false;
-	}
-
-	MCVersion(String name, boolean legacy, boolean old) {
-		this.name = name;
-		this.legacy = legacy;
-		this.old = old;
-		this.unsupported = false;
-	}
-	
-	MCVersion(String name, boolean legacy, boolean old, boolean unsupported) {
-		this.name = name;
-		this.legacy = legacy;
-		this.old = old;
-		this.unsupported = unsupported;
+		this.shortNum = shortNum;
 	}
 	
 	public static MCVersion fromPackageName(String packageName) {
@@ -84,7 +59,7 @@ public enum MCVersion {
         } else if (packageName.contains("1_8_R1")) {
         	return V1_8;
         } else {
-        	return OUTDATED;
+        	return UNSUPPORTED;
         }
 	}
 	
@@ -93,28 +68,47 @@ public enum MCVersion {
 		return name;
 	}
 	
+	public int compareWith(MCVersion version) {
+		return this.shortNum - version.shortNum;
+	}
+	
+	public boolean isOlderThan(MCVersion version) {
+		return compareWith(version) < 0;
+	}
+	
+	public boolean isOlderOrEqualTo(MCVersion version) {
+		return compareWith(version) <= 0;
+	}
+	
+	public boolean isNewerThan(MCVersion version) {
+		return compareWith(version) > 0;
+	}
+	
+	public boolean isNewerOrEqualTo(MCVersion version) {
+		return compareWith(version) >= 0;
+	}
+	
+	public boolean isBetweenInclusively(MCVersion v1, MCVersion v2) {
+		int difference = v1.compareWith(v2);
+		if (difference == 0) {
+			return this.equals(v1);
+		} else if (difference < 0) {
+			return this.isNewerOrEqualTo(v1) && this.isOlderOrEqualTo(v2);
+		} else {
+			return this.isNewerOrEqualTo(v2) && this.isOlderOrEqualTo(v1);
+		}
+	}
+	
 	public boolean isLegacy() {
-		return legacy;
+		return isOlderOrEqualTo(V1_12);
 	}
 	
 	public boolean isOld() {
-		return old;
+		return isOlderOrEqualTo(V1_8_4);
 	}
 	
 	public boolean isSupported() {
-		return !unsupported;
-	}
-	
-	public boolean isPost1_16() {
-		return this.ordinal() <= MCVersion.V1_16.ordinal();
-	}
-	
-	public boolean isPost1_15() {
-		return this.ordinal() <= MCVersion.V1_15.ordinal();
-	}
-	
-	public boolean isPost1_14() {
-		return this.ordinal() <= MCVersion.V1_14.ordinal();
+		return this.shortNum >= 0;
 	}
 
 }

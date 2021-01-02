@@ -15,6 +15,7 @@ import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
+import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -113,7 +114,7 @@ public class ProcessBungeeRequestedMessage {
         	basecomponent = CommandsDisplay.process(basecomponent);
         }
         
-        if (InteractiveChat.version.isPost1_16()) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 	        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 5))) {
 	        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
 	        }

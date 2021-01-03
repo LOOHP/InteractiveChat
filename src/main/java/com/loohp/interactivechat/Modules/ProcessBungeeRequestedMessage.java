@@ -81,7 +81,7 @@ public class ProcessBungeeRequestedMessage {
 			}
         	server = sender.get().getServer();
         } else {
-        	server = PlayerWrapper.currentServerRepresentation;
+        	server = PlayerWrapper.CURRENT_SERVER_REPRESENTATION;
         }
 		
         if (InteractiveChat.usePlayerName) {
@@ -105,7 +105,7 @@ public class ProcessBungeeRequestedMessage {
         }
         
         List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
-        if (server.equals(PlayerWrapper.currentServerRepresentation) || serverPlaceholderList == null) {
+        if (server.equals(PlayerWrapper.CURRENT_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
         	serverPlaceholderList = InteractiveChat.placeholderList;
         }
         basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, serverPlaceholderList, unix);

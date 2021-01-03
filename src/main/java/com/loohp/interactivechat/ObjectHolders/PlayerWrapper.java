@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerWrapper {
 	
-	public static final String currentServerRepresentation = "current";
+	public static final String CURRENT_SERVER_REPRESENTATION = "current";
 
 	private UUID uuid;
 
@@ -57,7 +57,7 @@ public class PlayerWrapper {
 	}
 	
 	public String getServer() {
-		return isLocal() ? currentServerRepresentation : remoteServer;
+		return isLocal() ? CURRENT_SERVER_REPRESENTATION : remoteServer;
 	}
 
 	public String getName() {

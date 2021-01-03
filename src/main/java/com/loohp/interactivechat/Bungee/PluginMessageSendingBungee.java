@@ -2,6 +2,7 @@ package com.loohp.interactivechat.Bungee;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,14 +27,26 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class PluginMessageSendingBungee {
 	
-	public static void forwardPlayerData(UUID uuid, String playerdata, ServerInfo serverFrom) throws IOException {
+	public static void sendPlayerListData() throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeUUID(output, uuid);
-    	DataTypeIO.writeString(output, playerdata, StandardCharsets.UTF_8);
+		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
+		
+		List<PlayerListPlayerData> dataList = new ArrayList<>();
+		for (ProxiedPlayer player : players) {
+			if (player.getServer() != null) {
+				dataList.add(new PlayerListPlayerData(player.getServer().getInfo().getName(), player.getUniqueId(), player.getDisplayName()));
+			}
+		}
+		
+		output.writeInt(dataList.size());
+		for (PlayerListPlayerData data : dataList) {
+			DataTypeIO.writeString(output, data.getServer(), StandardCharsets.UTF_8);
+			DataTypeIO.writeUUID(output, data.getUniqueId());
+			DataTypeIO.writeString(output, data.getName(), StandardCharsets.UTF_8);
+		}
 
 		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x12;
+		int packetId = 0x00;
 		byte[] data = output.toByteArray();
 
 		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
@@ -50,12 +63,177 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				if (!server.getSocketAddress().equals(serverFrom.getSocketAddress())) {
-					server.sendData("interchat:main", out.toByteArray());
-					InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
-				}
+				server.sendData("interchat:main", out.toByteArray());
+				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
+	}
+	
+	private static class PlayerListPlayerData {
+		
+		private final String server;
+		private final UUID uuid;
+		private final String name;
+		
+		public PlayerListPlayerData(String server, UUID uuid, String name) {
+			this.server = server;
+			this.uuid = uuid;
+			this.name = name;
+		}
+		
+		public String getServer() {
+			return server;
+		}
+		public UUID getUniqueId() {
+			return uuid;
+		}
+		public String getName() {
+			return name;
+		}
+	}
+
+	public static void sendDelay() throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		List<CompletableFuture<ServerPingBungee>> futures = new LinkedList<>();
+
+		for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+			futures.add(ServerPingBungee.getPing(server));
+		}
+		int highestPing = futures.stream().mapToInt(each -> {
+			try {
+				ServerPingBungee response = each.get();
+				if (response.hasInteractiveChat()) {
+					int ping = response.getPing();
+					return ping < 0 ? 0 : ping;
+				} else {
+					return 0;
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				return 0;
+			}
+		}).max().orElse(0);
+		
+		InteractiveChatBungee.delay = highestPing * 2 + 200;
+
+		output.writeInt(InteractiveChatBungee.delay);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x01;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+				server.sendData("interchat:main", out.toByteArray());
+				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+			}
+		}
+	}
+	
+	public static void sendMessagePair(UUID uuid, String message) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		DataTypeIO.writeString(output, message, StandardCharsets.UTF_8);
+    	DataTypeIO.writeUUID(output, uuid);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x06;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+				server.sendData("interchat:main", out.toByteArray());
+				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+			}
+		}
+	}
+	
+	public static void sendCommandMatch(UUID uuid, String placeholder, String uuidmatch) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		DataTypeIO.writeUUID(output, uuid);
+    	DataTypeIO.writeString(output, placeholder, StandardCharsets.UTF_8);
+    	DataTypeIO.writeString(output, uuidmatch, StandardCharsets.UTF_8);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x07;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+				server.sendData("interchat:main", out.toByteArray());
+				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+			}
+		}
+	}
+	
+	public static void requestMessageProcess(ProxiedPlayer player, String component, UUID messageId) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+		
+		DataTypeIO.writeUUID(output, messageId);
+		DataTypeIO.writeUUID(output, player.getUniqueId());
+		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
+
+		ServerInfo server = player.getServer().getInfo();
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x08;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendData("interchat:main", out.toByteArray());
+			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+		}
+		
+		InteractiveChatBungee.requestedMessages.put(messageId, player.getUniqueId());
 	}
 	
 	public static void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, ServerInfo serverFrom) throws IOException {
@@ -123,100 +301,6 @@ public class PluginMessageSendingBungee {
 		}
 	}
 	
-	public static void sendCommandMatch(UUID uuid, String placeholder, String uuidmatch) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeUUID(output, uuid);
-    	DataTypeIO.writeString(output, placeholder, StandardCharsets.UTF_8);
-    	DataTypeIO.writeString(output, uuidmatch, StandardCharsets.UTF_8);
-
-		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x07;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-	
-	public static void sendMessagePair(UUID uuid, String message) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		DataTypeIO.writeString(output, message, StandardCharsets.UTF_8);
-    	DataTypeIO.writeUUID(output, uuid);
-
-		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x06;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-	
-	public static void requestMessageProcess(ProxiedPlayer player, String component, UUID messageId) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-		
-		DataTypeIO.writeUUID(output, messageId);
-		DataTypeIO.writeUUID(output, player.getUniqueId());
-		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
-
-		ServerInfo server = player.getServer().getInfo();
-
-		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x08;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			server.sendData("interchat:main", out.toByteArray());
-			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
-		}
-		
-		InteractiveChatBungee.requestedMessages.put(messageId, player.getUniqueId());
-	}
-	
 	public static void requestPlaceholderList(ServerInfo server) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
@@ -267,20 +351,14 @@ public class PluginMessageSendingBungee {
 		}
 	}
 	
-	public static void sendPlayerListData() throws IOException {
+	public static void forwardPlayerData(UUID uuid, String playerdata, ServerInfo serverFrom) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
-		output.writeInt(players.size());
-		for (ProxiedPlayer player : players) {
-			if (player.getServer() != null) {
-				DataTypeIO.writeString(output, player.getServer().getInfo().getName(), StandardCharsets.UTF_8);
-				DataTypeIO.writeUUID(output, player.getUniqueId());
-				DataTypeIO.writeString(output, player.getDisplayName(), StandardCharsets.UTF_8);
-			}
-		}
+
+		DataTypeIO.writeUUID(output, uuid);
+    	DataTypeIO.writeString(output, playerdata, StandardCharsets.UTF_8);
 
 		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x00;
+		int packetId = 0x12;
 		byte[] data = output.toByteArray();
 
 		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
@@ -297,58 +375,10 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
-			}
-		}
-	}
-
-	public static void sendDelay() throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		List<CompletableFuture<ServerPingBungee>> futures = new LinkedList<>();
-
-		for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-			futures.add(ServerPingBungee.getPing(server));
-		}
-		int highestPing = futures.stream().mapToInt(each -> {
-			try {
-				ServerPingBungee response = each.get();
-				if (response.hasInteractiveChat()) {
-					int ping = response.getPing();
-					return ping < 0 ? 0 : ping;
-				} else {
-					return 0;
+				if (!server.getSocketAddress().equals(serverFrom.getSocketAddress())) {
+					server.sendData("interchat:main", out.toByteArray());
+					InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 				}
-			} catch (InterruptedException | ExecutionException e) {
-				return 0;
-			}
-		}).max().orElse(0);
-		
-		InteractiveChatBungee.delay = highestPing * 2 + 200;
-
-		output.writeInt(InteractiveChatBungee.delay);
-
-		int packetNumber = InteractiveChatBungee.random.nextInt();
-		int packetId = 0x01;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				server.sendData("interchat:main", out.toByteArray());
-				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
 	}

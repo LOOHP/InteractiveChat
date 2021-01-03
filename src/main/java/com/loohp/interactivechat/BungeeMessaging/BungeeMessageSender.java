@@ -32,12 +32,12 @@ public class BungeeMessageSender {
 	private static Random random = new Random();
 	
 	public static boolean forwardData(int packetId, byte[] data) {
-		if (Bukkit.getOnlinePlayers().isEmpty()) {
+		Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+		if (player == null) {
 			return false;
 		}
 		
 		int packetNumber = random.nextInt();
-		Player player = Bukkit.getOnlinePlayers().iterator().next();
 		try {
 			byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
 			

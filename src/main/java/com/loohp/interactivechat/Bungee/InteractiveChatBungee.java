@@ -49,6 +49,7 @@ import io.netty.channel.ChannelPromise;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -88,6 +89,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	protected static Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
 	
 	protected static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
+	private static Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
 	
@@ -95,6 +97,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
 	
 	public static int delay = 200;
+	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
 
 	@Override
 	public void onEnable() {
@@ -138,6 +141,51 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@Override
 	public void onDisable() {
 		getLogger().info(ChatColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
+	}
+	
+	public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
+		return Collections.unmodifiableMap(serverInteractiveChatInfo);
+	}
+	
+	public static CompletableFuture<Boolean> hasPermission(CommandSender sender, String permission) {
+		CompletableFuture<Boolean> future = new CompletableFuture<>();
+		if (!(sender instanceof ProxiedPlayer)) {
+			future.complete(sender.hasPermission(permission));
+			return future;
+		}
+		
+		ProxiedPlayer player = (ProxiedPlayer) sender;
+		if (player.hasPermission(permission)) {
+			future.complete(true);
+		} else {
+			if (player.getServer() == null) {
+				future.complete(false);
+			} else {
+				new Thread(new Runnable() {
+        			@Override
+        			public void run() {
+        				try {
+        					int id = random.nextInt();
+							PluginMessageSendingBungee.checkPermission(player, permission, id);
+							long start = System.currentTimeMillis() + delay + 500;
+							while (System.currentTimeMillis() < start) {
+								Boolean value = permissionChecks.remove(id);
+								if (value != null) {
+									future.complete(value);
+									return;
+								} else {
+									TimeUnit.NANOSECONDS.sleep(500000);
+								}
+							}
+							future.complete(false);
+						} catch (IOException | InterruptedException e) {
+							e.printStackTrace();
+						}
+        			}
+        		}).start();
+			}
+		}
+		return future;
 	}
 	
 	public static void loadConfig() {

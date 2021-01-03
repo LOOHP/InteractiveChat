@@ -114,7 +114,7 @@ public class PluginMessageSendingBungee {
 			}
 		}).max().orElse(0);
 		
-		InteractiveChatBungee.delay = highestPing * 2 + 200;
+		InteractiveChatBungee.delay = highestPing * 2 + 100;
 
 		output.writeInt(InteractiveChatBungee.delay);
 
@@ -379,6 +379,37 @@ public class PluginMessageSendingBungee {
 					server.sendData("interchat:main", out.toByteArray());
 					InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 				}
+			}
+		}
+	}
+	
+	public static void checkPermission(ProxiedPlayer player, String permission, int id) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		output.writeInt(id);
+		DataTypeIO.writeUUID(output, player.getUniqueId());
+    	DataTypeIO.writeString(output, permission, StandardCharsets.UTF_8);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x13;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			if (player.getServer() != null) {
+				player.getServer().getInfo().sendData("interchat:main", out.toByteArray());
+				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
 	}

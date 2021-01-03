@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
-	<version>3.2.5.8</version>
+	<version>3.2.5.9</version>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>

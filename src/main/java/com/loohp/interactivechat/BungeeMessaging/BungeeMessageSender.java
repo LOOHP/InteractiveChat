@@ -185,4 +185,11 @@ public class BungeeMessageSender {
     	DataTypeIO.writeString(out, config.saveToString(), StandardCharsets.UTF_8);
     	return forwardData(0x12, out.toByteArray());
     }
+    
+    public static boolean permissionCheckResponse(int id, boolean value) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeInt(id);
+    	out.writeBoolean(value);
+    	return forwardData(0x13, out.toByteArray());
+    }
 }

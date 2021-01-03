@@ -254,6 +254,13 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        		manager.mergeOffline(playerUUID, data1);
 	        	}
 	        	break;
+	        case 0x13:
+	        	int id = input.readInt();
+	        	UUID playerUUID1 = DataTypeIO.readUUID(input);
+	        	String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	Player player5 = Bukkit.getPlayer(playerUUID1);
+	        	BungeeMessageSender.permissionCheckResponse(id, player5 == null ? false : player5.hasPermission(permission));
+	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {
 	        //	player.sendMessage(packetId + "");

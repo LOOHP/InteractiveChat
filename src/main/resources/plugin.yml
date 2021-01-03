@@ -27,6 +27,9 @@ permissions:
   interactivechat.reload:
     description: Allows you to reload the plugin
     default: op
+  interactivechat.backendinfo:
+    description: Allows you check the status of backend servers on bungeecord
+    default: op
   interactivechat.cooldown.bypass:
     description: Allows you to bypass cooldown
     default: op

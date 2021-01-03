@@ -44,7 +44,7 @@ public class CommandsBungee extends Command implements TabExecutor {
 								if (!data.hasInteractiveChat()) {
 									sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 								} else {
-									sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: INSTALLED | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 								}
 							}
 						});

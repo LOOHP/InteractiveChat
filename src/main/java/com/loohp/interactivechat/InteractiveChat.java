@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +108,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String invTitle = "%player_name%'s Inventory";
 	public static String enderTitle = "%player_name%'s Ender Chest";
 	
+	public static String containerViewTitle = "Container Contents";
+	
 	public static boolean usePlayerName = true;
 	public static boolean usePlayerNameHoverEnable = true;
 	public static String usePlayerNameHoverText = "";
@@ -150,6 +153,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static BiMap<Long, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<Long, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<Long, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	
+	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	
 	public static Map<Long, Set<String>> cooldownbypass = new ConcurrentHashMap<>();
 	

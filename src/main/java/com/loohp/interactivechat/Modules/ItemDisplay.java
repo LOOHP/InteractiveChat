@@ -218,7 +218,8 @@ public class ItemDisplay {
 									long time = InteractiveChat.keyTime.get(messageKey);
 									if (!InteractiveChat.itemDisplay.containsKey(time)) {
 										if (useInventoryView(item)) {
-											Inventory inv = Bukkit.createInventory(null, 36, title);
+											Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
+											Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
 											ItemStack empty = InteractiveChat.itemFrame1.clone();
 											if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
 												empty = InteractiveChat.itemFrame2.clone();
@@ -226,15 +227,14 @@ public class ItemDisplay {
 											ItemMeta emptyMeta = empty.getItemMeta();
 											emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
 											empty.setItemMeta(emptyMeta);
-											for (int j = 0; j < 9; j = j + 1) {
+											for (int j = 0; j < 9; j++) {
 												inv.setItem(j, empty);
 											}
 											inv.setItem(4, item);
-											Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
 											for (int j = 0; j < container.getSize(); j++) {
 												ItemStack shulkerItem = container.getItem(j);
 												if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
-													inv.setItem(j + 9, shulkerItem);
+													inv.setItem(j + 9, shulkerItem == null ? null : shulkerItem.clone());
 												}
 											}										
 											InteractiveChat.itemDisplay.put(time, inv);	
@@ -247,7 +247,7 @@ public class ItemDisplay {
 											ItemMeta emptyMeta = empty.getItemMeta();
 											emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
 											empty.setItemMeta(emptyMeta);
-											for (int j = 0; j < inv.getSize(); j = j + 1) {
+											for (int j = 0; j < inv.getSize(); j++) {
 												inv.setItem(j, empty);
 											}
 											inv.setItem(13, item);				            							

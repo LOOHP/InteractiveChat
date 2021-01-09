@@ -93,6 +93,8 @@ public class ConfigManager {
 		InteractiveChat.invTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
 		InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
+		InteractiveChat.containerViewTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.ContainerViewTitle"));
+		
 		try {
 			if (version.isLegacy()) {
 				String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
@@ -115,8 +117,8 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
-		if (InteractiveChat.plugin.getConfig().contains("Secret.t")) {
-			InteractiveChat.t = InteractiveChat.plugin.getConfig().getBoolean("Secret.t");
+		if (getConfig().contains("Secret.t")) {
+			InteractiveChat.t = getConfig().getBoolean("Secret.t");
 		}
 		
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");

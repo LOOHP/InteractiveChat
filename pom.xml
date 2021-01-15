@@ -96,7 +96,7 @@
 		<dependency>
 			<groupId>com.github.cryptomorin</groupId>
 			<artifactId>XSeries</artifactId>
-			<version>7.2.1.2</version>
+			<version>7.8.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

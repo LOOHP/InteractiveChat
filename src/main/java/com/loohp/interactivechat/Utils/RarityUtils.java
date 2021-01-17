@@ -1,87 +1,84 @@
 package com.loohp.interactivechat.Utils;
 
-import java.util.HashMap;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import com.loohp.interactivechat.InteractiveChat;
 
 import net.md_5.bungee.api.ChatColor;
 
 public class RarityUtils {
-
-	private static HashMap<Material, ChatColor> rarityMapping = new HashMap<Material, ChatColor>();
+	
+	private static Class<?> craftItemStackClass;
+	private static Class<?> nmsItemStackClass;
+	private static Class<?> nmsEnumItemRarityClass;
+	private static Class<?> nmsEnumChatFormatClass;
+	private static Method asNMSCopyMethod;
+	private static Method getItemRarityMethod;
+	private static Field getItemRarityColorField;
+	private static Field getColorCharField;
 	
 	public static void setupRarity() {
-		if (InteractiveChat.version.isLegacy()) {
-			return;
-		}
-		
-		rarityMapping.put(Material.EXPERIENCE_BOTTLE, ChatColor.YELLOW);
-		rarityMapping.put(Material.DRAGON_BREATH, ChatColor.YELLOW);
-		rarityMapping.put(Material.ELYTRA, ChatColor.YELLOW);
-		rarityMapping.put(Material.ENCHANTED_BOOK, ChatColor.YELLOW);
-		rarityMapping.put(Material.ZOMBIE_HEAD, ChatColor.YELLOW);
-		rarityMapping.put(Material.SKELETON_SKULL, ChatColor.YELLOW);
-		rarityMapping.put(Material.CREEPER_HEAD, ChatColor.YELLOW);
-		rarityMapping.put(Material.WITHER_SKELETON_SKULL, ChatColor.YELLOW);
-		rarityMapping.put(Material.PLAYER_HEAD, ChatColor.YELLOW);
-		rarityMapping.put(Material.HEART_OF_THE_SEA, ChatColor.YELLOW);
-		rarityMapping.put(Material.NETHER_STAR, ChatColor.YELLOW);
-		rarityMapping.put(Material.TOTEM_OF_UNDYING, ChatColor.YELLOW);
-		rarityMapping.put(Material.BEACON, ChatColor.AQUA);
-		rarityMapping.put(Material.CONDUIT, ChatColor.AQUA);
-		rarityMapping.put(Material.END_CRYSTAL, ChatColor.AQUA);
-		rarityMapping.put(Material.GOLDEN_APPLE, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_11, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_13, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_BLOCKS, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_CAT, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_CHIRP, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_FAR, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_MALL, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_MELLOHI, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_STAL, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_STRAD, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_WAIT, ChatColor.AQUA);
-		rarityMapping.put(Material.MUSIC_DISC_WARD, ChatColor.AQUA);
-		rarityMapping.put(Material.COMMAND_BLOCK, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.CHAIN_COMMAND_BLOCK, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.REPEATING_COMMAND_BLOCK, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.DRAGON_EGG, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.ENCHANTED_GOLDEN_APPLE, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.STRUCTURE_BLOCK, ChatColor.LIGHT_PURPLE);
-		
-		if (InteractiveChat.version.equals(MCVersion.V1_13) || InteractiveChat.version.equals(MCVersion.V1_13_1)) {
-			return;
-		}
-		
-		rarityMapping.put(Material.CREEPER_BANNER_PATTERN, ChatColor.YELLOW);
-		rarityMapping.put(Material.SKULL_BANNER_PATTERN, ChatColor.YELLOW);
-		rarityMapping.put(Material.JIGSAW, ChatColor.LIGHT_PURPLE);
-		rarityMapping.put(Material.MOJANG_BANNER_PATTERN, ChatColor.LIGHT_PURPLE);
+		try {
+			craftItemStackClass = getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
+			nmsItemStackClass = getNMSClass("net.minecraft.server.", "ItemStack");
+			nmsEnumItemRarityClass = getNMSClass("net.minecraft.server.", "EnumItemRarity");
+			nmsEnumChatFormatClass = getNMSClass("net.minecraft.server.", "EnumChatFormat");
+			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
+			getItemRarityMethod = Stream.of(nmsItemStackClass.getMethods()).filter(each -> each.getReturnType().equals(nmsEnumItemRarityClass)).findFirst().orElse(null);
+			getItemRarityColorField = Stream.of(nmsEnumItemRarityClass.getFields()).filter(each -> each.getType().equals(nmsEnumChatFormatClass)).findFirst().orElse(null);
+			getColorCharField = Stream.of(nmsEnumChatFormatClass.getDeclaredFields()).filter(each -> each.getType().equals(char.class)).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 	}
+	
+	private static Class<?> getNMSClass(String prefix, String nmsClassString) throws ClassNotFoundException {
+        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
+        String name = prefix + version + nmsClassString;
+        return Class.forName(name);
+    }
 	
 	public static ChatColor getRarityColor(ItemStack item) {
 		ChatColor color = ChatColor.WHITE;
 		if (!item.getType().equals(Material.AIR)) {
-			Material type = item.getType();
 			if (item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
 				color = ChatColor.AQUA;
 			}
-			if (rarityMapping.containsKey(type)) {
-				color = rarityMapping.get(type);
+			try {
+				Object nmsItemStackObject = asNMSCopyMethod.invoke(null, item);
+				Object nmsEnumItemRarityObject = getItemRarityMethod.invoke(nmsItemStackObject);
+				Object nmsEnumChatFormatObject = getItemRarityColorField.get(nmsEnumItemRarityObject);
+				boolean access = getColorCharField.canAccess(nmsEnumChatFormatObject);
+				getColorCharField.setAccessible(true);
+				color = ChatColor.getByChar(getColorCharField.getChar(nmsEnumChatFormatObject));
+				getColorCharField.setAccessible(access);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
 			}
 		}
+		
 		return color;
 	}
 	
 	public static ChatColor getRarityColor(Material material) {
 		ChatColor color = ChatColor.WHITE;
 		if (!material.equals(Material.AIR)) {
-			if (rarityMapping.containsKey(material)) {
-				color = rarityMapping.get(material);
+			ItemStack item = new ItemStack(material);
+			try {
+				Object nmsItemStackObject = asNMSCopyMethod.invoke(null, item);
+				Object nmsEnumItemRarityObject = getItemRarityMethod.invoke(nmsItemStackObject);
+				Object nmsEnumChatFormatObject = getItemRarityColorField.get(nmsEnumItemRarityObject);
+				boolean access = getColorCharField.canAccess(nmsEnumChatFormatObject);
+				getColorCharField.setAccessible(true);
+				color = ChatColor.getByChar(getColorCharField.getChar(nmsEnumChatFormatObject));
+				getColorCharField.setAccessible(access);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
 			}
 		}
 		return color;

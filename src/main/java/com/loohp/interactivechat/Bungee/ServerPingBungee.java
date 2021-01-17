@@ -36,7 +36,7 @@ public class ServerPingBungee {
 					DataOutputStream out = new DataOutputStream(buffer);
 					out.writeByte(0x00);
 					DataStreamIO.writeVarInt(out, -1);
-					DataStreamIO.writeString(out, "InterativeChatBungeePing", StandardCharsets.UTF_8);
+					DataStreamIO.writeString(out, INTERACTIVECHAT_PROTOCOL_IDENTIFIER, StandardCharsets.UTF_8);
 					out.writeShort(25566);
 					DataStreamIO.writeVarInt(out, 1);
 					byte[] handshake = buffer.toByteArray();

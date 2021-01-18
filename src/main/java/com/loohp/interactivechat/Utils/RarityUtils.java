@@ -20,7 +20,6 @@ public class RarityUtils {
 	private static Method asNMSCopyMethod;
 	private static Method getItemRarityMethod;
 	private static Field getItemRarityColorField;
-	private static Field getColorCharField;
 	
 	public static void setupRarity() {
 		try {
@@ -31,7 +30,6 @@ public class RarityUtils {
 			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
 			getItemRarityMethod = Stream.of(nmsItemStackClass.getMethods()).filter(each -> each.getReturnType().equals(nmsEnumItemRarityClass)).findFirst().orElse(null);
 			getItemRarityColorField = Stream.of(nmsEnumItemRarityClass.getFields()).filter(each -> each.getType().equals(nmsEnumChatFormatClass)).findFirst().orElse(null);
-			getColorCharField = Stream.of(nmsEnumChatFormatClass.getDeclaredFields()).filter(each -> each.getType().equals(char.class)).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
@@ -53,10 +51,8 @@ public class RarityUtils {
 				Object nmsItemStackObject = asNMSCopyMethod.invoke(null, item);
 				Object nmsEnumItemRarityObject = getItemRarityMethod.invoke(nmsItemStackObject);
 				Object nmsEnumChatFormatObject = getItemRarityColorField.get(nmsEnumItemRarityObject);
-				boolean access = getColorCharField.canAccess(nmsEnumChatFormatObject);
-				getColorCharField.setAccessible(true);
-				color = ChatColor.getByChar(getColorCharField.getChar(nmsEnumChatFormatObject));
-				getColorCharField.setAccessible(access);
+				String str = nmsEnumChatFormatObject.toString();
+				color = ChatColor.getByChar(str.charAt(str.length() - 1));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
@@ -73,10 +69,8 @@ public class RarityUtils {
 				Object nmsItemStackObject = asNMSCopyMethod.invoke(null, item);
 				Object nmsEnumItemRarityObject = getItemRarityMethod.invoke(nmsItemStackObject);
 				Object nmsEnumChatFormatObject = getItemRarityColorField.get(nmsEnumItemRarityObject);
-				boolean access = getColorCharField.canAccess(nmsEnumChatFormatObject);
-				getColorCharField.setAccessible(true);
-				color = ChatColor.getByChar(getColorCharField.getChar(nmsEnumChatFormatObject));
-				getColorCharField.setAccessible(access);
+				String str = nmsEnumChatFormatObject.toString();
+				color = ChatColor.getByChar(str.charAt(str.length() - 1));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}

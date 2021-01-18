@@ -4,8 +4,8 @@ import java.util.Optional;
 
 public class ICPlaceholder {
 	
-	String keyword;
-	boolean caseSensitive; 
+	private String keyword;
+	private boolean caseSensitive; 
 	
 	public ICPlaceholder(String keyword, boolean caseSensitive) {
 		this.keyword = keyword;

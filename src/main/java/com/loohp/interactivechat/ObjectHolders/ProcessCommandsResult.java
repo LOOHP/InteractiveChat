@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-public class ProcessCommandsReturn {
+public class ProcessCommandsResult {
 	
-	BaseComponent basecomponent;
-	UUID sender;
+	private BaseComponent basecomponent;
+	private UUID sender;
 	
-	public ProcessCommandsReturn(BaseComponent basecomponent, UUID sender) {
+	public ProcessCommandsResult(BaseComponent basecomponent, UUID sender) {
 		this.basecomponent = basecomponent;
 		this.sender = sender;
 	}

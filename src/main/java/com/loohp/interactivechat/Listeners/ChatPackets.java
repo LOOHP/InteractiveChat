@@ -37,7 +37,7 @@ import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
-import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
+import com.loohp.interactivechat.ObjectHolders.ProcessCommandsResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
@@ -179,12 +179,13 @@ public class ChatPackets implements Listener {
 	        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
 	        }
 
-	        long unix = InteractiveChat.keyTime.get(rawMessageKey);
+	        Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
+	        long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
 	        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
 	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
 	        }
 
-	        ProcessCommandsReturn commandsender = ProcessCommands.process(basecomponent);
+	        ProcessCommandsResult commandsender = ProcessCommands.process(basecomponent);
 	        Optional<PlayerWrapper> sender = Optional.empty();
 	        if (commandsender.getSender() != null) {
 	        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
@@ -263,7 +264,7 @@ public class ChatPackets implements Listener {
 	        	longerThanMaxLength = true;
 	        }
 
-	        //Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(basecomponent));
+	        //Bukkit.getConsoleSender().sendMessage(json);
 	        if (field == 0) {
 	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 	        } else {

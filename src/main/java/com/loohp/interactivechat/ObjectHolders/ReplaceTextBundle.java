@@ -2,9 +2,9 @@ package com.loohp.interactivechat.ObjectHolders;
 
 public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 	
-	String placeholder;
-	PlayerWrapper player;
-	String replaceText;
+	private String placeholder;
+	private PlayerWrapper player;
+	private String replaceText;
 	
 	public ReplaceTextBundle(String placeholder, PlayerWrapper player, String replaceText) {
 		this.placeholder = placeholder;

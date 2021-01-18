@@ -9,10 +9,10 @@ import com.loohp.interactivechat.InteractiveChat;
 
 public class CommandPlaceholderInfo {
 	
-	String placeholder;
-	String uuidmatch;
-	UUID sender;
-	Map<String, CommandPlaceholderInfo> map;
+	private String placeholder;
+	private String uuidmatch;
+	private UUID sender;
+	private Map<String, CommandPlaceholderInfo> map;
 	
 	public CommandPlaceholderInfo(PlayerWrapper sender, String placeholder, String uuidmatch, Map<String, CommandPlaceholderInfo> commandPlaceholderMatch) {
 		this.placeholder = placeholder;

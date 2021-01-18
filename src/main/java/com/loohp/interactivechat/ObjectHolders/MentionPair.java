@@ -9,11 +9,11 @@ import com.loohp.interactivechat.InteractiveChat;
 
 public class MentionPair {
 	
-	UUID sender;
-	UUID receiver;
-	long timestamp;
-	Map<UUID, MentionPair> mapToRemove;
-	int taskid;
+	private UUID sender;
+	private UUID receiver;
+	private long timestamp;
+	private Map<UUID, MentionPair> mapToRemove;
+	private int taskid;
 	
 	public MentionPair(UUID sender, UUID reciever, Map<UUID, MentionPair> mapToRemove) {
 		this.sender = sender;

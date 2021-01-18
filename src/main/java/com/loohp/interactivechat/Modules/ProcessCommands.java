@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
-import com.loohp.interactivechat.ObjectHolders.ProcessCommandsReturn;
+import com.loohp.interactivechat.ObjectHolders.ProcessCommandsResult;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -15,7 +15,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class ProcessCommands {
 	
-	public static ProcessCommandsReturn process(BaseComponent basecomponent) {
+	public static ProcessCommandsResult process(BaseComponent basecomponent) {
 		
 		UUID sender = null;
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
@@ -48,6 +48,6 @@ public class ProcessCommands {
 			BaseComponent each = newlist.get(i);
 			product.addExtra(each);
 		}
-		return new ProcessCommandsReturn(product, sender);
+		return new ProcessCommandsResult(product, sender);
 	}
 }

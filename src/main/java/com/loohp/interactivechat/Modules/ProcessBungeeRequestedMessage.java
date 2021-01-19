@@ -25,6 +25,7 @@ public class ProcessBungeeRequestedMessage {
 	
 	public static String processAndRespond(Player reciever, String component) {
 		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(component)));
+		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
         
         try {
         	if (basecomponent.toLegacyText().equals("")) {
@@ -128,11 +129,16 @@ public class ProcessBungeeRequestedMessage {
         basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
         
         String json = ComponentSerializer.toString(basecomponent);
-        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
-        	return "{\"text\":\"\"}";
+        if (InteractiveChat.sendOriginalIfTooLong && json.length() > 32767) {
+        	String originalJson = ComponentSerializer.toString(originalComponent);
+        	if (originalJson.length() > 32767) {
+        		return "{\"text\":\"\"}";
+        	} else {
+        		return originalJson;
+        	}
         }
         
-		return ComponentSerializer.toString(basecomponent);
+		return json;
 	}
 
 }

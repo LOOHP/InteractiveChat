@@ -15,10 +15,10 @@ public class PrePacketComponentProcessEvent extends Event {
 	//Sender will be null if the message is not send by a player or the plugin is unable to find the sender of the message
 	//Field is the field number in which the component is obtained from the chat packet, either 0 or 1
 
-	Player reciever;
-	BaseComponent component;
-    int field;
-    UUID sender;
+	private Player reciever;
+	private BaseComponent component;
+	private int field;
+	private UUID sender;
 
     public PrePacketComponentProcessEvent(boolean async, Player reciever, BaseComponent component, int field, UUID sender) {
     	super(async);

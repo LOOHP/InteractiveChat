@@ -21,6 +21,7 @@ import com.loohp.interactivechat.Utils.MaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Commands implements CommandExecutor, TabCompleter {
 
@@ -132,6 +133,22 @@ public class Commands implements CommandExecutor, TabCompleter {
 			} else {
 				sender.sendMessage(InteractiveChat.NoPermission);
 			}
+			return true;
+		}
+		
+		if (args[0].equalsIgnoreCase("lengthtest") && sender.hasPermission("interactivechat.debug")) {
+			Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+				try {
+					int length = args.length < 2 ? 5000 : Integer.parseInt(args[1]);
+					String str = "";
+					for (int i = 0; i < length; i++) {
+						str += (i % 2) == 0 ? (ChatColor.GOLD + "n") : (ChatColor.YELLOW + "a");
+					}
+					sender.spigot().sendMessage(new TextComponent(str));
+				} catch (Exception e) {
+					sender.sendMessage(e.getMessage());
+				}
+			});
 			return true;
 		}
 		

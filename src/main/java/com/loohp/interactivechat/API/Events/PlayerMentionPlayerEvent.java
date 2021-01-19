@@ -15,12 +15,12 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 	//The sound will be null if you did't set a sound in the config
 	//Set the Sound to null if you do not want to play sound
 
-	Player reciever;
-	UUID sender;
-    String title;
-    String subtitle;
-    Sound sound;
-    boolean cancel;
+	private Player reciever;
+	private UUID sender;
+	private String title;
+	private String subtitle;
+	private Sound sound;
+	private boolean cancel;
 
     public PlayerMentionPlayerEvent(boolean async, Player reciever, UUID sender, String title, String subtitle, Sound sound, boolean cancel) {
     	super(async);

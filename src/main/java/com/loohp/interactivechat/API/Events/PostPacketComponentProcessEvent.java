@@ -13,16 +13,21 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
 	
 	//This Event is called after the plugin as modified the modifiers in the chat packet and is ready to send
 
-	Player reciever;
-	PacketContainer packet;
-	UUID sender;
-    boolean cancel;
+	private Player reciever;
+	private PacketContainer packet;
+	private UUID sender;
+	private PacketContainer original;
+	private PacketContainer originalModified;
+	private boolean sendOriginalIfCancelled;
+    private boolean cancel;
 
-    public PostPacketComponentProcessEvent(boolean async, Player reciever, PacketContainer packet, UUID sender, boolean cancelled) {
+    public PostPacketComponentProcessEvent(boolean async, Player reciever, PacketContainer packet, UUID sender, PacketContainer original, boolean sendOriginalIfCancelled, boolean cancelled) {
     	super(async);
         this.reciever = reciever;
         this.packet = packet;
         this.sender = sender;
+        this.original = original;
+        this.sendOriginalIfCancelled = sendOriginalIfCancelled;
         this.cancel = cancelled;
     }
     
@@ -48,7 +53,22 @@ public class PostPacketComponentProcessEvent extends Event implements Cancellabl
     	return packet;
     }
 
-    private static final HandlerList HANDLERS = new HandlerList();
+    public PacketContainer getOriginal() {
+    	if (originalModified == null) {
+    		originalModified = original.deepClone();
+    	}
+		return originalModified;
+	}
+
+	public boolean sendOriginalIfCancelled() {
+		return sendOriginalIfCancelled;
+	}
+	
+	public void setSendOriginalIfCancelled(boolean value) {
+		this.sendOriginalIfCancelled = value;
+	}
+
+	private static final HandlerList HANDLERS = new HandlerList();
 
     public HandlerList getHandlers() {
         return HANDLERS;

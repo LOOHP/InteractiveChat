@@ -122,7 +122,7 @@ public class ChatPackets implements Listener {
 	}
 	
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
-		PacketContainer backup = packet.deepClone();		    		
+		PacketContainer originalPacket = packet.deepClone();		    		
     	try {
 	        WrappedChatComponent wcc = packet.getChatComponents().read(0);
 	        Object field1 = packet.getModifier().read(1);
@@ -260,7 +260,7 @@ public class ChatPackets implements Listener {
 	        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
 	        String json = ComponentSerializer.toString(basecomponent);
 	        boolean longerThanMaxLength = false;
-	        if ((InteractiveChat.block30000 && json.length() > 30000) || ((InteractiveChat.version.isLegacy() || InteractiveChat.protocolManager.getProtocolVersion(reciever) < 393) && json.length() > 30000) || (!InteractiveChat.version.isLegacy() && json.length() > 262000)) {
+	        if (InteractiveChat.sendOriginalIfTooLong && json.length() > 32767) {
 	        	longerThanMaxLength = true;
 	        }
 
@@ -274,7 +274,7 @@ public class ChatPackets implements Listener {
 	        if (packet.getUUIDs().size() > 0) {
 	        	packet.getUUIDs().write(0, postEventSenderUUID);
 	        }
-	        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, longerThanMaxLength);
+	        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
 	        Bukkit.getPluginManager().callEvent(postEvent);
 
 	        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
@@ -283,9 +283,43 @@ public class ChatPackets implements Listener {
 	        }, 10);
 
 	        if (postEvent.isCancelled()) {
-	        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-	        		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
-	        	}
+        		if (postEvent.sendOriginalIfCancelled()) {
+        			PacketContainer originalPacketModified = postEvent.getOriginal();
+        			
+        			WrappedChatComponent originalWcc = originalPacketModified.getChatComponents().read(0);
+        	        Object originalField1 = originalPacketModified.getModifier().read(1);
+        	        if (originalWcc != null || originalField1 != null) {
+        	        	BaseComponent[] originalComponent = null;
+	        	        try {
+	        		        if (originalWcc != null) {
+	        		        	originalComponent = ComponentSerializer.parse(originalWcc.getJson());
+	        		        } else {
+	        		        	originalComponent = (BaseComponent[]) originalField1;
+	        		        }
+	        	        } catch (Exception e) {
+	        	        	try {
+	        	        		originalComponent = (BaseComponent[]) originalField1;
+	        	        	} catch (Exception skip) {}
+	        	        }
+	        	        
+	        	        String originalJson = originalComponent == null ? "" : ComponentSerializer.toString(originalComponent);
+	        	        if (originalJson.length() > 32767) {
+	        	        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+		        				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long in which the unprocessed alternative is still too long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
+		        			}
+	        	        } else {
+		        			orderAndSend(reciever, originalPacketModified, messageUUID, queue);
+		        			if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+		        				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Sending unprocessed chat packet bounded to " + reciever.getName() + " as it is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
+		        			}
+		        			return;
+	        	        }
+        	        }
+        		} else {
+        			if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+        				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
+        			}
+        		}
 	        	queue.remove(messageUUID);
 	        	return;
 	        }
@@ -294,7 +328,7 @@ public class ChatPackets implements Listener {
     	} catch (Exception e) {
     		e.printStackTrace();
     		try {
-				orderAndSend(reciever, backup, messageUUID, queue);
+				orderAndSend(reciever, originalPacket, messageUUID, queue);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}

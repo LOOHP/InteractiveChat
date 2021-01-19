@@ -192,7 +192,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean legacyChatAPI = false;
 	public static boolean useCustomPlaceholderPermissions = false;
 	
-	public static boolean block30000 = false;
+	public static boolean sendOriginalIfTooLong = false;
 	
 	public static Optional<Character> chatAltColorCode = Optional.empty();
 	
@@ -250,6 +250,11 @@ public class InteractiveChat extends JavaPlugin {
 		
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
+		
+		if (getConfig().contains("Settings.BlockMessagesLongerThan30000RegardlessOfVersion")) {
+			getConfig().set("Settings.BlockMessagesLongerThan30000RegardlessOfVersion", null);
+			saveConfig();
+		}
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
 

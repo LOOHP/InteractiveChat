@@ -49,7 +49,6 @@ import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
-import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -206,7 +205,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean queueRemoteUpdate = false;
 	
 	public static PlayerDataManager playerDataManager;
-	public static WebData webData;
 
 	@Override
 	public void onEnable() {	

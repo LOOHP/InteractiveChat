@@ -16,6 +16,7 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
@@ -206,5 +207,11 @@ public class ConfigManager {
 		InteractiveChat.sendOriginalIfTooLong = getConfig().getBoolean("Settings.SendOriginalMessageIfExceedLengthLimit");
 		
 		InteractiveChat.messageToIgnore = getConfig().getStringList("Settings.MessagesToIgnore").stream().collect(Collectors.toSet());
+		
+		if (InteractiveChat.webData == null) {
+			InteractiveChat.webData = new WebData();
+		} else {
+			InteractiveChat.webData.reload();
+		}
 	}
 }

@@ -77,18 +77,18 @@ public class InventoryDisplay {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
 				if (InteractiveChat.invCaseSensitive) {
-					if (!text.contains(InteractiveChat.invPlaceholder)) {
+					if (!ChatColorUtils.stripColor(text).contains(ChatColorUtils.stripColor(InteractiveChat.invPlaceholder))) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				} else {
-					if (!text.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase())) {
+					if (!ChatColorUtils.stripColor(text).toLowerCase().contains(ChatColorUtils.stripColor(InteractiveChat.invPlaceholder).toLowerCase())) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				}
 				
-				String regex = InteractiveChat.invCaseSensitive ? "(?<!§)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)(?<!§)(" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) + ")";
+				String regex = InteractiveChat.invCaseSensitive ? "(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) : "(?i)(?<!§)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
@@ -102,7 +102,7 @@ public class InventoryDisplay {
 					newlist.add(before);
 					lastColor = ChatColorUtils.getLastColors(before.getText());
 					
-					boolean endwith = InteractiveChat.invCaseSensitive ? text.endsWith(InteractiveChat.invPlaceholder) : text.toLowerCase().endsWith(InteractiveChat.invPlaceholder.toLowerCase());
+					boolean endwith = InteractiveChat.invCaseSensitive ? text.matches(".*" + regex + "$") : text.toLowerCase().matches(".*" + regex.toLowerCase() + "$");
 					if ((trim.size() - 1) > i || endwith) {
 						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
 							String color = ChatColorUtils.getLastColors(newlist.get(newlist.size() - 1).toLegacyText());

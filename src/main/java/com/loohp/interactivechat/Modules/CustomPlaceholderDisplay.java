@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +17,6 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
-import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
@@ -33,6 +33,7 @@ public class CustomPlaceholderDisplay {
 	
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
+	private static Random random = new Random();
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, List<ICPlaceholder> placeholderList, long unix) {
 		for (int i = 0; i < placeholderList.size(); i++) {
@@ -68,22 +69,8 @@ public class CustomPlaceholderDisplay {
 		}
 		
 		if (InteractiveChat.t) {
-			for (CustomPlaceholder cp : WebData.getInstance().getSpecialPlaceholders()) {
-				PlayerWrapper parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new PlayerWrapper(reciever);
-				boolean casesensitive = cp.isCaseSensitive();			
-				String placeholder = cp.getKeyword();
-				placeholder = (cp.getParseKeyword()) ? PlaceholderParser.parse(parseplayer, placeholder) : placeholder;
-				long cooldown = cp.getCooldown();
-				boolean hoverEnabled = cp.getHover().isEnabled();
-				String hoverText = cp.getHover().getText();
-				boolean clickEnabled = cp.getClick().isEnabled();
-				Action clickAction = cp.getClick().getAction();
-				String clickValue = cp.getClick().getValue();
-				boolean replaceEnabled = cp.getReplace().isEnabled();
-				String replaceText = cp.getReplace().getReplaceText();
-				
-				basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
-			}
+			String henry = random.nextInt(100) < 80 ? "§7\"§fTerraria is love, Terraria is life§7\"\n              §7~§a§oHenry §e§o(IC Icon Artist)" : "§fShow §a§oHenry §e§o(IC Icon Artist) §fsome §cLOVE§f!\n§bClick me!\n                       §a~From the IC author";
+			basecomponent = processCustomPlaceholder(new PlayerWrapper(reciever), false, "Terraria", 0, true, henry, true, Action.OPEN_URL, "https://www.reddit.com/user/henryauyong", true, "§2Terraria", basecomponent, optplayer, messageKey, unix);
 		}
 			
 		return basecomponent;
@@ -129,18 +116,18 @@ public class CustomPlaceholderDisplay {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
 				if (casesensitive) {
-					if (!ChatColorUtils.stripColor(text).contains(ChatColorUtils.stripColor(placeholder))) {
+					if (!text.contains(placeholder)) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				} else {
-					if (!ChatColorUtils.stripColor(text).toLowerCase().contains(ChatColorUtils.stripColor(placeholder).toLowerCase())) {
+					if (!text.toLowerCase().contains(placeholder.toLowerCase())) {
 						newlist.add(textcomponent);
 						continue;
 					}
 				}
 				
-				String regex = casesensitive ? "(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) : "(?i)(?<!§)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) + ")";
+				String regex = casesensitive ? "(?<!§)" + CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)(?<!§)(" + CustomStringUtils.escapeMetaCharacters(placeholder) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
@@ -154,7 +141,7 @@ public class CustomPlaceholderDisplay {
 					newlist.add(before);
 					lastColor = ChatColorUtils.getLastColors(before.getText());
 					
-					boolean endwith = casesensitive ? text.matches(".*" + regex + "$") : text.toLowerCase().matches(".*" + regex.toLowerCase() + "$");
+					boolean endwith = casesensitive ? text.endsWith(placeholder) : text.toLowerCase().endsWith(placeholder.toLowerCase());
 					if ((trim.size() - 1) > i || endwith) {
 						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
 							String color = ChatColorUtils.getLastColors(newlist.get(newlist.size() - 1).toLegacyText());

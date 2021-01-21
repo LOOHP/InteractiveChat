@@ -25,7 +25,6 @@ Plugins built against Spigot usually also work with [Paper](https://papermc.io/)
 
 - [EssentialsX](https://www.spigotmc.org/resources/essentialsx.9089/)
 - [OpenInv](https://dev.bukkit.org/projects/openinv)
-- [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/)
 - [SuperVanish](https://www.spigotmc.org/resources/supervanish-be-invisible.1331/)
 - [PremiumVanish](https://www.spigotmc.org/resources/premiumvanish-stay-hidden-bungee-support.14404/)
 - [CMI](https://www.spigotmc.org/resources/cmi-270-commands-insane-kits-portals-essentials-economy-mysql-sqlite-much-more.3742/) ([Public API](https://github.com/Zrips/CMI-API))

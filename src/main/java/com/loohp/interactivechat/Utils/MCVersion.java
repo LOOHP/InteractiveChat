@@ -63,9 +63,22 @@ public enum MCVersion {
         }
 	}
 	
+	public static MCVersion fromNumber(int number) {
+		for (MCVersion version : values()) {
+			if (version.shortNum == number) {
+				return version;
+			}
+		}
+		return UNSUPPORTED;
+	}
+	
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	public int getNumber() {
+		return shortNum;
 	}
 	
 	public int compareWith(MCVersion version) {

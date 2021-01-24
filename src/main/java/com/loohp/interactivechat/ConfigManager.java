@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -207,6 +208,18 @@ public class ConfigManager {
 		InteractiveChat.sendOriginalIfTooLong = getConfig().getBoolean("Settings.SendOriginalMessageIfExceedLengthLimit");
 		
 		InteractiveChat.messageToIgnore = getConfig().getStringList("Settings.MessagesToIgnore").stream().collect(Collectors.toSet());
+		
+		try {
+			ItemStack unknown = new ItemStack(Material.valueOf(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem").toUpperCase()));
+			ItemMeta meta = unknown.getItemMeta();
+			meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));
+			meta.setLore(getConfig().getStringList("Settings.BungeecordUnknownItem.Lore").stream().map(each -> ChatColorUtils.translateAlternateColorCodes('&', each)).collect(Collectors.toList()));
+			unknown.setItemMeta(meta);
+			InteractiveChat.unknownReplaceItem = unknown;
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (BungeecordUnknownItem.DisplayName)");
+			e.printStackTrace();
+		}
 		
 		WebData.getInstance().reload();
 	}

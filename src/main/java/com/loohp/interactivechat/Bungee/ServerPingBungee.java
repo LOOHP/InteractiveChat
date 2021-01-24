@@ -13,6 +13,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.loohp.interactivechat.Utils.DataStreamIO;
+import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -76,6 +77,8 @@ public class ServerPingBungee {
 				    
 				    boolean present;
 				    String version;
+				    MCVersion minecraftVersion;
+				    String exactMinecraftVersion;
 				    try {
 					    JSONObject json = (JSONObject) new JSONParser().parse(jsonStr);
 					    JSONObject description = (JSONObject) json.get("description");
@@ -83,9 +86,13 @@ public class ServerPingBungee {
 					    JSONObject data = (JSONObject) new JSONParser().parse(descriptionAsStr);
 					    present = (boolean) data.get("present");
 					    version = (String) data.get("version");
+					    minecraftVersion = MCVersion.fromNumber((int) (long) data.get("minecraftVersion"));
+					    exactMinecraftVersion = (String) data.get("exactMinecraftVersion");
 				    } catch (ParseException e) {
 				    	present = false;
 				    	version = UNKNOWN_VERSION;
+				    	minecraftVersion = MCVersion.UNSUPPORTED;
+				    	exactMinecraftVersion = UNKNOWN_VERSION;
 				    }
 				    
 				    long start = System.currentTimeMillis();
@@ -115,7 +122,7 @@ public class ServerPingBungee {
 					
 					BackendInteractiveChatData data = InteractiveChatBungee.serverInteractiveChatInfo.get(server.getName());
 					if (data == null) {
-						InteractiveChatBungee.serverInteractiveChatInfo.put(server.getName(), new BackendInteractiveChatData(server.getName(), present, version, pong));
+						InteractiveChatBungee.serverInteractiveChatInfo.put(server.getName(), new BackendInteractiveChatData(server.getName(), present, version, minecraftVersion, exactMinecraftVersion, pong));
 					} else {
 						data.setPing(pong);
 						if (data.hasInteractiveChat() != present) {
@@ -124,13 +131,19 @@ public class ServerPingBungee {
 						if (!data.getVersion().equals(version)) {
 							data.setVersion(version);
 						}
+						if (!data.getMinecraftVersion().equals(minecraftVersion)) {
+							data.setMinecraftVersion(minecraftVersion);
+						}
+						if (!data.getExactMinecraftVersion().equals(exactMinecraftVersion)) {
+							data.setExactMinecraftVersion(exactMinecraftVersion);
+						}
 					}
 				} catch (IOException e) {
 					future.complete(new ServerPingBungee(-1, false));
 					
 					BackendInteractiveChatData data = InteractiveChatBungee.serverInteractiveChatInfo.get(server.getName());
 					if (data == null) {
-						InteractiveChatBungee.serverInteractiveChatInfo.put(server.getName(), new BackendInteractiveChatData(server.getName(), false, UNKNOWN_VERSION, -1));
+						InteractiveChatBungee.serverInteractiveChatInfo.put(server.getName(), new BackendInteractiveChatData(server.getName(), false, UNKNOWN_VERSION, MCVersion.UNSUPPORTED, UNKNOWN_VERSION, -1));
 					} else {
 						data.setPing(-1);
 						if (data.hasInteractiveChat()) {

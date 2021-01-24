@@ -107,7 +107,11 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x01:
 	        	int delay = input.readInt();
+	        	short itemStackScheme = input.readShort();
+	        	short inventoryScheme = input.readShort();
 	        	InteractiveChat.remoteDelay = delay;
+	        	BungeeMessageSender.itemStackScheme = itemStackScheme;
+	        	BungeeMessageSender.inventoryScheme = inventoryScheme;
 	        	break;
 	        case 0x02:
 	        	UUID sender = DataTypeIO.readUUID(input);

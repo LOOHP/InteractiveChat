@@ -92,7 +92,7 @@ public class PluginMessageSendingBungee {
 		}
 	}
 
-	public static void sendDelay() throws IOException {
+	public static void sendDelayAndScheme() throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
 		List<CompletableFuture<ServerPingBungee>> futures = new LinkedList<>();
@@ -117,6 +117,15 @@ public class PluginMessageSendingBungee {
 		InteractiveChatBungee.delay = highestPing * 2 + 100;
 
 		output.writeInt(InteractiveChatBungee.delay);
+		
+		boolean hasDifferentMCVersions = InteractiveChatBungee.serverInteractiveChatInfo.values().stream().map(each -> each.getExactMinecraftVersion()).distinct().count() > 1;
+		if (hasDifferentMCVersions) {
+			output.writeShort(1);
+			output.writeShort(1);
+		} else {
+			output.writeShort(0);
+			output.writeShort(0);
+		}
 
 		int packetNumber = InteractiveChatBungee.random.nextInt();
 		int packetId = 0x01;

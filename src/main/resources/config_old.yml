@@ -26,6 +26,13 @@ Settings:
   #Bungeecord Mode
   Bungeecord: false
   SendOriginalMessageIfExceedLengthLimit: true
+  BungeecordUnknownItem:
+    ReplaceItem: BARRIER
+    DisplayName: "&cUnknown Item {Type}"
+    Lore:
+      - "&7Unable to parse item"
+      - "&7This is likely to be an item that"
+      - "&7does not exist in this version of Minecraft"
   #Turn this off if some colors are missing
   FilterUselessColorCodes: true
   #The title of viewing a container inside an inventory view

@@ -1141,8 +1141,11 @@ public final class NBTUtils {
 	 * A String in json format.
 	 * @return
 	 * An NBTCompound from the String provided. May or may not be a valid ItemStack.
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
 	 */
-	public static NBTCompound getNBTCompound( String json ) {
+	public static NBTCompound getNBTCompound( String json ) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return NBTCompound.fromJson( json );
 	}
 
@@ -1335,13 +1338,8 @@ public final class NBTUtils {
 			return tag.toString();
 		}
 
-		public static NBTCompound fromJson( String json ) {
-			try {
-				return new NBTCompound( getMethod( "loadNBTTagCompound" ).invoke( null, json ) );
-			} catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-				e.printStackTrace();
-				return null;
-			}
+		public static NBTCompound fromJson( String json ) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			return new NBTCompound( getMethod( "loadNBTTagCompound" ).invoke( null, json ) );
 		}
 
 		@Override

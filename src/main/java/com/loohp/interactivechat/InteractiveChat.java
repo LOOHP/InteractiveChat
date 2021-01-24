@@ -204,6 +204,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static int remoteDelay = 500;
 	public static boolean queueRemoteUpdate = false;
 	
+	public static ItemStack unknownReplaceItem;
+	
 	public static PlayerDataManager playerDataManager;
 
 	@Override

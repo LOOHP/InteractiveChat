@@ -32,6 +32,9 @@ public class ServerPingListener implements Listener {
 		JSONObject json = new JSONObject();
 		json.put("present", true);
 		json.put("version", InteractiveChat.plugin.getDescription().getVersion());
+		json.put("minecraftVersion", InteractiveChat.version.getNumber());
+		String bukkitVersion = Bukkit.getVersion();
+		json.put("exactMinecraftVersion", Bukkit.getVersion().substring(bukkitVersion.indexOf("(") + 5, bukkitVersion.indexOf(")")));
 		ServerPingListener.json = json.toJSONString();
 	}
 	

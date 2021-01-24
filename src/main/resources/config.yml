@@ -27,6 +27,13 @@ Settings:
   #Bungeecord Mode
   Bungeecord: false
   SendOriginalMessageIfExceedLengthLimit: true
+  BungeecordUnknownItem:
+    ReplaceItem: BARRIER
+    DisplayName: "&cUnknown Item {Type}"
+    Lore:
+      - "&7Unable to parse item"
+      - "&7This is likely to be an item that"
+      - "&7does not exist in this version of Minecraft"
   #Use indiviual permissions for custom placeholders
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1

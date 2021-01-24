@@ -41,10 +41,11 @@ public class CommandsBungee extends Command implements TabExecutor {
 							if (data == null) {
 								sender.sendMessage(new TextComponent(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
 							} else {
+								String minecraftVersion = data.getExactMinecraftVersion();
 								if (!data.hasInteractiveChat()) {
-									sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 								} else {
-									sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 								}
 							}
 						});

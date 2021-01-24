@@ -203,7 +203,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			public void run() {
 				try {
 					PluginMessageSendingBungee.sendPlayerListData();
-					PluginMessageSendingBungee.sendDelay();
+					PluginMessageSendingBungee.sendDelayAndScheme();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

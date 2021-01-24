@@ -30,6 +30,16 @@ import com.loohp.interactivechat.Utils.DataTypeIO;
 public class BungeeMessageSender {
 	
 	private static Random random = new Random();
+	protected static short itemStackScheme = 0;
+	protected static short inventoryScheme = 0;
+	
+	public static int getItemStackScheme() {
+		return itemStackScheme;
+	}
+	
+	public static int getInventoryScheme() {
+		return inventoryScheme;
+	}
 	
 	public static boolean forwardData(int packetId, byte[] data) {
 		Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
@@ -71,7 +81,7 @@ public class BungeeMessageSender {
     	DataTypeIO.writeUUID(out, player);
     	out.writeByte(equipment.length);
     	for (ItemStack itemStack : equipment) {
-    		DataTypeIO.writeItemStack(out, itemStack, StandardCharsets.UTF_8);
+    		DataTypeIO.writeItemStack(out, itemStackScheme, itemStack, StandardCharsets.UTF_8);
     	}
     	return forwardData(0x03, out.toByteArray());
     }
@@ -80,7 +90,7 @@ public class BungeeMessageSender {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
     	out.writeByte(0);
-    	DataTypeIO.writeInventory(out, title, inventory, StandardCharsets.UTF_8);
+    	DataTypeIO.writeInventory(out, inventoryScheme, title, inventory, StandardCharsets.UTF_8);
     	return forwardData(0x04, out.toByteArray());
     }
     
@@ -88,7 +98,7 @@ public class BungeeMessageSender {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
     	out.writeByte(1);
-    	DataTypeIO.writeInventory(out, title, enderchest, StandardCharsets.UTF_8);
+    	DataTypeIO.writeInventory(out, inventoryScheme, title, enderchest, StandardCharsets.UTF_8);
     	return forwardData(0x04, out.toByteArray());
     }
     

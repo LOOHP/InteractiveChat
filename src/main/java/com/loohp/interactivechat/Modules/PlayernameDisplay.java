@@ -42,7 +42,7 @@ public class PlayernameDisplay {
 		InteractiveChat.remotePlayers.values().forEach(each -> {
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
 		});
-		if (InteractiveChat.EssentialsHook) {
+		if (InteractiveChat.essentialsHook) {
 			InteractiveChat.essenNick.forEach((player, name) -> {
 				if (VanishUtils.isVanished(player)) {
 					return;

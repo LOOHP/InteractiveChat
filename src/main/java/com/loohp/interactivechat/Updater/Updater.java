@@ -24,7 +24,7 @@ public class Updater implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
-			if (InteractiveChat.UpdaterEnabled) {
+			if (InteractiveChat.updaterEnabled) {
 				Player player = event.getPlayer();
 				if (player.hasPermission("interactivechat.update")) {
 					UpdaterResponse version = Updater.checkUpdate();

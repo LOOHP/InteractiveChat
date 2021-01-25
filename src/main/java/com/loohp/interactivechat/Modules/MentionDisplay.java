@@ -84,7 +84,7 @@ public class MentionDisplay {
 					if (!names.contains(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
 						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
 					}
-					if (InteractiveChat.EssentialsHook) {
+					if (InteractiveChat.essentialsHook) {
 						if (InteractiveChat.essenNick.containsKey(reciever)) {
 							names.add(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(reciever)));
 						}

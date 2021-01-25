@@ -14,18 +14,18 @@ import de.myzelyam.api.vanish.VanishAPI;
 public class VanishUtils {
 	
 	public static boolean isVanished(Player player) {
-		if (InteractiveChat.VanishHook) {
+		if (InteractiveChat.vanishHook) {
 			if (VanishAPI.isInvisible(player)) {
 				return true;
 			}
 		}
-		if (InteractiveChat.CMIHook) {
+		if (InteractiveChat.cmiHook) {
 			CMIUser user = CMI.getInstance().getPlayerManager().getUser(player);
 			if (user.isVanished()) {
 				return true;
 			}
 		}
-		if (InteractiveChat.EssentialsHook) {
+		if (InteractiveChat.essentialsHook) {
 			Essentials ess3 = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 			User user = ess3.getUser(player);
 			if (user.isVanished()) {

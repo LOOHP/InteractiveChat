@@ -77,12 +77,12 @@ public class InteractiveChat extends JavaPlugin {
 	public static String space1 = "\u200A";
 	public static String nullString = null;
 	
-	public static Boolean EssentialsHook = false;
-	public static Boolean ChatManagerHook = false;
-	public static Boolean VanishHook = false;
-	public static Boolean CMIHook = false;
-	public static Boolean MultiChatHook = false;
-	public static Boolean VentureChatHook = false;
+	public static Boolean essentialsHook = false;
+	public static Boolean chatManagerHook = false;
+	public static Boolean vanishHook = false;
+	public static Boolean cmiHook = false;
+	public static Boolean multiChatHook = false;
+	public static Boolean ventureChatHook = false;
 	
 	public static Permission perms = null;
 	
@@ -119,13 +119,13 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean usePlayerNameCaseSensitive = true;
 	public static boolean usePlayerNameOnTranslatables = true;
 	
-	public static boolean PlayerNotFoundHoverEnable = true;
-	public static String PlayerNotFoundHoverText = "&cUnable to parse placeholder..";
-	public static boolean PlayerNotFoundClickEnable = false;
-	public static String PlayerNotFoundClickAction = "SUGGEST_COMMAND";
-	public static String PlayerNotFoundClickValue = "";
-	public static boolean PlayerNotFoundReplaceEnable = true;
-	public static String PlayerNotFoundReplaceText = "[&cERROR]";
+	public static boolean playerNotFoundHoverEnable = true;
+	public static String playerNotFoundHoverText = "&cUnable to parse placeholder..";
+	public static boolean playerNotFoundClickEnable = false;
+	public static String playerNotFoundClickAction = "SUGGEST_COMMAND";
+	public static String playerNotFoundClickValue = "";
+	public static boolean playerNotFoundReplaceEnable = true;
+	public static String playerNotFoundReplaceText = "[&cERROR]";
 	
 	public static ItemStack itemFrame1;
 	public static ItemStack itemFrame2;
@@ -140,11 +140,11 @@ public class InteractiveChat extends JavaPlugin {
 	public static String clickableCommandsHoverText = null;
 	public static boolean clickableCommandsEnforceColors = true;
 	
-	public static String NoPermission = "&cYou do not have permission to use that command!";
-	public static String InvExpired = "&cThis inventory view has expired!";
-	public static String ReloadPlugin = "&aInteractive Chat has been reloaded!";
-	public static String Console = "";
-	public static String InvalidPlayer = "";
+	public static String noPermissionMessage = "&cYou do not have permission to use that command!";
+	public static String invExpiredMessage = "&cThis inventory view has expired!";
+	public static String reloadPluginMessage = "&aInteractive Chat has been reloaded!";
+	public static String noConsoleMessage = "";
+	public static String invalidPlayerMessage = "";
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
@@ -182,11 +182,11 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Map<Player, String> essenNick = new ConcurrentHashMap<>();
 	
-	public static boolean FilterUselessColorCodes = true;
+	public static boolean filterUselessColorCodes = true;
 	
 	public static Map<String, String> aliasesMapping = new ConcurrentHashMap<>();
 	
-	public static boolean UpdaterEnabled = true;
+	public static boolean updaterEnabled = true;
 	public static boolean cancelledMessage = true;
 	
 	public static boolean legacyChatAPI = false;
@@ -292,28 +292,28 @@ public class InteractiveChat extends JavaPlugin {
         
         if (getServer().getPluginManager().getPlugin("SuperVanish") != null || getServer().getPluginManager().getPlugin("PremiumVanish") != null) {
         	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into SuperVanish/PremiumVanish!");
-			VanishHook = true;
+			vanishHook = true;
 		}
 		if (getServer().getPluginManager().getPlugin("CMI") != null) {
 			getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into CMI!");
-			CMIHook = true;
+			cmiHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
-			EssentialsHook = true;
+			essentialsHook = true;
 			getServer().getPluginManager().registerEvents(new EssentialsNicknames(), this);
 			EssentialsNicknames.setup();
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatManager!");
-			ChatManagerHook = true;
+			chatManagerHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("MultiChat") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MultiChat!");
-	    	MultiChatHook = true;
+	    	multiChatHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
@@ -330,7 +330,7 @@ public class InteractiveChat extends JavaPlugin {
 	    		}
 	    	});
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
-	    	VentureChatHook = true;
+	    	ventureChatHook = true;
 		}
 		
 	    MaterialUtils.setupLang();
@@ -339,7 +339,7 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    Charts.setup(metrics);
 	    
-	    if (UpdaterEnabled) {
+	    if (updaterEnabled) {
 	    	getServer().getPluginManager().registerEvents(new Updater(), this);
 	    }
 	    
@@ -362,7 +362,7 @@ public class InteractiveChat extends JavaPlugin {
 	    for (Player player : Bukkit.getOnlinePlayers()) {
 			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
 			
-			if (EssentialsHook) {
+			if (essentialsHook) {
 				Essentials essen = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
 				getServer().getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
 					if (essen.getUser(player.getUniqueId()).getNickname() != null) {

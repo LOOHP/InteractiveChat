@@ -76,7 +76,7 @@ public class SenderFinder {
 		InteractiveChat.remotePlayers.entrySet().forEach(entry -> {
 			names.put(ChatColorUtils.stripColor(entry.getValue().getDisplayName()), entry.getKey());
 		});
-		if (InteractiveChat.EssentialsHook) {
+		if (InteractiveChat.essentialsHook) {
 			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColorUtils.stripColor(name), player.getUniqueId()));
 		}
 		

@@ -269,7 +269,7 @@ public class ChatColorUtils {
     		text = translatePluginColorFormatting(text);
     	}
 		
-		if (InteractiveChat.MultiChatHook) {
+		if (InteractiveChat.multiChatHook) {
 			text = MultiChatRGB.convertRGBFormatting(text);
 		}
         

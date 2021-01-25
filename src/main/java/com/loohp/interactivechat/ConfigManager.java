@@ -50,17 +50,17 @@ public class ConfigManager {
 		
 		InteractiveChat.useCustomPlaceholderPermissions = getConfig().getBoolean("Settings.UseCustomPlaceholderPermissions");
 		
-		InteractiveChat.FilterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
+		InteractiveChat.filterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
 		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
 		
 		InteractiveChat.universalCooldown = getConfig().getLong("Settings.UniversalCooldown") * 1000;
 		
-		InteractiveChat.NoPermission = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
-		InteractiveChat.InvExpired = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
-		InteractiveChat.ReloadPlugin = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
-		InteractiveChat.Console = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand"));
-		InteractiveChat.InvalidPlayer = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
+		InteractiveChat.noPermissionMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
+		InteractiveChat.invExpiredMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
+		InteractiveChat.reloadPluginMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
+		InteractiveChat.noConsoleMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand"));
+		InteractiveChat.invalidPlayerMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -133,14 +133,14 @@ public class ConfigManager {
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");
 		
-		InteractiveChat.PlayerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
+		InteractiveChat.playerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
 		List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
-		InteractiveChat.PlayerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));
-		InteractiveChat.PlayerNotFoundClickEnable = getConfig().getBoolean("Settings.PlayerNotFound.Click.Enable");
-		InteractiveChat.PlayerNotFoundClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Action"));
-		InteractiveChat.PlayerNotFoundClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Value"));
-		InteractiveChat.PlayerNotFoundReplaceEnable = getConfig().getBoolean("Settings.PlayerNotFound.Replace.Enable");
-		InteractiveChat.PlayerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
+		InteractiveChat.playerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));
+		InteractiveChat.playerNotFoundClickEnable = getConfig().getBoolean("Settings.PlayerNotFound.Click.Enable");
+		InteractiveChat.playerNotFoundClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Action"));
+		InteractiveChat.playerNotFoundClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Value"));
+		InteractiveChat.playerNotFoundReplaceEnable = getConfig().getBoolean("Settings.PlayerNotFound.Replace.Enable");
+		InteractiveChat.playerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 		
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
@@ -193,7 +193,7 @@ public class ConfigManager {
 		InteractiveChat.mentionEnable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.EnableMentions"));
 		InteractiveChat.mentionDisable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.DisableMentions"));
 		
-		InteractiveChat.UpdaterEnabled = getConfig().getBoolean("Options.Updater");
+		InteractiveChat.updaterEnabled = getConfig().getBoolean("Options.Updater");
 		InteractiveChat.cancelledMessage = getConfig().getBoolean("Options.ShowCancelledNotice");
 		
 		InteractiveChat.clickableCommands = getConfig().getBoolean("Commands.Enabled");

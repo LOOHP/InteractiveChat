@@ -126,7 +126,7 @@ public class ProcessBungeeRequestedMessage {
         	InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);
         		        
-        basecomponent = InteractiveChat.FilterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
+        basecomponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
         
         String json = ComponentSerializer.toString(basecomponent);
         if (InteractiveChat.sendOriginalIfTooLong && json.length() > 32767) {

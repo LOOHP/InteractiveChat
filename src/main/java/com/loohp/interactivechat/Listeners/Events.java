@@ -94,7 +94,7 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (InteractiveChat.ChatManagerHook) {
+		if (InteractiveChat.chatManagerHook) {
 			return;
 		}
 
@@ -146,7 +146,7 @@ public class Events implements Listener {
 		
 		checkMention(event);
 				
-		if (!InteractiveChat.ChatManagerHook) {
+		if (!InteractiveChat.chatManagerHook) {
 			return;
 		}
 		
@@ -200,7 +200,7 @@ public class Events implements Listener {
     			if (!player.getName().equals(player.getDisplayName())) {
     				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
     			}
-    			if (InteractiveChat.EssentialsHook) {
+    			if (InteractiveChat.essentialsHook) {
     				if (InteractiveChat.essenNick.containsKey(player)) {
     					playernames.put(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(player)), player.getUniqueId());
     				}

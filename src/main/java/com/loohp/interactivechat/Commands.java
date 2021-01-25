@@ -48,9 +48,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 						e.printStackTrace();
 					}
 				}
-				sender.sendMessage(InteractiveChat.ReloadPlugin);
+				sender.sendMessage(InteractiveChat.reloadPluginMessage);
 			} else {
-				sender.sendMessage(InteractiveChat.NoPermission);
+				sender.sendMessage(InteractiveChat.noPermissionMessage);
 			}
 			return true;
 		}
@@ -72,7 +72,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					}
 				});
 			} else {
-				sender.sendMessage(InteractiveChat.NoPermission);
+				sender.sendMessage(InteractiveChat.noPermissionMessage);
 			}
 			return true;
 		}
@@ -100,7 +100,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							}
 						}
 					} else {
-						sender.sendMessage(InteractiveChat.Console);
+						sender.sendMessage(InteractiveChat.noConsoleMessage);
 					}
 				} else {
 					if (sender.hasPermission("interactivechat.mention.toggle.others")) {
@@ -124,14 +124,14 @@ public class Commands implements CommandExecutor, TabCompleter {
 								}
 							}
 						} else {
-							sender.sendMessage(InteractiveChat.InvalidPlayer);
+							sender.sendMessage(InteractiveChat.invalidPlayerMessage);
 						}
 					} else {
-						sender.sendMessage(InteractiveChat.NoPermission);
+						sender.sendMessage(InteractiveChat.noPermissionMessage);
 					}
 				}
 			} else {
-				sender.sendMessage(InteractiveChat.NoPermission);
+				sender.sendMessage(InteractiveChat.noPermissionMessage);
 			}
 			return true;
 		}
@@ -160,7 +160,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					Inventory inv = InteractiveChat.inventoryDisplay.get(key);
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
-					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.InvExpired));
+					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
 				return true;
 			} else if (args[0].equals("viewender")) {
@@ -169,7 +169,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					Inventory inv = InteractiveChat.enderDisplay.get(key);
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
-					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.InvExpired));
+					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
 				return true;
 			} else if (args[0].equals("viewitem")) {
@@ -178,7 +178,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					Inventory inv = InteractiveChat.itemDisplay.get(key);
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
-					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.InvExpired));
+					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
 				return true;
 			}

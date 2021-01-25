@@ -173,17 +173,17 @@ public class InventoryDisplay {
 								}
 							} else {
 								TextComponent message = null;
-								if (InteractiveChat.PlayerNotFoundReplaceEnable == true) {
-									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+								if (InteractiveChat.playerNotFoundReplaceEnable == true) {
+									message = new TextComponent(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
 								} else {
 									message = new TextComponent(InteractiveChat.invPlaceholder);
 								}
-								if (InteractiveChat.PlayerNotFoundHoverEnable == true) {
-									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder)).create()));
+								if (InteractiveChat.playerNotFoundHoverEnable == true) {
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder)).create()));
 								}
-								if (InteractiveChat.PlayerNotFoundClickEnable == true) {
-									String invtext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
-									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), invtext));
+								if (InteractiveChat.playerNotFoundClickEnable == true) {
+									String invtext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), invtext));
 								}
 								
 								newlist.add(message);

@@ -172,17 +172,17 @@ public class EnderchestDisplay {
 								}
 							} else {
 								TextComponent message = null;
-								if (InteractiveChat.PlayerNotFoundReplaceEnable) {
-									message = new TextComponent(InteractiveChat.PlayerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+								if (InteractiveChat.playerNotFoundReplaceEnable) {
+									message = new TextComponent(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
 								} else {
 									message = new TextComponent(InteractiveChat.enderPlaceholder);
 								}
-								if (InteractiveChat.PlayerNotFoundHoverEnable) {
-									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.PlayerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder)).create()));
+								if (InteractiveChat.playerNotFoundHoverEnable) {
+									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder)).create()));
 								}
-								if (InteractiveChat.PlayerNotFoundClickEnable) {
-									String endertext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.PlayerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
-									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.PlayerNotFoundClickAction), endertext));
+								if (InteractiveChat.playerNotFoundClickEnable) {
+									String endertext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), endertext));
 								}
 								
 								newlist.add(message);

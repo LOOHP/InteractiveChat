@@ -17,7 +17,6 @@ import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.MaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -40,7 +39,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload")) {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
-				MaterialUtils.reloadLang();
 				if (InteractiveChat.bungeecordMode) {
 					try {
 						BungeeMessageSender.reloadBungeeConfig();

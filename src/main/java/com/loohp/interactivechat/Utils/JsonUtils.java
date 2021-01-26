@@ -1,5 +1,10 @@
 package com.loohp.interactivechat.Utils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
 
 import org.json.simple.JSONArray;
@@ -158,5 +163,32 @@ public class JsonUtils {
     	
     	Gson g = new GsonBuilder().create();
         return g.toJson(treeMap);
+    }
+    
+    @SuppressWarnings("unchecked")
+	public static boolean saveToFilePretty(JSONObject json, File file) {
+        try {
+        	JSONObject toSave = json;
+        
+        	TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+        	treeMap.putAll(toSave);
+        	
+        	Gson g = new GsonBuilder().setPrettyPrinting().create();
+            String prettyJsonString = g.toJson(treeMap);
+            
+            PrintWriter clear = new PrintWriter(file);
+            clear.print("");
+            clear.close();
+            
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+            writer.write(prettyJsonString);
+            writer.flush();
+            writer.close();
+
+            return true;
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	return false;
+        }
     }
 }

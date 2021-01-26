@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.ItemPlaceholderEvent;
@@ -28,7 +29,7 @@ import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
-import com.loohp.interactivechat.Utils.MaterialUtils;
+import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.NBTUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
@@ -143,7 +144,7 @@ public class ItemDisplay {
 							if (optplayer.isPresent()) {
 								PlayerWrapper player = optplayer.get();
 								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
-									ItemStack item = null;							
+									ItemStack item;							
 									boolean isAir = false;
 									if (InteractiveChat.version.isOld()) {
 										if (player.getEquipment().getItemInHand() == null) {
@@ -166,6 +167,7 @@ public class ItemDisplay {
 											item = player.getEquipment().getItemInMainHand().clone();
 										}
 									}
+									XMaterial xMaterial = XMaterial.matchXMaterial(item);
 									
 									ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, reciever, basecomponent, i, item);
 									Bukkit.getPluginManager().callEvent(event);
@@ -193,22 +195,12 @@ public class ItemDisplay {
 								    String itemString = "";
 								    String amountString = "";
 								    boolean useTranslatable = false;
-								    if (item.hasItemMeta()) {
-									    if (item.getItemMeta().hasDisplayName()) {
-									    	if (!item.getItemMeta().getDisplayName().equals("")) {
-									    		itemString = item.getItemMeta().getDisplayName();
-									    	} else {
-									    		useTranslatable = true;
-									    		itemString = MaterialUtils.getMinecraftLangName(item);
-									    	}
-									    } else {
-									    	useTranslatable = true;
-									    	itemString = MaterialUtils.getMinecraftLangName(item);
-									    }
+								    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
+								    	itemString = item.getItemMeta().getDisplayName();
 								    } else {
 								    	useTranslatable = true;
-								    	itemString = MaterialUtils.getMinecraftLangName(item);
-								    }							
+								    	itemString = LanguageUtils.getTranslationKey(item);
+								    }
 								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
 								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
@@ -258,35 +250,22 @@ public class ItemDisplay {
 					            	String[] parts = message.split("\\{Item\\}");					            	
 					            	if (message.startsWith("{Item}")) {
 					            		if (useTranslatable) {
-											if (!InteractiveChat.version.isLegacy()) {
-												TranslatableComponent transItem = new TranslatableComponent(itemString);
-												if (item.getType().equals(Material.PLAYER_HEAD)) {
-													String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-													if (owner != null) {
-														transItem.addWith(owner);
-													}
+											TranslatableComponent transItem = new TranslatableComponent(itemString);
+											if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+												String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+												if (owner != null) {
+													transItem.addWith(owner);
 												}
-												transItem.setColor(RarityUtils.getRarityColor(item));
-												if (!isAir) {
-													transItem.setHoverEvent(hoverItem);
-												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-													transItem.setClickEvent(clickItem);
-											    }
-											    newlist.add(transItem);
-											} else {
-												TextComponent itemitemtextcomponent = new TextComponent(itemString);
-												itemitemtextcomponent.setText(RarityUtils.getRarityColor(item) + itemitemtextcomponent.getText());
-												if (!isAir) {
-													itemitemtextcomponent.setHoverEvent(hoverItem);
-												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-													itemitemtextcomponent.setClickEvent(clickItem);
-											    }
-											    newlist.add(itemitemtextcomponent);
 											}
+											transItem.setColor(RarityUtils.getRarityColor(item));
+											if (!isAir) {
+												transItem.setHoverEvent(hoverItem);
+											}
+										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+												transItem.setClickEvent(clickItem);
+										    }
+										    newlist.add(transItem);
 										} else {
 											TextComponent itemitemtextcomponent = new TextComponent(itemString);
 											if (!isAir) {
@@ -314,35 +293,22 @@ public class ItemDisplay {
 										
 										if (u < parts.length - 1 || message.endsWith("{Item}")) {
 											if (useTranslatable) {
-												if (!InteractiveChat.version.isLegacy()) {
-													TranslatableComponent transItem = new TranslatableComponent(itemString);
-													transItem.setColor(RarityUtils.getRarityColor(item));
-													if (item.getType().equals(Material.PLAYER_HEAD)) {
-														String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-														if (owner != null) {
-															transItem.addWith(owner);
-														}
+												TranslatableComponent transItem = new TranslatableComponent(itemString);
+												transItem.setColor(RarityUtils.getRarityColor(item));
+												if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+													String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+													if (owner != null) {
+														transItem.addWith(owner);
 													}
-													if (!isAir) {
-														transItem.setHoverEvent(hoverItem);
-													}
-												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-														ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-														transItem.setClickEvent(clickItem);
-												    }
-												    newlist.add(transItem);
-												} else {
-													TextComponent itemitemtextcomponent = new TextComponent(itemString);
-													itemitemtextcomponent.setText(RarityUtils.getRarityColor(item) + itemitemtextcomponent.getText());
-													if (!isAir) {
-														itemitemtextcomponent.setHoverEvent(hoverItem);
-													}
-												    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-														ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
-														itemitemtextcomponent.setClickEvent(clickItem);
-												    }
-												    newlist.add(itemitemtextcomponent);
 												}
+												if (!isAir) {
+													transItem.setHoverEvent(hoverItem);
+												}
+											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+													transItem.setClickEvent(clickItem);
+											    }
+											    newlist.add(transItem);
 											} else {
 												TextComponent itemitemtextcomponent = new TextComponent(itemString);
 												if (!isAir) {

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
-	<version>3.2.7.2</version>
+	<version>3.2.8.0</version>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>
@@ -36,6 +36,10 @@
 						</relocation>
 						<relocation>
 							<pattern>com.googlecode.json-simple</pattern>
+							<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.apache.commons.text</pattern>
 							<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
 						</relocation>
 					</relocations>
@@ -87,6 +91,12 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.9</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>

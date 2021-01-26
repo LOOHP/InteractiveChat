@@ -52,7 +52,6 @@ import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
-import com.loohp.interactivechat.Utils.MaterialUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
@@ -69,6 +68,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static InteractiveChat plugin = null;
 	
+	public static String exactMinecraftVersion;
 	public static MCVersion version;
 	
 	public static ProtocolManager protocolManager;
@@ -218,6 +218,7 @@ public class InteractiveChat extends JavaPlugin {
 
 		Metrics metrics = new Metrics(this, pluginId);
 		
+		exactMinecraftVersion = Bukkit.getVersion().substring(Bukkit.getVersion().indexOf("(") + 5, Bukkit.getVersion().indexOf(")"));
 		version = MCVersion.fromPackageName(getServer().getClass().getPackage().getName());
 
         if (!version.isSupported()) {
@@ -333,7 +334,6 @@ public class InteractiveChat extends JavaPlugin {
 	    	ventureChatHook = true;
 		}
 		
-	    MaterialUtils.setupLang();
 	    RarityUtils.setupRarity();
 	    PotionUtils.setupPotions();
 	    

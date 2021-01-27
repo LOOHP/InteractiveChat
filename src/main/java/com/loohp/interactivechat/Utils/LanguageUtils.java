@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -172,7 +173,7 @@ public class LanguageUtils {
 				for (File file : langFileFolder.listFiles()) {
 					try {
 						if (file.getName().endsWith(".json")) {
-							FileReader reader = new FileReader(file);
+							FileReader reader = new FileReader(file, StandardCharsets.UTF_8);
 							JSONObject json = (JSONObject) new JSONParser().parse(reader);
 							reader.close();
 							Map<String, String> mapping = new HashMap<>();
@@ -184,7 +185,7 @@ public class LanguageUtils {
 							}
 							translations.put(file.getName().substring(0, file.getName().lastIndexOf(".")), mapping);
 						} else if (file.getName().endsWith(".lang")) {
-							BufferedReader br = new BufferedReader(new FileReader(file));
+							BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
 							Map<String, String> mapping = new HashMap<>();
 							br.lines().forEach(line -> {
 								if (line.contains("=")) {

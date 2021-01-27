@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
+import com.loohp.interactivechat.InteractiveChat;
+
 public class ItemNBTUtils {
 	
 	private static Class<?> craftItemStackClass;
@@ -14,6 +16,7 @@ public class ItemNBTUtils {
 	private static Class<?> nmsNbtTagCompoundClass;
 	private static Method saveNmsItemStackMethod;
 	private static Constructor<?> nmsItemStackFromTagConstructor;
+	private static Method nmsItemStackFromTagMethod;
 	private static Constructor<?> nbtTagCompoundConstructor;
 	private static Class<?> nmsMojangsonParserClass;
 	private static Method parseMojangsonMethod;
@@ -29,7 +32,11 @@ public class ItemNBTUtils {
 			nbtTagCompoundConstructor = nmsNbtTagCompoundClass.getConstructor();
 			nmsMojangsonParserClass = getNMSClass("net.minecraft.server.", "MojangsonParser");
 			parseMojangsonMethod = nmsMojangsonParserClass.getMethod("parse", String.class);
-			nmsItemStackFromTagConstructor = nmsItemStackClass.getDeclaredConstructor(nmsNbtTagCompoundClass);
+			if (InteractiveChat.version.isOld()) {
+				nmsItemStackFromTagMethod = nmsItemStackClass.getMethod("createStack", nmsNbtTagCompoundClass);
+			} else {
+				nmsItemStackFromTagConstructor = nmsItemStackClass.getDeclaredConstructor(nmsNbtTagCompoundClass);
+			}
 			asBukkitCopyMethod = craftItemStackClass.getMethod("asBukkitCopy", nmsItemStackClass);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -46,7 +53,7 @@ public class ItemNBTUtils {
 		try {
 			Object nmsNbtTagCompoundObj = parseMojangsonMethod.invoke(null, json);
 			nmsItemStackFromTagConstructor.setAccessible(true);
-			Object nmsItemStackObj = nmsItemStackFromTagConstructor.newInstance(nmsNbtTagCompoundObj);
+			Object nmsItemStackObj = InteractiveChat.version.isOld() ? nmsItemStackFromTagMethod.invoke(null, nmsNbtTagCompoundObj) : nmsItemStackFromTagConstructor.newInstance(nmsNbtTagCompoundObj);
 			nmsItemStackFromTagConstructor.setAccessible(false);
 			return (ItemStack) asBukkitCopyMethod.invoke(null, nmsItemStackObj);
 		} catch (Throwable e) {

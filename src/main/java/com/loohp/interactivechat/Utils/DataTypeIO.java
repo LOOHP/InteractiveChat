@@ -93,7 +93,7 @@ public class DataTypeIO {
 					int durability = setDurability ? in.readInt() : -1;
 					String nbtStr = readString(in, charset);
 					ItemStack fromTag = ItemNBTUtils.getItemFromNBTJson(nbtStr);
-					if (fromTag != null) {
+					if (fromTag != null && fromTag.getType().equals(itemStack.getType())) {
 						itemStack = fromTag;
 					}
 					if (setDurability) {

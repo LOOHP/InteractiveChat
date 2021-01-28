@@ -3,7 +3,7 @@ package com.loohp.interactivechat.Utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.google.common.io.Files;
 import com.loohp.interactivechat.InteractiveChat;
 
 import net.md_5.bungee.api.ChatColor;
@@ -77,7 +76,9 @@ public class LanguageUtils {
 		    	    pw.flush();
 		    	    pw.close();
 		    	}
-		    	JSONObject data = (JSONObject) new JSONParser().parse(new FileReader(hashFile));
+		    	InputStreamReader hashStream = new InputStreamReader(new FileInputStream(hashFile), StandardCharsets.UTF_8);
+		    	JSONObject data = (JSONObject) new JSONParser().parse(hashStream);
+		    	hashStream.close();
 				
 				JSONObject manifest = HTTPRequestUtils.getJSONResponse(VERSION_MANIFEST_URL);
 				if (manifest == null) {
@@ -112,7 +113,7 @@ public class LanguageUtils {
 									if (fileToSave.exists()) {
 										fileToSave.delete();
 									}
-									Files.copy(enUsFile, fileToSave);
+									FileUtils.copy(enUsFile, fileToSave);
 								}
 							} else {
 								JSONObject values = new JSONObject();
@@ -121,7 +122,7 @@ public class LanguageUtils {
 								if (fileToSave.exists()) {
 									fileToSave.delete();
 								}
-								Files.copy(enUsFile, fileToSave);
+								FileUtils.copy(enUsFile, fileToSave);
 								data.put("en_us", values);											
 							}
 							FileUtils.removeFolderRecursively(tempFolder);
@@ -173,7 +174,7 @@ public class LanguageUtils {
 				for (File file : langFileFolder.listFiles()) {
 					try {
 						if (file.getName().endsWith(".json")) {
-							FileReader reader = new FileReader(file, StandardCharsets.UTF_8);
+							InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 							JSONObject json = (JSONObject) new JSONParser().parse(reader);
 							reader.close();
 							Map<String, String> mapping = new HashMap<>();
@@ -185,7 +186,7 @@ public class LanguageUtils {
 							}
 							translations.put(file.getName().substring(0, file.getName().lastIndexOf(".")), mapping);
 						} else if (file.getName().endsWith(".lang")) {
-							BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
+							BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 							Map<String, String> mapping = new HashMap<>();
 							br.lines().forEach(line -> {
 								if (line.contains("=")) {
@@ -264,11 +265,15 @@ public class LanguageUtils {
 	}
 	
 	public static String getTranslation(String translationKey, String language) {
-		if (InteractiveChat.version.isLegacy() && translationKey.equals("item.skull.player.name")) {
-			return "%s's Head";
+		try {
+			if (InteractiveChat.version.isLegacy() && translationKey.equals("item.skull.player.name")) {
+				return "%s's Head";
+			}
+			Map<String, String> mapping = translations.get(language);
+			return mapping == null ? new TranslatableComponent(translationKey).toPlainText() : mapping.getOrDefault(translationKey, translationKey);
+		} catch (Exception e) {
+			return translationKey;
 		}
-		Map<String, String> mapping = translations.get(language);
-		return mapping == null ? new TranslatableComponent(translationKey).toPlainText() : mapping.getOrDefault(translationKey, translationKey);
 	}
 
 }

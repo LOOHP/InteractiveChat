@@ -1,6 +1,9 @@
 package com.loohp.interactivechat.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class FileUtils {
 
@@ -20,6 +23,13 @@ public class FileUtils {
 				folder.deleteOnExit();
 			}
 		}
+	}
+	
+	public static long copy(File from, File to) throws IOException {
+		FileInputStream stream = new FileInputStream(from);
+		long result = Files.copy(stream, to.toPath());
+		stream.close();
+		return result;
 	}
 
 }

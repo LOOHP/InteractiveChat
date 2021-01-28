@@ -286,35 +286,8 @@ public class ChatPackets implements Listener {
         		if (postEvent.sendOriginalIfCancelled()) {
         			PacketContainer originalPacketModified = postEvent.getOriginal();
         			
-        			WrappedChatComponent originalWcc = originalPacketModified.getChatComponents().read(0);
-        	        Object originalField1 = originalPacketModified.getModifier().read(1);
-        	        if (originalWcc != null || originalField1 != null) {
-        	        	BaseComponent[] originalComponent = null;
-	        	        try {
-	        		        if (originalWcc != null) {
-	        		        	originalComponent = ComponentSerializer.parse(originalWcc.getJson());
-	        		        } else {
-	        		        	originalComponent = (BaseComponent[]) originalField1;
-	        		        }
-	        	        } catch (Exception e) {
-	        	        	try {
-	        	        		originalComponent = (BaseComponent[]) originalField1;
-	        	        	} catch (Exception skip) {}
-	        	        }
-	        	        
-	        	        String originalJson = originalComponent == null ? "" : ComponentSerializer.toString(originalComponent);
-	        	        if (originalJson.length() > 32767) {
-	        	        	if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-		        				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long in which the unprocessed alternative is still too long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
-		        			}
-	        	        } else {
-		        			orderAndSend(reciever, originalPacketModified, messageUUID, queue);
-		        			if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-		        				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Sending unprocessed chat packet bounded to " + reciever.getName() + " as it is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
-		        			}
-		        			return;
-	        	        }
-        	        }
+		        	orderAndSend(reciever, originalPacketModified, messageUUID, queue);
+		        	return;
         		} else {
         			if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
         				Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");

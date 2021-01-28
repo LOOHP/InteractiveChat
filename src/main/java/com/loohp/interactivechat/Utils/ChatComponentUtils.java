@@ -20,11 +20,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.KeybindComponent;
-import net.md_5.bungee.api.chat.ScoreComponent;
-import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
@@ -434,18 +430,12 @@ public class ChatComponentUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static <T extends BaseComponent> T clone(T chatComponent) {
-		if (chatComponent instanceof TextComponent) {
-			return (T) new TextComponent((TextComponent) chatComponent);
-		} else if (chatComponent instanceof TranslatableComponent) {
-			return (T) new TranslatableComponent((TranslatableComponent) chatComponent);
-		} else if (chatComponent instanceof KeybindComponent) {
-			return (T) new KeybindComponent((KeybindComponent) chatComponent);
-		} else if (chatComponent instanceof ScoreComponent) {
-			return (T) new ScoreComponent((ScoreComponent) chatComponent);
-		} else if (chatComponent instanceof SelectorComponent) {
-			return (T) new SelectorComponent((SelectorComponent) chatComponent);
+		try {
+			Class<? extends BaseComponent> clazz = chatComponent.getClass();
+			return (T) clazz.getConstructor(clazz).newInstance(clazz.cast(chatComponent));
+		} catch (Throwable e) {
+			throw new UnsupportedOperationException(chatComponent.getClass() + " is not supported to be cloned.", e);
 		}
-		throw new UnsupportedOperationException(chatComponent.getClass() + " is not supported to be cloned.");
 	}
 	
 	public static BaseComponent join(BaseComponent... toJoin) {

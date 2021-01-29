@@ -132,7 +132,9 @@ public class PlayerDataManager implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent event) {
 		PlayerData pd = data.remove(event.getPlayer().getUniqueId());
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> pd.saveConfig());
+		if (pd != null) {
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> pd.saveConfig());
+		}
 	}
 	
 	//=============

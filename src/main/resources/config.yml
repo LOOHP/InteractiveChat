@@ -20,6 +20,10 @@ Messages:
   EnableMentions: "&aPlayer Mentions Enabled!"
   DisableMentions: "&ePlayer Mentions Disabled!"
 
+  #The messages sent when listing placeholders
+  ListPlaceholdersHeader: "&eList of Chat Placeholders:"
+  ListPlaceholdersBody: "&b{Order}. \"&f&l{Keyword}&b\" &6- &e{Description}"
+
   PlayerOnlyCommand: "&cThis command cannot be used in the console!"
   InvalidPlayer: "&cThat is not a valid player!"
 
@@ -174,6 +178,8 @@ ItemDisplay:
     Frame:
       Primary: MAGENTA_STAINED_GLASS_PANE
       Secondary: BLACK_STAINED_GLASS_PANE
+    #This text is used when listing placeholders 
+    Description: "&aShow the Item you are holding in the chat!"
 
   Inventory:    
     #Enable players to show their inventory
@@ -193,6 +199,8 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
+    #This text is used when listing placeholders 
+    Description: "&bShow your Inventory in the chat!"
 
   EnderChest:    
     #Enable players to show their ender chest
@@ -212,6 +220,8 @@ ItemDisplay:
     #Hover Message
     HoverMessage: 
       - "&bClick to view!"
+    #This text is used when listing placeholders 
+    Description: "&dShow your Ender Chest in the chat!"
 
 Player:
   #Let InteractiveChat handle all player names that appears in chat (literally ALL)

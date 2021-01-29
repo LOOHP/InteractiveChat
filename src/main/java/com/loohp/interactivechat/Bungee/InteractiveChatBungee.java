@@ -329,7 +329,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	for (int i = 0; i < size1; i++) {
 		        		boolean isBulitIn = input.readBoolean();
 		        		if (isBulitIn) {
-		        			list.add(new ICPlaceholder(DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readBoolean()));
+		        			String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			boolean casesensitive = input.readBoolean();
+		        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission));
 		        		} else {
 		        			int customNo = input.readInt();
 		        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
@@ -349,8 +353,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        			String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        			boolean replaceEnabled = input.readBoolean();
 		        			String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 
-		        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText)));
+		        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
 		        		}
 		        	}
 		        	placeholderList.put(((Server) event.getSender()).getInfo().getName(), list);

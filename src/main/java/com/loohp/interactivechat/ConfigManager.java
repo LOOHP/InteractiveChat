@@ -62,6 +62,8 @@ public class ConfigManager {
 		InteractiveChat.reloadPluginMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
 		InteractiveChat.noConsoleMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand"));
 		InteractiveChat.invalidPlayerMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
+		InteractiveChat.listPlaceholderHeader = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersHeader"));
+		InteractiveChat.listPlaceholderBody = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersBody"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -145,13 +147,16 @@ public class ConfigManager {
 		
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive));
+			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item"));
 		}
 		if (InteractiveChat.useInventory) {
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive));
+			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory"));
 		}
 		if (InteractiveChat.useEnder) {
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive));
+			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest"));
 		}
 		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
 			ConfigurationSection s = ConfigManager.getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
@@ -161,15 +166,16 @@ public class ConfigManager {
 			boolean parseKeyword = s.getBoolean("ParseKeyword");
 			long cooldown = s.getLong("Cooldown") * 1000;
 			boolean hoverEnabled = s.getBoolean("Hover.Enable");
-			String hoverText = String.join("\n", s.getStringList("Hover.Text"));
+			String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
 			boolean clickEnabled = s.getBoolean("Click.Enable");
 			String clickAction = s.getString("Click.Action").toUpperCase();
 			String clickValue = s.getString("Click.Value");
 			boolean replaceEnabled = s.getBoolean("Replace.Enable");
-			String replaceText = s.getString("Replace.ReplaceText");
+			String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText"));
 			List<String> aliases = s.getStringList("Aliases");
+			String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
 
-			InteractiveChat.placeholderList.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText)));
+			InteractiveChat.placeholderList.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
 			
 			for (String alias : aliases) {
 				alias = ChatColorUtils.translateAlternateColorCodes('&', alias);

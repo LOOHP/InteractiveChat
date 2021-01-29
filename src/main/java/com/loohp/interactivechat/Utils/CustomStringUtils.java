@@ -95,7 +95,7 @@ public class CustomStringUtils {
 	    final String[] metaCharacters = {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
 
 	    for (int i = 0; i < metaCharacters.length; i++){
-	        if(inputString.contains(metaCharacters[i])){
+	        if (inputString.contains(metaCharacters[i])) {
 	            inputString = inputString.replace(metaCharacters[i], "\\" + metaCharacters[i]);
 	        }
 	    }

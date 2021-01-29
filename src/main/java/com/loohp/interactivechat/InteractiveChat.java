@@ -145,6 +145,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String reloadPluginMessage = "&aInteractive Chat has been reloaded!";
 	public static String noConsoleMessage = "";
 	public static String invalidPlayerMessage = "";
+	public static String listPlaceholderHeader = "";
+	public static String listPlaceholderBody = "";
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();

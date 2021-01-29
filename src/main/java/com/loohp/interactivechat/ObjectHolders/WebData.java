@@ -68,7 +68,7 @@ public class WebData {
 		List<CustomPlaceholder> specialPlaceholders = new ArrayList<>();
 		for (Object obj : (JSONArray) json.get("special-placeholders")) {
 			JSONObject each = (JSONObject) obj;
-			specialPlaceholders.add(new CustomPlaceholder(-1, ParsePlayer.valueOf((String) each.get("parseplayer")), (String) each.get("placeholder"), new ArrayList<>(), true, (boolean) each.get("casesensitive"), Long.parseLong(each.get("cooldown").toString()), new CustomPlaceholderHoverEvent((boolean) each.get("hoverEnabled"), (String) each.get("hoverText")), new CustomPlaceholderClickEvent((boolean) each.get("clickEnabled"), Action.valueOf((String) each.get("clickAction")), (String) each.get("clickValue")), new CustomPlaceholderReplaceText((boolean) each.get("replaceEnabled"), (String) each.get("replaceText"))));
+			specialPlaceholders.add(new CustomPlaceholder(-1, ParsePlayer.valueOf((String) each.get("parseplayer")), (String) each.get("placeholder"), new ArrayList<>(), true, (boolean) each.get("casesensitive"), Long.parseLong(each.get("cooldown").toString()), new CustomPlaceholderHoverEvent((boolean) each.get("hoverEnabled"), (String) each.get("hoverText")), new CustomPlaceholderClickEvent((boolean) each.get("clickEnabled"), Action.valueOf((String) each.get("clickAction")), (String) each.get("clickValue")), new CustomPlaceholderReplaceText((boolean) each.get("replaceEnabled"), (String) each.get("replaceText")), ""));
 		}
 		
 		this.specialPlaceholders = specialPlaceholders;

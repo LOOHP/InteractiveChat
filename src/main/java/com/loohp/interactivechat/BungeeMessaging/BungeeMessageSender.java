@@ -150,7 +150,8 @@ public class BungeeMessageSender {
     	return forwardData(0x10, out.toByteArray());
     }
     
-    public static boolean resetAndForwardPlaceholderList(List<ICPlaceholder> placeholderList) throws IOException {
+    @SuppressWarnings("deprecation")
+	public static boolean resetAndForwardPlaceholderList(List<ICPlaceholder> placeholderList) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	out.writeInt(placeholderList.size());
     	for (ICPlaceholder placeholder : placeholderList) {
@@ -159,6 +160,8 @@ public class BungeeMessageSender {
     		if (isBuiltIn) {
     			DataTypeIO.writeString(out, placeholder.getKeyword(), StandardCharsets.UTF_8);
     			out.writeBoolean(placeholder.isCaseSensitive());
+    			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(out, placeholder.getPermission(), StandardCharsets.UTF_8);
     		} else {
     			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
     			out.writeInt(customPlaceholder.getPosition());
@@ -184,6 +187,8 @@ public class BungeeMessageSender {
     			CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
     			out.writeBoolean(replace.isEnabled());
     			DataTypeIO.writeString(out, replace.getReplaceText(), StandardCharsets.UTF_8);
+    			
+    			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
     		}
     	}
     	return forwardData(0x11, out.toByteArray());

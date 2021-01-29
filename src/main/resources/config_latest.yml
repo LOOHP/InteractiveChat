@@ -20,6 +20,10 @@ Messages:
   EnableMentions: "&aPlayer Mentions Enabled!"
   DisableMentions: "&ePlayer Mentions Disabled!"
 
+  #The messages sent when listing placeholders
+  ListPlaceholdersHeader: "&eList of Chat Placeholders:"
+  ListPlaceholdersBody: "&b{Order}. \"&f&l{Keyword}&b\" &6- &e{Description}"
+
   PlayerOnlyCommand: "&cThis command cannot be used in the console!"
   InvalidPlayer: "&cThat is not a valid player!"
 
@@ -174,6 +178,8 @@ ItemDisplay:
     Frame:
       Primary: MAGENTA_STAINED_GLASS_PANE
       Secondary: BLACK_STAINED_GLASS_PANE
+    #This text is used when listing placeholders 
+    Description: "&aShow the Item you are holding in the chat!"
 
   Inventory:    
     #Enable players to show their inventory
@@ -193,6 +199,8 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
+    #This text is used when listing placeholders 
+    Description: "&bShow your Inventory in the chat!"
 
   EnderChest:    
     #Enable players to show their ender chest
@@ -212,6 +220,8 @@ ItemDisplay:
     #Hover Message
     HoverMessage: 
       - "&bClick to view!"
+    #This text is used when listing placeholders 
+    Description: "&dShow your Ender Chest in the chat!"
 
 Player:
   #Let InteractiveChat handle all player names that appears in chat (literally ALL)
@@ -290,9 +300,11 @@ CustomPlaceholders:
       Enable: true
       #The text to replace the keyword
       ReplaceText: "[%player_name%'s Balance]"
+    #This text is used when listing placeholders 
+    Description: "&eShow the amount of money you have in the chat!"
   '2':
     ParsePlayer: viewer
-    Text: "SunKnights"
+    Text: "[loohpjames]"
     Aliases: []
     ParseKeyword: false
     CaseSensitive: false
@@ -300,15 +312,16 @@ CustomPlaceholders:
     Hover:
       Enable: true
       Text: 
-        - "&eVisit the author's server!"
+        - "&eVisit the author's website!"
         - "&bClick me!"
     Click:
       Enable: true
       Action: OPEN_URL
-      Value: "https://sunknights.fun"
+      Value: "https://loohpjames.com"
     Replace:
       Enable: true
-      ReplaceText: "&6&lSun&e&lKnights"
+      ReplaceText: "&3&lLoohp&6&lJames"
+    Description: "&eLink to author's website!"
   '3':
     ParsePlayer: sender
     Text: "[gametime]"
@@ -326,6 +339,7 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: "%player_world_time_24%"
+    Description: "&eShow current time of the world you are in!"
   '4':
     ParsePlayer: viewer
     Text: "[Hover]"
@@ -344,3 +358,4 @@ CustomPlaceholders:
     Replace:
       Enable: false
       ReplaceText: ""
+    Description: "&eExample Hover Text"

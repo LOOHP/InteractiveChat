@@ -16,8 +16,8 @@ public class CustomPlaceholder extends ICPlaceholder {
 	private CustomPlaceholderClickEvent click;
 	private CustomPlaceholderReplaceText replace;
 	
-	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace) {
-		super(keyword, caseSensitive);
+	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String description) {
+		super(keyword, caseSensitive, description, true);
 		this.position = position;
 		this.parsePlayer = parsePlayer;
 		this.aliases = aliases;
@@ -28,8 +28,14 @@ public class CustomPlaceholder extends ICPlaceholder {
 		this.replace = replace;
 	}
 	
+	@Deprecated
 	public int getPosition() {
 		return position;
+	}
+	
+	@Override
+	public String getPermission() {
+		return "interactivechat.module.custom." + position;
 	}
 	
 	public ParsePlayer getParsePlayer() {

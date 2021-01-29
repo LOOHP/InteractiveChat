@@ -4,20 +4,41 @@ import java.util.Optional;
 
 public class ICPlaceholder {
 	
+	private final boolean isCustomPlaceholder;
 	private String keyword;
-	private boolean caseSensitive; 
+	private boolean caseSensitive;
+	private String description;
+	private String permission;
 	
-	public ICPlaceholder(String keyword, boolean caseSensitive) {
+	/*
+	 * This constructor is used by CustomPlaceholder
+	 */
+	protected ICPlaceholder(String keyword, boolean caseSensitive, String description, boolean isCustomPlaceholder) {
 		this.keyword = keyword;
 		this.caseSensitive = caseSensitive;
+		this.description = description;
+		this.isCustomPlaceholder = isCustomPlaceholder;
+		this.permission = null;
+	}
+	
+	public ICPlaceholder(String keyword, boolean caseSensitive, String description, String permission) {
+		this.keyword = keyword;
+		this.caseSensitive = caseSensitive;
+		this.description = description;
+		this.isCustomPlaceholder = false;
+		this.permission = permission;
 	}
 	
 	public boolean isBuildIn() {
-		return !(this instanceof CustomPlaceholder);
+		return !isCustomPlaceholder;
 	}
 	
 	public Optional<CustomPlaceholder> getCustomPlaceholder() {
-		return isBuildIn() ? Optional.empty() : Optional.of((CustomPlaceholder) this);
+		return isCustomPlaceholder ? Optional.of((CustomPlaceholder) this) : Optional.empty();
+	}
+	
+	public String getPermission() {
+		return permission;
 	}
 	
 	public String getKeyword() {
@@ -26,6 +47,10 @@ public class ICPlaceholder {
 	
 	public boolean isCaseSensitive() {
 		return caseSensitive;
+	}
+	
+	public String getDescription() {
+		return description;
 	}
 
 }

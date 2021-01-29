@@ -245,6 +245,7 @@ public class PluginMessageSendingBungee {
 		InteractiveChatBungee.requestedMessages.put(messageId, player.getUniqueId());
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, ServerInfo serverFrom) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
@@ -256,6 +257,8 @@ public class PluginMessageSendingBungee {
     		if (isBuiltIn) {
     			DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
     			output.writeBoolean(placeholder.isCaseSensitive());
+    			DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(output, placeholder.getPermission(), StandardCharsets.UTF_8);
     		} else {
     			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
     			output.writeInt(customPlaceholder.getPosition());
@@ -281,6 +284,8 @@ public class PluginMessageSendingBungee {
     			CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
     			output.writeBoolean(replace.isEnabled());
     			DataTypeIO.writeString(output, replace.getReplaceText(), StandardCharsets.UTF_8);
+    			
+    			DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
     		}
     	}
 

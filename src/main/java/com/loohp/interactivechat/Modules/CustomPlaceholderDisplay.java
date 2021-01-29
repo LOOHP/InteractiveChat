@@ -48,7 +48,7 @@ public class CustomPlaceholderDisplay {
 			
 			if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
 				PlayerWrapper sender = optplayer.get();
-				if (!PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.custom." + cp.getPosition(), true, 5)) {
+				if (!PlayerUtils.hasPermission(sender.getUniqueId(), cp.getPermission(), true, 5)) {
 					continue;
 				}
 			}

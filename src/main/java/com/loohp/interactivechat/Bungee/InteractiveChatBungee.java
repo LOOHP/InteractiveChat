@@ -226,7 +226,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		int packetNumber = in.readInt();
 		int packetId = in.readShort();
 		
-		if (packetId == 0x08 || packetId == 0x09 || packetId == 0x10 || packetId == 0x11) {
+		if (packetId >= 0x08) {
 			boolean isEnding = in.readBoolean();
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
@@ -365,7 +365,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
 		        	String playerdata = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        	Configuration playerconfig = yamlConfigProvider.load(playerdata);
-		        	yamlConfigProvider.save(playerconfig, new File(playerDataFolder, uuid2.toString()));
+		        	yamlConfigProvider.save(playerconfig, new File(playerDataFolder, uuid2.toString() + ".yml"));
 		        	PluginMessageSendingBungee.forwardPlayerData(uuid2, playerdata, ((Server) event.getSender()).getInfo());
 		        	break;
 		        }
@@ -439,6 +439,27 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onServerConnected(ServerConnectedEvent event) {
 		ProxiedPlayer player = event.getPlayer();
+		UUID uuid = player.getUniqueId();
+		
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (player.getServer() != null) {
+					this.cancel();
+					File playerFile = new File(playerDataFolder, uuid.toString() + ".yml");
+					if (playerFile.exists()) {
+						try {
+							Configuration playerconfig = yamlConfigProvider.load(playerFile);
+							StringWriter writer = new StringWriter();
+							yamlConfigProvider.save(playerconfig, writer);
+							PluginMessageSendingBungee.forwardPlayerData(uuid, writer.toString(), player.getServer().getInfo());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}, 0, 200);
 		
 		ServerConnection serverConnection = (ServerConnection) event.getServer();
 		ChannelWrapper channelWrapper;
@@ -473,22 +494,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onPlayerConnected(PostLoginEvent event) {
 		ProxiedPlayer player = event.getPlayer();
-		UUID uuid = player.getUniqueId();
+
 		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
 		List<UUID> messageQueue = Collections.synchronizedList(new LinkedList<>());
 		requestedMessageProcesses.put(player.getUniqueId(), messageQueue);
-		
-		File playerFile = new File(playerDataFolder, uuid.toString());
-		if (playerFile.exists()) {
-			try {
-				Configuration playerconfig = yamlConfigProvider.load(playerFile);
-				StringWriter writer = new StringWriter();
-				yamlConfigProvider.save(playerconfig, writer);
-				PluginMessageSendingBungee.forwardPlayerData(uuid, writer.toString(), player.getServer().getInfo());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		
 		UserConnection userConnection = (UserConnection) player;
 		ChannelWrapper channelWrapper;

@@ -7,9 +7,9 @@ Shows your item in hand, inventory content and ender chest content with your fri
 
 More information (screenshots, commands, permissions) about the plugin can be found on the Spigot page linked above.
 
-## Built against Spigot
-Built against [Spigot's API](https://www.spigotmc.org/wiki/buildtools/) (required mc versions are listed on the spigot page above).
-Plugins built against Spigot usually also work with [Paper](https://papermc.io/).
+## Built against Spigot and Bungeecord
+Built against [Spigot's API](https://www.spigotmc.org/wiki/buildtools/) (required mc versions are listed on the spigot page above) & [Bungeecord's API](https://github.com/SpigotMC/BungeeCord).
+Plugins built against Spigot usually also work with [Paper](https://papermc.io/) while plugins built against Bungeecord usually also works with [Waterfall](https://github.com/PaperMC/Waterfall).
 
 ## Development Builds
 

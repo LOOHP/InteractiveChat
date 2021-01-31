@@ -47,8 +47,8 @@ import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -150,7 +150,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
-	public static Map<String, PlayerWrapper> keyPlayer = new ConcurrentHashMap<>();
+	public static Map<String, ICPlayer> keyPlayer = new ConcurrentHashMap<>();
 	
 	public static BiMap<Long, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<Long, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
@@ -201,7 +201,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static AtomicLong messagesCounter = new AtomicLong(0);
 	
 	public static Boolean bungeecordMode = false;
-	public static BiMap<UUID, PlayerWrapper> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<UUID, ICPlayer> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
 	public static Map<String, List<ICPlaceholder>> remotePlaceholderList = new HashMap<>();
 	public static int remoteDelay = 500;
 	public static boolean queueRemoteUpdate = false;
@@ -276,8 +276,8 @@ public class InteractiveChat extends JavaPlugin {
 		    
 		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 		    	for (Player player : Bukkit.getOnlinePlayers()) {
-		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameHoverText);
-		    		PlaceholderParser.parse(new PlayerWrapper(player), usePlayerNameClickValue);
+		    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
+		    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
 		    	}
 		    }, 0, 100);
 		}

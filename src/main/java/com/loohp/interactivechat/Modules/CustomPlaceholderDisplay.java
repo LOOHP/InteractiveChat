@@ -15,7 +15,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
@@ -34,7 +34,7 @@ public class CustomPlaceholderDisplay {
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
-	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, List<ICPlaceholder> placeholderList, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, List<ICPlaceholder> placeholderList, long unix) {
 		for (int i = 0; i < placeholderList.size(); i++) {
 			
 			ICPlaceholder icplaceholder = placeholderList.get(i);
@@ -43,11 +43,11 @@ public class CustomPlaceholderDisplay {
 			}
 			CustomPlaceholder cp = icplaceholder.getCustomPlaceholder().get();
 			
-			PlayerWrapper parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new PlayerWrapper(reciever);
+			ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
 			boolean casesensitive = cp.isCaseSensitive();
 			
 			if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
-				PlayerWrapper sender = optplayer.get();
+				ICPlayer sender = optplayer.get();
 				if (!PlayerUtils.hasPermission(sender.getUniqueId(), cp.getPermission(), true, 5)) {
 					continue;
 				}
@@ -69,7 +69,7 @@ public class CustomPlaceholderDisplay {
 		
 		if (InteractiveChat.t) {
 			for (CustomPlaceholder cp : WebData.getInstance().getSpecialPlaceholders()) {
-				PlayerWrapper parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new PlayerWrapper(reciever);
+				ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
 				boolean casesensitive = cp.isCaseSensitive();			
 				String placeholder = cp.getKeyword();
 				placeholder = (cp.getParseKeyword()) ? PlaceholderParser.parse(parseplayer, placeholder) : placeholder;
@@ -90,11 +90,11 @@ public class CustomPlaceholderDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processCustomPlaceholder(PlayerWrapper parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, String messageKey, long unix) {
+	public static BaseComponent processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, String messageKey, long unix) {
 		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
 			if (optplayer.isPresent()) {
-				PlayerWrapper player = optplayer.get();
+				ICPlayer player = optplayer.get();
 				Long uc = universalCooldowns.get(player.getUniqueId());
 				if (uc != null) {
 					if (uc > unix) {
@@ -166,7 +166,7 @@ public class CustomPlaceholderDisplay {
 							if (trim.get(i).endsWith("\\\\")) {
 								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							}
-							PlayerWrapper player = parseplayer;
+							ICPlayer player = parseplayer;
 							
 							String textComp = placeholder;
 							if (replaceEnabled) {

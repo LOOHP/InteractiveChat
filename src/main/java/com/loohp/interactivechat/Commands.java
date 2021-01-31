@@ -12,6 +12,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
@@ -137,23 +138,23 @@ public class Commands implements CommandExecutor, TabCompleter {
 		
 		if (args[0].equalsIgnoreCase("list")) {
 			if (sender.hasPermission("interactivechat.list.all")) {
-				sender.sendMessage(InteractiveChat.listPlaceholderHeader);
+				InteractiveChatAPI.sendMessageUnprocessed(sender, InteractiveChat.listPlaceholderHeader);
 				String body = InteractiveChat.listPlaceholderBody;
 				int i = 0;
 				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
 					i++;
-					String text = body.replace("{Order}", i + "").replace("{Keyword}", "\\" + placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-					sender.sendMessage(text);
+					String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+					InteractiveChatAPI.sendMessageUnprocessed(sender, text);
 				}
 			} else if (sender.hasPermission("interactivechat.list")) {
-				sender.sendMessage(InteractiveChat.listPlaceholderHeader);
+				InteractiveChatAPI.sendMessageUnprocessed(sender, InteractiveChat.listPlaceholderHeader);
 				String body = InteractiveChat.listPlaceholderBody;
 				int i = 0;
 				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
 					if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
 						i++;
-						String text = body.replace("{Order}", i + "").replace("{Keyword}", "\\" + placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-						sender.sendMessage(text);
+						String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+						InteractiveChatAPI.sendMessageUnprocessed(sender, text);
 					}
 				}
 			} else {

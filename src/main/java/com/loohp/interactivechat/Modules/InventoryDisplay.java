@@ -20,7 +20,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
@@ -38,11 +38,11 @@ public class InventoryDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<PlayerWrapper> optplayer, Player reciever, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) {
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
-				PlayerWrapper player = optplayer.get();
+				ICPlayer player = optplayer.get();
 				Long uc = universalCooldowns.get(player.getUniqueId());
 				if (uc != null) {
 					if (uc > unix) {
@@ -115,7 +115,7 @@ public class InventoryDisplay {
 								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
 							}
 							if (optplayer.isPresent()) {
-								PlayerWrapper player = optplayer.get();
+								ICPlayer player = optplayer.get();
 								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
 									
 									long time = InteractiveChat.keyTime.get(messageKey);

@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ValuePairs;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -24,7 +24,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public class PlaceholderParser {
 	
-	public static String parse(PlayerWrapper player, String str) {
+	public static String parse(ICPlayer player, String str) {
 		if (player.isLocal()) {
 			if (InteractiveChat.bungeecordMode) {
 				List<ValuePairs<String, String>> pairs = new ArrayList<>();

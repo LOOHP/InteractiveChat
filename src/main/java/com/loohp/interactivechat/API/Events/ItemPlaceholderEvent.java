@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -19,7 +19,7 @@ public class ItemPlaceholderEvent extends PlaceholderEvent {
 
 	private ItemStack itemStack;
 	
-	public ItemPlaceholderEvent(PlayerWrapper sender, Player receiver, BaseComponent baseComponent, long timeSent, ItemStack itemStack) {
+	public ItemPlaceholderEvent(ICPlayer sender, Player receiver, BaseComponent baseComponent, long timeSent, ItemStack itemStack) {
 		super(sender, receiver, baseComponent, timeSent);
 		this.itemStack = itemStack;
 	}

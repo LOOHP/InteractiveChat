@@ -36,7 +36,7 @@ import com.loohp.interactivechat.Modules.MentionDisplay;
 import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
@@ -186,11 +186,11 @@ public class ChatPackets implements Listener {
 	        }
 
 	        ProcessCommandsResult commandsender = ProcessCommands.process(basecomponent);
-	        Optional<PlayerWrapper> sender = Optional.empty();
+	        Optional<ICPlayer> sender = Optional.empty();
 	        if (commandsender.getSender() != null) {
 	        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
 	        	if (bukkitplayer != null) {
-	        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
+	        		sender = Optional.of(new ICPlayer(bukkitplayer));
 	        	} else {
 	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
 	        	}
@@ -217,7 +217,7 @@ public class ChatPackets implements Listener {
 			if (preEvent.getSender() != null) {
 				Player newsender = Bukkit.getPlayer(preEvent.getSender());
 				if (newsender != null) {
-					sender = Optional.of(new PlayerWrapper(newsender));
+					sender = Optional.of(new ICPlayer(newsender));
 				}
 			}
 			basecomponent = preEvent.getBaseComponent();

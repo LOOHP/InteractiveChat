@@ -14,7 +14,7 @@ public class CommandPlaceholderInfo {
 	private UUID sender;
 	private Map<String, CommandPlaceholderInfo> map;
 	
-	public CommandPlaceholderInfo(PlayerWrapper sender, String placeholder, String uuidmatch, Map<String, CommandPlaceholderInfo> commandPlaceholderMatch) {
+	public CommandPlaceholderInfo(ICPlayer sender, String placeholder, String uuidmatch, Map<String, CommandPlaceholderInfo> commandPlaceholderMatch) {
 		this.placeholder = placeholder;
 		this.uuidmatch = uuidmatch;
 		this.sender = sender.getUniqueId();

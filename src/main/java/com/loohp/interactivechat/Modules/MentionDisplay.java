@@ -12,8 +12,8 @@ import org.bukkit.entity.Player;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.OldTitleSender;
@@ -28,7 +28,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class MentionDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, PlayerWrapper sender, String messageKey, long unix, boolean async) {
+	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, ICPlayer sender, String messageKey, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
 			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
     		if (pair.getSender().equals(sender.getUniqueId())) {
@@ -103,7 +103,7 @@ public class MentionDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, Player reciever, PlayerWrapper sender, BaseComponent basecomponent, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, Player reciever, ICPlayer sender, BaseComponent basecomponent, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 		for (BaseComponent base : basecomponentlist) {

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ProcessCommandsResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
@@ -50,11 +50,11 @@ public class ProcessBungeeRequestedMessage {
         }
         
         ProcessCommandsResult commandsender = ProcessCommands.process(basecomponent);
-        Optional<PlayerWrapper> sender = Optional.empty();
+        Optional<ICPlayer> sender = Optional.empty();
         if (commandsender.getSender() != null) {
         	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
         	if (bukkitplayer != null) {
-        		sender = Optional.of(new PlayerWrapper(bukkitplayer));
+        		sender = Optional.of(new ICPlayer(bukkitplayer));
         	} else {
         		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
         	}
@@ -82,7 +82,7 @@ public class ProcessBungeeRequestedMessage {
 			}
         	server = sender.get().getServer();
         } else {
-        	server = PlayerWrapper.CURRENT_SERVER_REPRESENTATION;
+        	server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
 		
         if (InteractiveChat.usePlayerName) {
@@ -106,7 +106,7 @@ public class ProcessBungeeRequestedMessage {
         }
         
         List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
-        if (server.equals(PlayerWrapper.CURRENT_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
+        if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
         	serverPlaceholderList = InteractiveChat.placeholderList;
         }
         basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, serverPlaceholderList, unix);

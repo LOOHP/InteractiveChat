@@ -3,7 +3,7 @@ package com.loohp.interactivechat.API.Events;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -20,7 +20,7 @@ public class InventoryPlaceholderEvent extends PlaceholderEvent {
 	private Inventory inventory;
 	private final InventoryPlaceholderType type;
 	
-	public InventoryPlaceholderEvent(PlayerWrapper sender, Player receiver, BaseComponent baseComponent, long timeSent, Inventory inventory, InventoryPlaceholderType type) {
+	public InventoryPlaceholderEvent(ICPlayer sender, Player receiver, BaseComponent baseComponent, long timeSent, Inventory inventory, InventoryPlaceholderType type) {
 		super(sender, receiver, baseComponent, timeSent);
 		this.inventory = inventory;
 		this.type = type;

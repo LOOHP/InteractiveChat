@@ -3,10 +3,10 @@ package com.loohp.interactivechat.ObjectHolders;
 public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 	
 	private String placeholder;
-	private PlayerWrapper player;
+	private ICPlayer player;
 	private String replaceText;
 	
-	public ReplaceTextBundle(String placeholder, PlayerWrapper player, String replaceText) {
+	public ReplaceTextBundle(String placeholder, ICPlayer player, String replaceText) {
 		this.placeholder = placeholder;
 		this.player = player;
 		this.replaceText = replaceText;
@@ -16,7 +16,7 @@ public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 		return placeholder;
 	}
 	
-	public PlayerWrapper getPlayer() {
+	public ICPlayer getPlayer() {
 		return player;
 	}
 	

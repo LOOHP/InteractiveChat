@@ -30,9 +30,9 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper.RemoteEquipment;
+import com.loohp.interactivechat.ObjectHolders.RemoteEquipment;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
 
@@ -90,13 +90,13 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        		UUID uuid = DataTypeIO.readUUID(input);
 	        		String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        		if (InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			PlayerWrapper player = InteractiveChat.remotePlayers.get(uuid);
+	        			ICPlayer player = InteractiveChat.remotePlayers.get(uuid);
 	        			if (!player.getRemoteServer().equals(server)) {
 	        				player.setRemoteServer(server);
 	        			}
 	        		}
 	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			InteractiveChat.remotePlayers.put(uuid, new PlayerWrapper(server, name, uuid, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
+	        			InteractiveChat.remotePlayers.put(uuid, new ICPlayer(server, name, uuid, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
 	        		}
 	        		newSet.add(uuid);
 	        	}
@@ -120,7 +120,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x03:
 	        	UUID uuid = DataTypeIO.readUUID(input);
-	        	PlayerWrapper player = InteractiveChat.remotePlayers.get(uuid);
+	        	ICPlayer player = InteractiveChat.remotePlayers.get(uuid);
 	        	if (player == null) {
 	        		break;
 	        	}
@@ -142,7 +142,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x04:
 	        	UUID uuid1 = DataTypeIO.readUUID(input);
-	        	PlayerWrapper player1 = InteractiveChat.remotePlayers.get(uuid1);
+	        	ICPlayer player1 = InteractiveChat.remotePlayers.get(uuid1);
 	        	if (player1 == null) {
 	        		break;
 	        	}
@@ -155,7 +155,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x05:
 	        	UUID uuid2 = DataTypeIO.readUUID(input);
-	        	PlayerWrapper player2 = InteractiveChat.remotePlayers.get(uuid2);
+	        	ICPlayer player2 = InteractiveChat.remotePlayers.get(uuid2);
 	        	if (player2 == null) {
 	        		break;
 	        	}
@@ -169,7 +169,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x06:
 	        	String message = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	UUID uuid3 = DataTypeIO.readUUID(input);
-	        	PlayerWrapper player3 = InteractiveChat.remotePlayers.get(uuid3);
+	        	ICPlayer player3 = InteractiveChat.remotePlayers.get(uuid3);
 	        	if (player3 == null) {
 	        		break;
 	        	}
@@ -179,9 +179,9 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x07:
 	        	UUID uuid4 = DataTypeIO.readUUID(input);
 	        	Player bukkitplayer = Bukkit.getPlayer(uuid4);
-	        	PlayerWrapper player4;
+	        	ICPlayer player4;
 	        	if (bukkitplayer != null) {
-	        		player4 = new PlayerWrapper(bukkitplayer);
+	        		player4 = new ICPlayer(bukkitplayer);
 	        	} else {
 	        		player4 = InteractiveChat.remotePlayers.get(uuid4);
 	        	}

@@ -11,7 +11,7 @@ import java.util.Queue;
 import org.bukkit.Bukkit;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
@@ -28,15 +28,15 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<PlayerWrapper> sender, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<ICPlayer> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<ReplaceTextBundle>();
 		Bukkit.getOnlinePlayers().forEach(each -> {
 			if (VanishUtils.isVanished(each)) {
 				return;
 			}
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new PlayerWrapper(each), each.getName()));
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), new PlayerWrapper(each), each.getDisplayName()));
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), new ICPlayer(each), each.getDisplayName()));
 			}
 		});	
 		InteractiveChat.remotePlayers.values().forEach(each -> {
@@ -47,7 +47,7 @@ public class PlayernameDisplay {
 				if (VanishUtils.isVanished(player)) {
 					return;
 				}
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new PlayerWrapper(player), name));
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new ICPlayer(player), name));
 			});
 		}
 		
@@ -62,7 +62,7 @@ public class PlayernameDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, PlayerWrapper player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, ICPlayer player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
 

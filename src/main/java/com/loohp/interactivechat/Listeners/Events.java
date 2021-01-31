@@ -35,8 +35,8 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
@@ -72,7 +72,7 @@ public class Events implements Listener {
 						String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
 						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new PlayerWrapper(event.getPlayer()), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
@@ -206,7 +206,7 @@ public class Events implements Listener {
     				}
     			}
 			}
-			for (Entry<UUID, PlayerWrapper> entry : InteractiveChat.remotePlayers.entrySet()) {
+			for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
 				playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
 			}
 			for (Entry<String, UUID> entry : playernames.entrySet()) {

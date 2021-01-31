@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.PlayerWrapper;
+import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
@@ -17,8 +17,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class SenderFinder {
 	
-	public static Optional<PlayerWrapper> getSender(BaseComponent basecomponent, String messageKey) {
-		PlayerWrapper keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
+	public static Optional<ICPlayer> getSender(BaseComponent basecomponent, String messageKey) {
+		ICPlayer keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
 		if (keyPlayer != null) {
 			return Optional.of(keyPlayer);
 		}
@@ -32,9 +32,9 @@ public class SenderFinder {
 				Player player = Bukkit.getPlayer(uuid);
 				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.values(), 5);
 				if (player != null) {
-					return Optional.of(new PlayerWrapper(player));
+					return Optional.of(new ICPlayer(player));
 				}
-				PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(entry.getValue());
+				ICPlayer wplayer = InteractiveChat.remotePlayers.get(entry.getValue());
 				if (wplayer != null) {
 					return Optional.of(wplayer);
 				}
@@ -58,9 +58,9 @@ public class SenderFinder {
 			Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
 			Player player = Bukkit.getPlayer(uuid);
 			if (player != null) {
-				return Optional.of(new PlayerWrapper(player));
+				return Optional.of(new ICPlayer(player));
 			}
-			PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(uuid);
+			ICPlayer wplayer = InteractiveChat.remotePlayers.get(uuid);
 			if (wplayer != null) {
 				return Optional.of(wplayer);
 			}
@@ -93,9 +93,9 @@ public class SenderFinder {
 		if (currentplayer != null) {
 			Player player = Bukkit.getPlayer(currentplayer);
 			if (player != null) {
-				return Optional.of(new PlayerWrapper(player));
+				return Optional.of(new ICPlayer(player));
 			}
-			PlayerWrapper wplayer = InteractiveChat.remotePlayers.get(currentplayer);
+			ICPlayer wplayer = InteractiveChat.remotePlayers.get(currentplayer);
 			if (wplayer != null) {
 				return Optional.of(wplayer);
 			}

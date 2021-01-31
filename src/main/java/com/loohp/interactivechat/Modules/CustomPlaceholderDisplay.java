@@ -121,7 +121,7 @@ public class CustomPlaceholderDisplay {
 		}
 		
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {
 			if (!(base instanceof TextComponent)) {
 				newlist.add(base);
@@ -173,7 +173,7 @@ public class CustomPlaceholderDisplay {
 								textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
 							}
 							BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
-			            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+			            	List<BaseComponent> baseJson = new ArrayList<>();
 			            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 			            	
 			            	for (BaseComponent baseComponent : baseJson) {

@@ -19,7 +19,7 @@ public class ProcessCommands {
 		
 		UUID sender = null;
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {
 			if (!(base instanceof TextComponent)) {
 				newlist.add(base);

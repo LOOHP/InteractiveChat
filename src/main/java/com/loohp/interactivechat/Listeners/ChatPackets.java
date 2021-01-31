@@ -56,7 +56,7 @@ public class ChatPackets implements Listener {
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
 		    @Override
 		    public void onPacketSending(PacketEvent event) {
-		    	if (!event.isFiltered() || !event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
+		    	if (!event.isFiltered() || event.isCancelled() || !event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
 		    		return;
 		    	}
 		    	

@@ -79,7 +79,7 @@ public class MentionDisplay {
 						reciever.playSound(reciever.getLocation(), sound, volume, pitch);
 					}
 					
-					List<String> names = new ArrayList<String>();
+					List<String> names = new ArrayList<>();
 					names.add(ChatColorUtils.stripColor(reciever.getName()));
 					if (!names.contains(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
 						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
@@ -105,7 +105,7 @@ public class MentionDisplay {
 	@SuppressWarnings("deprecation")
 	public static BaseComponent processPlayer(String placeholder, Player reciever, ICPlayer sender, BaseComponent basecomponent, String messageKey, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {
 			if (!(base instanceof TextComponent)) {
 				newlist.add(base);

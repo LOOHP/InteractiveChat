@@ -19,7 +19,7 @@ public class CommandsDisplay {
 	@SuppressWarnings("deprecation")
 	public static BaseComponent process(BaseComponent basecomponent) {		
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		
 		boolean parsingCommand = false;
 		int indexOfParsingStart = -1;
@@ -38,7 +38,7 @@ public class CommandsDisplay {
 							TextComponent before = new TextComponent(textComp);
 							before.setText(before.getText().substring(0, end));
 							StringBuilder cmd = new StringBuilder();
-							List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
+							List<BaseComponent> cmdCompList = new ArrayList<>();
 							
 							String[] formmat = InteractiveChat.clickableCommandsFormat.split("\\{Command\\}");
 							String prepend = formmat[0];
@@ -110,7 +110,7 @@ public class CommandsDisplay {
 				} else {
 					if (i + 1 == basecomponentlist.size()) {
 						StringBuilder cmd = new StringBuilder();
-						List<BaseComponent> cmdCompList = new ArrayList<BaseComponent>();
+						List<BaseComponent> cmdCompList = new ArrayList<>();
 						String[] formmat = InteractiveChat.clickableCommandsFormat.split("\\{Command\\}");
 						String prepend = formmat[0];
 						String color = ChatColorUtils.getLastColors(prepend);

@@ -19,7 +19,7 @@ import com.loohp.interactivechat.Utils.ChatColorUtils;
 
 public class ClientSettingPackets implements Listener {
 	
-	private static HashMap<Player, Boolean> colorSettingsMap = new HashMap<Player, Boolean>();
+	private static HashMap<Player, Boolean> colorSettingsMap = new HashMap<>();
 	
 	public enum ColorSettings {
 		ON, 

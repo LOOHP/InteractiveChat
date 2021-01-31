@@ -69,7 +69,7 @@ public class EnderchestDisplay {
 		}
 		
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {
 			if (!(base instanceof TextComponent)) {
 				newlist.add(base);
@@ -153,7 +153,7 @@ public class EnderchestDisplay {
 									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
 									
 									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
-					            	List<BaseComponent> baseJson = new ArrayList<BaseComponent>();
+					            	List<BaseComponent> baseJson = new ArrayList<>();
 					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
 					            	
 					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");

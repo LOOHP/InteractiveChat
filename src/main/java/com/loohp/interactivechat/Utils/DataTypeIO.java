@@ -27,7 +27,8 @@ public class DataTypeIO {
 			String data = readString(in, charset);
 			return InventoryUtils.fromBase64(data, title);
 		case 1:
-			Inventory inventory = hasTitle ? Bukkit.createInventory(null, in.readInt(), title) : Bukkit.createInventory(null, in.readInt());
+			int size = in.readInt();
+			Inventory inventory = hasTitle ? Bukkit.createInventory(null, size + (size % 9), title) : Bukkit.createInventory(null, size + (size % 9));
 			for (int i = 0; i < inventory.getSize(); i++) {
 				inventory.setItem(i, readItemStack(in, charset));
 			}

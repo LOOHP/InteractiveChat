@@ -312,25 +312,27 @@ public class Events implements Listener {
 						BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
 						if (bsm instanceof InventoryHolder) {
 							Inventory container = ((InventoryHolder) bsm).getInventory();
-							Inventory displayInventory = Bukkit.createInventory(null, container.getSize() + 9, InteractiveChat.containerViewTitle);
-							ItemStack empty = InteractiveChat.itemFrame1.clone();
-							if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-								empty = InteractiveChat.itemFrame2.clone();
+							if ((container.getSize() % 0) == 0) {
+								Inventory displayInventory = Bukkit.createInventory(null, container.getSize() + 9, InteractiveChat.containerViewTitle);
+								ItemStack empty = InteractiveChat.itemFrame1.clone();
+								if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+									empty = InteractiveChat.itemFrame2.clone();
+								}
+								ItemMeta emptyMeta = empty.getItemMeta();
+								emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+								empty.setItemMeta(emptyMeta);
+								for (int j = 0; j < 9; j++) {
+									displayInventory.setItem(j, empty);
+								}
+								displayInventory.setItem(4, item);
+								for (int i = 0; i < container.getSize(); i++) {
+									ItemStack containerItem = container.getItem(i);
+									displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
+								}
+								
+								InteractiveChat.containerDisplay.add(displayInventory);
+								Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.openInventory(displayInventory), 2);
 							}
-							ItemMeta emptyMeta = empty.getItemMeta();
-							emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-							empty.setItemMeta(emptyMeta);
-							for (int j = 0; j < 9; j++) {
-								displayInventory.setItem(j, empty);
-							}
-							displayInventory.setItem(4, item);
-							for (int i = 0; i < container.getSize(); i++) {
-								ItemStack containerItem = container.getItem(i);
-								displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
-							}
-							
-							InteractiveChat.containerDisplay.add(displayInventory);
-							Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.openInventory(displayInventory), 2);
 						}
 					}
 				}

@@ -22,7 +22,13 @@ public class Charts {
                 return amount > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) amount;
             }
         }));
-		
+
+		metrics.addCustomChart(new Metrics.SimplePie("bungeecord_mode", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.bungeecordMode ? "Enabled" : "Disabled";
+	        }
+	    }));
 	}
 
 }

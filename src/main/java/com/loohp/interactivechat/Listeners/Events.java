@@ -289,6 +289,10 @@ public class Events implements Listener {
 		Player player = (Player) event.getWhoClicked();
 		Inventory topInventory = event.getView().getTopInventory();
 		if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.itemDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay.inverse().containsKey(topInventory) || InteractiveChat.enderDisplay.inverse().containsKey(topInventory)) {
+			
+			event.setCancelled(true);
+			cancelledInventory.add(event);
+			
 			if (event.getRawSlot() < event.getView().getTopInventory().getSize()) {
 				ItemStack item = event.getCurrentItem();
 				if (item != null) {
@@ -312,7 +316,7 @@ public class Events implements Listener {
 						BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
 						if (bsm instanceof InventoryHolder) {
 							Inventory container = ((InventoryHolder) bsm).getInventory();
-							if ((container.getSize() % 0) == 0) {
+							if ((container.getSize() % 9) == 0) {
 								Inventory displayInventory = Bukkit.createInventory(null, container.getSize() + 9, InteractiveChat.containerViewTitle);
 								ItemStack empty = InteractiveChat.itemFrame1.clone();
 								if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
@@ -337,9 +341,6 @@ public class Events implements Listener {
 					}
 				}
 			}
-			
-			event.setCancelled(true);
-			cancelledInventory.add(event);
 		}
  	}
 	

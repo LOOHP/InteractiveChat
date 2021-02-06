@@ -305,7 +305,11 @@ public class Events implements Listener {
 							BookMeta ori = (BookMeta) event.getCurrentItem().getItemMeta();
 							BookMeta dis = (BookMeta) book.getItemMeta();
 							List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
-							dis.spigot().setPages(pages);
+							if (pages.isEmpty()) {
+								dis.setPages(" ");
+							} else {
+								dis.spigot().setPages(pages);
+							}
 							dis.setTitle("Temp Book");
 							dis.setAuthor("InteractiveChat");
 							book.setItemMeta(dis);

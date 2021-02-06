@@ -51,6 +51,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
+import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
@@ -338,6 +339,7 @@ public class InteractiveChat extends JavaPlugin {
 		
 	    RarityUtils.setupRarity();
 	    PotionUtils.setupPotions();
+	    LanguageUtils.loadTranslations("en_us");
 	    
 	    Charts.setup(metrics);
 	    

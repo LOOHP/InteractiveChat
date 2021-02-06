@@ -33,5 +33,14 @@ public class HashUtils {
 		}
 		return result;
 	}
+	
+	public static String createSha1String(InputStream fis) throws Exception {
+		byte[] b = createSha1(fis);
+		String result = "";
+		for (int i = 0; i < b.length; i++) {
+			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
+		}
+		return result;
+	}
 
 }

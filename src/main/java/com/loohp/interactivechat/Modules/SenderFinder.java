@@ -30,7 +30,7 @@ public class SenderFinder {
 			if (chat.contains(msg)) {
 				UUID uuid = entry.getValue();
 				Player player = Bukkit.getPlayer(uuid);
-				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.values(), 5);
+				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(msg), 5);
 				if (player != null) {
 					return Optional.of(new ICPlayer(player));
 				}

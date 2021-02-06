@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -20,6 +21,7 @@ public class DataTypeIO {
 	
 	public static Inventory readInventory(ByteArrayDataInput in, Charset charset) throws IOException {
 		int encodingScheme = in.readByte();
+		InventoryType type = InventoryType.valueOf(readString(in, charset));
 		boolean hasTitle = in.readBoolean();
 		String title = hasTitle ? readString(in, charset) : null;
 		switch (encodingScheme) {
@@ -28,7 +30,12 @@ public class DataTypeIO {
 			return InventoryUtils.fromBase64(data, title);
 		case 1:
 			int size = in.readInt();
-			Inventory inventory = hasTitle ? Bukkit.createInventory(null, size + (size % 9), title) : Bukkit.createInventory(null, size + (size % 9));
+			Inventory inventory;
+			if (type.equals(InventoryType.CHEST)) {
+				inventory = hasTitle ? Bukkit.createInventory(null, size + (size % 9), title) : Bukkit.createInventory(null, size + (size % 9));
+			} else {
+				inventory = hasTitle ? Bukkit.createInventory(null, type, title) : Bukkit.createInventory(null, type);
+			}
 			for (int i = 0; i < inventory.getSize(); i++) {
 				inventory.setItem(i, readItemStack(in, charset));
 			}
@@ -40,6 +47,7 @@ public class DataTypeIO {
 
 	public static void writeInventory(ByteArrayDataOutput out, int encodingScheme, String title, Inventory inventory, Charset charset) throws IOException {
 		out.writeByte(encodingScheme);
+		writeString(out, inventory.getType().name(), charset);
 		if (title == null) {
 			out.writeBoolean(false);
 		} else {

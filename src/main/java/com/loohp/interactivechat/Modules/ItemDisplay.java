@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -231,7 +232,7 @@ public class ItemDisplay {
 											}										
 											InteractiveChat.itemDisplay.put(time, inv);	
 										} else {
-											Inventory inv = Bukkit.createInventory(null, 27, title);
+											Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
 											ItemStack empty = InteractiveChat.itemFrame1.clone();
 											if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
 												empty = InteractiveChat.itemFrame2.clone();
@@ -242,7 +243,7 @@ public class ItemDisplay {
 											for (int j = 0; j < inv.getSize(); j++) {
 												inv.setItem(j, empty);
 											}
-											inv.setItem(13, item);				            							
+											inv.setItem(4, item);				            							
 											InteractiveChat.itemDisplay.put(time, inv);	
 										}
 									}

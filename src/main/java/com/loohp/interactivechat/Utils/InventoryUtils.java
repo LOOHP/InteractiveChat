@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -33,16 +34,25 @@ public class InventoryUtils {
 	        throw new IllegalStateException("Unable to save item stacks.", e);
         }
 	}
-	    
-	public static Inventory fromBase64(String data, String title) throws IOException {
+	
+	public static Inventory fromBase64(String data, InventoryType type, String title) throws IOException {
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-	        Inventory inventory = null;
-	        if (title == null || title.equals("")) {
-	       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
+	        Inventory inventory;
+	        if (type.equals(InventoryType.CHEST)) {
+		        if (title == null || title.equals("")) {
+		       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
+		        } else {
+		       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt(), title);
+		        }
 	        } else {
-	       	 	inventory = Bukkit.getServer().createInventory(null, dataInput.readInt(), title);
+	        	dataInput.readInt();
+	        	if (title == null || title.equals("")) {
+		       	 	inventory = Bukkit.getServer().createInventory(null, type);
+		        } else {
+		       	 	inventory = Bukkit.getServer().createInventory(null, type, title);
+		        }
 	        }
 	   
 	        // Read the serialized inventory
@@ -55,6 +65,10 @@ public class InventoryUtils {
 	    } catch (ClassNotFoundException e) {
 	        throw new IOException("Unable to decode class type.", e);
 	    }
+	}
+	    
+	public static Inventory fromBase64(String data, String title) throws IOException {
+		return fromBase64(data, InventoryType.CHEST, title);
 	}
 	
 }

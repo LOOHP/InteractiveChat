@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -51,6 +52,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 public class ChatPackets implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
+	private static AtomicBoolean lock = new AtomicBoolean(false);
 	
 	public static void chatMessageListener() {		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
@@ -109,7 +111,7 @@ public class ChatPackets implements Listener {
 	private static void orderAndSend(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue) throws InterruptedException {
 		long timeout = System.currentTimeMillis() + (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 1000;
         while (queue.peek() != null && !queue.peek().equals(messageUUID) && System.currentTimeMillis() < timeout) {
-        	TimeUnit.NANOSECONDS.sleep(100000);
+        	TimeUnit.NANOSECONDS.sleep(10000);
         }
         queue.remove(messageUUID);
         Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
@@ -122,11 +124,17 @@ public class ChatPackets implements Listener {
 	}
 	
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
+		long timeout = System.currentTimeMillis() + (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 1000;
+		while (lock.get() && System.currentTimeMillis() < timeout) {
+			try {TimeUnit.NANOSECONDS.sleep(10000);} catch (InterruptedException e) {}
+		}
+		lock.set(true);
 		PacketContainer originalPacket = packet.deepClone();		    		
     	try {
 	        WrappedChatComponent wcc = packet.getChatComponents().read(0);
 	        Object field1 = packet.getModifier().read(1);
 	        if (wcc == null && field1 == null) {
+	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -146,6 +154,7 @@ public class ChatPackets implements Listener {
 		        	basecomponentarray = (BaseComponent[]) field1;
 		        	field = 1;
 	        	} catch (Exception skip) {
+	        		lock.set(false);
 	        		orderAndSend(reciever, packet, messageUUID, queue);
 	        		return;
 	        	}
@@ -154,6 +163,7 @@ public class ChatPackets implements Listener {
 	        try {
 	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
 	        } catch (Exception e) {
+	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -161,15 +171,18 @@ public class ChatPackets implements Listener {
 	        try {
 	        	String text = basecomponent.toLegacyText();
 	        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+	        		lock.set(false);
 	        		orderAndSend(reciever, packet, messageUUID, queue);
 	        		return;
 	        	}
 	        } catch (Exception e) {
+	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
 
 	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
+	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -182,7 +195,7 @@ public class ChatPackets implements Listener {
 	        Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
 	        long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
 	        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
-	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
+	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
 	        }
 
 	        ProcessCommandsResult commandsender = ProcessCommands.process(basecomponent);
@@ -200,6 +213,7 @@ public class ChatPackets implements Listener {
 	        }
 	        if (sender.isPresent() && !sender.get().isLocal()) {
 	        	if (isFiltered) {
+	        		lock.set(false);
 	        		Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
 	        			processPacket(reciever, packet, messageUUID, queue, false);
 					}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
@@ -285,7 +299,7 @@ public class ChatPackets implements Listener {
 	        if (postEvent.isCancelled()) {
         		if (postEvent.sendOriginalIfCancelled()) {
         			PacketContainer originalPacketModified = postEvent.getOriginal();
-        			
+        			lock.set(false);
 		        	orderAndSend(reciever, originalPacketModified, messageUUID, queue);
 		        	return;
         		} else {
@@ -296,14 +310,16 @@ public class ChatPackets implements Listener {
 	        	queue.remove(messageUUID);
 	        	return;
 	        }
-	        
+	        lock.set(false);
 	        orderAndSend(reciever, packet, messageUUID, queue);
     	} catch (Exception e) {
     		e.printStackTrace();
     		try {
+    			lock.set(false);
 				orderAndSend(reciever, originalPacket, messageUUID, queue);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
+				lock.set(false);
 			}
     	}
 	}

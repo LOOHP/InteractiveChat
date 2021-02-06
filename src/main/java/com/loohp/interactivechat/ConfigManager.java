@@ -19,7 +19,6 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
@@ -229,6 +228,5 @@ public class ConfigManager {
 		}
 		
 		WebData.getInstance().reload();
-		LanguageUtils.loadTranslations();
 	}
 }

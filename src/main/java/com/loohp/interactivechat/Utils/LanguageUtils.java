@@ -117,7 +117,7 @@ public class LanguageUtils {
 										break;
 									}
 									String name = entry.getName();
-									if (name.matches("^.*en_us.(json|lang)$")) {
+									if (name.matches("^.*assets/minecraft/lang/en_us.(json|lang)$")) {
 										String enUsFileHash = HashUtils.createSha1String(zip);
 										String enUsExtension = name.substring(name.indexOf(".") + 1);
 										if (data.containsKey("en_us")) {

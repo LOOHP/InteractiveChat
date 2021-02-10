@@ -1,9 +1,15 @@
 package com.loohp.interactivechat.Utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.util.Formatter;
+
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 public class HashUtils {
 
@@ -41,6 +47,41 @@ public class HashUtils {
 			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
+	}
+	
+	public static String createSha1(Inventory inventory) throws Exception {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        dataOutput.writeInt(inventory.getSize());
+        for (int i = 0; i < inventory.getSize(); i++) {
+            dataOutput.writeObject(inventory.getItem(i));
+        }
+        dataOutput.close();
+        byte[] bytes = outputStream.toByteArray();
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        Formatter formatter = new Formatter();
+        for (byte b : md.digest(bytes)) {
+            formatter.format("%02x", b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
+	}
+	
+	public static String createSha1(ItemStack item) throws Exception {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        dataOutput.writeObject(item);
+        dataOutput.close();
+        byte[] bytes = outputStream.toByteArray();
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        Formatter formatter = new Formatter();
+        for (byte b : md.digest(bytes)) {
+            formatter.format("%02x", b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
 	}
 
 }

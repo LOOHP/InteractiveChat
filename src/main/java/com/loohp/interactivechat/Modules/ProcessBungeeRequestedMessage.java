@@ -23,7 +23,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ProcessBungeeRequestedMessage {
 	
-	public static String processAndRespond(Player reciever, String component) {
+	public static String processAndRespond(Player reciever, String component) throws Exception {
 		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(component)));
 		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
         

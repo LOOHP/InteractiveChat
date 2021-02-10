@@ -153,9 +153,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
 	public static Map<String, ICPlayer> keyPlayer = new ConcurrentHashMap<>();
 	
-	public static BiMap<Long, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<Long, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<Long, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	

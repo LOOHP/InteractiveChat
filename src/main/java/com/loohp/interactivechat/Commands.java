@@ -182,33 +182,28 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args[0].equals("viewinv")) {
-				long key = Long.parseLong(args[1]);
-				if (InteractiveChat.inventoryDisplay.containsKey(key)) {
-					Inventory inv = InteractiveChat.inventoryDisplay.get(key);
+				Inventory inv = InteractiveChat.inventoryDisplay.get(args[1]);
+				if (inv != null) {
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
 					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
-				return true;
 			} else if (args[0].equals("viewender")) {
-				long key = Long.parseLong(args[1]);
-				if (InteractiveChat.enderDisplay.containsKey(key)) {
-					Inventory inv = InteractiveChat.enderDisplay.get(key);
+				Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
+				if (inv != null) {
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
 					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
-				return true;
 			} else if (args[0].equals("viewitem")) {
-				long key = Long.parseLong(args[1]);
-				if (InteractiveChat.itemDisplay.containsKey(key)) {
-					Inventory inv = InteractiveChat.itemDisplay.get(key);
+				Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
+				if (inv != null) {
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
 				} else {
 					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}
-				return true;
 			}
+			return true;
 		}
 		
 		sender.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', Bukkit.spigot().getConfig().getString("messages.unknown-command")));

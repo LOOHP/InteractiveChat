@@ -23,6 +23,7 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
@@ -38,7 +39,7 @@ public class InventoryDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) throws Exception {
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -118,13 +119,11 @@ public class InventoryDisplay {
 								ICPlayer player = optplayer.get();
 								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
 									
-									long time = InteractiveChat.keyTime.get(messageKey);
-									
-									String replaceText = InteractiveChat.invReplaceText;
-									
+									String replaceText = InteractiveChat.invReplaceText;									
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
+									String sha1 = HashUtils.createSha1(player.getInventory());
 									
-									if (!InteractiveChat.inventoryDisplay.containsKey(time)) {
+									if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
 										Inventory inv = Bukkit.createInventory(null, 45, title);
 		    							for (int j = 0; j < player.getInventory().getSize(); j = j + 1) {
 		    								if (player.getInventory().getItem(j) != null) {
@@ -138,7 +137,7 @@ public class InventoryDisplay {
 										Bukkit.getPluginManager().callEvent(event);
 										inv = event.getInventory();
 		    							
-		    							InteractiveChat.inventoryDisplay.put(time, inv);	
+		    							InteractiveChat.inventoryDisplay.put(sha1, inv);	
 		    							if (InteractiveChat.bungeecordMode) {
 			    							if (player.isLocal()) {
 			    								try {
@@ -162,7 +161,7 @@ public class InventoryDisplay {
 					            	for (BaseComponent baseComponent : baseJson) {
 					            		TextComponent message = (TextComponent) baseComponent;
 					            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(invtext).create()));
-		    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewinv " + time));
+		    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewinv " + sha1));
 		    							newlist.add(message);
 					            	}
 														            							

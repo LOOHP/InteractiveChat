@@ -29,6 +29,7 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.NBTUtils;
@@ -50,7 +51,7 @@ public class ItemDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) throws Exception {
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.itemPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -208,8 +209,8 @@ public class ItemDisplay {
 								    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
 								    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
-									long time = InteractiveChat.keyTime.get(messageKey);
-									if (!InteractiveChat.itemDisplay.containsKey(time)) {
+									String sha1 = HashUtils.createSha1(item);
+									if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
 										if (useInventoryView(item)) {
 											Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
 											Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
@@ -230,7 +231,7 @@ public class ItemDisplay {
 													inv.setItem(j + 9, shulkerItem == null ? null : shulkerItem.clone());
 												}
 											}										
-											InteractiveChat.itemDisplay.put(time, inv);	
+											InteractiveChat.itemDisplay.put(sha1, inv);	
 										} else {
 											Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
 											ItemStack empty = InteractiveChat.itemFrame1.clone();
@@ -244,7 +245,7 @@ public class ItemDisplay {
 												inv.setItem(j, empty);
 											}
 											inv.setItem(4, item);				            							
-											InteractiveChat.itemDisplay.put(time, inv);	
+											InteractiveChat.itemDisplay.put(sha1, inv);	
 										}
 									}
 				            	
@@ -263,7 +264,7 @@ public class ItemDisplay {
 												transItem.setHoverEvent(hoverItem);
 											}
 										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
 												transItem.setClickEvent(clickItem);
 										    }
 										    newlist.add(transItem);
@@ -273,7 +274,7 @@ public class ItemDisplay {
 												itemitemtextcomponent.setHoverEvent(hoverItem);
 											}
 										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
 												itemitemtextcomponent.setClickEvent(clickItem);
 										    }
 										    newlist.add(itemitemtextcomponent);
@@ -287,7 +288,7 @@ public class ItemDisplay {
 											itemtextcomponent.setHoverEvent(hoverItem);
 										}
 									    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
 											itemtextcomponent.setClickEvent(clickItem);
 									    }
 									    newlist.add(itemtextcomponent);
@@ -306,7 +307,7 @@ public class ItemDisplay {
 													transItem.setHoverEvent(hoverItem);
 												}
 											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
 													transItem.setClickEvent(clickItem);
 											    }
 											    newlist.add(transItem);
@@ -316,7 +317,7 @@ public class ItemDisplay {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}
 											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + time);
+													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
 													itemitemtextcomponent.setClickEvent(clickItem);
 											    }
 											    newlist.add(itemitemtextcomponent);

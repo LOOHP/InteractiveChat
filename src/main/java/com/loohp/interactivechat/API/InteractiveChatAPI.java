@@ -172,15 +172,15 @@ public class InteractiveChatAPI {
 		return false;
 	}
 	
-	public static BiMap<Long, Inventory> getItemShareList() {
+	public static BiMap<String, Inventory> getItemShareList() {
 		return HashBiMap.create(InteractiveChat.itemDisplay);
 	}
 	
-	public static BiMap<Long, Inventory> getInventoryShareList() {
+	public static BiMap<String, Inventory> getInventoryShareList() {
 		return HashBiMap.create(InteractiveChat.inventoryDisplay);
 	}
 	
-	public static BiMap<Long, Inventory> getEnderShareList() {
+	public static BiMap<String, Inventory> getEnderShareList() {
 		return HashBiMap.create(InteractiveChat.enderDisplay);
 	}
 }

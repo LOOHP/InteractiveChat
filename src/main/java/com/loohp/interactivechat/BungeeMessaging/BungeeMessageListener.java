@@ -201,10 +201,10 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	}
 	        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-	        		String processed = ProcessBungeeRequestedMessage.processAndRespond(bukkitplayer1, component);
 	        		try {
+	        			String processed = ProcessBungeeRequestedMessage.processAndRespond(bukkitplayer1, component);
 						BungeeMessageSender.respondProcessedMessage(processed, messageId);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 	        	});

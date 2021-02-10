@@ -19,9 +19,16 @@ import net.md_5.bungee.api.chat.ClickEvent.Action;
 public class WebData {
 	
 	public static final String URL = "https://api.loohpjames.com/spigot/plugins/interactivechat";
-	private static final WebData INSTANCE = new WebData();
+	private static WebData INSTANCE = null;
 	
 	public static WebData getInstance() {
+		return INSTANCE;
+	}
+	
+	public static WebData newInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new WebData();
+		}
 		return INSTANCE;
 	}
 	

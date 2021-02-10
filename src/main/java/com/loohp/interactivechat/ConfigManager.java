@@ -227,6 +227,12 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
-		WebData.getInstance().reload();
+		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+			if (WebData.getInstance() == null) {
+				WebData.newInstance();
+			} else {
+				WebData.getInstance().reload();
+			}
+		});
 	}
 }

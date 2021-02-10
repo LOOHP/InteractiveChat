@@ -67,7 +67,7 @@ public class CustomPlaceholderDisplay {
 			basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
 		}
 		
-		if (InteractiveChat.t) {
+		if (InteractiveChat.t && WebData.getInstance() != null) {
 			for (CustomPlaceholder cp : WebData.getInstance().getSpecialPlaceholders()) {
 				ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
 				boolean casesensitive = cp.isCaseSensitive();			

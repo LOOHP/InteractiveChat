@@ -226,8 +226,12 @@ Player:
     #The text to show in the hover message
     #Supports multiple lines
     Text: 
-      - "&aWorld: %multiverse_world_alias%"
-      - "&cHealth: %player_health_rounded%"
+      - '&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y%
+      &aZ: &7%player_z%'
+      - '&eBiome: &6%player_biome%'
+      - '&cHealth: %player_health_rounded%&7/%player_max_health_rounded%'
+      - '&bPing: &7%player_colored_ping% &bms'
+      - '&dTime: &7%server_time_dd/MM/yyyy HH:mm:ss zzz%'
   Click:
     #Add a click action to all player names in chat
     Enable: true
@@ -350,3 +354,54 @@ CustomPlaceholders:
       Enable: false
       ReplaceText: ""
     Description: "&eExample Hover Text"
+  '5':
+    ParsePlayer: sender
+    Text: '[time]'
+    Aliases: []
+    ParseKeyword: false
+    CaseSensitive: true
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+  '6':
+    ParsePlayer: sender
+    Text: '[pos]'
+    Aliases: []
+    ParseKeyword: false
+    CaseSensitive: true
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
+  '7':
+    ParsePlayer: sender
+    Text: '[ping]'
+    Aliases: []
+    ParseKeyword: false
+    CaseSensitive: true
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%player_colored_ping% &bms'

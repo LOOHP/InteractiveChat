@@ -206,8 +206,10 @@ public class Events implements Listener {
     				}
     			}
 			}
-			for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
-				playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
+			synchronized (InteractiveChat.remotePlayers) {
+				for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
+					playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
+				}
 			}
 			for (Entry<String, UUID> entry : playernames.entrySet()) {
 				String name = entry.getKey();

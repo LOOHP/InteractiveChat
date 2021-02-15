@@ -126,14 +126,14 @@ public class ChatPackets implements Listener {
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
 		long timeout = System.currentTimeMillis() + (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 1000;
 		while (lock.get() && System.currentTimeMillis() < timeout) {
-			try {TimeUnit.NANOSECONDS.sleep(10000);} catch (InterruptedException e) {}
+			try {TimeUnit.NANOSECONDS.sleep(1000);} catch (InterruptedException e) {}
 		}
 		lock.set(true);
 		PacketContainer originalPacket = packet.deepClone();		    		
     	try {
+    		Object componentField = packet.getModifier().read(1);
 	        WrappedChatComponent wcc = packet.getChatComponents().read(0);
-	        Object field1 = packet.getModifier().read(1);
-	        if (wcc == null && field1 == null) {
+	        if (wcc == null && componentField == null) {
 	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
@@ -142,22 +142,17 @@ public class ChatPackets implements Listener {
 	        BaseComponent[] basecomponentarray = null;
 	        int field = -1;
 	        try {
-		        if (wcc != null) {
+		        if (componentField != null) {
+		        	basecomponentarray = (BaseComponent[]) componentField;
+		        	field = 1;
+		        } else if (wcc != null) {
 		        	basecomponentarray = ComponentSerializer.parse(wcc.getJson());
 		        	field = 0;
-		        } else {
-		        	basecomponentarray = (BaseComponent[]) field1;
-		        	field = 1;
 		        }
 	        } catch (Exception e) {
-	        	try {
-		        	basecomponentarray = (BaseComponent[]) field1;
-		        	field = 1;
-	        	} catch (Exception skip) {
-	        		lock.set(false);
-	        		orderAndSend(reciever, packet, messageUUID, queue);
-	        		return;
-	        	}
+	        	lock.set(false);
+	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	return;
 	        }
 	        BaseComponent basecomponent;
 	        try {
@@ -279,10 +274,10 @@ public class ChatPackets implements Listener {
 	        }
 
 	        //Bukkit.getConsoleSender().sendMessage(json);
-	        if (field == 0) {
-	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+	        if (field == 1) {
+	        	packet.getModifier().write(1, new BaseComponent[] {basecomponent});
 	        } else {
-	        	packet.getModifier().write(1, new BaseComponent[]{basecomponent});
+	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
 	        }
 	        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
 	        if (packet.getUUIDs().size() > 0) {

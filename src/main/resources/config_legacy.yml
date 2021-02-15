@@ -334,7 +334,7 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: "%player_world_time_24%"
-    Description: "&eShow current time of the world you are in!"
+    Description: "&eShows the current time of the world you are in!"
   '4':
     ParsePlayer: viewer
     Text: "[Hover]"
@@ -371,6 +371,7 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+    Description: "&eShows the current time of the server in the real world!"
   '6':
     ParsePlayer: sender
     Text: '[pos]'
@@ -388,6 +389,7 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
+    Description: "&eShows your current position!"
   '7':
     ParsePlayer: sender
     Text: '[ping]'
@@ -405,3 +407,4 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '%player_colored_ping% &bms'
+    Description: "&eShows your current ping!"

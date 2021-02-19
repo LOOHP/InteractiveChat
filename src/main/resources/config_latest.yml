@@ -42,8 +42,6 @@ Settings:
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1
   UseCustomPlaceholderPermissions: false
-  #Turn this off if some colors are missing
-  FilterUselessColorCodes: true
   #The title of viewing a container inside an inventory view
   ContainerViewTitle: "Container Contents"
   #A list of private message commands on your server

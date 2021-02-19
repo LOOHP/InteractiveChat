@@ -565,6 +565,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		try {
 			PluginMessageSendingBungee.sendPlayerListData();
+			PluginMessageSendingBungee.sendDelayAndScheme();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

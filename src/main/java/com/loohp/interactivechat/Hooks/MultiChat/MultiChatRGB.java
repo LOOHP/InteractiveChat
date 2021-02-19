@@ -17,6 +17,7 @@ public class MultiChatRGB {
 			int end = matcher.end();
 			String group = matcher.group();
 			sb.replace(start, end, "§x§" + String.valueOf(group.charAt(2)).toUpperCase() + "§" + String.valueOf(group.charAt(3)).toUpperCase() + "§" + String.valueOf(group.charAt(4)).toUpperCase() + "§" + String.valueOf(group.charAt(5)).toUpperCase() + "§" + String.valueOf(group.charAt(6)).toUpperCase() + "§" + String.valueOf(group.charAt(7)).toUpperCase());
+			matcher = MULTICHAT_RAW_RGB.matcher(sb.toString());
 		}
 		return sb.toString();
 	}

@@ -65,6 +65,7 @@ public class Events implements Listener {
 		String command = event.getMessage();
 		for (String parsecommand : InteractiveChat.commandList) {
 			if (command.matches(parsecommand)) {
+				translateAltColorCode(event);
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 				for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 					String placeholder = icplaceholder.getKeyword();

@@ -50,7 +50,7 @@ public class ConfigManager {
 		
 		InteractiveChat.useCustomPlaceholderPermissions = getConfig().getBoolean("Settings.UseCustomPlaceholderPermissions");
 		
-		InteractiveChat.filterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes");
+		InteractiveChat.filterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes", true);
 		
 		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
 		

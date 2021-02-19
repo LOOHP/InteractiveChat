@@ -21,6 +21,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -172,15 +173,37 @@ public class InteractiveChatAPI {
 		return false;
 	}
 	
-	public static BiMap<String, Inventory> getItemShareList() {
-		return HashBiMap.create(InteractiveChat.itemDisplay);
+	public static enum SharedType {
+		ITEM,
+		INVENTORY,
+		ENDERCHEST;
 	}
 	
-	public static BiMap<String, Inventory> getInventoryShareList() {
-		return HashBiMap.create(InteractiveChat.inventoryDisplay);
+	public static BiMap<String, Inventory> getItemShareList(SharedType type) {
+		switch (type) {
+		case ITEM:
+			return HashBiMap.create(InteractiveChat.itemDisplay);
+		case INVENTORY:
+			return HashBiMap.create(InteractiveChat.inventoryDisplay);
+		case ENDERCHEST:
+			return HashBiMap.create(InteractiveChat.enderDisplay);
+		}
+		return null;
 	}
 	
-	public static BiMap<String, Inventory> getEnderShareList() {
-		return HashBiMap.create(InteractiveChat.enderDisplay);
+	public static String addInventoryToItemShareList(SharedType type, Inventory inventory) throws Exception {
+		String hash = HashUtils.createSha1(inventory);
+		switch (type) {
+		case ITEM:
+			InteractiveChat.itemDisplay.put(hash, inventory);
+			break;
+		case INVENTORY:
+			InteractiveChat.inventoryDisplay.put(hash, inventory);
+			break;
+		case ENDERCHEST:
+			InteractiveChat.enderDisplay.put(hash, inventory);
+			break;
+		}
+		return hash;
 	}
 }

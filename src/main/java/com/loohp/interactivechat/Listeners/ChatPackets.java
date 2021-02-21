@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -154,15 +155,16 @@ public class ChatPackets implements Listener {
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
+
 	        BaseComponent basecomponent;
 	        try {
-	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(ComponentSerializer.toString(basecomponentarray))));
+	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(StringEscapeUtils.unescapeJava(ComponentSerializer.toString(basecomponentarray)))));
 	        } catch (Exception e) {
 	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
-
+	        
 	        try {
 	        	String text = basecomponent.toLegacyText();
 	        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {

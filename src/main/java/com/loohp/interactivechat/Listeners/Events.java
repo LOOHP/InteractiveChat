@@ -60,12 +60,15 @@ public class Events implements Listener {
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		
-		translateAltColorCode(event);
-		
+		boolean flag = true;
 		String command = event.getMessage();
 		for (String parsecommand : InteractiveChat.commandList) {
 			if (command.matches(parsecommand)) {
-				translateAltColorCode(event);
+				if (flag) {
+					translateAltColorCode(event);
+					command = event.getMessage();
+					flag = false;
+				}
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 				for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 					String placeholder = icplaceholder.getKeyword();

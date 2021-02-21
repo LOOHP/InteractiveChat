@@ -82,7 +82,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean chatManagerHook = false;
 	public static Boolean vanishHook = false;
 	public static Boolean cmiHook = false;
-	public static Boolean multiChatHook = false;
 	public static Boolean ventureChatHook = false;
 	
 	public static Permission perms = null;
@@ -313,11 +312,6 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatManager!");
 			chatManagerHook = true;
-		}
-	    
-	    if (Bukkit.getServer().getPluginManager().getPlugin("MultiChat") != null) {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MultiChat!");
-	    	multiChatHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {

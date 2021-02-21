@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Hooks.MultiChat.MultiChatRGB;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -268,10 +267,6 @@ public class ChatColorUtils {
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
     		text = translatePluginColorFormatting(text);
     	}
-		
-		if (InteractiveChat.multiChatHook) {
-			text = MultiChatRGB.convertRGBFormatting(text);
-		}
         
         for (int i = 0; i < text.length() - 1; i++) {
         	if (text.charAt(i) == code) {

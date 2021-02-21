@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -18,13 +19,14 @@ import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ProcessBungeeRequestedMessage {
 	
 	public static String processAndRespond(Player reciever, String component) throws Exception {
-		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(component)));
+		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(StringEscapeUtils.unescapeJava(component))));
 		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
         
         try {
@@ -88,6 +90,8 @@ public class ProcessBungeeRequestedMessage {
         if (InteractiveChat.usePlayerName) {
         	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
         }
+        
+        System.out.println(ComponentSerializer.toString(basecomponent).replace(ChatColor.COLOR_CHAR, '&'));
         
         if (InteractiveChat.AllowMention && sender.isPresent()) {
         	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, !Bukkit.isPrimaryThread());

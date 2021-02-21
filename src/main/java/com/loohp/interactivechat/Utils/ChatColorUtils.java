@@ -130,7 +130,7 @@ public class ChatColorUtils {
     	if (color.matches("§[0-9a-fk-or]")) {
     		return true;
     	}
-    	if (color.matches("§x§[0-9A-F]§[0-9A-F]§[0-9A-F]§[0-9A-F]§[0-9A-F]§[0-9A-F]")) {
+    	if (color.matches("§x(§[0-9a-fA-F]){6}")) {
     		return true;
     	}
     	return false;

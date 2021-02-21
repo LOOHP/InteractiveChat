@@ -486,7 +486,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					Chat packet = (Chat) obj;
 					forwardedMessages.get(player.getUniqueId()).add(packet.getMessage());
 				}
-				super.write(channelHandlerContext, obj, channelPromise); // send it to client
+				super.write(channelHandlerContext, obj, channelPromise);
 			}
 		});
 	}
@@ -524,7 +524,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					Chat packet = (Chat) obj;
 					if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 						packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-					} else if (player.getServer() != null) {
+					} else if (hasInteractiveChat(player.getServer())) {
 						UUID messageId = UUID.randomUUID();
 						messageQueue.add(messageId);
 						//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
@@ -541,7 +541,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 						return;
 					}
 				}
-				super.write(channelHandlerContext, obj, channelPromise); // send it to client
+				super.write(channelHandlerContext, obj, channelPromise);
 			}
 		});
 	}
@@ -593,6 +593,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				}
 			}
 		}, 1000);
+	}
+	
+	private boolean hasInteractiveChat(Server server) {
+		if (server == null || server.getInfo() == null) {
+			return false;
+		}
+		BackendInteractiveChatData data = serverInteractiveChatInfo.get(server.getInfo().getName());
+		if (data == null) {
+			return false;
+		}
+		return data.hasInteractiveChat();
 	}
 	
 }

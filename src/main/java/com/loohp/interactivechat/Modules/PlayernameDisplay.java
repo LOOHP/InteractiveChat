@@ -113,6 +113,7 @@ public class PlayernameDisplay {
 				}
 				
 				String lastColor = "";
+				
 				StringBuilder sb = new StringBuilder();
 				
 				for (int i = 0; i < trim.size(); i++) {

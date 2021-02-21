@@ -25,6 +25,7 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatComponentUtils {
 	
@@ -306,7 +307,7 @@ public class ChatComponentUtils {
 		}
 		
 		BaseComponent current = null;
-		for (BaseComponent base : CustomStringUtils.loadExtras(basecomponent)) {
+		for (BaseComponent base : list) {
 			List<BaseComponent> thislist = new LinkedList<BaseComponent>();
 			if (base instanceof TextComponent) {
 				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(base.toLegacyText())).map(each -> (TextComponent) each).collect(Collectors.toList());

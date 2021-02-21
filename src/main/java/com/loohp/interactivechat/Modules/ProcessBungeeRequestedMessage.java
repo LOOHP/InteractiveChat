@@ -19,7 +19,6 @@ import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -90,8 +89,6 @@ public class ProcessBungeeRequestedMessage {
         if (InteractiveChat.usePlayerName) {
         	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
         }
-        
-        System.out.println(ComponentSerializer.toString(basecomponent).replace(ChatColor.COLOR_CHAR, '&'));
         
         if (InteractiveChat.AllowMention && sender.isPresent()) {
         	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, !Bukkit.isPrimaryThread());

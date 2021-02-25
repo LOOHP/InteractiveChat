@@ -38,6 +38,7 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.BungeeMessaging.ServerPingListener;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
+import com.loohp.interactivechat.Hooks.Adventure.AdventureConverter;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -354,6 +355,11 @@ public class InteractiveChat extends JavaPlugin {
 			legacyChatAPI = true;
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		}
+	    
+	    try {
+	    	Class.forName("net.kyori.adventure.text.Component");
+	    	AdventureConverter.inject();
+	    } catch (Throwable e) {}
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    

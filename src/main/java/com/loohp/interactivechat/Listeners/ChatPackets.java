@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.Listeners;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -46,6 +48,8 @@ import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -130,27 +134,23 @@ public class ChatPackets implements Listener {
 			try {TimeUnit.NANOSECONDS.sleep(1000);} catch (InterruptedException e) {}
 		}
 		lock.set(true);
-		PacketContainer originalPacket = packet.deepClone();		    		
+		PacketContainer originalPacket = packet.deepClone();
     	try {
-    		Object componentField = packet.getModifier().read(1);
-	        WrappedChatComponent wcc = packet.getChatComponents().read(0);
-	        if (wcc == null && componentField == null) {
-	        	lock.set(false);
-	        	orderAndSend(reciever, packet, messageUUID, queue);
-	        	return;
-	        }
-
-	        BaseComponent[] basecomponentarray = null;
+    		BaseComponent[] basecomponentarray = null;
+    		ChatComponentType type = null;
 	        int field = -1;
-	        try {
-		        if (componentField != null) {
-		        	basecomponentarray = (BaseComponent[]) componentField;
-		        	field = 1;
-		        } else if (wcc != null) {
-		        	basecomponentarray = ComponentSerializer.parse(wcc.getJson());
-		        	field = 0;
-		        }
-	        } catch (Exception e) {
+	        
+	        search: for (ChatComponentType t : ChatComponentType.byPriority()) {
+	        	for (int i = 0; i < packet.getModifier().size(); i++) {
+	        		if (packet.getModifier().read(i) != null && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+	        			basecomponentarray = t.convertFrom(packet.getModifier().read(i));
+	        			field = i;
+	        			type = t;
+	        			break search;
+	        		}
+	        	}
+	        }
+	        if (field < 0 || type == null || basecomponentarray == null) {
 	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
@@ -220,7 +220,7 @@ public class ChatPackets implements Listener {
 	        basecomponent = commandsender.getBaseComponent();
 	        if (sender.isPresent()) {
 	        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
-	        }		 
+	        }
 
 	        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
 			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, field, preEventSenderUUID);
@@ -276,11 +276,8 @@ public class ChatPackets implements Listener {
 	        }
 
 	        //Bukkit.getConsoleSender().sendMessage(json);
-	        if (field == 1) {
-	        	packet.getModifier().write(1, new BaseComponent[] {basecomponent});
-	        } else {
-	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-	        }
+			packet.getModifier().write(field, type.convertTo(basecomponent));
+				
 	        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
 	        if (packet.getUUIDs().size() > 0) {
 	        	packet.getUUIDs().write(0, postEventSenderUUID);
@@ -319,6 +316,51 @@ public class ChatPackets implements Listener {
 				lock.set(false);
 			}
     	}
+	}
+	
+	public static enum ChatComponentType {
+		IChatBaseComponent(".*net\\.minecraft\\.server\\..*\\.IChatBaseComponent.*", object -> {
+			return ComponentSerializer.parse(WrappedChatComponent.fromHandle(object).getJson());
+		}, component -> {
+			return WrappedChatComponent.fromJson(ComponentSerializer.toString(component)).getHandle();
+		}),
+		BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", object -> {
+			return (BaseComponent[]) object;
+		}, component -> {
+			return component;
+		}),
+		AdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
+			return ComponentSerializer.parse(GsonComponentSerializer.gson().serialize((Component) object));
+		}, component -> {
+			return GsonComponentSerializer.gson().deserialize(ComponentSerializer.toString(component));
+		});
+		
+		private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, BaseComponentArray, IChatBaseComponent};
+		private String regex;
+		private Function<Object, BaseComponent[]> converterFrom;
+		private Function<BaseComponent[], Object> converterTo;
+		
+		ChatComponentType(String regex, Function<Object, BaseComponent[]> converterFrom, Function<BaseComponent[], Object> converterTo) {
+			this.regex = regex;
+			this.converterFrom = converterFrom;
+			this.converterTo = converterTo;
+		}
+		
+		public String getMatchingRegex() {
+			return regex;
+		}
+		
+		public BaseComponent[] convertFrom(Object object) {
+			return converterFrom.apply(object);
+		}
+		
+		public Object convertTo(BaseComponent... component) {
+			return converterTo.apply(component);
+		}
+		
+		public static ChatComponentType[] byPriority() {
+			return Arrays.copyOf(BY_PRIORITY, BY_PRIORITY.length);
+		}
 	}
 
 }

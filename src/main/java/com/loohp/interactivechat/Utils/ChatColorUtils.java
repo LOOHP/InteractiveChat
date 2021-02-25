@@ -14,35 +14,35 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class ChatColorUtils {
 	
-	private static Set<Character> colors = new HashSet<Character>();
-	private static Pattern colorFormating = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
-	private static Pattern colorEscape = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
+	private static final Set<Character> COLORS = new HashSet<Character>();
+	private static final Pattern COLOR_FORMATTING = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
+	private static final Pattern COLOR_ESCAPE = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
 	
-	private static String validColorHex = "^#[0-9a-fA-F]{6}$";
+	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";
 	
 	static {
-		colors.add('0');
-		colors.add('1');
-		colors.add('2');
-		colors.add('3');
-		colors.add('4');
-		colors.add('5');
-		colors.add('6');
-		colors.add('7');
-		colors.add('8');
-		colors.add('9');
-		colors.add('a');
-		colors.add('b');
-		colors.add('c');
-		colors.add('d');
-		colors.add('e');
-		colors.add('f');
-		colors.add('k');
-		colors.add('l');
-		colors.add('m');
-		colors.add('n');
-		colors.add('o');
-		colors.add('r');
+		COLORS.add('0');
+		COLORS.add('1');
+		COLORS.add('2');
+		COLORS.add('3');
+		COLORS.add('4');
+		COLORS.add('5');
+		COLORS.add('6');
+		COLORS.add('7');
+		COLORS.add('8');
+		COLORS.add('9');
+		COLORS.add('a');
+		COLORS.add('b');
+		COLORS.add('c');
+		COLORS.add('d');
+		COLORS.add('e');
+		COLORS.add('f');
+		COLORS.add('k');
+		COLORS.add('l');
+		COLORS.add('m');
+		COLORS.add('n');
+		COLORS.add('o');
+		COLORS.add('r');
 	}
 	
 	public static String stripColor(String string) {
@@ -189,7 +189,7 @@ public class ChatColorUtils {
     	}
     	
     	int pos = hex.indexOf("#");
-    	if (!hex.matches(validColorHex) || pos < 0 || hex.length() < (pos + 7)) {
+    	if (!hex.matches(VALID_HEX_COLOR) || pos < 0 || hex.length() < (pos + 7)) {
     		return "§x§F§F§F§F§F§F";
     	}
     	return "§x§" + String.valueOf(hex.charAt(1)) + "§" + String.valueOf(hex.charAt(2)) + "§" + String.valueOf(hex.charAt(3)) + "§" + String.valueOf(hex.charAt(4)) + "§" + String.valueOf(hex.charAt(5)) + "§" + String.valueOf(hex.charAt(6));
@@ -197,7 +197,7 @@ public class ChatColorUtils {
     
     public static String translatePluginColorFormatting(String text) {
     	while (true) {
-    		Matcher matcher = colorFormating.matcher(text);
+    		Matcher matcher = COLOR_FORMATTING.matcher(text);
     		
     		if (matcher.find()) {
 	    	    String foramtedColor = matcher.group().toLowerCase();
@@ -242,7 +242,7 @@ public class ChatColorUtils {
     	}
     	
     	while (true) {
-    		Matcher matcher = colorEscape.matcher(text);  		
+    		Matcher matcher = COLOR_ESCAPE.matcher(text);  		
     		if (matcher.find()) {
 	    	    StringBuilder sb = new StringBuilder(text);
 	    	    sb.deleteCharAt(matcher.start());
@@ -274,7 +274,7 @@ public class ChatColorUtils {
         			String section = text.substring(i, i + 14);
         			String translated = section.replace(code, '§');
         			text = text.replace(section, translated);
-        		} else if (colors.contains(text.charAt(i + 1))) {
+        		} else if (COLORS.contains(text.charAt(i + 1))) {
         			StringBuilder sb = new StringBuilder(text);
         			sb.setCharAt(i, '§');
         			text = sb.toString();

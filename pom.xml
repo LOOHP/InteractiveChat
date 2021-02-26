@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.loohp.interactivechat</groupId>
-	<artifactId>interactivechat</artifactId>
+	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
 	<version>3.2.9.19</version>
 
@@ -45,7 +45,6 @@
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
-							<finalName>${project.name}-${project.version}</finalName>
 							<relocations>
 								<relocation>
 									<pattern>com.cryptomorin.xseries</pattern>
@@ -164,14 +163,6 @@
 			</build>
 		</profile>
 	</profiles>
-
-	<distributionManagement>
-		<repository>
-			<id>github</id>
-			<name>GitHub LOOHP Apache Maven Packages</name>
-			<url>https://maven.pkg.github.com/LOOHP/${project.name}</url>
-		</repository>
-	</distributionManagement>
 
 	<repositories>
 		<repository>

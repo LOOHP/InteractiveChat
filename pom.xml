@@ -10,7 +10,6 @@
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
 	<packaging>jar</packaging>
-	<inceptionYear>2020</inceptionYear>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,9 +43,9 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>${project.name}-${project.version}</finalName>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<finalName>${project.name}-${project.version}</finalName>
 							<relocations>
 								<relocation>
 									<pattern>com.cryptomorin.xseries</pattern>
@@ -70,6 +69,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
+					<finalName>${project.name}-${project.version}</finalName>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
@@ -83,8 +83,6 @@
 					<encoding>ISO-8859-1</encoding>
 					<doctitle>InteractiveChat JavaDocs</doctitle>
 					<windowtitle>InteractiveChat JavaDocs</windowtitle>
-					<bottom>Copyright &#169; {inceptionYear}&#x2013;{currentYear}
-						LOOHP. Licensed under the GNU GPL v2.</bottom>
 					<additionalOptions>
 						<additionalOption>-Xdoclint:none</additionalOption>
 					</additionalOptions>

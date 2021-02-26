@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.loohp.interactivechat</groupId>
+	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
 	<version>3.2.9.19</version>
@@ -70,7 +70,6 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<outputDirectory>original</outputDirectory>
 				</configuration>
 			</plugin>
 

@@ -69,9 +69,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<finalName>${project.name}-${project.version}</finalName>
 					<source>1.8</source>
 					<target>1.8</target>
+					<outputDirectory>original</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -86,7 +86,6 @@
 					<additionalOptions>
 						<additionalOption>-Xdoclint:none</additionalOption>
 					</additionalOptions>
-					<finalName>${project.name}-${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>

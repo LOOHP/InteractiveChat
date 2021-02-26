@@ -44,7 +44,7 @@ public class AdventureConverter {
 			Function<Object, Object> function = new Function<Object, Object>() {
 				@Override
 				public Object apply(Object source) {
-					return AdventureConverter.clone((Component) source);
+					return AdventureConverter.clone(source);
 				}
 			};
 			fromManualMethod.setAccessible(true);
@@ -63,8 +63,8 @@ public class AdventureConverter {
 		return Component.class;
 	}
 
-	public static Component clone(Component component) {
+	public static Component clone(Object component) {
 		GsonComponentSerializer gson = GsonComponentSerializer.gson();
-		return gson.deserialize(gson.serialize(component));
+		return gson.deserialize(gson.serialize((Component) component));
 	}
 }

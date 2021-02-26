@@ -89,7 +89,7 @@ public class InventoryDisplay {
 					}
 				}
 				
-				String regex = InteractiveChat.invCaseSensitive ? "(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) : "(?i)(?<!§)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) + ")";
+				String regex = InteractiveChat.invCaseSensitive ? "(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) : "(?i)(?<!\u00a7)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);

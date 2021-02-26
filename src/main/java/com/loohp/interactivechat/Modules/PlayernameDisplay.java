@@ -99,7 +99,7 @@ public class PlayernameDisplay {
 			} else {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
-				String regex = InteractiveChat.usePlayerNameCaseSensitive ? "(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) : "(?i)(?<!§)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) + ")";
+				String regex = InteractiveChat.usePlayerNameCaseSensitive ? "(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) : "(?i)(?<!\u00a7)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) + ")";
 				
 				if (!text.matches(".*" + regex + ".*")) {
 					newlist.add(textcomponent);

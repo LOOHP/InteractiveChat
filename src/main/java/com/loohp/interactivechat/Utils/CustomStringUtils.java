@@ -118,7 +118,7 @@ public class CustomStringUtils {
 	}
 	
 	public static String getIgnoreColorCodeRegex(String input) {
-		return input.replaceAll("(?<!^)(?=(?<!§.).)(?=(?<!§).)(?=(?<!\\\\).)", "(§.)*?");
+		return input.replaceAll("(?<!^)(?=(?<!\u00a7.).)(?=(?<!\u00a7).)(?=(?<!\\\\).)", "(\u00a7.)*?");
 	}
 	
 	public static List<BaseComponent> loadExtras(BaseComponent basecomponent) {
@@ -168,7 +168,7 @@ public class CustomStringUtils {
 	        				extraNoExtra.getExtra().clear();
 	        			}
 	        			text.setText(text.getText() + ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), ChatColorUtils.getLastColors(text.getText())));
-	        			//Bukkit.getConsoleSender().sendMessage(text.getText().replace("§", "&"));
+	        			//Bukkit.getConsoleSender().sendMessage(text.getText().replace("\u00a7", "&"));
 	        		} else if (!(extra instanceof TextComponent)) {
 	        			if (text != null) {
 	        				list.add(text);

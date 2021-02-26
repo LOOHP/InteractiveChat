@@ -62,7 +62,7 @@ public class CommandsDisplay {
 								before.setText(color + ChatColorUtils.stripColor(before.getText()));
 							}
 							cmdCompList.add(before);
-							//Bukkit.getConsoleSender().sendMessage(((TextComponent) before).getText().replace("§", "&"));
+							//Bukkit.getConsoleSender().sendMessage(((TextComponent) before).getText().replace("\u00a7", "&"));
 							cmd.append(ChatColorUtils.stripColor(before.toLegacyText()));
 							
 							HoverEvent hover = null;

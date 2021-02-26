@@ -266,7 +266,7 @@ public class ChatComponentUtils {
 								}
 							}
 						} else if (value instanceof String) {
-							contents.set(j, new Text(((String) value).replaceAll("§[0-9a-e]", "§f")));
+							contents.set(j, new Text(((String) value).replaceAll("\u00a7[0-9a-e]", "\u00a7f")));
 						}
 					}
 					j++;
@@ -337,7 +337,7 @@ public class ChatComponentUtils {
 							if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 								current2.setFont(base.getFont());
 							}
-							//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("§", "&"));
+							//Bukkit.getConsoleSender().sendMessage(ComponentSerializer.toString(each).replace("\u00a7", "&"));
 						}
 					}
 					thislist.add(current2);
@@ -418,7 +418,7 @@ public class ChatComponentUtils {
 			if (colorsEnabled.equals(ColorSettings.OFF)) {
 				each.setColor(ChatColor.WHITE);
 				if (each instanceof TextComponent) {
-					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("§[0-9a-e]", "§f"));
+					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("\u00a7[0-9a-e]", "\u00a7f"));
 				}
 				each = removeHoverEventColor(each);
 			}

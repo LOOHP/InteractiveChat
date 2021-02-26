@@ -46,20 +46,20 @@ public class ChatColorUtils {
 	}
 	
 	public static String stripColor(String string) {
-		return string.replaceAll("§[0-9A-Fa-fk-orx]", "");
+		return string.replaceAll("\u00a7[0-9A-Fa-fk-orx]", "");
 	}
 	
 	public static String filterIllegalColorCodes(String string) {
-		return InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) ? string.replaceAll("§[^0-9A-Fa-fk-orx]", "") : string.replaceAll("§[^0-9a-fk-or]", "");
+		return InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) ? string.replaceAll("\u00a7[^0-9A-Fa-fk-orx]", "") : string.replaceAll("\u00a7[^0-9a-fk-or]", "");
 	}
 	
     public static String getLastColors(String input) {
         String result = "";
         
         for (int i = input.length() - 1; i > 0; i--) {
-        	if (input.charAt(i - 1) == '§') {
+        	if (input.charAt(i - 1) == '\u00a7') {
         		String color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
-        		if ((i - 13) >= 0 && input.charAt(i - 12) == 'x' && input.charAt(i - 13) == '§') {
+        		if ((i - 13) >= 0 && input.charAt(i - 12) == 'x' && input.charAt(i - 13) == '\u00a7') {
             		color = input.substring(i - 13, i + 1);
             		i -= 13;
             	}
@@ -87,7 +87,7 @@ public class ChatColorUtils {
         String color = "";
         while (i < input.length()) {
         	color = String.valueOf(input.charAt(i - 1)) + String.valueOf(input.charAt(i));
-        	if (input.charAt(i - 1) == '§' && input.charAt(i) == 'x' && input.length() > i + 13) {
+        	if (input.charAt(i - 1) == '\u00a7' && input.charAt(i) == 'x' && input.length() > i + 13) {
         		color = input.substring(i - 1, i + 13);
         		i += 13;
         	}
@@ -124,13 +124,13 @@ public class ChatColorUtils {
     }
     
     public static boolean isLegal(String color) {
-    	if (color.charAt(0) != '§') {
+    	if (color.charAt(0) != '\u00a7') {
     		return false;
     	}
-    	if (color.matches("§[0-9a-fk-or]")) {
+    	if (color.matches("\u00a7[0-9a-fk-or]")) {
     		return true;
     	}
-    	if (color.matches("§x(§[0-9a-fA-F]){6}")) {
+    	if (color.matches("\u00a7x(\u00a7[0-9a-fA-F]){6}")) {
     		return true;
     	}
     	return false;
@@ -175,7 +175,7 @@ public class ChatColorUtils {
     		int pos = text.indexOf(" ") + 1;
     		pos = pos <= 0 ? text.length() : pos;
     		String before = leadingColor + text.substring(0, pos);
-    		//Bukkit.getConsoleSender().sendMessage(leadingColor.replace("§", "&") + " " + text.replace("§", "&") + " " + before.replace("§", "&"));
+    		//Bukkit.getConsoleSender().sendMessage(leadingColor.replace("\u00a7", "&") + " " + text.replace("\u00a7", "&") + " " + before.replace("\u00a7", "&"));
     		sb.append(before);
     		text = text.substring(pos);
     		leadingColor = getLastColors(before);
@@ -190,9 +190,9 @@ public class ChatColorUtils {
     	
     	int pos = hex.indexOf("#");
     	if (!hex.matches(VALID_HEX_COLOR) || pos < 0 || hex.length() < (pos + 7)) {
-    		return "§x§F§F§F§F§F§F";
+    		return "\u00a7x\u00a7F\u00a7F\u00a7F\u00a7F\u00a7F\u00a7F";
     	}
-    	return "§x§" + String.valueOf(hex.charAt(1)) + "§" + String.valueOf(hex.charAt(2)) + "§" + String.valueOf(hex.charAt(3)) + "§" + String.valueOf(hex.charAt(4)) + "§" + String.valueOf(hex.charAt(5)) + "§" + String.valueOf(hex.charAt(6));
+    	return "\u00a7x\u00a7" + String.valueOf(hex.charAt(1)) + "\u00a7" + String.valueOf(hex.charAt(2)) + "\u00a7" + String.valueOf(hex.charAt(3)) + "\u00a7" + String.valueOf(hex.charAt(4)) + "\u00a7" + String.valueOf(hex.charAt(5)) + "\u00a7" + String.valueOf(hex.charAt(6));
     }
     
     public static String translatePluginColorFormatting(String text) {
@@ -272,11 +272,11 @@ public class ChatColorUtils {
         	if (text.charAt(i) == code) {
         		if (text.charAt(i + 1) == 'x' && text.length() > (i + 14)) {
         			String section = text.substring(i, i + 14);
-        			String translated = section.replace(code, '§');
+        			String translated = section.replace(code, '\u00a7');
         			text = text.replace(section, translated);
         		} else if (COLORS.contains(text.charAt(i + 1))) {
         			StringBuilder sb = new StringBuilder(text);
-        			sb.setCharAt(i, '§');
+        			sb.setCharAt(i, '\u00a7');
         			text = sb.toString();
         		}
         	}

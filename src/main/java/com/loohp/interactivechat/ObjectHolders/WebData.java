@@ -48,12 +48,12 @@ public class WebData {
 		nana.put("placeholder", "[NARS~]");
 		nana.put("cooldown", 0);
 		nana.put("hoverEnabled", true);
-		nana.put("hoverText", "񘿾Stay Wild.\\n     �7~N (IC Author's Adorable)");
+		nana.put("hoverText", "\u00a77\u00a76\u00a7oStay Wild.\u00a7f\\n     \u00a77~\u00a7e\u00a7lN \u00a7b\u00a7o(IC Author's \u00a7c\u00a7oAdorable\u00a7b\u00a7o)");
 		nana.put("clickEnabled", true);
 		nana.put("clickAction", "OPEN_URL");
 		nana.put("clickValue", "https://www.instagram.com/narliar/");
 		nana.put("replaceEnabled", true);
-		nana.put("replaceText", "[�6narliar]");
+		nana.put("replaceText", "\u00a7e[\u00a76narliar\u00a7e]");
 		array.add(nana);
 		
 		reload();

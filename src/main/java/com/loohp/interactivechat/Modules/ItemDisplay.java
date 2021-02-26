@@ -117,7 +117,7 @@ public class ItemDisplay {
 					}
 				}
 				
-				String regex = InteractiveChat.itemCaseSensitive ? "(?<!§)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder)) : "(?i)(?<!§)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder)) + ")";
+				String regex = InteractiveChat.itemCaseSensitive ? "(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder)) : "(?i)(?<!\u00a7)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder)) + ")";
 				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);

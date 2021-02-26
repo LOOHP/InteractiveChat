@@ -86,6 +86,7 @@
 					<additionalOptions>
 						<additionalOption>-Xdoclint:none</additionalOption>
 					</additionalOptions>
+					<finalName>${project.name}-${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>

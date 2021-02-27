@@ -11,10 +11,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.Listeners.MapViewer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
@@ -199,6 +201,13 @@ public class Commands implements CommandExecutor, TabCompleter {
 				Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
 				if (inv != null) {
 					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+				} else {
+					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+				}
+			} else if (args[0].equals("viewmap")) {
+				ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
+				if (map != null) {
+					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map));
 				} else {
 					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
 				}

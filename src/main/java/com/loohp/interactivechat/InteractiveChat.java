@@ -44,6 +44,7 @@ import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ChatPackets;
 import com.loohp.interactivechat.Listeners.ClientSettingPackets;
 import com.loohp.interactivechat.Listeners.Events;
+import com.loohp.interactivechat.Listeners.MapViewer;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
@@ -67,6 +68,8 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import net.milkbowl.vault.permission.Permission;
 
 public class InteractiveChat extends JavaPlugin {
+	
+	public static final int BSTATS_PLUGIN_ID = 6747;
 	
 	public static InteractiveChat plugin = null;
 	
@@ -156,6 +159,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static BiMap<String, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, ItemStack> mapDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	
@@ -216,10 +220,8 @@ public class InteractiveChat extends JavaPlugin {
 		plugin = this;
 		
 		getServer().getPluginManager().registerEvents(new Debug(), this);
-		
-		int pluginId = 6747;
 
-		Metrics metrics = new Metrics(this, pluginId);
+		Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
 		
 		exactMinecraftVersion = Bukkit.getVersion().substring(Bukkit.getVersion().indexOf("(") + 5, Bukkit.getVersion().indexOf(")"));
 		version = MCVersion.fromPackageName(getServer().getClass().getPackage().getName());
@@ -289,6 +291,7 @@ public class InteractiveChat extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
 	    getServer().getPluginManager().registerEvents(new ChatPackets(), this);
+	    getServer().getPluginManager().registerEvents(new MapViewer(), this);
 	    ChatPackets.chatMessageListener();
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);

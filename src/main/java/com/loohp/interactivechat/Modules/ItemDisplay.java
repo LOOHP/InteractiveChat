@@ -29,6 +29,7 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.Utils.FilledMapUtils;
 import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.LanguageUtils;
@@ -210,7 +211,13 @@ public class ItemDisplay {
 								    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
 									String sha1 = HashUtils.createSha1(item);
-									if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
+									boolean isMapView = false;
+									if (FilledMapUtils.isFilledMap(item)) {
+										isMapView = true;
+										if (!InteractiveChat.mapDisplay.containsKey(sha1)) {
+											InteractiveChat.mapDisplay.put(sha1, item);
+										}
+									} else if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
 										if (useInventoryView(item)) {
 											Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
 											Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
@@ -249,6 +256,8 @@ public class ItemDisplay {
 										}
 									}
 				            	
+									String command = isMapView ? "/interactivechat viewmap " + sha1 : "/interactivechat viewitem " + sha1;
+									
 					            	String[] parts = message.split("\\{Item\\}");					            	
 					            	if (message.startsWith("{Item}")) {
 					            		if (useTranslatable) {
@@ -264,7 +273,7 @@ public class ItemDisplay {
 												transItem.setHoverEvent(hoverItem);
 											}
 										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
+												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 												transItem.setClickEvent(clickItem);
 										    }
 										    newlist.add(transItem);
@@ -274,7 +283,7 @@ public class ItemDisplay {
 												itemitemtextcomponent.setHoverEvent(hoverItem);
 											}
 										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
+												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 												itemitemtextcomponent.setClickEvent(clickItem);
 										    }
 										    newlist.add(itemitemtextcomponent);
@@ -288,7 +297,7 @@ public class ItemDisplay {
 											itemtextcomponent.setHoverEvent(hoverItem);
 										}
 									    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
+											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 											itemtextcomponent.setClickEvent(clickItem);
 									    }
 									    newlist.add(itemtextcomponent);
@@ -307,7 +316,7 @@ public class ItemDisplay {
 													transItem.setHoverEvent(hoverItem);
 												}
 											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
+													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 													transItem.setClickEvent(clickItem);
 											    }
 											    newlist.add(transItem);
@@ -317,7 +326,7 @@ public class ItemDisplay {
 													itemitemtextcomponent.setHoverEvent(hoverItem);
 												}
 											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewitem " + sha1);
+													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 													itemitemtextcomponent.setClickEvent(clickItem);
 											    }
 											    newlist.add(itemitemtextcomponent);

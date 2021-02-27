@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import com.comphenix.protocol.reflect.cloning.BukkitCloner;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class AdventureConverter {
@@ -64,7 +63,6 @@ public class AdventureConverter {
 	}
 
 	public static Component clone(Object component) {
-		GsonComponentSerializer gson = GsonComponentSerializer.gson();
-		return gson.deserialize(gson.serialize((Component) component));
+		return (Component) component;
 	}
 }

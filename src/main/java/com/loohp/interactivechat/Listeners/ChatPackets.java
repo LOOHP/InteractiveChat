@@ -3,6 +3,7 @@ package com.loohp.interactivechat.Listeners;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
@@ -12,6 +13,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -58,6 +61,20 @@ public class ChatPackets implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	private static AtomicBoolean lock = new AtomicBoolean(false);
+	private static int chatFieldsSize;
+	
+	static {
+		PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
+		List<String> matches = Stream.of(ChatComponentType.byPriority()).map(each -> each.getMatchingRegex()).collect(Collectors.toList());
+		
+		for (chatFieldsSize = 1; chatFieldsSize < packet.getModifier().size(); chatFieldsSize++) {
+			String clazz = packet.getModifier().getField(chatFieldsSize).getType().getName();
+			if (!matches.stream().anyMatch(each -> clazz.matches(each))) {
+				chatFieldsSize--;
+				break;
+			}
+		}
+	}
 	
 	public static void chatMessageListener() {		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
@@ -270,13 +287,17 @@ public class ChatPackets implements Listener {
         
 	        basecomponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
 	        String json = ComponentSerializer.toString(basecomponent);
-	        boolean longerThanMaxLength = false;
-	        if (InteractiveChat.sendOriginalIfTooLong && json.length() > 32767) {
-	        	longerThanMaxLength = true;
-	        }
+	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;
 
 	        //Bukkit.getConsoleSender().sendMessage(json);
-			packet.getModifier().write(field, type.convertTo(basecomponent));
+	        try {
+	        	packet.getModifier().write(field, type.convertTo(basecomponent));
+	        } catch (Throwable e) {
+	        	for (int i = 0; i < chatFieldsSize; i++) {
+	        		packet.getModifier().write(i, null);
+	        	}
+	        	packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+	        }
 				
 	        UUID postEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : new UUID(0, 0);
 	        if (packet.getUUIDs().size() > 0) {

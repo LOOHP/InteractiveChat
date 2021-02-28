@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.Modules;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
@@ -76,9 +78,12 @@ public class SenderFinder {
 		InteractiveChat.remotePlayers.entrySet().forEach(entry -> {
 			names.put(ChatColorUtils.stripColor(entry.getValue().getDisplayName()), entry.getKey());
 		});
-		if (InteractiveChat.essentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> names.put(ChatColorUtils.stripColor(name), player.getUniqueId()));
-		}
+		Bukkit.getOnlinePlayers().forEach(each -> {
+			List<String> list = InteractiveChatAPI.getNicknames(each);
+			for (String name : list) {
+				names.put(ChatColorUtils.stripColor(name), each.getUniqueId());
+			}
+		});
 		
 		UUID currentplayer = null;
 		int currentpos = 99999;

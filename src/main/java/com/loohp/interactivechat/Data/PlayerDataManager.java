@@ -100,6 +100,34 @@ public class PlayerDataManager implements Listener {
 		return data.get(uuid);
 	}
 	
+	public PlayerData getOfflineUnmodifiablePlayerData(UUID uuid) {
+		File file = new File(dataFolder, uuid.toString() + FILE_EXTENSION);
+		FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+		PlayerData pd = new PlayerData(file, config) {
+			@Override
+			public void reloadConfig() {
+				throw new UnsupportedOperationException("PlayerData is unmodifiable");
+			}
+			@Override
+			public void saveConfig() {
+				throw new UnsupportedOperationException("PlayerData is unmodifiable");
+			}
+			@Override
+			public <T> void set(String path, T value) {
+				throw new UnsupportedOperationException("PlayerData is unmodifiable");
+			}
+			@Override
+			public void setPlayerName(String value) {
+				throw new UnsupportedOperationException("PlayerData is unmodifiable");
+			}
+			@Override
+			public void setMentionDisabled(boolean value) {
+				throw new UnsupportedOperationException("PlayerData is unmodifiable");
+			}
+		};
+		return pd;
+	}
+	
 	//===============
 	
 	@EventHandler

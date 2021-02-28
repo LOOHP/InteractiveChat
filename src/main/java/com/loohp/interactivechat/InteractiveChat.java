@@ -15,12 +15,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,7 +31,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.ListeningWhitelist;
-import com.earth2me.essentials.Essentials;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
@@ -38,7 +39,6 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.BungeeMessaging.ServerPingListener;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
-import com.loohp.interactivechat.Hooks.Adventure.AdventureConverter;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -51,6 +51,7 @@ import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.PlaceholderAPI.Placeholders;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.LanguageUtils;
@@ -187,7 +188,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Set<String> messageToIgnore = new HashSet<>();
 	
-	public static Map<Player, String> essenNick = new ConcurrentHashMap<>();
+	public static Map<Plugin, Function<Player, List<String>>> pluginNicknames = new ConcurrentHashMap<>();
 	
 	public static boolean filterUselessColorCodes = true;
 	
@@ -349,6 +350,10 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    playerDataManager = new PlayerDataManager(this);
 	    
+	    if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			new Placeholders().register();
+		}
+	    
 	    try {
 			TextComponent test = new TextComponent("Legacy Bungeecord Chat API Test");
 			test.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new Text("Test Hover Text")));
@@ -359,27 +364,10 @@ public class InteractiveChat extends JavaPlugin {
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
 		}
 	    
-	    try {
-	    	Class.forName("net.kyori.adventure.text.Component");
-	    	AdventureConverter.inject();
-	    } catch (Throwable e) {}
-	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    
 	    for (Player player : Bukkit.getOnlinePlayers()) {
 			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
-			
-			if (essentialsHook) {
-				Essentials essen = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
-				getServer().getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
-					if (essen.getUser(player.getUniqueId()).getNickname() != null) {
-						if (!essen.getUser(player.getUniqueId()).getNickname().equals("")) {
-							String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-							essenNick.put(player, essen.getConfig().getString("nickname-prefix") + essentialsNick);
-						}
-					}
-				}, 100);
-			}
 		}
 	    
 	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {

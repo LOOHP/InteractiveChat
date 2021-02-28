@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
@@ -84,10 +85,9 @@ public class MentionDisplay {
 					if (!names.contains(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
 						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
 					}
-					if (InteractiveChat.essentialsHook) {
-						if (InteractiveChat.essenNick.containsKey(reciever)) {
-							names.add(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(reciever)));
-						}
+					List<String> list = InteractiveChatAPI.getNicknames(reciever);
+					for (String name : list) {
+						names.add(ChatColorUtils.stripColor(name));
 					}
 					
 					for (String name : names) {

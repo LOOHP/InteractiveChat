@@ -2,16 +2,22 @@ package com.loohp.interactivechat.API;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
@@ -24,6 +30,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -205,5 +212,52 @@ public class InteractiveChatAPI {
 			break;
 		}
 		return hash;
+	}
+	
+	/**
+	 * Register a function that the plugin will fetch nicknames from when it is needed.
+	 * @param plugin
+	 * @param provider
+	 */
+	public static void registerNicknameProvider(Plugin plugin, Function<Player, List<String>> provider) {
+		InteractiveChat.pluginNicknames.put(plugin, provider);
+	}
+	
+	/**
+	 * Unregister the nickname provider of the provided plugin
+	 * @param plugin
+	 */
+	public static void unregisterNicknameProvider(Plugin plugin) {
+		InteractiveChat.pluginNicknames.remove(plugin);
+	}
+	
+	public static Set<Plugin> getRegisteredNicknameProviders() {
+		return Collections.unmodifiableSet(InteractiveChat.pluginNicknames.keySet());
+	}
+	
+	public static Function<Player, List<String>> getNicknameProvider(Plugin plugin) {
+		return InteractiveChat.pluginNicknames.get(plugin);
+	}
+	
+	/**
+	 * Get all plugin provided nicknames of the provided player, can return an empty {@link List}
+	 * @param player
+	 * @return
+	 */
+	public static List<String> getNicknames(Player player) {
+		List<String> nicks = new ArrayList<>();
+		for (Entry<Plugin, Function<Player, List<String>>> entry : InteractiveChat.pluginNicknames.entrySet()) {
+			try {
+				List<String> names = entry.getValue().apply(player);
+				if (names != null) {
+					nicks.addAll(names);
+				}
+			} catch (Throwable e) {
+				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] " + entry.getKey().getName() + " " + entry.getKey().getDescription().getVersion() + " threw an error while providing registered nicknames.");
+				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Unless this is Essentials, please contact that plugin's developer for support");
+				e.printStackTrace();
+			}
+		}
+		return nicks;
 	}
 }

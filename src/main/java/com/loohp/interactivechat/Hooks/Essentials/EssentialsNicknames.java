@@ -1,5 +1,10 @@
 package com.loohp.interactivechat.Hooks.Essentials;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.earth2me.essentials.Essentials;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 
 import net.ess3.api.events.NickChangeEvent;
 
@@ -19,15 +25,30 @@ public class EssentialsNicknames implements Listener {
 	private static Essentials essen;
 	private static String prefix;
 	
+	private static final Map<Player, List<String>> ESSENTIALS_NICK = new ConcurrentHashMap<>();
+	
 	public static void setup() {
 		essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 		prefix = essen.getConfig().getString("nickname-prefix");
+		
+		InteractiveChatAPI.registerNicknameProvider(essen, player -> {
+			List<String> names = ESSENTIALS_NICK.get(player);
+			return names;
+		});
+		
+		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				loadNicks(player);
+			}
+		}, 100);
 	}
 	
 	public static void loadNicks(Player player) {
 		if (essen.getUser(player.getUniqueId()).getNickname() != null && !essen.getUser(player.getUniqueId()).getNickname().equals("")) {
 			String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
-			InteractiveChat.essenNick.put(player, prefix + essentialsNick);
+			List<String> names = new ArrayList<>();
+			names.add(prefix + essentialsNick);
+			ESSENTIALS_NICK.put(player, names);
 		}
 	}
 	
@@ -45,7 +66,9 @@ public class EssentialsNicknames implements Listener {
 	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEssentialsNickChange(NickChangeEvent event) {
 		try {
-			InteractiveChat.essenNick.put(event.getAffected().getBase(), prefix + event.getValue());
+			List<String> names = new ArrayList<>();
+			names.add(prefix + event.getValue());
+			ESSENTIALS_NICK.put(event.getAffected().getBase(), names);
 		} catch (Exception ignore) {}
 	}
 	
@@ -59,7 +82,7 @@ public class EssentialsNicknames implements Listener {
 	
 	@EventHandler
 	public void onEssentialsLeave(PlayerQuitEvent event) {
-		InteractiveChat.essenNick.remove(event.getPlayer());
+		ESSENTIALS_NICK.remove(event.getPlayer());
 	}
 
 }

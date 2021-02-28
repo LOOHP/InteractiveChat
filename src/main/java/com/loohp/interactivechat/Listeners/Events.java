@@ -32,6 +32,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
@@ -204,11 +205,10 @@ public class Events implements Listener {
     			if (!player.getName().equals(player.getDisplayName())) {
     				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
     			}
-    			if (InteractiveChat.essentialsHook) {
-    				if (InteractiveChat.essenNick.containsKey(player)) {
-    					playernames.put(ChatColorUtils.stripColor(InteractiveChat.essenNick.get(player)), player.getUniqueId());
-    				}
-    			}
+				List<String> names = InteractiveChatAPI.getNicknames(player);
+				for (String name : names) {
+					playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
+				}
 			}
 			synchronized (InteractiveChat.remotePlayers) {
 				for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {

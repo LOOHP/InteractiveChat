@@ -11,6 +11,7 @@ import java.util.Queue;
 import org.bukkit.Bukkit;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
@@ -34,22 +35,19 @@ public class PlayernameDisplay {
 			if (VanishUtils.isVanished(each)) {
 				return;
 			}
+			ICPlayer icplayer = new ICPlayer(each);
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), new ICPlayer(each), each.getDisplayName()));
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
+			}
+			List<String> list = InteractiveChatAPI.getNicknames(each);
+			for (String name : list) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), icplayer, name));
 			}
 		});	
 		InteractiveChat.remotePlayers.values().forEach(each -> {
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
 		});
-		if (InteractiveChat.essentialsHook) {
-			InteractiveChat.essenNick.forEach((player, name) -> {
-				if (VanishUtils.isVanished(player)) {
-					return;
-				}
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), new ICPlayer(player), name));
-			});
-		}
 		
 		Collections.sort(names);
 		Collections.reverse(names);

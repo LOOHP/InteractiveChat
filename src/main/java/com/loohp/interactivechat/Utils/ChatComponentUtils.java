@@ -266,7 +266,7 @@ public class ChatComponentUtils {
 								}
 							}
 						} else if (value instanceof String) {
-							contents.set(j, new Text(((String) value).replaceAll("\u00a7[0-9a-e]", "\u00a7f")));
+							contents.set(j, new Text(ChatColorUtils.stripColor((String) value)));
 						}
 					}
 					j++;

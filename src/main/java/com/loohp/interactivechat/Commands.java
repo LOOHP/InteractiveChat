@@ -19,6 +19,7 @@ import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.Listeners.MapViewer;
+import com.loohp.interactivechat.Modules.CommandsDisplay;
 import com.loohp.interactivechat.Modules.CustomPlaceholderDisplay;
 import com.loohp.interactivechat.Modules.EnderchestDisplay;
 import com.loohp.interactivechat.Modules.InventoryDisplay;
@@ -29,11 +30,15 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.MCVersion;
+import com.loohp.interactivechat.Utils.PlayerUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class Commands implements CommandExecutor, TabCompleter {
 
@@ -183,9 +188,15 @@ public class Commands implements CommandExecutor, TabCompleter {
 					Player player = (Player) sender;
 					Optional<ICPlayer> icplayer = Optional.of(new ICPlayer(player));
 					Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+						String text = str;
 						try {
 							long unix = System.currentTimeMillis();
-							BaseComponent baseComponent = new TextComponent(str);
+							
+							if (InteractiveChat.chatAltColorCode.isPresent() && player.hasPermission("interactivechat.chatcolor.translate")) {
+								text = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), str);
+							}
+							
+							BaseComponent baseComponent = new TextComponent(text);
 							if (InteractiveChat.usePlayerName) {
 								baseComponent = PlayernameDisplay.process(baseComponent, icplayer, unix);
 					        }
@@ -199,8 +210,23 @@ public class Commands implements CommandExecutor, TabCompleter {
 					        	baseComponent = EnderchestDisplay.processWithoutCooldown(baseComponent, icplayer, player, unix);
 					        }
 					        baseComponent = CustomPlaceholderDisplay.process(baseComponent, icplayer, player, InteractiveChat.placeholderList, unix, true);
+					        if (InteractiveChat.clickableCommands) {
+					        	baseComponent = CommandsDisplay.process(baseComponent);
+					        }
+					        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+						        if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
+						        	baseComponent = ChatComponentUtils.translatePluginFontFormatting(baseComponent);
+						        }
+					        }
 					        
-					        InteractiveChatAPI.sendMessageUnprocessed(sender, baseComponent);
+					        baseComponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(baseComponent, player) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(baseComponent, player);       
+					        String json = ComponentSerializer.toString(baseComponent);
+					        
+					        if (json.length() > 32767) {
+					        	InteractiveChatAPI.sendMessageUnprocessed(sender, new TextComponent(text));
+					        } else {
+					        	InteractiveChatAPI.sendMessageUnprocessed(sender, baseComponent);	
+					        }
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

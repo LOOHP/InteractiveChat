@@ -60,6 +60,9 @@ permissions:
   interactivechat.list.all:
     description: List all placeholder
     default: op
+  interactivechat.parse:
+    description: Let you try out placeholders which you have permission to
+    default: true
   interactivechat.chatcolor.translate:
     description: Allows you to use alternate color code
     default: true

@@ -50,7 +50,10 @@ import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -78,7 +81,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static File configFile;
 	public static File playerDataFolder;
 
-	public static Plugin plugin;
+	public static InteractiveChatBungee plugin;
 	public static Metrics metrics;
 	protected static Random random = new Random();
 	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
@@ -491,6 +494,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerConnected(PostLoginEvent event) {
 		ProxiedPlayer player = event.getPlayer();
@@ -498,6 +502,19 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
 		List<UUID> messageQueue = Collections.synchronizedList(new LinkedList<>());
 		requestedMessageProcesses.put(player.getUniqueId(), messageQueue);
+		
+		if (player.hasPermission("interactivechat.backendinfo")) {
+			String proxyVersion = plugin.getDescription().getVersion();
+			for (BackendInteractiveChatData data  : serverInteractiveChatInfo.values()) {
+				if (!data.getVersion().equals(proxyVersion)) {
+					String msg = ChatColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running the same version of InteractiveChat as the proxy!";
+					TextComponent text = new TextComponent(msg);
+					text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(ChatColor.YELLOW + "Proxy Version: " + proxyVersion + "\n" + ChatColor.RED + data.getServer() + " Version: " + data.getVersion())}));
+					player.sendMessage(text);
+					ProxyServer.getInstance().getConsole().sendMessage(text);
+				}
+			}
+		}
 		
 		UserConnection userConnection = (UserConnection) player;
 		ChannelWrapper channelWrapper;

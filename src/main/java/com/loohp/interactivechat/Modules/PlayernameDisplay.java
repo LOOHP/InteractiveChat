@@ -29,7 +29,7 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, String messageKey, Optional<ICPlayer> sender, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<>();
 		Bukkit.getOnlinePlayers().forEach(each -> {
 			if (VanishUtils.isVanished(each)) {
@@ -54,13 +54,13 @@ public class PlayernameDisplay {
 		
 		List<BaseComponent> matched = new ArrayList<>();
 		for (ReplaceTextBundle entry : names) {
-			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), entry.getReplaceText(), basecomponent, matched, messageKey, unix);
+			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), entry.getReplaceText(), basecomponent, matched, unix);
 		}
 		return basecomponent;
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, ICPlayer player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, ICPlayer player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 

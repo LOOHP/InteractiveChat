@@ -38,8 +38,7 @@ public class InventoryDisplay {
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
-	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) throws Exception {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -69,6 +68,11 @@ public class InventoryDisplay {
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
+		return processWithoutCooldown(basecomponent, optplayer, reciever, unix);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static BaseComponent processWithoutCooldown(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {		
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {

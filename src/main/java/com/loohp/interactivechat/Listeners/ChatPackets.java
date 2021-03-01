@@ -251,29 +251,29 @@ public class ChatPackets implements Listener {
 			basecomponent = preEvent.getBaseComponent();
 			
 	        if (InteractiveChat.usePlayerName) {
-	        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
+	        	basecomponent = PlayernameDisplay.process(basecomponent, sender, unix);
 	        }
 
 	        if (InteractiveChat.AllowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 	        	if (data == null || !data.isMentionDisabled()) {
-	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, true);
+	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, true);
 	        	}
 	        }
 
 	        if (InteractiveChat.useItem) {
-	        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, unix);
 	        }
 
 	        if (InteractiveChat.useInventory) {
-	        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, unix);
 	        }
 
 	        if (InteractiveChat.useEnder) {
-	        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+	        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, unix);
 	        }
 
-	        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, InteractiveChat.placeholderList, unix);
+	        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, InteractiveChat.placeholderList, unix);
 
 	        if (InteractiveChat.clickableCommands) {
 	        	basecomponent = CommandsDisplay.process(basecomponent);

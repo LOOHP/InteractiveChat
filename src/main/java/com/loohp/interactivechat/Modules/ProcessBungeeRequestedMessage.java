@@ -87,30 +87,30 @@ public class ProcessBungeeRequestedMessage {
         }
 		
         if (InteractiveChat.usePlayerName) {
-        	basecomponent = PlayernameDisplay.process(basecomponent, rawMessageKey, sender, unix);
+        	basecomponent = PlayernameDisplay.process(basecomponent, sender, unix);
         }
         
         if (InteractiveChat.AllowMention && sender.isPresent()) {
-        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), rawMessageKey, unix, !Bukkit.isPrimaryThread());
+        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, !Bukkit.isPrimaryThread());
         }
         
         if (InteractiveChat.useItem) {
-        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, unix);
         }
         
         if (InteractiveChat.useInventory) {
-        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, unix);
         }
         
         if (InteractiveChat.useEnder) {
-        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, rawMessageKey, unix);
+        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, unix);
         }
         
         List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
         if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
         	serverPlaceholderList = InteractiveChat.placeholderList;
         }
-        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, rawMessageKey, serverPlaceholderList, unix);
+        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, serverPlaceholderList, unix);
         
         if (InteractiveChat.clickableCommands) {
         	basecomponent = CommandsDisplay.process(basecomponent);

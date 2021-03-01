@@ -34,7 +34,12 @@ public class CustomPlaceholderDisplay {
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, List<ICPlaceholder> placeholderList, long unix) {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, List<ICPlaceholder> placeholderList, long unix) {
+		return process(basecomponent, optplayer, reciever, placeholderList, unix, false);
+	}
+			
+	
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, List<ICPlaceholder> placeholderList, long unix, boolean withoutCooldown) {
 		for (int i = 0; i < placeholderList.size(); i++) {
 			
 			ICPlaceholder icplaceholder = placeholderList.get(i);
@@ -64,7 +69,11 @@ public class CustomPlaceholderDisplay {
 			boolean replaceEnabled = cp.getReplace().isEnabled();
 			String replaceText = cp.getReplace().getReplaceText();
 			
-			basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
+			if (withoutCooldown) {
+				basecomponent = processCustomPlaceholderWithoutCooldown(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, unix);
+			} else {
+				basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, unix);
+			}
 		}
 		
 		if (InteractiveChat.t && WebData.getInstance() != null) {
@@ -82,15 +91,18 @@ public class CustomPlaceholderDisplay {
 				boolean replaceEnabled = cp.getReplace().isEnabled();
 				String replaceText = cp.getReplace().getReplaceText();
 				
-				basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, messageKey, unix);
+				if (withoutCooldown) {
+					basecomponent = processCustomPlaceholderWithoutCooldown(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, unix);
+				} else {
+					basecomponent = processCustomPlaceholder(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, unix);
+				}
 			}
 		}
 			
 		return basecomponent;
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static BaseComponent processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, String messageKey, long unix) {
+	public static BaseComponent processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
 		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -120,6 +132,11 @@ public class CustomPlaceholderDisplay {
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
+		return processCustomPlaceholderWithoutCooldown(parseplayer, casesensitive, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, basecomponent, optplayer, unix);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static BaseComponent processCustomPlaceholderWithoutCooldown(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {

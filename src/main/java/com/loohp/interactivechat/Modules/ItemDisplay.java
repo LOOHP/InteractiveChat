@@ -51,8 +51,7 @@ public class ItemDisplay {
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
-	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, String messageKey, long unix) throws Exception {
+	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.itemPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -82,6 +81,11 @@ public class ItemDisplay {
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
+		return processWithoutCooldown(basecomponent, optplayer, reciever, unix);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static BaseComponent processWithoutCooldown(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
 			ICPlayer player = optplayer.get();
 			ItemStack[] equipment;

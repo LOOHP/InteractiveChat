@@ -29,7 +29,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class MentionDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, ICPlayer sender, String messageKey, long unix, boolean async) {
+	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, ICPlayer sender, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
 			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
     		if (pair.getSender().equals(sender.getUniqueId())) {
@@ -91,7 +91,7 @@ public class MentionDisplay {
 					}
 					
 					for (String name : names) {
-						basecomponent = processPlayer(name, reciever, sender, basecomponent, messageKey, unix);
+						basecomponent = processPlayer(name, reciever, sender, basecomponent, unix);
 					}
 					
 					InteractiveChat.mentionCooldown.put(reciever, unix + 3000);
@@ -103,7 +103,7 @@ public class MentionDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, Player reciever, ICPlayer sender, BaseComponent basecomponent, String messageKey, long unix) {
+	public static BaseComponent processPlayer(String placeholder, Player reciever, ICPlayer sender, BaseComponent basecomponent, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {

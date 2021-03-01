@@ -17,7 +17,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.OldTitleSender;
+import com.loohp.interactivechat.Utils.TitleUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.SoundUtils;
 
@@ -37,6 +37,7 @@ public class MentionDisplay {
     			
     			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
+				String actionbar = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionActionbar")));
 				
 				String settings = ConfigManager.getConfig().getString("Chat.MentionedSound");
 				Sound sound = null;
@@ -66,16 +67,15 @@ public class MentionDisplay {
 				if (InteractiveChat.mentionCooldown.get(reciever) < unix) {
 					inCooldown = false;
 				}
-				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, sound, inCooldown);
+				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, sound, inCooldown);
 				Bukkit.getPluginManager().callEvent(mentionEvent);
 				if (!mentionEvent.isCancelled()) {
+					title = mentionEvent.getTitle();
+					subtitle = mentionEvent.getSubtitle();
+					actionbar = mentionEvent.getActionbar();
 					
 					int time = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
-					if (InteractiveChat.version.isOld()) {
-						OldTitleSender.sendTitle(reciever, title, subtitle, time);
-					} else {
-						reciever.sendTitle(title, subtitle, 10, time, 20);
-					}
+					TitleUtils.sendTitle(reciever, title, subtitle, actionbar, 10, time, 20);
 					if (sound != null) {
 						reciever.playSound(reciever.getLocation(), sound, volume, pitch);
 					}

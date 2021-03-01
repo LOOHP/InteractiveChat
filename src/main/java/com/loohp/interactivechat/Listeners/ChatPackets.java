@@ -240,7 +240,7 @@ public class ChatPackets implements Listener {
 	        }
 
 	        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, field, preEventSenderUUID);
+			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, preEventSenderUUID);
 			Bukkit.getPluginManager().callEvent(preEvent);
 			if (preEvent.getSender() != null) {
 				Player newsender = Bukkit.getPlayer(preEvent.getSender());

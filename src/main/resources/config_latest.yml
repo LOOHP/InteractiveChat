@@ -135,11 +135,14 @@ Chat:
   #Duration in seconds
   MentionedTitleDuration: 1.5
 
-  #This is currently unused
+  #These are currently unused
   UnknownPlayerMentionSubtitle: "&fSomeone had mentioned you in the chat!"
+  UnknownPlayerMentionActionbar: ""
   
-  #The subtitle to show when mentioned
+  #The subtitle and actionbar  to show when mentioned
+  #Note that actionbar might not work if your version of Minecraft does not support it
   KnownPlayerMentionSubtitle: "&3%player_name% &fmentioned you in the chat!"
+  KnownPlayerMentionActionbar: ""
 
   #Highlight the mentioned playername for the player mentioned
   #Use {MentionedPlayer} for the highlighted player name

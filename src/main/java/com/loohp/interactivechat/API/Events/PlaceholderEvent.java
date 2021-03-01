@@ -10,11 +10,12 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
+/**
+ * This is the base class of all events related to parsing placeholders.
+ * @author LOOHP
+ *
+ */
 public class PlaceholderEvent extends Event implements Cancellable {
-	
-	/*
-	 * This is the base class of all events related to parsing placeholders
-	 */
 	
 	protected final ICPlayer sender;
 	protected final Player receiver;

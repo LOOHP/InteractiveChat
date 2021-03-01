@@ -9,10 +9,13 @@ import org.bukkit.event.HandlerList;
 
 import com.comphenix.protocol.events.PacketContainer;
 
+/**
+ * This Event is called after the plugin as modified the modifiers in the chat packet and is ready to send.
+ * @author LOOHP
+ *
+ */
 public class PostPacketComponentProcessEvent extends Event implements Cancellable {
 	
-	//This Event is called after the plugin as modified the modifiers in the chat packet and is ready to send
-
 	private Player reciever;
 	private PacketContainer packet;
 	private UUID sender;

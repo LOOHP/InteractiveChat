@@ -37,26 +37,59 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class InteractiveChatAPI {
 	
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param message
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, String message) {
 		sendMessageUnprocessed(sender, new UUID(0, 0), message);
 	}
 	
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param component
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, BaseComponent component) {
 		sendMessageUnprocessed(sender, new UUID(0, 0), component);
 	}
 
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param component
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, BaseComponent[] component) {
 		sendMessageUnprocessed(sender, new UUID(0, 0), component);
 	}
 	
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param uuid
+	 * @param message
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, String message) {
 		sendMessageUnprocessed(sender, uuid, new TextComponent(message));
 	}
 	
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param uuid
+	 * @param component
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, BaseComponent component) {
 		sendMessageUnprocessed(sender, uuid, new BaseComponent[] {component});
 	}
 
+	/**
+	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
+	 * @param sender
+	 * @param uuid
+	 * @param component
+	 */
 	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, BaseComponent[] component) {
 		if (sender instanceof Player) {
 			String json = ComponentSerializer.toString(component);
@@ -80,18 +113,27 @@ public class InteractiveChatAPI {
 		}
 	}
 	
+	/**
+	 * Get the placeholder keyword list
+	 * @return The placeholder keyword list
+	 */
 	public static List<String> getPlaceholderList() {
 		return InteractiveChat.placeholderList.stream().map(each -> each.getKeyword()).collect(Collectors.toList());
 	}
 	
+	/**
+	 * Get the placeholder list
+	 * @return The placeholder list
+	 */
 	public static List<ICPlaceholder> getICPlaceholderList() {
 		return new ArrayList<>(InteractiveChat.placeholderList);
 	}
 	
-	public static String getVersion() {
-		return InteractiveChat.plugin.getDescription().getVersion();
-	}
-	
+	/**
+	 * Get the mention cooldown for the provided player
+	 * @param player
+	 * @return A unix timestamp
+	 */
 	public static long getPlayerMentionCooldown(Player player) {
 		if (InteractiveChat.mentionCooldown.containsKey(player)) {
 			return InteractiveChat.mentionCooldown.get(player);
@@ -99,18 +141,39 @@ public class InteractiveChatAPI {
 		return -1;
 	}
 	
+	/**
+	 * Set the mention cooldown for the provided player
+	 * @param player
+	 * @param time
+	 */
 	public static void setPlayerMentionCooldown(Player player, long time) {
 		InteractiveChat.mentionCooldown.put(player, time);
 	}
 	
+	/**
+	 * Get all mention cooldowns
+	 * @return A map of mention cooldowns
+	 */
 	public static Map<Player, Long> getMentionCooldownMap() {
 		return new HashMap<>(InteractiveChat.mentionCooldown);
 	}
 	
+	/**
+	 * Get the cooldown of a specific placeholder for a player
+	 * @param player
+	 * @param placeholder
+	 * @return A unix timestamp
+	 */
 	public static long getPlayerPlaceholderCooldown(Player player, String placeholder) {
 		return getPlayerPlaceholderCooldown(player.getUniqueId(), placeholder);
 	}
 	
+	/**
+	 * Get the cooldown of a specific placeholder for a player
+	 * @param uuid
+	 * @param placeholder
+	 * @return A unix timestamp
+	 */
 	public static long getPlayerPlaceholderCooldown(UUID uuid, String placeholder) {
 		if (InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
 			if (InteractiveChat.placeholderCooldowns.get(uuid).containsKey(placeholder)) {
@@ -120,10 +183,22 @@ public class InteractiveChatAPI {
 		return -1;
 	}
 	
+	/**
+	 * Set the cooldown of a specific placeholder for a player
+	 * @param player
+	 * @param placeholder
+	 * @param time
+	 */
 	public static void setPlayerPlaceholderCooldown(Player player, String placeholder, long time) {
 		setPlayerPlaceholderCooldown(player.getUniqueId(), placeholder, time);
 	}
 	
+	/**
+	 * Set the cooldown of a specific placeholder for a player
+	 * @param uuid
+	 * @param placeholder
+	 * @param time
+	 */
 	public static void setPlayerPlaceholderCooldown(UUID uuid, String placeholder, long time) {
 		if (!InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
 			InteractiveChat.placeholderCooldowns.put(uuid, new ConcurrentHashMap<String, Long>());
@@ -131,10 +206,20 @@ public class InteractiveChatAPI {
 		InteractiveChat.placeholderCooldowns.get(uuid).put(placeholder, time);
 	}
 	
+	/**
+	 * Get the universal cooldown for a player
+	 * @param player
+	 * @return A unix timestamp
+	 */
 	public static long getPlayerUniversalCooldown(Player player) {
 		return getPlayerUniversalCooldown(player.getUniqueId());
 	}
 	
+	/**
+	 * Get the universal cooldown for a player
+	 * @param uuid
+	 * @return A unix timestamp
+	 */
 	public static long getPlayerUniversalCooldown(UUID uuid) {
 		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
 			return InteractiveChat.universalCooldowns.get(uuid);
@@ -142,28 +227,64 @@ public class InteractiveChatAPI {
 		return -1;
 	}
 	
+	/**
+	 * Set the universal cooldown for a player
+	 * @param player
+	 * @param time
+	 */
 	public static void setPlayerUniversalCooldown(Player player, long time) {
 		setPlayerUniversalCooldown(player.getUniqueId(), time);
 	}
 	
+	/**
+	 * Set the universal cooldown for a player
+	 * @param uuid
+	 * @param time
+	 */
 	public static void setPlayerUniversalCooldown(UUID uuid, long time) {
 		InteractiveChat.universalCooldowns.put(uuid, time);
 	}
 	
+	/**
+	 * Whether a placeholder is on cooldown for a player
+	 * @param player
+	 * @param placeholder
+	 * @return True/False
+	 */
 	public static boolean isPlaceholderOnCooldown(Player player, String placeholder) {
 		long unix = System.currentTimeMillis();
 		return isPlaceholderOnCooldown(player, placeholder, unix);
 	}
 	
+	/**
+	 * Whether a placeholder is on cooldown for a player
+	 * @param uuid
+	 * @param placeholder
+	 * @return True/False
+	 */
 	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder) {
 		long unix = System.currentTimeMillis();
 		return isPlaceholderOnCooldown(uuid, placeholder, unix);
 	}
 	
+	/**
+	 * Whether a placeholder is on cooldown for a player at a given time
+	 * @param player
+	 * @param placeholder
+	 * @param time
+	 * @return True/False
+	 */
 	public static boolean isPlaceholderOnCooldown(Player player, String placeholder, long time) {
 		return isPlaceholderOnCooldown(player.getUniqueId(), placeholder, time);
 	}
 	
+	/**
+	 * Whether a placeholder is on cooldown for a player at a given time
+	 * @param uuid
+	 * @param placeholder
+	 * @param time
+	 * @return True/False
+	 */
 	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder, long time) {
 		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
 			if (InteractiveChat.universalCooldowns.get(uuid) > time) {
@@ -186,6 +307,11 @@ public class InteractiveChatAPI {
 		ENDERCHEST;
 	}
 	
+	/**
+	 * Get the shared inventory list
+	 * @param type
+	 * @return The shared inventory list
+	 */
 	public static BiMap<String, Inventory> getItemShareList(SharedType type) {
 		switch (type) {
 		case ITEM:
@@ -198,6 +324,13 @@ public class InteractiveChatAPI {
 		return null;
 	}
 	
+	/**
+	 * Add an inventory to the shared inventory list
+	 * @param type
+	 * @param inventory
+	 * @return The hashed key which can be used to retrieve the inventory
+	 * @throws Exception
+	 */
 	public static String addInventoryToItemShareList(SharedType type, Inventory inventory) throws Exception {
 		String hash = HashUtils.createSha1(inventory);
 		switch (type) {
@@ -231,10 +364,19 @@ public class InteractiveChatAPI {
 		InteractiveChat.pluginNicknames.remove(plugin);
 	}
 	
+	/**
+	 * Get the plugins registered to provide nicknames
+	 * @return A set of registered plguins
+	 */
 	public static Set<Plugin> getRegisteredNicknameProviders() {
 		return Collections.unmodifiableSet(InteractiveChat.pluginNicknames.keySet());
 	}
 	
+	/**
+	 * Get the nickname function provided by the provided plugin
+	 * @param plugin
+	 * @return The function which returns the list of plugins provided by this plugin
+	 */
 	public static Function<Player, List<String>> getNicknameProvider(Plugin plugin) {
 		return InteractiveChat.pluginNicknames.get(plugin);
 	}
@@ -242,7 +384,7 @@ public class InteractiveChatAPI {
 	/**
 	 * Get all plugin provided nicknames of the provided player, can return an empty {@link List}
 	 * @param player
-	 * @return
+	 * @return A list of nicknames
 	 */
 	public static List<String> getNicknames(Player player) {
 		List<String> nicks = new ArrayList<>();

@@ -255,27 +255,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>Spigot-1.8</groupId>
-			<artifactId>Spigot-1.8</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.8.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>Spigot-1.8.3</groupId>
-			<artifactId>Spigot-1.8.3</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.8.3.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>Spigot-1.8.8</groupId>
-			<artifactId>Spigot-1.8.8</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.8.8.jar</systemPath>
-		</dependency>
-		<dependency>
 			<groupId>Spigot-1.16.4</groupId>
 			<artifactId>Spigot-1.16.4</artifactId>
 			<scope>system</scope>

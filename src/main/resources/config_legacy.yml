@@ -29,6 +29,8 @@ Messages:
 Settings:
   #Bungeecord Mode
   Bungeecord: false
+  #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
+  UseAccurateSenderParser: true
   SendOriginalMessageIfExceedLengthLimit: true
   BungeecordUnknownItem:
     ReplaceItem: BARRIER

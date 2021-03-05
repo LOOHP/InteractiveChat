@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.ProcessCommandsResult;
+import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
@@ -50,7 +50,7 @@ public class ProcessBungeeRequestedMessage {
         	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
         }
         
-        ProcessCommandsResult commandsender = ProcessCommands.process(basecomponent);
+        ProcessSenderResult commandsender = ProcessCommands.process(basecomponent);
         Optional<ICPlayer> sender = Optional.empty();
         if (commandsender.getSender() != null) {
         	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());

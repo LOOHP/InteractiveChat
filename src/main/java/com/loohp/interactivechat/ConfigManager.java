@@ -45,6 +45,8 @@ public class ConfigManager {
 	public static void loadConfig() {		
 		InteractiveChat.aliasesMapping.clear();
 		
+		InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
+		
 		String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
 		InteractiveChat.chatAltColorCode = colorCodeString.length() == 1 ? Optional.of(colorCodeString.charAt(0)) : Optional.empty();
 		

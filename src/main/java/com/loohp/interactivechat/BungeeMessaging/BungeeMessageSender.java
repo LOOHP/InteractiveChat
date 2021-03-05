@@ -123,7 +123,16 @@ public class BungeeMessageSender {
     public static boolean addCommandMatch(UUID player, String placeholder, String uuidmatch) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
+    	out.writeByte(0);
     	DataTypeIO.writeString(out, placeholder, StandardCharsets.UTF_8);
+    	DataTypeIO.writeString(out, uuidmatch, StandardCharsets.UTF_8);
+    	return forwardData(0x07, out.toByteArray());
+    }
+    
+    public static boolean addSenderMatch(UUID player, String uuidmatch) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	DataTypeIO.writeUUID(out, player);
+    	out.writeByte(1);
     	DataTypeIO.writeString(out, uuidmatch, StandardCharsets.UTF_8);
     	return forwardData(0x07, out.toByteArray());
     }

@@ -38,6 +38,7 @@ import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.MessageUtils;
@@ -77,7 +78,7 @@ public class Events implements Listener {
 						String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
 						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
 						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch));
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
@@ -103,41 +104,7 @@ public class Events implements Listener {
 			return;
 		}
 
-		String message = event.getMessage();
-		if (InteractiveChat.maxPlacholders >= 0) {
-			int count = 0;
-			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
-				String findStr = icplaceholder.getKeyword();
-				int lastIndex = 0;	
-				while(lastIndex != -1) {	
-				    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
-				    if(lastIndex != -1) {
-				        count++;
-				        lastIndex += findStr.length();
-				    }
-				}
-			}
-			if (count > InteractiveChat.maxPlacholders) {
-				event.setCancelled(true);
-				String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
-				event.getPlayer().sendMessage(cancelmessage);
-				return;
-			}
-		}
-		
-		event.setMessage(MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping));
-		
-		String mapKey = ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage()));
-		InteractiveChat.messages.put(mapKey, event.getPlayer().getUniqueId());
-		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(mapKey), 60);
-		
-		if (InteractiveChat.bungeecordMode) {
-			try {
-				BungeeMessageSender.addMessage(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		checkChatMessage(event);
 	}
 	
 	@EventHandler(priority=EventPriority.LOW)
@@ -155,6 +122,10 @@ public class Events implements Listener {
 			return;
 		}
 		
+		checkChatMessage(event);
+	}
+	
+	private void checkChatMessage(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();
 		Player player = event.getPlayer();
 		
@@ -180,6 +151,20 @@ public class Events implements Listener {
 		}
 		
 		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+		
+		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/")) {
+			String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+			message += uuidmatch;
+			InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(new ICPlayer(event.getPlayer()), uuidmatch));
+			if (InteractiveChat.bungeecordMode) {
+				try {
+					BungeeMessageSender.addSenderMatch(event.getPlayer().getUniqueId(), uuidmatch);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 		event.setMessage(message);
 		
 		String mapKey = ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage()));

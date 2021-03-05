@@ -99,6 +99,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static Map<String, Map<String, String>> aliasesMapping = new HashMap<>();
 	public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
 	
+	public static boolean useAccurateSenderFinder = true;
+	
 	public static int delay = 200;
 	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
 
@@ -122,6 +124,20 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        
+        try {
+			config = yamlConfigProvider.load(configFile);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+        if (!config.contains("Settings.UseAccurateSenderParser")) {
+        	config.set("Settings.UseAccurateSenderParser", true);
+        	try {
+				yamlConfigProvider.save(config, configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
         
         loadConfig();
@@ -195,6 +211,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		try {
 			config = yamlConfigProvider.load(configFile);
 			parseCommands = config.getStringList("Settings.CommandsToParse");
+			useAccurateSenderFinder = config.getBoolean("Settings.UseAccurateSenderParser");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -423,6 +440,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				}
 			}
 		} else {
+			if (InteractiveChatBungee.useAccurateSenderFinder) {
+				String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+				message += uuidmatch;
+				event.setMessage(message);
+				try {
+					PluginMessageSendingBungee.sendSenderMatch(uuid, uuidmatch);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+
 			new Timer().schedule(new TimerTask() {
 				@Override
 				public void run() {

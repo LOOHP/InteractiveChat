@@ -1,4 +1,8 @@
 Settings:
+  #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
+  #Make sure this setting is the same on all servers in your network
+  UseAccurateSenderParser: true
+
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
   #This list is in REGEX so you can do some more advanced matches.

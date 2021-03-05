@@ -33,6 +33,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.RemoteEquipment;
+import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
 
@@ -188,9 +189,15 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	if (player4 == null) {
 	        		break;
 	        	}
-	        	String placeholder1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        	InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(player4, placeholder1, uuidmatch, InteractiveChat.commandPlaceholderMatch));
+	        	byte mode = input.readByte();
+	        	if (mode == 0) {
+	        		String placeholder1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        	InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(player4, placeholder1, uuidmatch));
+	        	} else if (mode == 1) {
+		        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        	InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(player4, uuidmatch));
+	        	}
 	        	break;
 	        case 0x08:
 	        	UUID messageId = DataTypeIO.readUUID(input);

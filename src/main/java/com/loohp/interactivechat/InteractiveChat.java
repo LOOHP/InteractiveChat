@@ -51,6 +51,7 @@ import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
+import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.PlaceholderAPI.Placeholders;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
@@ -213,6 +214,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean queueRemoteUpdate = false;
 	
 	public static ItemStack unknownReplaceItem;
+	
+	public static boolean useAccurateSenderFinder = true;
+	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
 	
 	public static PlayerDataManager playerDataManager;
 

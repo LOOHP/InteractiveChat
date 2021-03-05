@@ -6,14 +6,14 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
+import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class ProcessCommands {
+public class ProcessAccurateSender {
 	
 	public static ProcessSenderResult process(BaseComponent basecomponent) {
 		
@@ -27,9 +27,9 @@ public class ProcessCommands {
 				TextComponent textcomponent = (TextComponent) base;
 				String text = textcomponent.getText();
 				boolean contains = false;
-				for (Entry<String, CommandPlaceholderInfo> entry : InteractiveChat.commandPlaceholderMatch.entrySet()) {
+				for (Entry<String, SenderPlaceholderInfo> entry : InteractiveChat.senderPlaceholderMatch.entrySet()) {
 					if (text.contains(entry.getKey())) {
-						String newText = text.replace(entry.getKey(), entry.getValue().getPlaceholder());
+						String newText = text.replace(entry.getKey(), "");
 						textcomponent.setText(newText);
 						newlist.add(textcomponent);
 						sender = entry.getValue().getSender();

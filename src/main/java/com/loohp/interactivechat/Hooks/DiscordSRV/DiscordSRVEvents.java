@@ -8,7 +8,7 @@ import github.scarsz.discordsrv.api.events.GameChatMessagePreProcessEvent;
 
 public class DiscordSRVEvents {
 	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}";
+	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
 	@Subscribe(priority = ListenerPriority.LOWEST)
 	public void onGameToDiscord(GameChatMessagePreProcessEvent event) {

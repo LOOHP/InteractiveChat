@@ -39,6 +39,7 @@ import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.BungeeMessaging.ServerPingListener;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
+import com.loohp.interactivechat.Hooks.DiscordSRV.DiscordSRVEvents;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ChatPackets;
@@ -62,6 +63,7 @@ import com.loohp.interactivechat.Utils.PlayerUtils;
 import com.loohp.interactivechat.Utils.PotionUtils;
 import com.loohp.interactivechat.Utils.RarityUtils;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
@@ -89,6 +91,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean vanishHook = false;
 	public static Boolean cmiHook = false;
 	public static Boolean ventureChatHook = false;
+	public static Boolean discordSrvHook = false;
 	
 	public static Permission perms = null;
 	
@@ -338,6 +341,12 @@ public class InteractiveChat extends JavaPlugin {
 	    	});
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
 	    	ventureChatHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
+	    	DiscordSRV.api.subscribe(new DiscordSRVEvents());
+			discordSrvHook = true;
 		}
 		
 	    RarityUtils.setupRarity();

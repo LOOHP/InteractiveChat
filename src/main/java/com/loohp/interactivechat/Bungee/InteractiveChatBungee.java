@@ -428,7 +428,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
 				if (newMessage.matches(parsecommand)) {
 					String command = newMessage.trim();
-					String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+					String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
 					command += uuidmatch;
 					event.setMessage(command);
 					try {
@@ -441,7 +441,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			}
 		} else {
 			if (InteractiveChatBungee.useAccurateSenderFinder) {
-				String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+				String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
 				message += uuidmatch;
 				event.setMessage(message);
 				try {

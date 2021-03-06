@@ -49,6 +49,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class Events implements Listener {
 	
+	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}";
+	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		InteractiveChat.mentionCooldown.put(event.getPlayer(), (System.currentTimeMillis() - 3000));
@@ -72,25 +74,27 @@ public class Events implements Listener {
 					flag = false;
 				}
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
-				for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
-					String placeholder = icplaceholder.getKeyword();
-					if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
-						String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
-						String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
-						command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-						InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch));
-						if (InteractiveChat.bungeecordMode) {
-							try {
-								BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
-							} catch (IOException e) {
-								e.printStackTrace();
+				if (!command.matches(".*<cmd=" + UUID_REGEX + ">.*")) {
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+						String placeholder = icplaceholder.getKeyword();
+						if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
+							String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
+							String uuidmatch = "<msg=" + UUID.randomUUID().toString() + ">";
+							command = command.replaceFirst(regexPlaceholder,  uuidmatch);
+							InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch));
+							if (InteractiveChat.bungeecordMode) {
+								try {
+									BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 							}
+							event.setMessage(command);
+							break;
 						}
-						event.setMessage(command);
-						break;
 					}
+					break;
 				}
-				break;
 			}
 		}
 	}
@@ -152,8 +156,8 @@ public class Events implements Listener {
 		
 		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 		
-		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/")) {
-			String uuidmatch = "<" + UUID.randomUUID().toString() + ">";
+		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+			String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
 			message += uuidmatch;
 			InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(new ICPlayer(event.getPlayer()), uuidmatch));
 			if (InteractiveChat.bungeecordMode) {

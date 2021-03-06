@@ -8,9 +8,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.loohp.interactivechat.Utils.DataStreamIO;
 import com.loohp.interactivechat.Utils.MCVersion;
@@ -81,14 +81,20 @@ public class ServerPingBungee {
 				    String exactMinecraftVersion;
 				    try {
 					    JSONObject json = (JSONObject) new JSONParser().parse(jsonStr);
-					    JSONObject description = (JSONObject) json.get("description");
-					    String descriptionAsStr = ComponentSerializer.parse(description.toJSONString())[0].toPlainText();
-					    JSONObject data = (JSONObject) new JSONParser().parse(descriptionAsStr);
+					    Object descriptionObj = json.get("description");
+					    JSONObject data;
+					    if (descriptionObj instanceof JSONObject) {
+					    	JSONObject description = (JSONObject) json.get("description");
+						    String descriptionAsStr = ComponentSerializer.parse(description.toJSONString())[0].toPlainText();
+						    data = (JSONObject) new JSONParser().parse(descriptionAsStr);
+					    } else {
+					    	data = (JSONObject) new JSONParser().parse(StringEscapeUtils.unescapeJava(descriptionObj.toString()));
+					    }
 					    present = (boolean) data.get("present");
 					    version = (String) data.get("version");
 					    minecraftVersion = MCVersion.fromNumber((int) (long) data.get("minecraftVersion"));
 					    exactMinecraftVersion = (String) data.get("exactMinecraftVersion");
-				    } catch (ParseException e) {
+				    } catch (Exception e) {
 				    	present = false;
 				    	version = UNKNOWN_VERSION;
 				    	minecraftVersion = MCVersion.UNSUPPORTED;

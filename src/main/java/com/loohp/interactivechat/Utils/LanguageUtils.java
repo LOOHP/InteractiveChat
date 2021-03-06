@@ -275,6 +275,13 @@ public class LanguageUtils {
 	}
 	
 	private static String getLegacyTranslationKey(ItemStack itemStack) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		if (itemStack.getType().equals(Material.AIR)) {
+			if (InteractiveChat.version.isOld()) {
+				return "Air";
+			} else if (InteractiveChat.version.isOlderThan(MCVersion.V1_11)) {
+				return "createWorld.customize.flat.air";
+			}
+		}
 		Object nmsItemStackObject = asNMSCopyMethod.invoke(null, itemStack);
 		String path = getRawItemTypeNameMethod.invoke(nmsItemStackObject).toString() + ".name";
 		if (XMaterial.matchXMaterial(itemStack).equals(XMaterial.PLAYER_HEAD)) {

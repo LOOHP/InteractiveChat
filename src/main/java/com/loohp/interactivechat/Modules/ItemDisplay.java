@@ -244,19 +244,35 @@ public class ItemDisplay {
 											}										
 											InteractiveChat.itemDisplay.put(sha1, inv);	
 										} else {
-											Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
-											ItemStack empty = InteractiveChat.itemFrame1.clone();
-											if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-												empty = InteractiveChat.itemFrame2.clone();
+											if (InteractiveChat.version.isOld()) {
+												Inventory inv = Bukkit.createInventory(null, 27, title);
+												ItemStack empty = InteractiveChat.itemFrame1.clone();
+												if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+													empty = InteractiveChat.itemFrame2.clone();
+												}
+												ItemMeta emptyMeta = empty.getItemMeta();
+												emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+												empty.setItemMeta(emptyMeta);
+												for (int j = 0; j < inv.getSize(); j++) {
+													inv.setItem(j, empty);
+												}
+												inv.setItem(13, item);				            							
+												InteractiveChat.itemDisplay.put(sha1, inv);	
+											} else {
+												Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
+												ItemStack empty = InteractiveChat.itemFrame1.clone();
+												if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+													empty = InteractiveChat.itemFrame2.clone();
+												}
+												ItemMeta emptyMeta = empty.getItemMeta();
+												emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+												empty.setItemMeta(emptyMeta);
+												for (int j = 0; j < inv.getSize(); j++) {
+													inv.setItem(j, empty);
+												}
+												inv.setItem(4, item);				            							
+												InteractiveChat.itemDisplay.put(sha1, inv);	
 											}
-											ItemMeta emptyMeta = empty.getItemMeta();
-											emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-											empty.setItemMeta(emptyMeta);
-											for (int j = 0; j < inv.getSize(); j++) {
-												inv.setItem(j, empty);
-											}
-											inv.setItem(4, item);				            							
-											InteractiveChat.itemDisplay.put(sha1, inv);	
 										}
 									}
 				            	

@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -176,8 +176,9 @@ public class ChatPackets implements Listener {
 
 	        BaseComponent basecomponent;
 	        try {
-	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(StringEscapeUtils.unescapeJava(ComponentSerializer.toString(basecomponentarray)))));
+	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(new UnicodeUnescaper().translate(ComponentSerializer.toString(basecomponentarray)))));
 	        } catch (Exception e) {
+	        	e.printStackTrace();
 	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;

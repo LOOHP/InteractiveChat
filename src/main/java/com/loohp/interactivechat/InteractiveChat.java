@@ -3,6 +3,7 @@ package com.loohp.interactivechat;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Filter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -51,6 +55,7 @@ import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
+import com.loohp.interactivechat.ObjectHolders.LogFilter;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.PlaceholderAPI.Placeholders;
@@ -394,6 +399,16 @@ public class InteractiveChat extends JavaPlugin {
 				}
 	    	}
 	    }, 0, 100);
+	    
+	    try {
+	    	Logger logger = LogManager.getRootLogger();
+	    	LogFilter filter = new LogFilter();
+	    	Method method = logger.getClass().getMethod("addFilter", Filter.class);
+	    	method.invoke(logger, filter);
+	    } catch (Exception e) {
+	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
+	    }
+	    
 	}
 
 	@Override

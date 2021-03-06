@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>3.2.10.6</version>
+	<version>3.2.10.7</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -51,7 +51,7 @@
 									<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
 								</relocation>
 								<relocation>
-									<pattern>com.googlecode.json-simple</pattern>
+									<pattern>com.googlecode.json-simple</pattern>com.google.gson
 									<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
 								</relocation>
 								<relocation>

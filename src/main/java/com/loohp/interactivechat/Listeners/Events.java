@@ -79,7 +79,7 @@ public class Events implements Listener {
 						String placeholder = icplaceholder.getKeyword();
 						if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
 							String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
-							String uuidmatch = "<msg=" + UUID.randomUUID().toString() + ">";
+							String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
 							command = command.replaceFirst(regexPlaceholder,  uuidmatch);
 							InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch));
 							if (InteractiveChat.bungeecordMode) {

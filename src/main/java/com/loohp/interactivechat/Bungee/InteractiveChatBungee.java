@@ -26,6 +26,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Filter;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -155,6 +158,23 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		run();
 
 		getLogger().info(ChatColor.GREEN + "[InteractiveChat] InteractiveChatBungee has been enabled!");
+		
+		try {
+	    	Logger logger = getLogger();
+	    	logger.setFilter(new Filter() {	    		
+	    		private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";	    		
+				@Override
+				public boolean isLoggable(LogRecord record) {
+					String message = record.getMessage();
+					if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+						record.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
+					}
+					return true;
+				}
+	    	});
+	    } catch (Exception e) {
+	    	getLogger().info(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
+	    }
 	}
 
 	@Override
@@ -311,6 +331,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				        		UserConnection userConnection = (UserConnection) getProxy().getPlayer(playerUUID);
 				        		ChannelWrapper channelWrapper;
 				        		Field channelField = null;
+				        		
+				        		if (userConnection == null) {
+				        			return;
+				        		}
 
 				        		try {
 				        			channelField = userConnection.getClass().getDeclaredField("ch");

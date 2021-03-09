@@ -127,7 +127,7 @@ public class PlayernameDisplay {
 						message.setText(lastColor + message.getText());
 
 						if (InteractiveChat.usePlayerNameHoverEnable) {
-							String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText);
+							String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
 							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
 						}
 						if (InteractiveChat.usePlayerNameClickEnable) {

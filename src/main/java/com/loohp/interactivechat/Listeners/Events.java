@@ -74,6 +74,28 @@ public class Events implements Listener {
 					flag = false;
 				}
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+				
+				if (InteractiveChat.maxPlacholders >= 0) {
+					int count = 0;
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+						String findStr = icplaceholder.getKeyword();
+						int lastIndex = 0;	
+						while (lastIndex != -1) {	
+						    lastIndex = icplaceholder.isCaseSensitive() ? command.indexOf(findStr, lastIndex) : command.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
+						    if (lastIndex != -1) {
+						        count++;
+						        lastIndex += findStr.length();
+						    }
+						}
+					}
+					if (count > InteractiveChat.maxPlacholders) {
+						event.setCancelled(true);
+						String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
+						event.getPlayer().sendMessage(cancelmessage);
+						return;
+					}
+				}
+				
 				if (!command.matches(".*<cmd=" + UUID_REGEX + ">.*")) {
 					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 						String placeholder = icplaceholder.getKeyword();
@@ -133,14 +155,16 @@ public class Events implements Listener {
 		String message = event.getMessage();
 		Player player = event.getPlayer();
 		
+		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+		
 		if (InteractiveChat.maxPlacholders >= 0) {
 			int count = 0;
 			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 				String findStr = icplaceholder.getKeyword();
 				int lastIndex = 0;	
-				while(lastIndex != -1) {	
+				while (lastIndex != -1) {	
 				    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
-				    if(lastIndex != -1) {
+				    if (lastIndex != -1) {
 				        count++;
 				        lastIndex += findStr.length();
 				    }
@@ -153,8 +177,6 @@ public class Events implements Listener {
 				return;
 			}
 		}
-		
-		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 		
 		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
 			String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";

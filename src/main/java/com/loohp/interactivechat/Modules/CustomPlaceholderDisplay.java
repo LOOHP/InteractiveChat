@@ -200,7 +200,7 @@ public class CustomPlaceholderDisplay {
 								}
 								
 								if (clickEnabled) {
-									String clicktext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, clickValue));
+									String clicktext = PlaceholderParser.parse(player, clickValue);
 									message.setClickEvent(new ClickEvent(clickAction, clicktext));
 								}
 								

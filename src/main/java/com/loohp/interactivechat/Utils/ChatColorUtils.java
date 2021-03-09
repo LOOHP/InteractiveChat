@@ -19,6 +19,8 @@ public class ChatColorUtils {
 	private static final Pattern COLOR_ESCAPE = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
 	
 	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";
+	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
+	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
 	
 	static {
 		COLORS.add('0');
@@ -272,8 +274,16 @@ public class ChatColorUtils {
         	if (text.charAt(i) == code) {
         		if (text.charAt(i + 1) == 'x' && text.length() > (i + 14)) {
         			String section = text.substring(i, i + 14);
-        			String translated = section.replace(code, '\u00a7');
-        			text = text.replace(section, translated);
+        			if (section.matches(VALID_RGB_COLOR)) {
+	        			String translated = section.replace(code, '\u00a7');
+	        			text = text.replace(section, translated);
+        			}
+        		} else if (text.charAt(i + 1) == '#' && text.length() > (i + 8)) {
+        			String section = text.substring(i, i + 8);
+        			if (section.matches(VALID_RGB_COLOR2)) {
+        				String translated = "\u00a7x\u00a7" + section.substring(2).replaceAll(".(?=.)", "$0\u00a7");
+        				text = text.replace(section, translated);
+        			}
         		} else if (COLORS.contains(text.charAt(i + 1))) {
         			StringBuilder sb = new StringBuilder(text);
         			sb.setCharAt(i, '\u00a7');

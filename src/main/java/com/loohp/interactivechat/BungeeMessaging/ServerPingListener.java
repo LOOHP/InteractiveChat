@@ -20,11 +20,11 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.netty.SocketAdapter;
 import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Registry.Registry;
 
 @SuppressWarnings("unchecked")
 public class ServerPingListener implements Listener {
 	
-	public static final String INTERACTIVECHAT_PROTOCOL_IDENTIFIER = "InterativeChatBungeePing";
 	public static final Map<InetAddress, Long> REQUESTS = new ConcurrentHashMap<>();
 	public static String json;
 	
@@ -34,6 +34,7 @@ public class ServerPingListener implements Listener {
 		json.put("version", InteractiveChat.plugin.getDescription().getVersion());
 		json.put("minecraftVersion", InteractiveChat.version.getNumber());
 		json.put("exactMinecraftVersion", InteractiveChat.exactMinecraftVersion);
+		json.put("protocol", Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION);
 		ServerPingListener.json = json.toJSONString();
 	}
 	
@@ -44,7 +45,7 @@ public class ServerPingListener implements Listener {
 			public void onPacketReceiving(PacketEvent event) {
 				PacketContainer packet = event.getPacket();
 				String str = packet.getStrings().read(0);
-				if (str != null && str.equals(INTERACTIVECHAT_PROTOCOL_IDENTIFIER) && event.isPlayerTemporary()) {
+				if (str != null && str.equals(Registry.PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER) && event.isPlayerTemporary()) {
 					SocketAdapter socket;
 					try {
 						socket = (SocketAdapter) TemporaryPlayerFactory.getInjectorFromPlayer(event.getPlayer()).getSocket();

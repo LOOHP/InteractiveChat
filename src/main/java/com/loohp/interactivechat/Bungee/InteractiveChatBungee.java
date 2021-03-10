@@ -40,6 +40,7 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.Registry.Registry;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
@@ -558,10 +559,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		if (player.hasPermission("interactivechat.backendinfo")) {
 			String proxyVersion = plugin.getDescription().getVersion();
 			for (BackendInteractiveChatData data  : serverInteractiveChatInfo.values()) {
-				if (!data.getVersion().equals(proxyVersion)) {
-					String msg = ChatColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running the same version of InteractiveChat as the proxy!";
+				if (data.isOnline() && data.getProtocolVersion() != Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION) {
+					String msg = ChatColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running a version of InteractiveChat which has the same plugin messaging protocol version as the proxy!";
 					TextComponent text = new TextComponent(msg);
-					text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(ChatColor.YELLOW + "Proxy Version: " + proxyVersion + "\n" + ChatColor.RED + data.getServer() + " Version: " + data.getVersion())}));
+					text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(ChatColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + ChatColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")")}));
 					player.sendMessage(text);
 					ProxyServer.getInstance().getConsole().sendMessage(text);
 				}

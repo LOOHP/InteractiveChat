@@ -25,7 +25,6 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatComponentUtils {
 	
@@ -310,31 +309,30 @@ public class ChatComponentUtils {
 		for (BaseComponent base : list) {
 			if (base.getHoverEvent() != null) {
 				HoverEvent event = base.getHoverEvent();
-				if (InteractiveChat.legacyChatAPI) {
-					if (event.getValue() != null) {
-						BaseComponent hover = cleanUpLegacyText(join(event.getValue()), player);
-						base.setHoverEvent(new HoverEvent(event.getAction(), new BaseComponent[] {hover}));
-						System.out.println(ComponentSerializer.toString(hover).replace(ChatColor.COLOR_CHAR, '&'));
-					}
-				} else {
-					List<Content> newContents = new ArrayList<>();
-					for (Content content : event.getContents()) {
-						if (content instanceof Text) {
-							Text text = (Text) content;
-							if (text.getValue() != null) {
-								if (text.getValue() instanceof BaseComponent[]) {
-									newContents.add(new Text(new BaseComponent[] {cleanUpLegacyText(join((BaseComponent[]) text.getValue()), player)}));
-								} else if (text.getValue() instanceof String) {
-									newContents.add(new Text(new BaseComponent[] {cleanUpLegacyText(new TextComponent((String) text.getValue()), player)}));
-								}
-							} else {
-								newContents.add(content);
-							}
-						} else {
-							newContents.add(content);
+				if (event.getAction().equals(HoverEvent.Action.SHOW_TEXT)) {
+					if (InteractiveChat.legacyChatAPI) {
+						if (event.getValue() != null) {
+							BaseComponent hover = cleanUpLegacyText(join(event.getValue()), player);
+							base.setHoverEvent(new HoverEvent(event.getAction(), new BaseComponent[] {hover}));
 						}
+					} else {
+						List<Content> newContents = new ArrayList<>();
+						for (Content content : event.getContents()) {
+							if (content instanceof Text) {
+								Text text = (Text) content;
+								if (text.getValue() != null) {
+									if (text.getValue() instanceof BaseComponent[]) {
+										newContents.add(new Text(new BaseComponent[] {cleanUpLegacyText(join((BaseComponent[]) text.getValue()), player)}));
+									} else if (text.getValue() instanceof String) {
+										newContents.add(new Text(new BaseComponent[] {cleanUpLegacyText(new TextComponent((String) text.getValue()), player)}));
+									}
+								} else {
+									newContents.add(content);
+								}
+							}
+						}
+						base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, newContents));
 					}
-					base.setHoverEvent(new HoverEvent(event.getAction(), newContents.toArray(new Content[0])));
 				}
 			}
 		}
@@ -343,7 +341,7 @@ public class ChatComponentUtils {
 		for (BaseComponent base : list) {
 			List<BaseComponent> thislist = new LinkedList<>();
 			if (base instanceof TextComponent) {
-				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(base.toLegacyText())).map(each -> (TextComponent) each).collect(Collectors.toList());
+				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(ChatColorUtils.filterIllegalColorCodes(base.toLegacyText()))).map(each -> (TextComponent) each).collect(Collectors.toList());
 				if (!texts.isEmpty()) {
 					TextComponent current2 = texts.get(0);
 					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {

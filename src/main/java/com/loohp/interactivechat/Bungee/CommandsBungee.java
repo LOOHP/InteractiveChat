@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.loohp.interactivechat.Registry.Registry;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -33,6 +35,7 @@ public class CommandsBungee extends Command implements TabExecutor {
 					}
 					
 					if (args[0].equalsIgnoreCase("backendinfo") && InteractiveChatBungee.hasPermission(sender, "interactivechat.backendinfo").get()) {
+						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Proxy -> InteractiveChat: " + InteractiveChatBungee.plugin.getDescription().getVersion() + " (PM Protocol: " + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")"));
 						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Expected latency: " + InteractiveChatBungee.delay + " ms"));
 						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Backends under this proxy:"));
 						ProxyServer.getInstance().getServers().values().stream().sorted(Comparator.comparing(each -> each.getName())).forEach(server -> {
@@ -42,11 +45,16 @@ public class CommandsBungee extends Command implements TabExecutor {
 								sender.sendMessage(new TextComponent(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
 							} else {
 								String minecraftVersion = data.getExactMinecraftVersion();
-								if (!data.hasInteractiveChat()) {
-									sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+								if (data.isOnline()) {
+									if (!data.hasInteractiveChat()) {
+										sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED (PM Protocol: -1) | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									} else {
+										sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " (PM Protocol: " + data.getProtocolVersion() + ") | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									}
 								} else {
-									sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+									sender.sendMessage(new TextComponent(ChatColor.RED + name + " -> Status: OFFLINE"));
 								}
+								
 							}
 						});
 						return;

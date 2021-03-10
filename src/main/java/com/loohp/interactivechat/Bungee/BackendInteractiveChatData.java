@@ -5,23 +5,36 @@ import com.loohp.interactivechat.Utils.MCVersion;
 public class BackendInteractiveChatData {
 
 	private String server;
+	private boolean isOnline;
+	
 	private boolean hasInteractiveChat;
 	private String version;
 	private int ping;
 	private MCVersion minecraftVersion;
 	private String exactMinecraftVersion;
+	private int protocol;
 	
-	protected BackendInteractiveChatData(String server, boolean hasInteractiveChat, String version, MCVersion minecraftVersion, String exactMinecraftVersion, int ping) {
+	protected BackendInteractiveChatData(String server, boolean isOnline, boolean hasInteractiveChat, String version, MCVersion minecraftVersion, String exactMinecraftVersion, int ping, int protocol) {
 		this.server = server;
 		this.hasInteractiveChat = hasInteractiveChat;
 		this.version = version;
 		this.minecraftVersion = minecraftVersion;
 		this.exactMinecraftVersion = exactMinecraftVersion;
 		this.ping = ping;
+		this.protocol = protocol;
+		this.isOnline = isOnline;
 	}
 	
 	public String getServer() {
 		return server;
+	}
+	
+	public boolean isOnline() {
+		return isOnline;
+	}
+	
+	protected void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
 	}
 	
 	public boolean hasInteractiveChat() {
@@ -62,6 +75,14 @@ public class BackendInteractiveChatData {
 
 	protected void setExactMinecraftVersion(String exactMinecraftVersion) {
 		this.exactMinecraftVersion = exactMinecraftVersion;
+	}
+	
+	public int getProtocolVersion() {
+		return protocol;
+	}
+	
+	protected void setProtocolVersion(int protocol) {
+		this.protocol = protocol;
 	}
 
 }

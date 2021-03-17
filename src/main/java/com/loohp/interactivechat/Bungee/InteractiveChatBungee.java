@@ -541,7 +541,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				try {
 					if (obj instanceof Chat) {
 						Chat packet = (Chat) obj;
-						forwardedMessages.get(player.getUniqueId()).add(packet.getMessage());
+						UUID uuid = player.getUniqueId();
+						String message = packet.getMessage();
+						byte position = packet.getPosition();
+						if ((position == 0 || position == 1) && uuid != null && message != null) {
+							forwardedMessages.get(uuid).add(message);
+						}
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
@@ -597,23 +602,26 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				try {
 					if (obj instanceof Chat) {
 						Chat packet = (Chat) obj;
-						if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-							packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-						} else if (hasInteractiveChat(player.getServer())) {
-							UUID messageId = UUID.randomUUID();
-							messageQueue.add(messageId);
-							//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
-							new Timer().schedule(new TimerTask() {
-								@Override
-								public void run() {
-									try {
-										PluginMessageSendingBungee.requestMessageProcess(player, packet.getMessage(), messageId);
-									} catch (IOException e) {
-										e.printStackTrace();
+						String message = packet.getMessage();
+						byte position = packet.getPosition();
+						if ((position == 0 || position == 1) && message != null) {
+							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
+							} else if (hasInteractiveChat(player.getServer())) {
+								UUID messageId = UUID.randomUUID();
+								messageQueue.add(messageId);
+								new Timer().schedule(new TimerTask() {
+									@Override
+									public void run() {
+										try {
+											PluginMessageSendingBungee.requestMessageProcess(player, message, messageId);
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
 									}
-								}
-							}, delay + 50);
-							return;
+								}, delay + 50);
+								return;
+							}
 						}
 					}
 				} catch (Throwable e) {

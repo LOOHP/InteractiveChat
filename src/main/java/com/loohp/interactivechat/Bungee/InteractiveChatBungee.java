@@ -545,7 +545,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 						String message = packet.getMessage();
 						byte position = packet.getPosition();
 						if ((position == 0 || position == 1) && uuid != null && message != null) {
-							forwardedMessages.get(uuid).add(message);
+							List<String> list = forwardedMessages.get(uuid);
+							if (list != null) {
+								list.add(message);
+							}
 						}
 					}
 				} catch (Throwable e) {

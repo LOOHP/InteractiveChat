@@ -3,6 +3,7 @@ package com.loohp.interactivechat.Hooks.Essentials;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
@@ -25,14 +26,14 @@ public class EssentialsNicknames implements Listener {
 	private static Essentials essen;
 	private static String prefix;
 	
-	private static final Map<Player, List<String>> ESSENTIALS_NICK = new ConcurrentHashMap<>();
+	private static final Map<UUID, List<String>> ESSENTIALS_NICK = new ConcurrentHashMap<>();
 	
 	public static void setup() {
 		essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 		prefix = essen.getConfig().getString("nickname-prefix");
 		
-		InteractiveChatAPI.registerNicknameProvider(essen, player -> {
-			List<String> names = ESSENTIALS_NICK.get(player);
+		InteractiveChatAPI.registerNicknameProvider(essen, uuid -> {
+			List<String> names = ESSENTIALS_NICK.get(uuid);
 			return names;
 		});
 		
@@ -48,7 +49,7 @@ public class EssentialsNicknames implements Listener {
 			String essentialsNick = essen.getUser(player.getUniqueId()).getNickname();
 			List<String> names = new ArrayList<>();
 			names.add(prefix + essentialsNick);
-			ESSENTIALS_NICK.put(player, names);
+			ESSENTIALS_NICK.put(player.getUniqueId(), names);
 		}
 	}
 	
@@ -68,7 +69,7 @@ public class EssentialsNicknames implements Listener {
 		try {
 			List<String> names = new ArrayList<>();
 			names.add(prefix + event.getValue());
-			ESSENTIALS_NICK.put(event.getAffected().getBase(), names);
+			ESSENTIALS_NICK.put(event.getAffected().getBase().getUniqueId(), names);
 		} catch (Exception ignore) {}
 	}
 	
@@ -82,7 +83,7 @@ public class EssentialsNicknames implements Listener {
 	
 	@EventHandler
 	public void onEssentialsLeave(PlayerQuitEvent event) {
-		ESSENTIALS_NICK.remove(event.getPlayer());
+		ESSENTIALS_NICK.remove(event.getPlayer().getUniqueId());
 	}
 
 }

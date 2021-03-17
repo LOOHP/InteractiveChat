@@ -85,7 +85,7 @@ public class MentionDisplay {
 					if (!names.contains(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
 						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
 					}
-					List<String> list = InteractiveChatAPI.getNicknames(reciever);
+					List<String> list = InteractiveChatAPI.getNicknames(reciever.getUniqueId());
 					for (String name : list) {
 						names.add(ChatColorUtils.stripColor(name));
 					}

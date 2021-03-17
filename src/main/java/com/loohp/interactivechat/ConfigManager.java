@@ -132,7 +132,7 @@ public class ConfigManager {
 		List<String> stringList = getConfig().getStringList("Player.Hover.Text");
 		InteractiveChat.usePlayerNameHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList));
 		InteractiveChat.usePlayerNameClickEnable = getConfig().getBoolean("Player.Click.Enable");
-		InteractiveChat.usePlayerNameClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Action"));
+		InteractiveChat.usePlayerNameClickAction = getConfig().getString("Player.Click.Action");
 		InteractiveChat.usePlayerNameClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Value"));
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");

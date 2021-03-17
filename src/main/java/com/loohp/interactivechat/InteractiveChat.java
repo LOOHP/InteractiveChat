@@ -197,7 +197,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Set<String> messageToIgnore = new HashSet<>();
 	
-	public static Map<Plugin, Function<Player, List<String>>> pluginNicknames = new ConcurrentHashMap<>();
+	public static Map<Plugin, Function<UUID, List<String>>> pluginNicknames = new ConcurrentHashMap<>();
 	
 	public static boolean filterUselessColorCodes = true;
 	

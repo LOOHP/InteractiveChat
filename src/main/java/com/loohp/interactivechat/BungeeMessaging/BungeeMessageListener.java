@@ -105,6 +105,9 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	for (UUID uuid : current) {
 	        		InteractiveChat.remotePlayers.remove(uuid);
 	        	}
+	        	for (UUID uuid : localUUID) {
+	        		InteractiveChat.remotePlayers.remove(uuid);
+	        	}
 	        	break;
 	        case 0x01:
 	        	int delay = input.readInt();

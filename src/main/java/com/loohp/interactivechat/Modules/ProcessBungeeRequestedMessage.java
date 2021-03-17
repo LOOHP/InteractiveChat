@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -25,7 +25,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 public class ProcessBungeeRequestedMessage {
 	
 	public static String processAndRespond(Player reciever, String component) throws Exception {
-		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(StringEscapeUtils.unescapeJava(component))));
+		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(new UnicodeUnescaper().translate(component))));
 		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
         
         try {

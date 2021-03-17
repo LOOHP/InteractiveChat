@@ -216,7 +216,7 @@ public class Events implements Listener {
     			if (!player.getName().equals(player.getDisplayName())) {
     				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
     			}
-				List<String> names = InteractiveChatAPI.getNicknames(player);
+				List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
 				for (String name : names) {
 					playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
 				}

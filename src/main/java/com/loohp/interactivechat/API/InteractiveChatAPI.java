@@ -352,7 +352,7 @@ public class InteractiveChatAPI {
 	 * @param plugin
 	 * @param provider
 	 */
-	public static void registerNicknameProvider(Plugin plugin, Function<Player, List<String>> provider) {
+	public static void registerNicknameProvider(Plugin plugin, Function<UUID, List<String>> provider) {
 		InteractiveChat.pluginNicknames.put(plugin, provider);
 	}
 	
@@ -377,20 +377,20 @@ public class InteractiveChatAPI {
 	 * @param plugin
 	 * @return The function which returns the list of plugins provided by this plugin
 	 */
-	public static Function<Player, List<String>> getNicknameProvider(Plugin plugin) {
+	public static Function<UUID, List<String>> getNicknameProvider(Plugin plugin) {
 		return InteractiveChat.pluginNicknames.get(plugin);
 	}
 	
 	/**
 	 * Get all plugin provided nicknames of the provided player, can return an empty {@link List}
-	 * @param player
+	 * @param uuid
 	 * @return A list of nicknames
 	 */
-	public static List<String> getNicknames(Player player) {
+	public static List<String> getNicknames(UUID uuid) {
 		List<String> nicks = new ArrayList<>();
-		for (Entry<Plugin, Function<Player, List<String>>> entry : InteractiveChat.pluginNicknames.entrySet()) {
+		for (Entry<Plugin, Function<UUID, List<String>>> entry : InteractiveChat.pluginNicknames.entrySet()) {
 			try {
-				List<String> names = entry.getValue().apply(player);
+				List<String> names = entry.getValue().apply(uuid);
 				if (names != null) {
 					nicks.addAll(names);
 				}

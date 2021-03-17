@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -341,7 +342,7 @@ public class ChatComponentUtils {
 		for (BaseComponent base : list) {
 			List<BaseComponent> thislist = new LinkedList<>();
 			if (base instanceof TextComponent) {
-				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(ChatColorUtils.filterIllegalColorCodes(base.toLegacyText()))).map(each -> (TextComponent) each).collect(Collectors.toList());
+				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(new UnicodeUnescaper().translate(ChatColorUtils.filterIllegalColorCodes(base.toLegacyText())))).map(each -> (TextComponent) each).collect(Collectors.toList());
 				if (!texts.isEmpty()) {
 					TextComponent current2 = texts.get(0);
 					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {

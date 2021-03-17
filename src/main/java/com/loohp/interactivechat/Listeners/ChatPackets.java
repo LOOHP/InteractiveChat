@@ -304,7 +304,7 @@ public class ChatPackets implements Listener {
 		        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
 		        }
 	        }
-        
+	        
 	        basecomponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
 	        String json = ComponentSerializer.toString(basecomponent);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;

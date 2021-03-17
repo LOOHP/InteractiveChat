@@ -274,13 +274,13 @@ public class ChatColorUtils {
         	if (text.charAt(i) == code) {
         		if (text.charAt(i + 1) == 'x' && text.length() > (i + 14)) {
         			String section = text.substring(i, i + 14);
-        			if (section.matches(VALID_RGB_COLOR)) {
+        			if (section.matches(VALID_RGB_COLOR.replace("\u00a7", CustomStringUtils.escapeMetaCharacters(code + "")))) {
 	        			String translated = section.replace(code, '\u00a7');
 	        			text = text.replace(section, translated);
         			}
         		} else if (text.charAt(i + 1) == '#' && text.length() > (i + 8)) {
         			String section = text.substring(i, i + 8);
-        			if (section.matches(VALID_RGB_COLOR2)) {
+        			if (section.matches(VALID_RGB_COLOR2.replace("\u00a7", CustomStringUtils.escapeMetaCharacters(code + "")))) {
         				String translated = "\u00a7x\u00a7" + section.substring(2).replaceAll(".(?=.)", "$0\u00a7");
         				text = text.replace(section, translated);
         			}

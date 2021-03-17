@@ -79,7 +79,7 @@ public class SenderFinder {
 			names.put(ChatColorUtils.stripColor(entry.getValue().getDisplayName()), entry.getKey());
 		});
 		Bukkit.getOnlinePlayers().forEach(each -> {
-			List<String> list = InteractiveChatAPI.getNicknames(each);
+			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
 			for (String name : list) {
 				names.put(ChatColorUtils.stripColor(name), each.getUniqueId());
 			}

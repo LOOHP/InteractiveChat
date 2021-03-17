@@ -32,7 +32,7 @@ public class PlayernameDisplay {
 	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<>();
 		Bukkit.getOnlinePlayers().forEach(each -> {
-			if (VanishUtils.isVanished(each)) {
+			if (VanishUtils.isVanished(each.getUniqueId())) {
 				return;
 			}
 			ICPlayer icplayer = new ICPlayer(each);
@@ -40,13 +40,20 @@ public class PlayernameDisplay {
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
 			}
-			List<String> list = InteractiveChatAPI.getNicknames(each);
+			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
 			for (String name : list) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), icplayer, name));
 			}
 		});	
 		InteractiveChat.remotePlayers.values().forEach(each -> {
+			if (each.isLocal() || VanishUtils.isVanished(each.getUniqueId())) {
+				return;
+			}
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
+			for (String name : list) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), each, name));
+			}
 		});
 		
 		Collections.sort(names);

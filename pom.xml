@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>3.2.10.10</version>
+	<version>3.2.10.11</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -48,10 +48,6 @@
 							<relocations>
 								<relocation>
 									<pattern>com.cryptomorin.xseries</pattern>
-									<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>com.googlecode.json-simple</pattern>com.google.gson
 									<shadedPattern>com.loohp.interactivechat.Utils</shadedPattern>
 								</relocation>
 								<relocation>
@@ -259,18 +255,18 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>Spigot-1.16.4</groupId>
-			<artifactId>Spigot-1.16.4</artifactId>
+			<groupId>Spigot-1.16.5</groupId>
+			<artifactId>Spigot-1.16.5</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.16.4.jar</systemPath>
+			<systemPath>${basedir}/lib/spigot-1.16.5.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>bungeecord-proxy-1.16-R0.4-SNAPSHOT</groupId>
-			<artifactId>bungeecord-proxy-1.16-R0.4-SNAPSHOT</artifactId>
+			<groupId>bungeecord-proxy-1.16-R0.5-SNAPSHOTT</groupId>
+			<artifactId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/bungeecord-proxy-1.16-R0.4-SNAPSHOT.jar</systemPath>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.16-R0.5-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>VentureChat</groupId>
@@ -302,7 +298,7 @@
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-gson</artifactId>
-			<version>4.5.1</version>
+			<version>4.7.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

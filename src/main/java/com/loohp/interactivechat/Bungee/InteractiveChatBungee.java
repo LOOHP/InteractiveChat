@@ -538,9 +538,13 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
-				if (obj instanceof Chat) {
-					Chat packet = (Chat) obj;
-					forwardedMessages.get(player.getUniqueId()).add(packet.getMessage());
+				try {
+					if (obj instanceof Chat) {
+						Chat packet = (Chat) obj;
+						forwardedMessages.get(player.getUniqueId()).add(packet.getMessage());
+					}
+				} catch (Throwable e) {
+					e.printStackTrace();
 				}
 				super.write(channelHandlerContext, obj, channelPromise);
 			}
@@ -590,26 +594,30 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
-				if (obj instanceof Chat) {
-					Chat packet = (Chat) obj;
-					if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-						packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-					} else if (hasInteractiveChat(player.getServer())) {
-						UUID messageId = UUID.randomUUID();
-						messageQueue.add(messageId);
-						//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
-						new Timer().schedule(new TimerTask() {
-							@Override
-							public void run() {
-								try {
-									PluginMessageSendingBungee.requestMessageProcess(player, packet.getMessage(), messageId);
-								} catch (IOException e) {
-									e.printStackTrace();
+				try {
+					if (obj instanceof Chat) {
+						Chat packet = (Chat) obj;
+						if (packet.getMessage().contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+							packet.setMessage(packet.getMessage().replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
+						} else if (hasInteractiveChat(player.getServer())) {
+							UUID messageId = UUID.randomUUID();
+							messageQueue.add(messageId);
+							//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " -> " + packet.getMessage()));
+							new Timer().schedule(new TimerTask() {
+								@Override
+								public void run() {
+									try {
+										PluginMessageSendingBungee.requestMessageProcess(player, packet.getMessage(), messageId);
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
 								}
-							}
-						}, delay + 50);
-						return;
+							}, delay + 50);
+							return;
+						}
 					}
+				} catch (Throwable e) {
+					e.printStackTrace();
 				}
 				super.write(channelHandlerContext, obj, channelPromise);
 			}

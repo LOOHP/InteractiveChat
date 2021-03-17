@@ -50,20 +50,38 @@ public class ProcessBungeeRequestedMessage {
         	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
         }
         
-        ProcessSenderResult commandsender = ProcessCommands.process(basecomponent);
+        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);
         Optional<ICPlayer> sender = Optional.empty();
-        if (commandsender.getSender() != null) {
-        	Player bukkitplayer = Bukkit.getPlayer(commandsender.getSender());
+        if (commandSender.getSender() != null) {
+        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
         	if (bukkitplayer != null) {
         		sender = Optional.of(new ICPlayer(bukkitplayer));
         	} else {
-        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandsender.getSender()));
+        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandSender.getSender()));
+        	}
+        }
+        ProcessSenderResult chatSender = null;
+        if (!sender.isPresent()) {
+        	if (InteractiveChat.useAccurateSenderFinder) {
+        		chatSender = ProcessAccurateSender.process(basecomponent);
+        		if (chatSender.getSender() != null) {
+    	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
+    	        	if (bukkitplayer != null) {
+    	        		sender = Optional.of(new ICPlayer(bukkitplayer));
+    	        	} else {
+    	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(chatSender.getSender()));
+    	        	}
+    	        }
         	}
         }
         if (!sender.isPresent()) {
         	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
         }
-        basecomponent = commandsender.getBaseComponent();
+        
+        basecomponent = commandSender.getBaseComponent();
+        if (chatSender != null) {
+        	basecomponent = chatSender.getBaseComponent();
+        }
         
         String text = basecomponent.toLegacyText();
         if (InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {

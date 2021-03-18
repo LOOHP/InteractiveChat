@@ -57,9 +57,8 @@ public class MentionDisplay {
 					settings = settingsArgs[0];
 				}
 				
-				if (SoundUtils.isValid(settings)) {
-					sound = Sound.valueOf(settings);
-				} else {
+				sound = SoundUtils.parseSound(settings);
+				if (sound == null) {
 					Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + settings);
 				}
 				

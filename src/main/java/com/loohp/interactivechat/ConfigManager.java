@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -102,24 +103,40 @@ public class ConfigManager {
 		InteractiveChat.containerViewTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.ContainerViewTitle"));
 		
 		try {
-			if (version.isLegacy()) {
-				String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
-				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
-				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
-				InteractiveChat.itemFrame1 = new ItemStack(material, 1, data);
-			} else {
-				InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
-			}
-			if (version.isLegacy()) {
-				String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
-				Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
-				short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
-				InteractiveChat.itemFrame2 = new ItemStack(material, 1, data);
-			} else {
-				InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
+			try {
+				if (version.isLegacy()) {
+					String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
+					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+					InteractiveChat.itemFrame1 = new ItemStack(material, 1, data);
+				} else {
+					InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
+				}
+			} catch (Exception e) {
+				InteractiveChat.itemFrame1 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Primary")).orElseThrow().parseItem();
+				InteractiveChat.itemFrame1.setAmount(1);
 			}
 		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Item.Frame)");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Item.Frame.Primary)");
+			e.printStackTrace();
+		}
+		
+		try {
+			try {
+				if (version.isLegacy()) {
+					String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
+					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+					InteractiveChat.itemFrame2 = new ItemStack(material, 1, data);
+				} else {
+					InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
+				}
+			} catch (Exception e) {
+				InteractiveChat.itemFrame2 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Secondary")).orElseThrow().parseItem();
+				InteractiveChat.itemFrame2.setAmount(1);
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Item.Frame.Secondary)");
 			e.printStackTrace();
 		}
 		
@@ -217,15 +234,37 @@ public class ConfigManager {
 		
 		InteractiveChat.messageToIgnore = getConfig().getStringList("Settings.MessagesToIgnore").stream().collect(Collectors.toSet());
 		
-		try {
-			ItemStack unknown = new ItemStack(Material.valueOf(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem").toUpperCase()));
-			ItemMeta meta = unknown.getItemMeta();
-			meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));
-			meta.setLore(getConfig().getStringList("Settings.BungeecordUnknownItem.Lore").stream().map(each -> ChatColorUtils.translateAlternateColorCodes('&', each)).collect(Collectors.toList()));
-			unknown.setItemMeta(meta);
-			InteractiveChat.unknownReplaceItem = unknown;
+		try {			
+			try {
+				if (version.isLegacy()) {
+					String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
+					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+					ItemStack unknown = new ItemStack(material, 1, data);
+					ItemMeta meta = unknown.getItemMeta();
+					meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));
+					meta.setLore(getConfig().getStringList("Settings.BungeecordUnknownItem.Lore").stream().map(each -> ChatColorUtils.translateAlternateColorCodes('&', each)).collect(Collectors.toList()));
+					unknown.setItemMeta(meta);
+					InteractiveChat.unknownReplaceItem = unknown;
+				} else {
+					ItemStack unknown = new ItemStack(Material.valueOf(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem").toUpperCase()));
+					ItemMeta meta = unknown.getItemMeta();
+					meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));
+					meta.setLore(getConfig().getStringList("Settings.BungeecordUnknownItem.Lore").stream().map(each -> ChatColorUtils.translateAlternateColorCodes('&', each)).collect(Collectors.toList()));
+					unknown.setItemMeta(meta);
+					InteractiveChat.unknownReplaceItem = unknown;
+				}
+			} catch (Exception e) {
+				ItemStack unknown = XMaterial.matchXMaterial(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem")).orElseThrow().parseItem();
+				unknown.setAmount(1);
+				ItemMeta meta = unknown.getItemMeta();
+				meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));
+				meta.setLore(getConfig().getStringList("Settings.BungeecordUnknownItem.Lore").stream().map(each -> ChatColorUtils.translateAlternateColorCodes('&', each)).collect(Collectors.toList()));
+				unknown.setItemMeta(meta);
+				InteractiveChat.unknownReplaceItem = unknown;
+			}
 		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (BungeecordUnknownItem.DisplayName)");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (Settings.BungeecordUnknownItem.ReplaceItem)");
 			e.printStackTrace();
 		}
 		

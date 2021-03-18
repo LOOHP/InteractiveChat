@@ -1,10 +1,7 @@
 package com.loohp.interactivechat;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -242,32 +239,6 @@ public class InteractiveChat extends JavaPlugin {
         if (!version.isSupported()) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported! (" + version.toString() + ")");
 	    }
-        
-        if (!getDataFolder().exists()) {
-        	getDataFolder().mkdirs();
-        }
-        File file = new File(getDataFolder(), "config.yml"); 
-        if (!file.exists()) {
-        	if (version.isOld()) {
-	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_old.yml")) {
-	                Files.copy(in, file.toPath());
-	            } catch (IOException e) {
-	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
-	            }
-        	} else if (version.isLegacy()) {
-	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_legacy.yml")) {
-	                Files.copy(in, file.toPath());
-	            } catch (IOException e) {
-	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
-	            }
-        	} else {
-	            try (InputStream in = this.getClassLoader().getResourceAsStream("config_latest.yml")) {
-	                Files.copy(in, file.toPath());
-	            } catch (IOException e) {
-	                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
-	            }
-        	}
-        }
 		
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();

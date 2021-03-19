@@ -1,0 +1,10 @@
+#Accepted storage types are SQLITE and MYSQL
+StorageType: MYSQL
+
+#This part is only relevant if you use MYSQL
+MYSQL:
+  Host: server.loohpjames.com
+  Port: 3306
+  Database: InteractiveChat
+  Username: mysql
+  Password: '!LOOHPmysqlADMIN@'

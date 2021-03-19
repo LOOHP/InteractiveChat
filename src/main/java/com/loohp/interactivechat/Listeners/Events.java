@@ -235,7 +235,7 @@ public class Events implements Listener {
    					char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
    					if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
    						if (!uuid.equals(sender.getUniqueId())) {
-   							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid, InteractiveChat.mentionPair));
+   							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
    							if (InteractiveChat.bungeecordMode) {
    								try {
 									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);

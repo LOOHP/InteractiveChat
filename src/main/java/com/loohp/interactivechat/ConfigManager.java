@@ -1,10 +1,5 @@
 package com.loohp.interactivechat;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -34,7 +28,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 public class ConfigManager {
 	
 	private static MCVersion version = InteractiveChat.version;
-	private static FileConfiguration storage = null;
 	
 	public static FileConfiguration getConfig() {
 		return InteractiveChat.plugin.getConfig();
@@ -46,19 +39,7 @@ public class ConfigManager {
 	
 	public static void reloadConfig() {
 		InteractiveChat.plugin.reloadConfig();
-		storage = null;
 		loadConfig();
-	}
-	
-	public static FileConfiguration getStorageConfig() {
-		if (storage == null) {
-			try {
-				storage = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(new File(InteractiveChat.plugin.getDataFolder(), "storage.yml")), StandardCharsets.UTF_8));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		return storage;
 	}
 	
 	@SuppressWarnings("deprecation")

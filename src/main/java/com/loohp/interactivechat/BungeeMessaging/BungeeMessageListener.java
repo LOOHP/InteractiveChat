@@ -21,7 +21,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Modules.ProcessBungeeRequestedMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
@@ -120,7 +120,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x02:
 	        	UUID sender = DataTypeIO.readUUID(input);
 	        	UUID receiver = DataTypeIO.readUUID(input);
-	        	InteractiveChat.mentionPair.put(receiver, new MentionPair(sender, receiver));
+	        	InteractiveChat.mentionPair.put(receiver, new MentionPair(sender, receiver, InteractiveChat.mentionPair));
 	        	break;
 	        case 0x03:
 	        	UUID uuid = DataTypeIO.readUUID(input);
@@ -265,9 +265,12 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x12:
 	        	UUID playerUUID = DataTypeIO.readUUID(input);
-	        	PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(playerUUID);
-	        	if (pd != null) {
-	        		pd.reload();
+	        	String data1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	PlayerDataManager manager = InteractiveChat.playerDataManager;
+	        	if (manager.getPlayerData(playerUUID) != null) {
+	        		manager.mergeOnline(playerUUID, data1);
+	        	} else {
+	        		manager.mergeOffline(playerUUID, data1);
 	        	}
 	        	break;
 	        case 0x13:

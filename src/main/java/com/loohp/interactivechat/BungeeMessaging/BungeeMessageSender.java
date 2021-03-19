@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -202,9 +203,10 @@ public class BungeeMessageSender {
     	return forwardData(0x11, out.toByteArray());
     }
     
-    public static boolean forwardPlayerDataUpdate(UUID uuid) throws IOException {
+    public static boolean forwardPlayerDataUpdate(UUID uuid, FileConfiguration config) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, uuid);
+    	DataTypeIO.writeString(out, config.saveToString(), StandardCharsets.UTF_8);
     	return forwardData(0x12, out.toByteArray());
     }
     

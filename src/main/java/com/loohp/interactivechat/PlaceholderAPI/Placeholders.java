@@ -4,7 +4,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -34,8 +33,8 @@ public class Placeholders extends PlaceholderExpansion {
         		boolean toggle = InteractiveChat.playerDataManager.getPlayerData(player).isMentionDisabled();
         		return toggle ? "disabled" : "enabled";
         	} else {
-        		PlayerData pd = InteractiveChat.database.getPlayerInfo(offlineplayer.getUniqueId());
-        		return pd == null ? "enabled" : (pd.isMentionDisabled() ? "disabled" : "enabled");
+        		boolean toggle = InteractiveChat.playerDataManager.getOfflineUnmodifiablePlayerData(offlineplayer.getUniqueId()).isMentionDisabled();
+        		return toggle ? "disabled" : "enabled";
         	}
         }
 

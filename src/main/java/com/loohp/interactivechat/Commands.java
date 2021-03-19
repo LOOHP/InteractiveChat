@@ -57,7 +57,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload")) {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
-				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
 				if (InteractiveChat.bungeecordMode) {
 					try {
 						BungeeMessageSender.reloadBungeeConfig();
@@ -102,16 +101,16 @@ public class Commands implements CommandExecutor, TabCompleter {
 						PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
 						if (pd.isMentionDisabled()) {
 							pd.setMentionDisabled(false);
-							Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+							pd.saveConfig();
 							sender.sendMessage(InteractiveChat.mentionEnable);
 						} else {
 							pd.setMentionDisabled(true);
-							Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+							pd.saveConfig();
 							sender.sendMessage(InteractiveChat.mentionDisable);
 						}
 						if (InteractiveChat.bungeecordMode) {
 							try {
-								BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId());
+								BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId(), pd.getConfig());
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -126,16 +125,16 @@ public class Commands implements CommandExecutor, TabCompleter {
 							PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
 							if (pd.isMentionDisabled()) {
 								pd.setMentionDisabled(false);
-								Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+								pd.saveConfig();
 								sender.sendMessage(InteractiveChat.mentionEnable);
 							} else {
 								pd.setMentionDisabled(true);
-								Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+								pd.saveConfig();
 								sender.sendMessage(InteractiveChat.mentionDisable);
 							}
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId());
+									BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId(), pd.getConfig());
 								} catch (IOException e) {
 									e.printStackTrace();
 								}

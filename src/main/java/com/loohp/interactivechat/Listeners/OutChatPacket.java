@@ -58,7 +58,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
-public class ChatPackets implements Listener {
+public class OutChatPacket implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	private static AtomicBoolean lock = new AtomicBoolean(false);

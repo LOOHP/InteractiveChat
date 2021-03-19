@@ -48,10 +48,10 @@ import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.DiscordSRV.DiscordSRVEvents;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
-import com.loohp.interactivechat.Listeners.ChatPackets;
-import com.loohp.interactivechat.Listeners.ClientSettingPackets;
+import com.loohp.interactivechat.Listeners.ClientSettingPacket;
 import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Listeners.MapViewer;
+import com.loohp.interactivechat.Listeners.OutChatPacket;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
@@ -228,6 +228,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean useAccurateSenderFinder = true;
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
 	
+	public static Map<UUID, List<String>> lineInputs = new ConcurrentHashMap<>();
+	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
 
@@ -245,19 +247,19 @@ public class InteractiveChat extends JavaPlugin {
         if (!version.isSupported()) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported! (" + version.toString() + ")");
 	    }
-        
-        File file = new File(getDataFolder(), "storage.yml"); 
-        if (!file.exists()) {
-            try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
-                Files.copy(in, file.toPath());
-            } catch (IOException e) {
-                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
-            }
-    	}
 		
         plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config.yml");
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
+		
+		File file = new File(getDataFolder(), "storage.yml"); 
+        if (!file.exists()) {
+            try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
+                Files.copy(in, file.toPath());
+            } catch (IOException e) {
+                getLogger().severe("[InteractiveChat] Unable to copy storage.yml");
+            }
+    	}
 		
 		if (getConfig().contains("Settings.BlockMessagesLongerThan30000RegardlessOfVersion")) {
 			getConfig().set("Settings.BlockMessagesLongerThan30000RegardlessOfVersion", null);
@@ -295,9 +297,10 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
-	    getServer().getPluginManager().registerEvents(new ChatPackets(), this);
+	    getServer().getPluginManager().registerEvents(new OutChatPacket(), this);
 	    getServer().getPluginManager().registerEvents(new MapViewer(), this);
-	    ChatPackets.chatMessageListener();
+	    OutChatPacket.chatMessageListener();
+	    //InChatPacket.chatMessageListener();
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
@@ -356,7 +359,7 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getPluginManager().registerEvents(new Updater(), this);
 	    }
 	    
-	    ClientSettingPackets.clientSettingsListener();
+	    ClientSettingPacket.clientSettingsListener();
 	    
 	    playerDataManager = new PlayerDataManager(this, database);
 	    

@@ -17,7 +17,7 @@ import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 
-public class ClientSettingPackets implements Listener {
+public class ClientSettingPacket implements Listener {
 	
 	private static HashMap<Player, Boolean> colorSettingsMap = new HashMap<>();
 	
@@ -38,7 +38,7 @@ public class ClientSettingPackets implements Listener {
 	}
 	
 	public static void clientSettingsListener() {
-		Bukkit.getPluginManager().registerEvents(new ClientSettingPackets(), InteractiveChat.plugin);
+		Bukkit.getPluginManager().registerEvents(new ClientSettingPacket(), InteractiveChat.plugin);
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(InteractiveChat.plugin, ListenerPriority.MONITOR, PacketType.Play.Client.SETTINGS) {
 		    @Override
 		    public void onPacketReceiving(PacketEvent event) {

@@ -13,8 +13,8 @@ import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Listeners.ClientSettingPackets;
-import com.loohp.interactivechat.Listeners.ClientSettingPackets.ColorSettings;
+import com.loohp.interactivechat.Listeners.ClientSettingPacket;
+import com.loohp.interactivechat.Listeners.ClientSettingPacket.ColorSettings;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -428,7 +428,7 @@ public class ChatComponentUtils {
 			newlist.add(current);
 		}
 
-		ColorSettings colorsEnabled = ClientSettingPackets.getSettings(player);
+		ColorSettings colorsEnabled = ClientSettingPacket.getSettings(player);
 		TextComponent product = new TextComponent("");
 		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);
@@ -444,7 +444,7 @@ public class ChatComponentUtils {
 	public static BaseComponent respectClientColorSettingsWithoutCleanUp(BaseComponent basecomponent, Player player) {
 		List<BaseComponent> newlist = CustomStringUtils.loadExtras(basecomponent);
 		
-		ColorSettings colorsEnabled = ClientSettingPackets.getSettings(player);
+		ColorSettings colorsEnabled = ClientSettingPacket.getSettings(player);
 		TextComponent product = new TextComponent("");
 		for (int i = 0; i < newlist.size(); i++) {
 			BaseComponent each = newlist.get(i);

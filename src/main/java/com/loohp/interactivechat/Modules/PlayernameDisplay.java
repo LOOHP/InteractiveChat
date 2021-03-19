@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 
@@ -28,6 +29,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
+	
+	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<>();
@@ -63,11 +66,25 @@ public class PlayernameDisplay {
 		for (ReplaceTextBundle entry : names) {
 			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), entry.getReplaceText(), basecomponent, matched, unix);
 		}
-		return basecomponent;
+		
+		//clean
+		
+		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
+		
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < basecomponentlist.size(); i++) {
+			BaseComponent each = basecomponentlist.get(i);
+			if (each instanceof TextComponent) {
+				((TextComponent) each).setText(((TextComponent) each).getText().replace(PROCESSED_IDENTIFIER, ""));
+			}
+			product.addExtra(each);
+		}
+		
+		return product;
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, ICPlayer player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, long unix) {
+	private static BaseComponent processPlayer(String placeholder, ICPlayer player, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 
@@ -112,7 +129,7 @@ public class PlayernameDisplay {
 				}
 
 				Queue<String> matches = (LinkedList<String>) CustomStringUtils.getAllMatches(regex, text);
-				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
+				List<String> trim = new LinkedList<>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
@@ -129,7 +146,9 @@ public class PlayernameDisplay {
 					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {
 						lastColor = ChatColorUtils.getLastColors(sb.toString());
 				    
-						TextComponent message = new TextComponent(matches.isEmpty() ? replaceText : matches.poll());
+						String replacement = matches.isEmpty() ? replaceText : matches.poll();
+						replacement = replacement.replace("", PROCESSED_IDENTIFIER);
+						TextComponent message = new TextComponent(replacement);
 						message = (TextComponent) CustomStringUtils.copyFormatting(message, before);
 						message.setText(lastColor + message.getText());
 

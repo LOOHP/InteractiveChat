@@ -3,7 +3,6 @@ package com.loohp.interactivechat.Bungee;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -40,8 +39,8 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
-import com.loohp.interactivechat.Registry.Registry;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.Registry.Registry;
 import com.loohp.interactivechat.Utils.CompressionUtils;
 import com.loohp.interactivechat.Utils.DataTypeIO;
 import com.loohp.interactivechat.Utils.MessageUtils;
@@ -83,7 +82,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static Configuration config = null;
 	public static ConfigurationProvider yamlConfigProvider = null;
 	public static File configFile;
-	public static File playerDataFolder;
 
 	public static InteractiveChatBungee plugin;
 	public static Metrics metrics;
@@ -117,10 +115,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             getDataFolder().mkdir();
 		}
         configFile = new File(getDataFolder(), "bungeeconfig.yml");
-        playerDataFolder = new File(getDataFolder(), "player_data");
-        if (!playerDataFolder.exists()) {
-        	playerDataFolder.mkdirs();
-        }
 
         if (!configFile.exists()) {
             try (InputStream in = getResourceAsStream("bungeeconfig.yml")) {
@@ -408,10 +402,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	break;
 		        case 0x12:
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
-		        	String playerdata = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	Configuration playerconfig = yamlConfigProvider.load(playerdata);
-		        	yamlConfigProvider.save(playerconfig, new File(playerDataFolder, uuid2.toString() + ".yml"));
-		        	PluginMessageSendingBungee.forwardPlayerData(uuid2, playerdata, ((Server) event.getSender()).getInfo());
+		        	PluginMessageSendingBungee.forwardPlayerData(uuid2, ((Server) event.getSender()).getInfo());
 		        	break;
 		        }
 	        } catch (IOException | DataFormatException e) {
@@ -495,27 +486,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onServerConnected(ServerConnectedEvent event) {
 		ProxiedPlayer player = event.getPlayer();
-		UUID uuid = player.getUniqueId();
-		
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (player.getServer() != null) {
-					this.cancel();
-					File playerFile = new File(playerDataFolder, uuid.toString() + ".yml");
-					if (playerFile.exists()) {
-						try {
-							Configuration playerconfig = yamlConfigProvider.load(playerFile);
-							StringWriter writer = new StringWriter();
-							yamlConfigProvider.save(playerconfig, writer);
-							PluginMessageSendingBungee.forwardPlayerData(uuid, writer.toString(), player.getServer().getInfo());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}, 0, 200);
 		
 		ServerConnection serverConnection = (ServerConnection) event.getServer();
 		ChannelWrapper channelWrapper;

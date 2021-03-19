@@ -397,11 +397,10 @@ public class PluginMessageSendingBungee {
 		}
 	}
 	
-	public static void forwardPlayerData(UUID uuid, String playerdata, ServerInfo serverFrom) throws IOException {
+	public static void forwardPlayerData(UUID uuid, ServerInfo serverFrom) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
 		DataTypeIO.writeUUID(output, uuid);
-    	DataTypeIO.writeString(output, playerdata, StandardCharsets.UTF_8);
 
 		int packetNumber = InteractiveChatBungee.random.nextInt();
 		int packetId = 0x12;

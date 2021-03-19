@@ -1,7 +1,10 @@
 package com.loohp.interactivechat;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Filter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -38,6 +42,7 @@ import com.google.common.collect.Maps;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageListener;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.BungeeMessaging.ServerPingListener;
+import com.loohp.interactivechat.Data.Database;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.DiscordSRV.DiscordSRVEvents;
@@ -224,6 +229,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
 	
 	public static PlayerDataManager playerDataManager;
+	public static Database database;
 
 	@Override
 	public void onEnable() {	
@@ -239,7 +245,17 @@ public class InteractiveChat extends JavaPlugin {
         if (!version.isSupported()) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported! (" + version.toString() + ")");
 	    }
+        
+        File file = new File(getDataFolder(), "storage.yml"); 
+        if (!file.exists()) {
+            try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
+                Files.copy(in, file.toPath());
+            } catch (IOException e) {
+                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
+            }
+    	}
 		
+        plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config.yml");
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
 		
@@ -270,6 +286,11 @@ public class InteractiveChat extends JavaPlugin {
 		}
 	    
 	    ConfigManager.loadConfig();
+	    
+	    FileConfiguration storage = ConfigManager.getStorageConfig();
+		database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));
+		database.setup();
+		
 	    ItemNBTUtils.setup();
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
@@ -337,7 +358,7 @@ public class InteractiveChat extends JavaPlugin {
 	    
 	    ClientSettingPackets.clientSettingsListener();
 	    
-	    playerDataManager = new PlayerDataManager(this);
+	    playerDataManager = new PlayerDataManager(this, database);
 	    
 	    if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
 			new Placeholders().register();

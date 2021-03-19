@@ -26,9 +26,7 @@ public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 
 	@Override
 	public int compareTo(ReplaceTextBundle anotherReplaceTextBundle) {
-		String compareText = anotherReplaceTextBundle.getPlaceholder();
-		int res = String.CASE_INSENSITIVE_ORDER.compare(placeholder, compareText);
-        return (res != 0) ? res : placeholder.compareTo(compareText);
+		return Integer.valueOf(placeholder.length()).compareTo(anotherReplaceTextBundle.placeholder.length());
 	}
 
 }

@@ -581,13 +581,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
 							} else if (hasInteractiveChat(player.getServer())) {
+								ServerInfo server = player.getServer().getInfo();
 								UUID messageId = UUID.randomUUID();
 								messageQueue.add(messageId);
 								new Timer().schedule(new TimerTask() {
 									@Override
 									public void run() {
 										try {
-											PluginMessageSendingBungee.requestMessageProcess(player, message, messageId);
+											if (player != null && server != null) {
+												PluginMessageSendingBungee.requestMessageProcess(player, server, message, messageId);
+											}
 										} catch (IOException e) {
 											e.printStackTrace();
 										}

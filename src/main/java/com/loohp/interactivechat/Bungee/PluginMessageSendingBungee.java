@@ -244,14 +244,12 @@ public class PluginMessageSendingBungee {
 		}
 	}
 	
-	public static void requestMessageProcess(ProxiedPlayer player, String component, UUID messageId) throws IOException {
+	public static void requestMessageProcess(ProxiedPlayer player, ServerInfo server, String component, UUID messageId) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 		
 		DataTypeIO.writeUUID(output, messageId);
 		DataTypeIO.writeUUID(output, player.getUniqueId());
 		DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
-
-		ServerInfo server = player.getServer().getInfo();
 
 		int packetNumber = InteractiveChatBungee.random.nextInt();
 		int packetId = 0x08;

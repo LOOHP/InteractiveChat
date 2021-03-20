@@ -29,8 +29,6 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class PlayernameDisplay {
 	
-	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";
-	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, long unix) {
 		List<ReplaceTextBundle> names = new ArrayList<>();
 		Bukkit.getOnlinePlayers().forEach(each -> {
@@ -66,20 +64,7 @@ public class PlayernameDisplay {
 			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), entry.getReplaceText(), basecomponent, matched, unix);
 		}
 		
-		//clean
-		
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < basecomponentlist.size(); i++) {
-			BaseComponent each = basecomponentlist.get(i);
-			if (each instanceof TextComponent) {
-				((TextComponent) each).setText(((TextComponent) each).getText().replace(PROCESSED_IDENTIFIER, ""));
-			}
-			product.addExtra(each);
-		}
-		
-		return product;
+		return basecomponent;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -146,7 +131,6 @@ public class PlayernameDisplay {
 						lastColor = ChatColorUtils.getLastColors(sb.toString());
 				    
 						String replacement = matches.isEmpty() ? replaceText : matches.poll();
-						replacement = replacement.replace("", PROCESSED_IDENTIFIER);
 						TextComponent message = new TextComponent(replacement);
 						message = (TextComponent) CustomStringUtils.copyFormatting(message, before);
 						message.setText(lastColor + message.getText());

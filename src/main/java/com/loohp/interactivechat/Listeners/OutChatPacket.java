@@ -48,6 +48,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
@@ -56,6 +57,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class OutChatPacket implements Listener {
@@ -63,6 +65,7 @@ public class OutChatPacket implements Listener {
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	private static AtomicBoolean lock = new AtomicBoolean(false);
 	private static int chatFieldsSize;
+	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
 	static {
 		PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
@@ -269,6 +272,19 @@ public class OutChatPacket implements Listener {
 				}
 			}
 			basecomponent = preEvent.getBaseComponent();
+			
+			List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
+			
+			TextComponent product = new TextComponent("");
+			for (int i = 0; i < basecomponentlist.size(); i++) {
+				BaseComponent each = basecomponentlist.get(i);
+				if (each instanceof TextComponent) {
+					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
+				}
+				product.addExtra(each);
+			}
+			
+			basecomponent = product;	
 			
 	        if (InteractiveChat.usePlayerName) {
 	        	basecomponent = PlayernameDisplay.process(basecomponent, sender, unix);

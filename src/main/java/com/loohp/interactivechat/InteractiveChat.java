@@ -260,7 +260,7 @@ public class InteractiveChat extends JavaPlugin {
             }
         }
 		
-        plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config.yml");
+        plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config_default.yml");
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
 		

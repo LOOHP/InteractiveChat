@@ -247,15 +247,27 @@ public class InteractiveChat extends JavaPlugin {
         if (!version.isSupported()) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] This version of minecraft is unsupported! (" + version.toString() + ")");
 	    }
+        
+        if (!getDataFolder().exists()) {
+        	getDataFolder().mkdirs();
+        }
+        File configFile = new File(getDataFolder(), "config.yml"); 
+        if (!configFile.exists()) {
+            try (InputStream in = this.getClassLoader().getResourceAsStream("config_default.yml")) {
+                Files.copy(in, configFile.toPath());
+            } catch (IOException e) {
+                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
+            }
+        }
 		
         plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config.yml");
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
 		
-		File file = new File(getDataFolder(), "storage.yml"); 
-        if (!file.exists()) {
+		File storageFile = new File(getDataFolder(), "storage.yml"); 
+        if (!storageFile.exists()) {
             try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
-                Files.copy(in, file.toPath());
+                Files.copy(in, storageFile.toPath());
             } catch (IOException e) {
                 getLogger().severe("[InteractiveChat] Unable to copy storage.yml");
             }

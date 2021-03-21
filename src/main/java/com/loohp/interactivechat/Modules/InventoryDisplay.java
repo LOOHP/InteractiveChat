@@ -125,7 +125,7 @@ public class InventoryDisplay {
 									
 									String replaceText = InteractiveChat.invReplaceText;									
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
-									String sha1 = HashUtils.createSha1(player.getInventory());
+									String sha1 = HashUtils.createSha1(title, player.getInventory());
 									
 									if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
 										Inventory inv = Bukkit.createInventory(null, 45, title);

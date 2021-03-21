@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Formatter;
 
@@ -49,9 +50,15 @@ public class HashUtils {
 		return result;
 	}
 	
-	public static String createSha1(Inventory inventory) throws Exception {
+	public static String createSha1(String title, Inventory inventory) throws Exception {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        if (title == null) {
+        	dataOutput.writeBoolean(false);
+        } else {
+        	dataOutput.writeBoolean(true);
+        	dataOutput.write(title.getBytes(StandardCharsets.UTF_8));
+        }
         dataOutput.writeInt(inventory.getSize());
         for (int i = 0; i < inventory.getSize(); i++) {
             dataOutput.writeObject(inventory.getItem(i));
@@ -68,9 +75,15 @@ public class HashUtils {
         return result;
 	}
 	
-	public static String createSha1(ItemStack item) throws Exception {
+	public static String createSha1(String title, ItemStack item) throws Exception {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        if (title == null) {
+        	dataOutput.writeBoolean(false);
+        } else {
+        	dataOutput.writeBoolean(true);
+        	dataOutput.write(title.getBytes(StandardCharsets.UTF_8));
+        }
         dataOutput.writeObject(item);
         dataOutput.close();
         byte[] bytes = outputStream.toByteArray();

@@ -214,7 +214,7 @@ public class ItemDisplay {
 								    BaseComponent[] hoverEventComponents = new BaseComponent[] {new TextComponent(itemJson)};
 								    HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoverEventComponents);
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
-									String sha1 = HashUtils.createSha1(item);
+									String sha1 = HashUtils.createSha1(title, item);
 									boolean isMapView = false;
 									if (FilledMapUtils.isFilledMap(item)) {
 										isMapView = true;

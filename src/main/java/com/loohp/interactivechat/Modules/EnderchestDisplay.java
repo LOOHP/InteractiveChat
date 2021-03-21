@@ -125,7 +125,7 @@ public class EnderchestDisplay {
 									
 									String replaceText = InteractiveChat.enderReplaceText;
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.enderTitle));
-									String sha1 = HashUtils.createSha1(player.getEnderChest());
+									String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 									
 									if (!InteractiveChat.enderDisplay.containsKey(sha1)) {
 										Inventory inv = Bukkit.createInventory(null, 27, title);

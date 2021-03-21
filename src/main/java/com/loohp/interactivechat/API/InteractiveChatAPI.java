@@ -327,12 +327,38 @@ public class InteractiveChatAPI {
 	/**
 	 * Add an inventory to the shared inventory list
 	 * @param type
+	 * @param title of the inventory
 	 * @param inventory
 	 * @return The hashed key which can be used to retrieve the inventory
 	 * @throws Exception
 	 */
+	public static String addInventoryToItemShareList(SharedType type, String title, Inventory inventory) throws Exception {
+		String hash = HashUtils.createSha1(title, inventory);
+		switch (type) {
+		case ITEM:
+			InteractiveChat.itemDisplay.put(hash, inventory);
+			break;
+		case INVENTORY:
+			InteractiveChat.inventoryDisplay.put(hash, inventory);
+			break;
+		case ENDERCHEST:
+			InteractiveChat.enderDisplay.put(hash, inventory);
+			break;
+		}
+		return hash;
+	}
+	
+	/**
+	 * Add an inventory to the shared inventory list<br><br>
+	 * <b>Deprecated.</b> Use {@link #addInventoryToItemShareList(SharedType, String, Inventory)} instead
+	 * @param type
+	 * @param inventory
+	 * @return The hashed key which can be used to retrieve the inventory
+	 * @throws Exception
+	 */
+	@Deprecated
 	public static String addInventoryToItemShareList(SharedType type, Inventory inventory) throws Exception {
-		String hash = HashUtils.createSha1(inventory);
+		String hash = HashUtils.createSha1(null, inventory);
 		switch (type) {
 		case ITEM:
 			InteractiveChat.itemDisplay.put(hash, inventory);

@@ -471,7 +471,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				@Override
 				public void run() {
 					List<String> messages = forwardedMessages.get(uuid);
-					if (!messages.remove(newMessage)) {
+					if (messages != null && !messages.remove(newMessage)) {
 						try {
 							PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
 						} catch (IOException e) {

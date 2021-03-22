@@ -227,7 +227,7 @@ public class Events implements Listener {
 				}
 			}
 			for (Entry<String, UUID> entry : playernames.entrySet()) {
-				String name = entry.getKey();
+				String name = InteractiveChat.mentionPrefix + entry.getKey();
 				UUID uuid = entry.getValue();
    				int index = message.toLowerCase().indexOf(name.toLowerCase());
    				if (index >= 0) {

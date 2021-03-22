@@ -229,6 +229,7 @@ public class ConfigManager {
 		InteractiveChat.maxPlacholders = getConfig().getInt("Settings.MaxPlaceholders");
 		InteractiveChat.limitReachMessage = getConfig().getString("Messages.LimitReached");
 		
+		InteractiveChat.mentionPrefix = getConfig().getString("Chat.MentionPrefix");
 		InteractiveChat.mentionHightlight = getConfig().getString("Chat.MentionHighlight");
 		List<String> stringList3 = getConfig().getStringList("Chat.MentionHoverText");
 		InteractiveChat.mentionHover = String.join("\n", stringList3);

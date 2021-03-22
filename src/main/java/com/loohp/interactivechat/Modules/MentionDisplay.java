@@ -17,13 +17,12 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.TitleUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.SoundUtils;
+import com.loohp.interactivechat.Utils.TitleUtils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -90,7 +89,7 @@ public class MentionDisplay {
 					}
 					
 					for (String name : names) {
-						basecomponent = processPlayer(name, reciever, sender, basecomponent, unix);
+						basecomponent = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, basecomponent, unix);
 					}
 					
 					InteractiveChat.mentionCooldown.put(reciever, unix + 3000);
@@ -118,7 +117,7 @@ public class MentionDisplay {
 					continue;
 				}
 				
-				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
+				List<String> trim = new LinkedList<>(Arrays.asList(text.split(regex, -1)));
 				if (trim.get(trim.size() - 1).equals("")) {
 					trim.remove(trim.size() - 1);
 				}
@@ -130,7 +129,7 @@ public class MentionDisplay {
 						TextComponent message = new TextComponent(ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
 						message = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
 						String hover = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
-						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
+						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(hover)}));
 						
 						newlist.add(message);
 					}

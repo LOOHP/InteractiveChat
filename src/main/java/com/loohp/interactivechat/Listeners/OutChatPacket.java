@@ -286,15 +286,15 @@ public class OutChatPacket implements Listener {
 			
 			basecomponent = product;	
 			
-	        if (InteractiveChat.usePlayerName) {
-	        	basecomponent = PlayernameDisplay.process(basecomponent, sender, unix);
-	        }
-
-	        if (InteractiveChat.AllowMention && sender.isPresent()) {
+			if (InteractiveChat.AllowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 	        	if (data == null || !data.isMentionDisabled()) {
 	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, true);
 	        	}
+	        }
+			
+	        if (InteractiveChat.usePlayerName) {
+	        	basecomponent = PlayernameDisplay.process(basecomponent, sender, reciever, unix);
 	        }
 
 	        if (InteractiveChat.useItem) {

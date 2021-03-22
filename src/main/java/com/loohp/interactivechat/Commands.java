@@ -199,7 +199,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							
 							BaseComponent baseComponent = new TextComponent(text);
 							if (InteractiveChat.usePlayerName) {
-								baseComponent = PlayernameDisplay.process(baseComponent, icplayer, unix);
+								baseComponent = PlayernameDisplay.process(baseComponent, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useItem) {
 					        	baseComponent = ItemDisplay.processWithoutCooldown(baseComponent, icplayer, player, unix);

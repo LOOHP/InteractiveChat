@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
@@ -103,13 +104,16 @@ public class ProcessBungeeRequestedMessage {
         } else {
         	server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
-		
-        if (InteractiveChat.usePlayerName) {
-        	basecomponent = PlayernameDisplay.process(basecomponent, sender, unix);
-        }
         
         if (InteractiveChat.AllowMention && sender.isPresent()) {
-        	basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, !Bukkit.isPrimaryThread());
+        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
+        	if (data == null || !data.isMentionDisabled()) {
+        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, !Bukkit.isPrimaryThread());
+        	}
+        }
+		
+        if (InteractiveChat.usePlayerName) {
+        	basecomponent = PlayernameDisplay.process(basecomponent, sender, reciever, unix);
         }
         
         if (InteractiveChat.useItem) {

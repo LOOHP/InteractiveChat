@@ -126,6 +126,10 @@ Chat:
   #Enable the mention title and sound
   AllowMention: true
 
+  #The prefix to trigger a mention
+  #Can be an empty String
+  MentionPrefix: "@"
+
   #The sound to play when a player is mentioned
   #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP

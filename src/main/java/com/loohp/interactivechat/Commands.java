@@ -257,7 +257,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
-		if (sender instanceof Player) {
+		if (sender instanceof Player && args.length > 1) {
 			Player player = (Player) sender;
 			if (args[0].equals("viewinv")) {
 				Inventory inv = InteractiveChat.inventoryDisplay.get(args[1]);

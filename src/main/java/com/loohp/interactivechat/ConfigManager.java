@@ -147,7 +147,7 @@ public class ConfigManager {
 					InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
 				}
 			} catch (Exception e) {
-				InteractiveChat.itemFrame1 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Primary")).orElseThrow().parseItem();
+				InteractiveChat.itemFrame1 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Primary")).get().parseItem();
 				InteractiveChat.itemFrame1.setAmount(1);
 			}
 		} catch (Exception e) {
@@ -166,7 +166,7 @@ public class ConfigManager {
 					InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
 				}
 			} catch (Exception e) {
-				InteractiveChat.itemFrame2 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Secondary")).orElseThrow().parseItem();
+				InteractiveChat.itemFrame2 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Secondary")).get().parseItem();
 				InteractiveChat.itemFrame2.setAmount(1);
 			}
 		} catch (Exception e) {
@@ -290,7 +290,7 @@ public class ConfigManager {
 					InteractiveChat.unknownReplaceItem = unknown;
 				}
 			} catch (Exception e) {
-				ItemStack unknown = XMaterial.matchXMaterial(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem")).orElseThrow().parseItem();
+				ItemStack unknown = XMaterial.matchXMaterial(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem")).get().parseItem();
 				unknown.setAmount(1);
 				ItemMeta meta = unknown.getItemMeta();
 				meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));

@@ -14,10 +14,12 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -66,6 +68,19 @@ public class ConfigManager {
 		InteractiveChat.aliasesMapping.clear();
 		
 		InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
+		
+		InteractiveChat.compatibilityListeners.clear();
+		List<String> compatibility = getConfig().getStringList("Settings.ChatListeningPlugins");
+		for (String str : compatibility) {
+			try {
+				String[] args = str.split(",");
+				if (args.length == 3) {
+					String plugin = args[0].replace("Plugin:", "").trim();
+					CompatibilityListener listener = new CompatibilityListener(plugin, args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
+					InteractiveChat.compatibilityListeners.put(plugin, listener);
+				}
+			} catch (Exception e) {}
+		}
 		
 		String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
 		InteractiveChat.chatAltColorCode = colorCodeString.length() == 1 ? Optional.of(colorCodeString.charAt(0)) : Optional.empty();

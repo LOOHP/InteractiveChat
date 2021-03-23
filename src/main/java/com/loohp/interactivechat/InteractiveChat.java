@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,11 +51,13 @@ import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ClientSettingPacket;
 import com.loohp.interactivechat.Listeners.Events;
+import com.loohp.interactivechat.Listeners.InChatPacket;
 import com.loohp.interactivechat.Listeners.MapViewer;
 import com.loohp.interactivechat.Listeners.OutChatPacket;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.LogFilter;
@@ -226,10 +229,10 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static ItemStack unknownReplaceItem;
 	
+	public static Map<String, CompatibilityListener> compatibilityListeners = new LinkedHashMap<>();
+	
 	public static boolean useAccurateSenderFinder = true;
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
-	
-	public static Map<UUID, List<String>> lineInputs = new ConcurrentHashMap<>();
 	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
@@ -313,7 +316,7 @@ public class InteractiveChat extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(new OutChatPacket(), this);
 	    getServer().getPluginManager().registerEvents(new MapViewer(), this);
 	    OutChatPacket.chatMessageListener();
-	    //InChatPacket.chatMessageListener();
+	    InChatPacket.chatMessageListener();
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();

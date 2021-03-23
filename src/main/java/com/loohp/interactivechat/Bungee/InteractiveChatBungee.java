@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -87,6 +89,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static Metrics metrics;
 	protected static Random random = new Random();
 	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
+	private static volatile boolean filtersAdded = false;
 	
 	private static Map<Integer, byte[]> incomming = new HashMap<>();
 	
@@ -145,36 +148,47 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		getProxy().getPluginManager().registerCommand(this, new CommandsBungee());
 
-		getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
+		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
 
 		metrics = new Metrics(plugin, 8839);
 		Charts.setup(metrics);
 
 		run();
 
-		getLogger().info(ChatColor.GREEN + "[InteractiveChat] InteractiveChatBungee has been enabled!");
-		
-		try {
-	    	Logger logger = getLogger();
-	    	logger.setFilter(new Filter() {	    		
-	    		private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";	    		
-				@Override
-				public boolean isLoggable(LogRecord record) {
-					String message = record.getMessage();
-					if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-						record.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
-					}
-					return true;
-				}
-	    	});
-	    } catch (Exception e) {
-	    	getLogger().info(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
-	    }
+		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] InteractiveChatBungee has been enabled!");
+    	
+    	addFilters();
 	}
 
 	@Override
 	public void onDisable() {
-		getLogger().info(ChatColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
+		ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
+	}
+	
+	private void addFilters() {
+		filtersAdded = true;
+		Map<String, Logger> loggers = new LinkedHashMap<>();
+		loggers.put("Main", ProxyServer.getInstance().getLogger());
+		ProxyServer.getInstance().getPluginManager().getPlugins().stream().forEach(p -> loggers.put(p.getClass().getSimpleName(), p.getLogger()));
+		for (Entry<String, Logger> entry : loggers.entrySet()) {
+			try {
+				Logger logger = entry.getValue();
+	    		logger.setFilter(new Filter() {	    		
+	        		private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";	    		
+	    			@Override
+	    			public boolean isLoggable(LogRecord record) {
+	    				String message = record.getMessage();
+	    				if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+	    					record.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
+	    				}
+	    				return true;
+	    			}
+	        	});
+		    } catch (Exception e) {
+		    	e.printStackTrace();
+		    	ProxyServer.getInstance().getLogger().info(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to the " + entry.getKey() + " logger, safely skipping...");
+		    }
+		}
 	}
 	
 	public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
@@ -420,6 +434,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	@EventHandler
 	public void onBungeeChat(ChatEvent event) {
+		if (event.isCancelled()) {
+			return;
+		}
 		ProxiedPlayer player = (ProxiedPlayer) event.getSender();
 		UUID uuid = player.getUniqueId();
 		String message = event.getMessage();
@@ -445,7 +462,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				if (newMessage.matches(parsecommand)) {
 					String command = newMessage.trim();
 					String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
-					command += uuidmatch;
+					command += " " + uuidmatch;
 					event.setMessage(command);
 					try {
 						PluginMessageSendingBungee.sendCommandMatch(uuid, "", uuidmatch);
@@ -458,7 +475,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		} else {
 			if (InteractiveChatBungee.useAccurateSenderFinder) {
 				String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
-				message += uuidmatch;
+				message += " " + uuidmatch;
 				event.setMessage(message);
 				try {
 					PluginMessageSendingBungee.sendSenderMatch(uuid, uuidmatch);
@@ -532,6 +549,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerConnected(PostLoginEvent event) {
+		if (!filtersAdded) {
+			addFilters();
+		}
+		
 		ProxiedPlayer player = event.getPlayer();
 
 		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
@@ -570,6 +591,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
 		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+			private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -580,6 +602,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 						if ((position == 0 || position == 1) && message != null) {
 							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
+								if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+									packet.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim());
+								}
 							} else if (hasInteractiveChat(player.getServer())) {
 								ServerInfo server = player.getServer().getInfo();
 								UUID messageId = UUID.randomUUID();
@@ -627,10 +652,19 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		try {
 			PluginMessageSendingBungee.sendPlayerListData();
-			PluginMessageSendingBungee.sendDelayAndScheme();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					PluginMessageSendingBungee.sendDelayAndScheme();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -638,7 +672,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					event.getPlayer().sendMessage(new TextComponent(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
 				}
 			}
-		}, 200);
+		}, 100);
 	}
 
 	@EventHandler

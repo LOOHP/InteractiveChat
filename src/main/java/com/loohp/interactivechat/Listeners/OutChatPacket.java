@@ -45,6 +45,7 @@ import com.loohp.interactivechat.Modules.ProcessAccurateSender;
 import com.loohp.interactivechat.Modules.ProcessCommands;
 import com.loohp.interactivechat.Modules.SenderFinder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
+import com.loohp.interactivechat.ObjectHolders.OutboundPacket;
 import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
@@ -63,6 +64,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 public class OutChatPacket implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
+	private static Queue<OutboundPacket> sendingQueue = new ConcurrentLinkedQueue<>();
 	private static AtomicBoolean lock = new AtomicBoolean(false);
 	private static int chatFieldsSize;
 	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
@@ -80,7 +82,8 @@ public class OutChatPacket implements Listener {
 		}
 	}
 	
-	public static void chatMessageListener() {		
+	public static void chatMessageListener() {	
+		run();
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Server.CHAT)) {
 		    @Override
 		    public void onPacketSending(PacketEvent event) {
@@ -113,7 +116,7 @@ public class OutChatPacket implements Listener {
 		        
 		        Queue<UUID> q = messagesOrder.get(reciever.getUniqueId());
 		        if (q == null) {
-		        	q = new ConcurrentLinkedQueue<UUID>();
+		        	q = new ConcurrentLinkedQueue<>();
 		        	messagesOrder.put(reciever.getUniqueId(), q);		  
 		        }
 		        UUID messageUUID = UUID.randomUUID();
@@ -139,14 +142,21 @@ public class OutChatPacket implements Listener {
         while (queue.peek() != null && !queue.peek().equals(messageUUID) && System.currentTimeMillis() < timeout) {
         	TimeUnit.NANOSECONDS.sleep(10000);
         }
+        sendingQueue.add(new OutboundPacket(reciever, packet));
         queue.remove(messageUUID);
-        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-			try {
-				InteractiveChat.protocolManager.sendServerPacket(reciever, packet, false);
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+	}
+	
+	private static void run() {
+		Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+			while (!sendingQueue.isEmpty()) {
+				OutboundPacket out = sendingQueue.poll();
+				try {
+					InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
 			}
-		});
+		}, 0, 1);
 	}
 	
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
@@ -274,7 +284,6 @@ public class OutChatPacket implements Listener {
 			basecomponent = preEvent.getBaseComponent();
 			
 			List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-			
 			TextComponent product = new TextComponent("");
 			for (int i = 0; i < basecomponentlist.size(); i++) {
 				BaseComponent each = basecomponentlist.get(i);
@@ -283,8 +292,7 @@ public class OutChatPacket implements Listener {
 				}
 				product.addExtra(each);
 			}
-			
-			basecomponent = product;	
+			basecomponent = product;
 			
 			if (InteractiveChat.AllowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);

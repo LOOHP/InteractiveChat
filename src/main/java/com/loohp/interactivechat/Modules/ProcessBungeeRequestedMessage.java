@@ -16,14 +16,18 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ProcessBungeeRequestedMessage {
+	
+	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
 	public static String processAndRespond(Player reciever, String component) throws Exception {
 		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(new UnicodeUnescaper().translate(component))));
@@ -104,6 +108,17 @@ public class ProcessBungeeRequestedMessage {
         } else {
         	server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
+        
+        List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
+		TextComponent product = new TextComponent("");
+		for (int i = 0; i < basecomponentlist.size(); i++) {
+			BaseComponent each = basecomponentlist.get(i);
+			if (each instanceof TextComponent) {
+				((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
+			}
+			product.addExtra(each);
+		}
+		basecomponent = product;
         
         if (InteractiveChat.AllowMention && sender.isPresent()) {
         	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);

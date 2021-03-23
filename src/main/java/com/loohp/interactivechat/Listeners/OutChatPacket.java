@@ -274,7 +274,6 @@ public class OutChatPacket implements Listener {
 			basecomponent = preEvent.getBaseComponent();
 			
 			List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-			
 			TextComponent product = new TextComponent("");
 			for (int i = 0; i < basecomponentlist.size(); i++) {
 				BaseComponent each = basecomponentlist.get(i);
@@ -283,8 +282,7 @@ public class OutChatPacket implements Listener {
 				}
 				product.addExtra(each);
 			}
-			
-			basecomponent = product;	
+			basecomponent = product;
 			
 			if (InteractiveChat.AllowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);

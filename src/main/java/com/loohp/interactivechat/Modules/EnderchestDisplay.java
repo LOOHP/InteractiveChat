@@ -17,6 +17,8 @@ import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
+import com.loohp.interactivechat.API.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.API.Events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
@@ -140,11 +142,12 @@ public class EnderchestDisplay {
 										Bukkit.getPluginManager().callEvent(event);
 										inv = event.getInventory();
 										
-		    							InteractiveChat.enderDisplay.put(sha1, inv);	
+		    							InteractiveChatAPI.addInventoryToItemShareList(SharedType.ENDERCHEST, sha1, inv);
+		    							
 		    							if (InteractiveChat.bungeecordMode) {
 			    							if (player.isLocal()) {
 			    								try {
-													BungeeMessageSender.forwardEnderchest(player.getUniqueId(), null, inv);
+													BungeeMessageSender.forwardEnderchest(player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv);
 												} catch (IOException e) {
 													e.printStackTrace();
 												}

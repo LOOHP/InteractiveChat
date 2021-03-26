@@ -25,18 +25,39 @@ public class Placeholders extends PlaceholderExpansion {
 		return "1.0.0";
 	}
 	
+    @Override
+    public boolean persist() {
+        return true;
+    }
+    
+    @Override
+    public String getRequiredPlugin() {
+        return InteractiveChat.plugin.getName();
+    }
+	
 	@Override
     public String onRequest(OfflinePlayer offlineplayer, String identifier) {
   
         if (identifier.equals("mentiontoggle")) {
+        	PlayerData pd;
         	if (offlineplayer.isOnline()) {
         		Player player = offlineplayer.getPlayer();
-        		boolean toggle = InteractiveChat.playerDataManager.getPlayerData(player).isMentionDisabled();
-        		return toggle ? "disabled" : "enabled";
+        		pd = InteractiveChat.playerDataManager.getPlayerData(player);
         	} else {
-        		PlayerData pd = InteractiveChat.database.getPlayerInfo(offlineplayer.getUniqueId());
-        		return pd == null ? "enabled" : (pd.isMentionDisabled() ? "disabled" : "enabled");
+        		pd = InteractiveChat.database.getPlayerInfo(offlineplayer.getUniqueId());
         	}
+        	return pd == null ? "enabled" : (pd.isMentionDisabled() ? "disabled" : "enabled");
+        }
+        
+        if (identifier.equals("invdisplaylayout")) {
+        	PlayerData pd;
+        	if (offlineplayer.isOnline()) {
+        		Player player = offlineplayer.getPlayer();
+        		pd = InteractiveChat.playerDataManager.getPlayerData(player);
+        	} else {
+        		pd = InteractiveChat.database.getPlayerInfo(offlineplayer.getUniqueId());
+        	}
+        	return (pd == null ? InteractiveChat.invDisplayLayout : pd.getInventoryDisplayLayout()) + "";
         }
 
         return null;

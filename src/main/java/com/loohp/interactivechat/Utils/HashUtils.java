@@ -50,6 +50,34 @@ public class HashUtils {
 		return result;
 	}
 	
+	public static String createSha1(boolean rightHanded, int selectedSlot, int level, String title, Inventory inventory) throws Exception {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        dataOutput.writeBoolean(rightHanded);
+        dataOutput.writeByte(selectedSlot);
+        dataOutput.writeInt(level);
+        if (title == null) {
+        	dataOutput.writeBoolean(false);
+        } else {
+        	dataOutput.writeBoolean(true);
+        	dataOutput.write(title.getBytes(StandardCharsets.UTF_8));
+        }
+        dataOutput.writeInt(inventory.getSize());
+        for (int i = 0; i < inventory.getSize(); i++) {
+            dataOutput.writeObject(inventory.getItem(i));
+        }
+        dataOutput.close();
+        byte[] bytes = outputStream.toByteArray();
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        Formatter formatter = new Formatter();
+        for (byte b : md.digest(bytes)) {
+            formatter.format("%02x", b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
+	}
+	
 	public static String createSha1(String title, Inventory inventory) throws Exception {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);

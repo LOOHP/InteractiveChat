@@ -10,14 +10,14 @@ public class ICPlaceholder {
 	private String description;
 	private String permission;
 	
-	/*
-	 * This constructor is used by CustomPlaceholder
+	/**
+	 * This constructor is used by {@link CustomPlaceholder}
 	 */
-	protected ICPlaceholder(String keyword, boolean caseSensitive, String description, boolean isCustomPlaceholder) {
+	protected ICPlaceholder(String keyword, boolean caseSensitive, String description) {
 		this.keyword = keyword;
 		this.caseSensitive = caseSensitive;
 		this.description = description;
-		this.isCustomPlaceholder = isCustomPlaceholder;
+		this.isCustomPlaceholder = true;
 		this.permission = null;
 	}
 	

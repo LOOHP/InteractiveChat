@@ -24,6 +24,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.API.InteractiveChatAPI;
+import com.loohp.interactivechat.API.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.API.Events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
@@ -95,7 +97,7 @@ public class ItemDisplay {
 				equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInMainHand(), player.getEquipment().getItemInOffHand()};
 			}
 			try {
-				BungeeMessageSender.forwardEquipment(player.getUniqueId(), equipment);
+				BungeeMessageSender.forwardEquipment(player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), equipment);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -219,7 +221,7 @@ public class ItemDisplay {
 									if (FilledMapUtils.isFilledMap(item)) {
 										isMapView = true;
 										if (!InteractiveChat.mapDisplay.containsKey(sha1)) {
-											InteractiveChat.mapDisplay.put(sha1, item);
+											InteractiveChatAPI.addMapToMapSharedList(sha1, item);
 										}
 									} else if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
 										if (useInventoryView(item)) {
@@ -242,7 +244,7 @@ public class ItemDisplay {
 													inv.setItem(j + 9, shulkerItem == null ? null : shulkerItem.clone());
 												}
 											}										
-											InteractiveChat.itemDisplay.put(sha1, inv);	
+											InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 										} else {
 											if (InteractiveChat.version.isOld()) {
 												Inventory inv = Bukkit.createInventory(null, 27, title);
@@ -257,7 +259,7 @@ public class ItemDisplay {
 													inv.setItem(j, empty);
 												}
 												inv.setItem(13, item);				            							
-												InteractiveChat.itemDisplay.put(sha1, inv);	
+												InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 											} else {
 												Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
 												ItemStack empty = InteractiveChat.itemFrame1.clone();
@@ -271,7 +273,7 @@ public class ItemDisplay {
 													inv.setItem(j, empty);
 												}
 												inv.setItem(4, item);				            							
-												InteractiveChat.itemDisplay.put(sha1, inv);	
+												InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 											}
 										}
 									}

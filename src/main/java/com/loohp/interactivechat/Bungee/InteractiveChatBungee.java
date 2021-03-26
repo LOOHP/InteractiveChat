@@ -81,6 +81,8 @@ import net.md_5.bungee.protocol.packet.Chat;
 
 public class InteractiveChatBungee extends Plugin implements Listener {
 	
+	public static final int BSTATS_PLUGIN_ID = 8839;
+	
 	public static Configuration config = null;
 	public static ConfigurationProvider yamlConfigProvider = null;
 	public static File configFile;
@@ -150,7 +152,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
 
-		metrics = new Metrics(plugin, 8839);
+		metrics = new Metrics(plugin, BSTATS_PLUGIN_ID);
 		Charts.setup(metrics);
 
 		run();
@@ -366,7 +368,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        case 0x09:
 		        	loadConfig();
 		        	break;
-		        case 0x10:
+		        case 0x0A:
 		        	int size = input.readInt();
 		        	Map<String, String> map = new HashMap<>();
 		        	for (int i = 0; i < size; i++) {
@@ -376,7 +378,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	}
 		        	aliasesMapping.put(((Server) event.getSender()).getInfo().getName(), map);
 		        	break;
-		        case 0x11:
+		        case 0x0B:
+		        	int id = input.readInt();
+		        	boolean permissionValue = input.readBoolean();
+		        	permissionChecks.put(id, permissionValue);
+		        	break;
+		        case 0x0C:
 		        	int size1 = input.readInt();
 		        	List<ICPlaceholder> list = new ArrayList<>(size1);
 		        	for (int i = 0; i < size1; i++) {
@@ -414,11 +421,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	placeholderList.put(((Server) event.getSender()).getInfo().getName(), list);
 		        	PluginMessageSendingBungee.forwardPlaceholderList(list, ((Server) event.getSender()).getInfo());
 		        	break;
-		        case 0x12:
+		        case 0x0D:
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
-		        	PluginMessageSendingBungee.forwardPlayerData(uuid2, ((Server) event.getSender()).getInfo());
+		        	PluginMessageSendingBungee.reloadPlayerData(uuid2, ((Server) event.getSender()).getInfo());
 		        	break;
-		        }
+	        	}
 	        } catch (IOException | DataFormatException e) {
 				e.printStackTrace();
 			}

@@ -97,7 +97,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			}
 	        		}
 	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			InteractiveChat.remotePlayers.put(uuid, new ICPlayer(server, name, uuid, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
+	        			InteractiveChat.remotePlayers.put(uuid, new ICPlayer(server, name, uuid, true, 0, 0, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
 	        		}
 	        		newSet.add(uuid);
 	        	}
@@ -128,6 +128,12 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	if (player == null) {
 	        		break;
 	        	}
+	        	boolean rightHanded = input.readBoolean();
+	        	player.setRemoteRightHanded(rightHanded);
+	        	int selectedSlot = input.readByte();
+	        	player.setRemoteSelectedSlot(selectedSlot);
+	        	int level = input.readInt();
+	        	player.setRemoteExperienceLevel(level);
 	        	int size = input.readByte();
 	        	ItemStack[] equipment = new ItemStack[size];
 	        	for (int i = 0; i < equipment.length; i++) {
@@ -150,6 +156,12 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	if (player1 == null) {
 	        		break;
 	        	}
+	        	boolean rightHanded1 = input.readBoolean();
+	        	player1.setRemoteRightHanded(rightHanded1);
+	        	int selectedSlot1 = input.readByte();
+	        	player1.setRemoteSelectedSlot(selectedSlot1);
+	        	int level1 = input.readInt();
+	        	player1.setRemoteExperienceLevel(level1);
 	        	int type = input.readByte();
 	        	if (type == 0) {
 	        		player1.setRemoteInventory(DataTypeIO.readInventory(input, StandardCharsets.UTF_8));
@@ -257,25 +269,25 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	}
 	        	InteractiveChat.remotePlaceholderList.put(server, list);
 	        	break;
-	        case 0x10:
+	        case 0x0A:
 	        	BungeeMessageSender.resetAndForwardPlaceholderList(InteractiveChat.placeholderList);
 	        	break;
-	        case 0x11:
-	        	BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping);
-	        	break;
-	        case 0x12:
-	        	UUID playerUUID = DataTypeIO.readUUID(input);
-	        	PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(playerUUID);
-	        	if (pd != null) {
-	        		pd.reload();
-	        	}
-	        	break;
-	        case 0x13:
+	        case 0x0B:
 	        	int id = input.readInt();
 	        	UUID playerUUID1 = DataTypeIO.readUUID(input);
 	        	String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	Player player5 = Bukkit.getPlayer(playerUUID1);
 	        	BungeeMessageSender.permissionCheckResponse(id, player5 == null ? false : player5.hasPermission(permission));
+	        	break;
+	        case 0x0C:
+	        	BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping);
+	        	break;
+	        case 0x0D:
+	        	UUID playerUUID = DataTypeIO.readUUID(input);
+	        	PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(playerUUID);
+	        	if (pd != null) {
+	        		pd.reload();
+	        	}
 	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {

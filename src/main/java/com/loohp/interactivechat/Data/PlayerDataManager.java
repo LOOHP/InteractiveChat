@@ -75,12 +75,14 @@ public class PlayerDataManager implements Listener {
 		private UUID uuid;
 		private String playername;
 		private boolean mentionDisabled;
+		private int inventoryDisplayLayout;
 		
-		protected PlayerData(Database database, UUID uuid, String playername, boolean mentionDisabled) {
+		protected PlayerData(Database database, UUID uuid, String playername, boolean mentionDisabled, int inventoryDisplayLayout) {
 			this.database = database;
 			this.uuid = uuid;
 			this.playername = playername;
 			this.mentionDisabled = mentionDisabled;
+			this.inventoryDisplayLayout = inventoryDisplayLayout;
 		}
 		
 		public synchronized void reload() {
@@ -109,6 +111,14 @@ public class PlayerDataManager implements Listener {
 		
 		public void setMentionDisabled(boolean value) {
 			this.mentionDisabled = value;
+		}
+
+		public int getInventoryDisplayLayout() {
+			return inventoryDisplayLayout;
+		}
+
+		public void setInventoryDisplayLayout(int inventoryDisplayLayout) {
+			this.inventoryDisplayLayout = inventoryDisplayLayout;
 		}
 	}
 	

@@ -29,6 +29,66 @@ public class Charts {
 	        	return InteractiveChat.bungeecordMode ? "Enabled" : "Disabled";
 	        }
 	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("accurate_sender_parser_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.useAccurateSenderFinder ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("item_display_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.useItem ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("inventory_display_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.useInventory ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("inventory_display_layout", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	if (!InteractiveChat.useInventory) {
+	        		return "Disabled";
+	        	} else {
+	        		return "Layout " + InteractiveChat.invDisplayLayout;
+	        	}
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("enderchest_display_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.useEnder ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("clickable_command_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.clickableCommands ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("player_name_info_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.usePlayerName ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
+		metrics.addCustomChart(new Metrics.SimplePie("mention_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.allowMention ? "Enabled" : "Disabled";
+	        }
+	    }));
 	}
 
 }

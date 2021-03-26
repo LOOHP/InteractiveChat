@@ -7,6 +7,8 @@ import net.md_5.bungee.api.chat.ClickEvent;
 
 public class CustomPlaceholder extends ICPlaceholder {
 	
+	private static final String CUSTOM_PLACEHOLDER_PERMISSION = "interactivechat.module.custom.";
+	
 	private int position;
 	private ParsePlayer parsePlayer;
 	private List<String> aliases;
@@ -17,7 +19,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 	private CustomPlaceholderReplaceText replace;
 	
 	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String description) {
-		super(keyword, caseSensitive, description, true);
+		super(keyword, caseSensitive, description);
 		this.position = position;
 		this.parsePlayer = parsePlayer;
 		this.aliases = aliases;
@@ -35,7 +37,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 	
 	@Override
 	public String getPermission() {
-		return "interactivechat.module.custom." + position;
+		return CUSTOM_PLACEHOLDER_PERMISSION + position;
 	}
 	
 	public ParsePlayer getParsePlayer() {
@@ -43,7 +45,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 	}
 	
 	public List<String> getAliases() {
-		return new ArrayList<String>(aliases);
+		return new ArrayList<>(aliases);
 	}
 	
 	public boolean getParseKeyword() {
@@ -66,12 +68,13 @@ public class CustomPlaceholder extends ICPlaceholder {
 		return replace;
 	}
 	
-	public enum ParsePlayer {
+	public static enum ParsePlayer {
+		
 		VIEWER("viewer", 0),
 		SENDER("sender", 1);
 		
-		String name;
-		int ord;
+		private String name;
+		private int ord;
 		
 		ParsePlayer(String name, int ord) {
 			this.name = name;
@@ -107,8 +110,9 @@ public class CustomPlaceholder extends ICPlaceholder {
 	}
 	
 	public static class CustomPlaceholderHoverEvent {
-		boolean enabled;
-		String text;
+		
+		private boolean enabled;
+		private String text;
 		
 		public CustomPlaceholderHoverEvent(boolean enabled, String text) {
 			this.enabled = enabled;
@@ -125,9 +129,10 @@ public class CustomPlaceholder extends ICPlaceholder {
 	}
 	
 	public static class CustomPlaceholderClickEvent {
-		boolean enabled;
-		ClickEvent.Action action;
-		String value;
+		
+		private boolean enabled;
+		private ClickEvent.Action action;
+		private String value;
 		
 		public CustomPlaceholderClickEvent(boolean enabled, ClickEvent.Action action, String value) {
 			this.enabled = enabled;
@@ -149,8 +154,9 @@ public class CustomPlaceholder extends ICPlaceholder {
 	}
 	
 	public static class CustomPlaceholderReplaceText {
-		boolean enabled;
-		String replaceText;
+		
+		private boolean enabled;
+		private String replaceText;
 		
 		public CustomPlaceholderReplaceText(boolean enabled, String replaceText) {
 			this.enabled = enabled;

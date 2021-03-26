@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
@@ -24,10 +25,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.Utils.HashUtils;
+import com.loohp.interactivechat.ObjectHolders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
@@ -304,6 +305,8 @@ public class InteractiveChatAPI {
 	public static enum SharedType {
 		ITEM,
 		INVENTORY,
+		INVENTORY1_UPPER,
+		INVENTORY1_LOWER,
 		ENDERCHEST;
 	}
 	
@@ -315,61 +318,70 @@ public class InteractiveChatAPI {
 	public static BiMap<String, Inventory> getItemShareList(SharedType type) {
 		switch (type) {
 		case ITEM:
-			return HashBiMap.create(InteractiveChat.itemDisplay);
+			return Maps.unmodifiableBiMap(InteractiveChat.itemDisplay);
 		case INVENTORY:
-			return HashBiMap.create(InteractiveChat.inventoryDisplay);
+			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay);
+		case INVENTORY1_UPPER:
+			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay1Upper);
+		case INVENTORY1_LOWER:
+			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay1Lower);
 		case ENDERCHEST:
-			return HashBiMap.create(InteractiveChat.enderDisplay);
+			return Maps.unmodifiableBiMap(InteractiveChat.enderDisplay);
 		}
 		return null;
 	}
 	
 	/**
+	 * Get the shared map list
+	 * @return The shared map list
+	 */
+	public static BiMap<String, ItemStack> getMapShareList() {
+		return Maps.unmodifiableBiMap(InteractiveChat.mapDisplay);
+	}
+	
+	/**
 	 * Add an inventory to the shared inventory list
 	 * @param type
-	 * @param title of the inventory
+	 * @param hash key
 	 * @param inventory
 	 * @return The hashed key which can be used to retrieve the inventory
 	 * @throws Exception
 	 */
-	public static String addInventoryToItemShareList(SharedType type, String title, Inventory inventory) throws Exception {
-		String hash = HashUtils.createSha1(title, inventory);
+	public static String addInventoryToItemShareList(SharedType type, String hash, Inventory inventory) throws Exception {
 		switch (type) {
 		case ITEM:
 			InteractiveChat.itemDisplay.put(hash, inventory);
+			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 0, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
 			break;
 		case INVENTORY:
 			InteractiveChat.inventoryDisplay.put(hash, inventory);
+			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 1, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			break;
+		case INVENTORY1_UPPER:
+			InteractiveChat.inventoryDisplay1Upper.put(hash, inventory);
+			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 2, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			break;
+		case INVENTORY1_LOWER:
+			InteractiveChat.inventoryDisplay1Lower.put(hash, inventory);
+			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 3, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
 			break;
 		case ENDERCHEST:
 			InteractiveChat.enderDisplay.put(hash, inventory);
+			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 4, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
 			break;
 		}
 		return hash;
 	}
 	
 	/**
-	 * Add an inventory to the shared inventory list<br><br>
-	 * <b>Deprecated.</b> Use {@link #addInventoryToItemShareList(SharedType, String, Inventory)} instead
-	 * @param type
-	 * @param inventory
+	 * Add a map to the shared map list
+	 * @param hash key
+	 * @param item
 	 * @return The hashed key which can be used to retrieve the inventory
-	 * @throws Exception
 	 */
-	@Deprecated
-	public static String addInventoryToItemShareList(SharedType type, Inventory inventory) throws Exception {
-		String hash = HashUtils.createSha1(null, inventory);
-		switch (type) {
-		case ITEM:
-			InteractiveChat.itemDisplay.put(hash, inventory);
-			break;
-		case INVENTORY:
-			InteractiveChat.inventoryDisplay.put(hash, inventory);
-			break;
-		case ENDERCHEST:
-			InteractiveChat.enderDisplay.put(hash, inventory);
-			break;
-		}
+	public static String addMapToMapSharedList(String hash, ItemStack item) {
+		InteractiveChat.mapDisplay.put(hash, item);
+		InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 5, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
 		return hash;
 	}
 	

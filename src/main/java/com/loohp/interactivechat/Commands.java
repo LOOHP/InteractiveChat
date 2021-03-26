@@ -31,6 +31,7 @@ import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.InventoryUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
 
@@ -57,6 +58,12 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload")) {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
+				InteractiveChat.itemDisplay.clear();
+				InteractiveChat.inventoryDisplay.clear();
+				InteractiveChat.inventoryDisplay1Lower.clear();
+				InteractiveChat.enderDisplay.clear();
+				InteractiveChat.mapDisplay.clear();
+				InteractiveChat.itemDisplayTimeouts.clear();
 				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
 				if (InteractiveChat.bungeecordMode) {
 					try {
@@ -111,7 +118,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 						}
 						if (InteractiveChat.bungeecordMode) {
 							try {
-								BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId());
+								BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -135,7 +142,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							}
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.forwardPlayerDataUpdate(player.getUniqueId());
+									BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -146,6 +153,67 @@ public class Commands implements CommandExecutor, TabCompleter {
 					} else {
 						sender.sendMessage(InteractiveChat.noPermissionMessage);
 					}
+				}
+			} else {
+				sender.sendMessage(InteractiveChat.noPermissionMessage);
+			}
+			return true;
+		}
+		
+		if (args[0].equalsIgnoreCase("setinvdisplaylayout")) {
+			if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
+				try {
+					if (args.length == 1) {
+						sender.sendMessage(InteractiveChat.notEnoughArgs);
+					} else if (args.length == 2) {
+						if (sender instanceof Player) {
+							int layout = Integer.parseInt(args[1]);
+							if (!InventoryDisplay.LAYOUTS.contains(layout)) {
+								throw new NumberFormatException();
+							}
+							Player player = (Player) sender;
+							PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
+							pd.setInventoryDisplayLayout(layout);
+							Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+							sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
+							if (InteractiveChat.bungeecordMode) {
+								try {
+									BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						} else {
+							sender.sendMessage(InteractiveChat.noConsoleMessage);
+						}
+					} else {
+						if (sender.hasPermission("interactivechat.module.inventory.setlayout.others")) {
+							Player player = Bukkit.getPlayer(args[2]);
+							if (player != null) {
+								int layout = Integer.parseInt(args[1]);
+								if (!InventoryDisplay.LAYOUTS.contains(layout)) {
+									throw new NumberFormatException();
+								}
+								PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
+								pd.setInventoryDisplayLayout(layout);
+								Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+								sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
+								if (InteractiveChat.bungeecordMode) {
+									try {
+										BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							} else {
+								sender.sendMessage(InteractiveChat.invalidPlayerMessage);
+							}
+						} else {
+							sender.sendMessage(InteractiveChat.noPermissionMessage);
+						}
+					}
+				} catch (NumberFormatException e) {
+					sender.sendMessage(InteractiveChat.invalidArgs);
 				}
 			} else {
 				sender.sendMessage(InteractiveChat.noPermissionMessage);
@@ -260,11 +328,27 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (sender instanceof Player && args.length > 1) {
 			Player player = (Player) sender;
 			if (args[0].equals("viewinv")) {
-				Inventory inv = InteractiveChat.inventoryDisplay.get(args[1]);
-				if (inv != null) {
-					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+				PlayerData data = InteractiveChat.playerDataManager.getPlayerData(player);
+				String hash = args[1];
+				if (data == null || data.getInventoryDisplayLayout() == 0) {
+					Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
+					if (inv != null) {
+						Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+					} else {
+						player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+					}
 				} else {
-					player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+					Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
+					Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
+					if (inv != null && inv2 != null) {
+						Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+							player.openInventory(inv);
+							InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
+							InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
+						});
+					} else {
+						player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+					}
 				}
 			} else if (args[0].equals("viewender")) {
 				Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
@@ -319,6 +403,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.parse")) {
 				tab.add("parse");
 			}
+			if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
+				tab.add("setinvdisplaylayout");
+			}
 			return tab;
 		case 1:
 			if (sender.hasPermission("interactivechat.reload")) {
@@ -346,12 +433,35 @@ public class Commands implements CommandExecutor, TabCompleter {
 					tab.add("parse");
 				}
 			}
+			if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
+				if ("setinvdisplaylayout".startsWith(args[0].toLowerCase())) {
+					tab.add("setinvdisplaylayout");
+				}
+			}
 			return tab;
 		case 2:
 			if (sender.hasPermission("interactivechat.mention.toggle.others")) {
 				if ("mentiontoggle".equalsIgnoreCase(args[0])) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
 						if (player.getName().toLowerCase().startsWith(args[1])) {
+							tab.add(player.getName());
+						}
+					}
+				}
+			}
+			if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
+				if ("setinvdisplaylayout".equalsIgnoreCase(args[0])) {
+					for (Integer layout : InventoryDisplay.LAYOUTS) {
+						tab.add(layout.toString());
+					}
+				}
+			}
+			return tab;
+		case 3:
+			if (sender.hasPermission("interactivechat.module.inventory.setlayout.others")) {
+				if ("setinvdisplaylayout".equalsIgnoreCase(args[0])) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						if (player.getName().toLowerCase().startsWith(args[2])) {
 							tab.add(player.getName());
 						}
 					}

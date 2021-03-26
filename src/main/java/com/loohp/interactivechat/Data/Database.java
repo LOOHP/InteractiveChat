@@ -7,14 +7,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class Database {
+	
+	private static final Map<String, String> COLUMNS = new HashMap<>();
+	
+	static {
+		COLUMNS.put("UUID", "Text");
+		COLUMNS.put("NAME", "Text");
+		COLUMNS.put("DISABLED_MENTION", "Boolean");
+		COLUMNS.put("INV_DISPLAY_LAYOUT", "int");
+	}
 	
 	public boolean isMYSQL = false;
 	
@@ -59,6 +74,7 @@ public class Database {
 			if (isMYSQL) {
 				mysqlSetup(true);
 				createTable();
+				checkColumns();
 				try {
 					connection.close();
 				} catch (SQLException e) {
@@ -118,6 +134,23 @@ public class Database {
 	                       "NAME TEXT NOT NULL, " + 
 	                       "DISABLED_MENTION BOOLEAN);"; 
 	        stmt.executeUpdate(sql);
+	        
+	        Statement statement = connection.createStatement();
+	        String query = "PRAGMA table_info(" + table + ");";
+	        ResultSet result = statement.executeQuery(query);
+	        List<String> columns = new ArrayList<>();
+	        while (result.next()) {
+	        	columns.add(result.getString("name"));
+	        }
+	        for (Entry<String, String> entry : COLUMNS.entrySet()) {
+        		String name = entry.getKey();
+        		String type = entry.getValue();
+        		if (!columns.contains(name)) {
+        			PreparedStatement alter = getConnection().prepareStatement("ALTER TABLE " + table + " ADD " + name + " " + type);
+        			alter.execute();
+        		}
+        	}
+	        
 	        stmt.close(); 
 	    } catch (Exception e) {
 	    	consoleMessage(ChatColor.RED + "[InteractiveChat] Unable to connect to sqlite database!!!");
@@ -137,9 +170,34 @@ public class Database {
     	synchronized (this) {
 	    	open();
 	        try {
-	        	PreparedStatement statement = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (UUID Text, NAME Text, DISABLED_MENTION BOOLEAN)");
+	        	PreparedStatement statement = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (UUID Text, NAME Text, DISABLED_MENTION Boolean, INV_DISPLAY_LAYOUT int)");
 	
 	            statement.execute();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    public void checkColumns() {
+    	synchronized (this) {
+	    	open();
+	        try {
+	        	for (Entry<String, String> entry : COLUMNS.entrySet()) {
+	        		String name = entry.getKey();
+	        		String type = entry.getValue();
+	        		PreparedStatement statement = getConnection().prepareStatement("SHOW COLUMNS FROM " + table + " LIKE '" + name + "'");
+	        		ResultSet results = statement.executeQuery();
+	        		if (!results.next()) {
+	        			PreparedStatement alter = getConnection().prepareStatement("ALTER TABLE " + table + " ADD " + name + " " + type);
+	        			alter.execute();
+	        		}
+	        	}
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	        }
@@ -179,10 +237,11 @@ public class Database {
 		synchronized (this) {
 			open();
 			try {
-				PreparedStatement insert = getConnection().prepareStatement("INSERT INTO " + table + " (UUID,NAME,DISABLED_MENTION) VALUES (?,?,?)");
+				PreparedStatement insert = getConnection().prepareStatement("INSERT INTO " + table + " (UUID,NAME,DISABLED_MENTION,INV_DISPLAY_LAYOUT) VALUES (?,?,?,?)");
 				insert.setString(1, uuid.toString());
 				insert.setString(2, name);
 				insert.setBoolean(3, false);
+				insert.setInt(4, InteractiveChat.invDisplayLayout);
 				insert.executeUpdate();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -199,10 +258,11 @@ public class Database {
 		synchronized (this) {
 			open();
 			try {
-				PreparedStatement statement = getConnection().prepareStatement("UPDATE " + table + " SET NAME=?, DISABLED_MENTION=? WHERE UUID=?");
+				PreparedStatement statement = getConnection().prepareStatement("UPDATE " + table + " SET NAME=?, DISABLED_MENTION=?, INV_DISPLAY_LAYOUT=? WHERE UUID=?");
 				statement.setString(1, data.getPlayerName());
 				statement.setBoolean(2, data.isMentionDisabled());
-				statement.setString(3, data.getUniqueId().toString());
+				statement.setInt(3, data.getInventoryDisplayLayout());
+				statement.setString(4, data.getUniqueId().toString());
 				statement.executeUpdate();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -224,8 +284,13 @@ public class Database {
 				ResultSet results = statement.executeQuery();
 				results.next();
 				
-				data.setPlayerName(results.getString("NAME"));
-				data.setMentionDisabled(results.getBoolean("DISABLED_MENTION"));
+				String displayName = results.getString("NAME");
+				Boolean disableMention = results.getBoolean("DISABLED_MENTION");
+				Integer invDisplayLayout = results.getInt("INV_DISPLAY_LAYOUT");
+				
+				data.setPlayerName(displayName == null ? "" : displayName);
+				data.setMentionDisabled(disableMention == null ? false : disableMention);
+				data.setInventoryDisplayLayout(invDisplayLayout == null ? InteractiveChat.invDisplayLayout : invDisplayLayout);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -239,7 +304,7 @@ public class Database {
 	}
 	
 	public PlayerData getPlayerInfo(UUID uuid) {
-		return getPlayerInfo(new PlayerData(this, uuid, "", false));
+		return getPlayerInfo(new PlayerData(this, uuid, "", false, 0));
 	}
 
 }

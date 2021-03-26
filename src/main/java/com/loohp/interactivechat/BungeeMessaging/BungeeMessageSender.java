@@ -75,9 +75,12 @@ public class BungeeMessageSender {
     	return forwardData(0x02, out.toByteArray());
     }
     
-    public static boolean forwardEquipment(UUID player, ItemStack... equipment) throws IOException {
+    public static boolean forwardEquipment(UUID player, boolean rightHanded, int selectedSlot, int level, ItemStack... equipment) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
+    	out.writeBoolean(rightHanded);
+    	out.writeByte(selectedSlot);
+    	out.writeInt(level);
     	out.writeByte(equipment.length);
     	for (ItemStack itemStack : equipment) {
     		DataTypeIO.writeItemStack(out, itemStackScheme, itemStack, StandardCharsets.UTF_8);
@@ -85,17 +88,23 @@ public class BungeeMessageSender {
     	return forwardData(0x03, out.toByteArray());
     }
     
-    public static boolean forwardInventory(UUID player, String title, Inventory inventory) throws IOException {
+    public static boolean forwardInventory(UUID player, boolean rightHanded, int selectedSlot, int level, String title, Inventory inventory) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
+    	out.writeBoolean(rightHanded);
+    	out.writeByte(selectedSlot);
+    	out.writeInt(level);
     	out.writeByte(0);
     	DataTypeIO.writeInventory(out, inventoryScheme, title, inventory, StandardCharsets.UTF_8);
     	return forwardData(0x04, out.toByteArray());
     }
     
-    public static boolean forwardEnderchest(UUID player, String title, Inventory enderchest) throws IOException {
+    public static boolean forwardEnderchest(UUID player, boolean rightHanded, int selectedSlot, int level, String title, Inventory enderchest) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, player);
+    	out.writeBoolean(rightHanded);
+    	out.writeByte(selectedSlot);
+    	out.writeInt(level);
     	out.writeByte(1);
     	DataTypeIO.writeInventory(out, inventoryScheme, title, enderchest, StandardCharsets.UTF_8);
     	return forwardData(0x04, out.toByteArray());
@@ -155,7 +164,14 @@ public class BungeeMessageSender {
     		DataTypeIO.writeString(out, entry.getKey(), StandardCharsets.UTF_8);
     		DataTypeIO.writeString(out, entry.getValue(), StandardCharsets.UTF_8);
     	}
-    	return forwardData(0x10, out.toByteArray());
+    	return forwardData(0x0A, out.toByteArray());
+    }
+    
+    public static boolean permissionCheckResponse(int id, boolean value) throws IOException {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeInt(id);
+    	out.writeBoolean(value);
+    	return forwardData(0x0B, out.toByteArray());
     }
     
     @SuppressWarnings("deprecation")
@@ -199,19 +215,12 @@ public class BungeeMessageSender {
     			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
     		}
     	}
-    	return forwardData(0x11, out.toByteArray());
+    	return forwardData(0x0C, out.toByteArray());
     }
     
-    public static boolean forwardPlayerDataUpdate(UUID uuid) throws IOException {
+    public static boolean signalPlayerDataReload(UUID uuid) throws IOException {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, uuid);
-    	return forwardData(0x12, out.toByteArray());
-    }
-    
-    public static boolean permissionCheckResponse(int id, boolean value) throws IOException {
-    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
-    	out.writeInt(id);
-    	out.writeBoolean(value);
-    	return forwardData(0x13, out.toByteArray());
+    	return forwardData(0x0D, out.toByteArray());
     }
 }

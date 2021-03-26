@@ -13,9 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
@@ -63,10 +65,10 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.LogFilter;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
+import com.loohp.interactivechat.ObjectHolders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.PlaceholderAPI.Placeholders;
 import com.loohp.interactivechat.Updater.Updater;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
-import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
@@ -95,6 +97,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String space0 = "\u200B";
 	public static String space1 = "\u200A";
 	public static String nullString = null;
+	
+	public static String language = "en_us";
 	
 	public static Boolean essentialsHook = false;
 	public static Boolean chatManagerHook = false;
@@ -149,7 +153,11 @@ public class InteractiveChat extends JavaPlugin {
 	public static ItemStack itemFrame1;
 	public static ItemStack itemFrame2;
 	
-	public static boolean AllowMention = true;
+	public static ItemStack invFrame1;
+	public static ItemStack invFrame2;
+	public static String invSkullName = "";
+	
+	public static boolean allowMention = true;
 	
 	public static boolean clickableCommands = true;
 	public static String clickableCommandsPrefix = "[";
@@ -166,17 +174,30 @@ public class InteractiveChat extends JavaPlugin {
 	public static String invalidPlayerMessage = "";
 	public static String listPlaceholderHeader = "";
 	public static String listPlaceholderBody = "";
+	public static String notEnoughArgs = "";
+	public static String setInvDisplayLayout = "";
+	public static String invalidArgs = "";
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
 	public static Map<String, ICPlayer> keyPlayer = new ConcurrentHashMap<>();
 	
+	public static long itemDisplayTimeout = 0;
+	
+	public static int invDisplayLayout = 0;
+	
+	public static Queue<SharedDisplayTimeoutInfo> itemDisplayTimeouts = new ConcurrentLinkedQueue<>();
+	
 	public static BiMap<String, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, Inventory> inventoryDisplay1Upper = Maps.synchronizedBiMap(HashBiMap.create());
+	public static BiMap<String, Inventory> inventoryDisplay1Lower = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, ItemStack> mapDisplay = Maps.synchronizedBiMap(HashBiMap.create());
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
+	
+	public static Map<UUID, String> viewingInv1 = new ConcurrentHashMap<>();
 	
 	public static Map<Long, Set<String>> cooldownbypass = new ConcurrentHashMap<>();
 	
@@ -367,7 +388,6 @@ public class InteractiveChat extends JavaPlugin {
 		
 	    RarityUtils.setupRarity();
 	    PotionUtils.setupPotions();
-	    LanguageUtils.loadTranslations("en_us");
 	    
 	    Charts.setup(metrics);
 	    
@@ -420,10 +440,51 @@ public class InteractiveChat extends JavaPlugin {
 	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
 	    }
 	    
+	    displayTimeout();
 	}
 
 	@Override
 	public void onDisable() {
 		getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
+	}
+	
+	private void displayTimeout() {
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+			List<SharedDisplayTimeoutInfo> remove = new ArrayList<>();
+			long now = System.currentTimeMillis();
+			for (SharedDisplayTimeoutInfo entry : itemDisplayTimeouts) {
+				long timeout = entry.getTimeout();
+				if (now > timeout) {
+					itemDisplayTimeouts.remove(entry);
+					remove.add(entry);
+				}
+			}
+			if (!remove.isEmpty()) {
+				Bukkit.getScheduler().runTask(plugin, () -> {
+					for (SharedDisplayTimeoutInfo entry : remove) {
+						switch (entry.getType()) {
+						case 0:
+							itemDisplay.remove(entry.getHash());
+							break;
+						case 1:
+							inventoryDisplay.remove(entry.getHash());
+							break;
+						case 2:
+							inventoryDisplay1Upper.remove(entry.getHash());
+							break;
+						case 3:
+							inventoryDisplay1Lower.remove(entry.getHash());
+							break;
+						case 4:
+							enderDisplay.remove(entry.getHash());
+							break;
+						case 5:
+							mapDisplay.remove(entry.getHash());
+							break;
+						}
+					}
+				});
+			}
+		}, 0, 1200);
 	}
 }

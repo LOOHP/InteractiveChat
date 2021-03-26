@@ -40,6 +40,12 @@ permissions:
   interactivechat.module.inventory:
     description: Allows you to use the inventory placeholder
     default: true
+  interactivechat.module.inventory.setlayout:
+    description: Allows you to use set your preferred inventory display layout
+    default: true
+  interactivechat.module.inventory.setlayout.others:
+    description: Allows you to use set the preferred inventory display layout of others
+    default: op
   interactivechat.module.enderchest:
     description: Allows you to use the ender chest placeholder
     default: true

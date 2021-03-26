@@ -9,23 +9,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 
+import com.loohp.interactivechat.InteractiveChat;
+
 public class ICPlayer {
 	
 	public static final String LOCAL_SERVER_REPRESENTATION = "*local_server";
 
 	private UUID uuid;
-
 	private String remoteServer;
 	private String remoteName;
+	private boolean rightHanded;
+	private int selectedSlot;
+	private int experienceLevel;
 	private EntityEquipment remoteEquipment;
 	private Inventory remoteInventory;
 	private Inventory remoteEnderchest;
 	private final Map<String, String> remotePlaceholders;
 
-	public ICPlayer(String server, String name, UUID uuid, RemoteEquipment equipment, Inventory inventory, Inventory enderchest) {
+	public ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, RemoteEquipment equipment, Inventory inventory, Inventory enderchest) {
 		this.remoteServer = server;
 		this.remoteName = name;
 		this.uuid = uuid;
+		this.rightHanded = rightHanded;
+		this.selectedSlot = selectedSlot;
+		this.experienceLevel = experienceLevel;
 		this.remoteEquipment = equipment;
 		this.remoteInventory = inventory;
 		this.remoteEnderchest = enderchest;
@@ -67,6 +74,34 @@ public class ICPlayer {
 
 	public UUID getUniqueId() {
 		return uuid;
+	}
+
+	public boolean isRightHanded() {
+		if (InteractiveChat.version.isOld()) {
+			return true;
+		} else {
+			return isLocal() ? getLocalPlayer().getMainHand().name().equalsIgnoreCase("RIGHT") : rightHanded;
+		}
+	}
+
+	public void setRemoteRightHanded(boolean rightHanded) {
+		this.rightHanded = rightHanded;
+	}
+	
+	public int getSelectedSlot() {
+		return isLocal() ? getLocalPlayer().getInventory().getHeldItemSlot() : selectedSlot;
+	}
+
+	public void setRemoteSelectedSlot(int selectedSlot) {
+		this.selectedSlot = selectedSlot;
+	}
+
+	public int getExperienceLevel() {
+		return isLocal() ? getLocalPlayer().getLevel() : experienceLevel;
+	}
+
+	public void setRemoteExperienceLevel(int experienceLevel) {
+		this.experienceLevel = experienceLevel;
 	}
 
 	public EntityEquipment getEquipment() {

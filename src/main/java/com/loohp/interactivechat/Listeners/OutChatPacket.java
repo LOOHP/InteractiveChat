@@ -294,7 +294,7 @@ public class OutChatPacket implements Listener {
 			}
 			basecomponent = product;
 			
-			if (InteractiveChat.AllowMention && sender.isPresent()) {
+			if (InteractiveChat.allowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 	        	if (data == null || !data.isMentionDisabled()) {
 	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, true);

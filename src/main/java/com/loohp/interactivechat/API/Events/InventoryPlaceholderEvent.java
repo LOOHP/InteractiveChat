@@ -60,7 +60,7 @@ public class InventoryPlaceholderEvent extends PlaceholderEvent {
 	}
 
 	public static enum InventoryPlaceholderType {
-		INVENTORY, ENDERCHEST;
+		INVENTORY, INVENTORY1_UPPER, INVENTORY1_LOWER, ENDERCHEST;
 	}
 
 }

@@ -1,9 +1,11 @@
 package com.loohp.interactivechat.Utils;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -56,6 +58,22 @@ public class HTTPRequestUtils {
 			return true;
 		} catch (IOException e) {
 			return false;
+		}
+	}
+	
+	public static byte[] download(String link) {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			InputStream is = new URL(link).openStream();
+			byte[] byteChunk = new byte[4096];
+			int n;
+			while ((n = is.read(byteChunk)) > 0) {
+				baos.write(byteChunk, 0, n);
+			}
+			is.close();
+			return baos.toByteArray();
+		} catch (IOException e) {
+			return null;
 		}
 	}
 

@@ -28,6 +28,7 @@ import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.WebData;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
@@ -89,7 +90,7 @@ public class ConfigManager {
 		
 		InteractiveChat.filterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes", true);
 		
-		InteractiveChat.AllowMention = getConfig().getBoolean("Chat.AllowMention");
+		InteractiveChat.allowMention = getConfig().getBoolean("Chat.AllowMention");
 		
 		InteractiveChat.universalCooldown = getConfig().getLong("Settings.UniversalCooldown") * 1000;
 		
@@ -100,6 +101,9 @@ public class ConfigManager {
 		InteractiveChat.invalidPlayerMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
 		InteractiveChat.listPlaceholderHeader = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersHeader"));
 		InteractiveChat.listPlaceholderBody = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersBody"));
+		InteractiveChat.notEnoughArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoEnoughArgs"));
+		InteractiveChat.invalidArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidArgs"));
+		InteractiveChat.setInvDisplayLayout = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.SetInventoryDisplayLayout"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -173,6 +177,49 @@ public class ConfigManager {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Item.Frame.Secondary)");
 			e.printStackTrace();
 		}
+		
+		try {
+			try {
+				if (version.isLegacy()) {
+					String str = getConfig().getString("ItemDisplay.Inventory.Frame.Primary");
+					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+					InteractiveChat.invFrame1 = new ItemStack(material, 1, data);
+				} else {
+					InteractiveChat.invFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Inventory.Frame.Primary")), 1);
+				}
+			} catch (Exception e) {
+				InteractiveChat.invFrame1 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Inventory.Frame.Primary")).get().parseItem();
+				InteractiveChat.invFrame1.setAmount(1);
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Inventory.Frame.Primary)");
+			e.printStackTrace();
+		}
+		
+		try {
+			try {
+				if (version.isLegacy()) {
+					String str = getConfig().getString("ItemDisplay.Inventory.Frame.Secondary");
+					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
+					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
+					InteractiveChat.invFrame2 = new ItemStack(material, 1, data);
+				} else {
+					InteractiveChat.invFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Inventory.Frame.Secondary")), 1);
+				}
+			} catch (Exception e) {
+				InteractiveChat.invFrame2 = XMaterial.matchXMaterial(getConfig().getString("ItemDisplay.Inventory.Frame.Secondary")).get().parseItem();
+				InteractiveChat.invFrame2.setAmount(1);
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid material name in the config! Please take a look at the Q&A section on the resource page! (ItemDisplay.Inventory.Frame.Secondary)");
+			e.printStackTrace();
+		}
+		
+		InteractiveChat.invSkullName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.SkullDisplayName"));
+		InteractiveChat.invDisplayLayout = getConfig().getInt("ItemDisplay.Inventory.Layout");
+		
+		InteractiveChat.itemDisplayTimeout = getConfig().getLong("ItemDisplay.Settings.Timeout") * 60 * 1000;
 		
 		if (getConfig().contains("Secret.t")) {
 			InteractiveChat.t = getConfig().getBoolean("Secret.t");
@@ -304,6 +351,7 @@ public class ConfigManager {
 		}
 		
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+			LanguageUtils.loadTranslations(InteractiveChat.language);
 			if (WebData.getInstance() == null) {
 				WebData.newInstance();
 			} else {

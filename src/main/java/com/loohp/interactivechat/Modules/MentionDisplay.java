@@ -87,6 +87,8 @@ public class MentionDisplay {
 					for (String name : list) {
 						names.add(ChatColorUtils.stripColor(name));
 					}
+					names.add("here");
+					names.add("everyone");
 					
 					for (String name : names) {
 						basecomponent = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, basecomponent, unix);

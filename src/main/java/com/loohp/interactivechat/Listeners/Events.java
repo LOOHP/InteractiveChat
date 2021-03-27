@@ -34,6 +34,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
+import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
@@ -208,9 +209,25 @@ public class Events implements Listener {
 	}
 	
     private void checkMention(AsyncPlayerChatEvent event) {
-		String message = event.getMessage();		
-		Player sender = event.getPlayer();
-		if (InteractiveChat.allowMention == true && sender.hasPermission("interactivechat.mention.player") && !InteractiveChat.playerDataManager.getPlayerData(sender).isMentionDisabled()) {
+    	Player sender = event.getPlayer();
+    	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(sender);
+    	if (InteractiveChat.allowMention && (data == null || !data.isMentionDisabled())) {
+			String message = event.getMessage();		
+			
+			if (checkMentionEveryone(message, sender)) {
+				return;
+			}
+			if (checkMentionHere(message, sender)) {
+				return;
+			}
+			if (checkMentionPlayers(message, sender)) {
+				return;
+			}
+    	}
+	}
+    
+    private boolean checkMentionPlayers(String message, Player sender) {
+    	if (sender.hasPermission("interactivechat.mention.player")) {
 			Map<String, UUID> playernames = new HashMap<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
     			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
@@ -245,12 +262,73 @@ public class Events implements Listener {
 								}
    							}
    						}
-   						break;
+   						return true;
    					}
    				}
 			}
 		}
-	}
+    	return false;
+    }
+    
+    private boolean checkMentionHere(String message, Player sender) {
+    	if (sender.hasPermission("interactivechat.mention.here")) {
+			String name = InteractiveChat.mentionPrefix + "here";
+			int index = message.toLowerCase().indexOf(name.toLowerCase());
+			if (index >= 0) {
+				char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
+				char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
+				if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						UUID uuid = player.getUniqueId();
+						if (!uuid.equals(sender.getUniqueId())) {
+							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+							if (InteractiveChat.bungeecordMode) {
+								try {
+									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+					return true;
+				}
+			}
+		}
+    	return false;
+    }
+    
+    private boolean checkMentionEveryone(String message, Player sender) {
+    	if (sender.hasPermission("interactivechat.mention.everyone")) {
+			String name = InteractiveChat.mentionPrefix + "everyone";
+			int index = message.toLowerCase().indexOf(name.toLowerCase());
+			if (index >= 0) {
+				char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
+				char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
+				if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
+					List<UUID> players = new ArrayList<>();
+					Bukkit.getOnlinePlayers().forEach(each -> players.add(each.getUniqueId()));
+					synchronized (InteractiveChat.remotePlayers) {
+						InteractiveChat.remotePlayers.values().forEach(each -> players.add(each.getUniqueId()));
+					}				
+					for (UUID uuid : players) {
+						if (!uuid.equals(sender.getUniqueId())) {
+							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+							if (InteractiveChat.bungeecordMode) {
+								try {
+									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+					return true;
+				}
+			}
+		}
+    	return false;
+    }
     
 	private void translateAltColorCode(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) {

@@ -55,6 +55,12 @@ permissions:
   interactivechat.mention.player:
     description: Allows you to mention others
     default: true
+  interactivechat.mention.here:
+    description: Allows you to mention all players in your server
+    default: op
+  interactivechat.mention.everyone:
+    description: Allows you to mention everyone
+    default: op
   interactivechat.mention.toggle:
     description: Allows you to toggle your own mentions
     default: true

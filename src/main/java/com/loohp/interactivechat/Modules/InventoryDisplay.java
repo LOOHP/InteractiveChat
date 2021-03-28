@@ -263,7 +263,7 @@ public class InventoryDisplay {
 		inv.setItem(5, player.getInventory().getItem(37));
 		inv.setItem(6, player.getInventory().getItem(36));
 		
-		ItemStack offhand = player.getInventory().getItem(40);
+		ItemStack offhand = player.getInventory().getSize() > 40 ? player.getInventory().getItem(40) : null;
 		if (!InteractiveChat.version.isOld() || (offhand != null && offhand.getType().equals(Material.AIR))) {
 			inv.setItem(8, offhand);
 		}
@@ -334,7 +334,7 @@ public class InventoryDisplay {
 		inv.setItem(30, player.getInventory().getItem(37));
 		inv.setItem(39, player.getInventory().getItem(36));
 		
-		ItemStack offhand = player.getInventory().getItem(40);
+		ItemStack offhand = player.getInventory().getSize() > 40 ? player.getInventory().getItem(40) : null;
 		if (InteractiveChat.version.isOld() && (offhand == null || offhand.getType().equals(Material.AIR))) {
 			inv.setItem(24, player.getInventory().getItem(selectedSlot));
 		} else {

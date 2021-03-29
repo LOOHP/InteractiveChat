@@ -205,7 +205,11 @@ public class ItemDisplay {
 								    String amountString = "";
 								    boolean useTranslatable = false;
 								    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-								    	itemString = item.getItemMeta().getDisplayName();
+								    	if (item.getEnchantments().isEmpty()) {
+								    		itemString = item.getItemMeta().getDisplayName();
+								    	} else {
+								    		itemString = ChatColor.AQUA + item.getItemMeta().getDisplayName();
+								    	}
 								    } else {
 								    	useTranslatable = true;
 								    	itemString = LanguageUtils.getTranslationKey(item);

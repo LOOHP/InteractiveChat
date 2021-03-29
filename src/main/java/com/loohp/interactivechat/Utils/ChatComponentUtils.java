@@ -345,7 +345,7 @@ public class ChatComponentUtils {
 				List<TextComponent> texts = Stream.of(TextComponent.fromLegacyText(new UnicodeUnescaper().translate(ChatColorUtils.filterIllegalColorCodes(base.toLegacyText())))).map(each -> (TextComponent) each).collect(Collectors.toList());
 				if (!texts.isEmpty()) {
 					TextComponent current2 = texts.get(0);
-					if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+					if (InteractiveChat.version.isLegacy()) {
 						current2 = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current2, base);
 	 	        	} else {
 	 	        		current2.copyFormatting(base, FormatRetention.EVENTS, false);
@@ -362,7 +362,7 @@ public class ChatComponentUtils {
 							thislist.add(current2);
 							current2 = each;
 							
-							if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+							if (InteractiveChat.version.isLegacy()) {
 								current2 = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current2, base);
 			 	        	} else {
 			 	        		current2.copyFormatting(base, FormatRetention.EVENTS, false);
@@ -381,7 +381,7 @@ public class ChatComponentUtils {
 			
 			if (current == null) {
 				current = new TextComponent("");
-				if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+				if (InteractiveChat.version.isLegacy()) {
 					current = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current, base);
  	        	} else {
  	        		current.copyFormatting(base, FormatRetention.EVENTS, false);
@@ -407,7 +407,7 @@ public class ChatComponentUtils {
 				newlist.add(current);
 				
 				current = new TextComponent("");
-				if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
+				if (InteractiveChat.version.isLegacy()) {
 					current = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(current, base);
  	        	} else {
  	        		current.copyFormatting(base, FormatRetention.EVENTS, false);

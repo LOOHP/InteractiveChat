@@ -285,6 +285,13 @@ Player:
     #for example '/say yellow is her fav color' for the action RUN_COMMAND
     Value: "/msg %player_name% "
 
+TabCompletion:
+  #This only works on command tab completions
+  #Doesn't work on chat tab completions or on versions on or below 1.12.2
+  PlayerNameToolTip: 
+    Enabled: true
+    ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
+
 #Note that all settings have to be present even if they are set to false
 #Just copy everything and change each setting so you do not end up messing up
 CustomPlaceholders:

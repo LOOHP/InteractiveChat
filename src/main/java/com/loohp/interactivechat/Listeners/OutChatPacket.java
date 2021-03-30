@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.Listeners;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -151,8 +150,10 @@ public class OutChatPacket implements Listener {
 			while (!sendingQueue.isEmpty()) {
 				OutboundPacket out = sendingQueue.poll();
 				try {
-					InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
-				} catch (InvocationTargetException e) {
+					if (out.getReciever().isOnline()) {
+						InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

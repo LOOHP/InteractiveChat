@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -23,6 +24,18 @@ import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public class PlaceholderParser {
+	
+	static {
+		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+			if (InteractiveChat.bungeecordMode) {
+				if (InteractiveChat.useTooltipOnTab) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						parse(new ICPlayer(player), InteractiveChat.tabTooltip);
+					}
+				}
+			}
+		}, 0, 200);
+	}
 	
 	public static String parse(ICPlayer player, String str) {
 		if (player.isLocal()) {

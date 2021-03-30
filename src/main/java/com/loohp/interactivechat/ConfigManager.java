@@ -235,6 +235,9 @@ public class ConfigManager {
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");
 		
+		InteractiveChat.useTooltipOnTab = getConfig().getBoolean("TabCompletion.PlayerNameToolTip.Enabled");
+		InteractiveChat.tabTooltip = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("TabCompletion.PlayerNameToolTip.ToolTip"));
+		
 		InteractiveChat.playerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
 		List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
 		InteractiveChat.playerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));

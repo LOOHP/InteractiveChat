@@ -9,17 +9,19 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
+import com.loohp.interactivechat.Modules.ProcessExternalMessage;
+
 public class LogFilter implements Filter {
 	
 	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public Filter.Result checkMessage(String message, Level level) {
-        if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-        	LogManager.getRootLogger().log(level, message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
-        	return Filter.Result.DENY;
-        } else {
-            return Filter.Result.NEUTRAL;
-        }
+        if (!message.matches(".*<cmd=" + UUID_REGEX + ">.*") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+    		return Filter.Result.NEUTRAL;
+    	} else {
+    		LogManager.getRootLogger().log(level, ProcessExternalMessage.processWithoutReviever(message));
+    		return Filter.Result.DENY;
+    	}
     }
 
     public LifeCycle.State getState() {

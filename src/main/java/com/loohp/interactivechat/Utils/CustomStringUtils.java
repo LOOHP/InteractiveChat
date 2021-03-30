@@ -13,6 +13,32 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class CustomStringUtils {
 	
+	public static String replaceRespectColor(String str, String find, String replace) {
+		for (int i = 0; i < str.length(); i++) {
+			String after = str.substring(i);
+			if (after.startsWith(find)) {
+				String afterAfter = after.substring(find.length());
+				String before = str.substring(0, i);
+				str = before + replace + ChatColorUtils.getLastColors(before) + afterAfter;
+				i += replace.length();
+			}
+		}
+		return str;
+	}
+	
+	public static String replaceRespectColorCaseInsensitive(String str, String find, String replace) {
+		for (int i = 0; i < str.length(); i++) {
+			String after = str.substring(i);
+			if (after.toLowerCase().startsWith(find.toLowerCase())) {
+				String afterAfter = after.substring(find.length());
+				String before = str.substring(0, i);
+				str = before + replace + ChatColorUtils.getLastColors(before) + afterAfter;
+				i += replace.length();
+			}
+		}
+		return str;
+	}
+	
 	public static String replaceFromTo(String stringToReplace, int from, int to, String withString) {
 		StringBuilder sb = new StringBuilder(stringToReplace);
 		sb.delete(from, to);

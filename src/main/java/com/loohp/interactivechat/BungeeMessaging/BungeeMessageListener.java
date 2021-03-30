@@ -22,7 +22,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.Modules.ProcessBungeeRequestedMessage;
+import com.loohp.interactivechat.Modules.ProcessExternalMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -224,7 +224,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 	        		try {
-	        			String processed = ProcessBungeeRequestedMessage.processAndRespond(bukkitplayer1, component);
+	        			String processed = ProcessExternalMessage.processAndRespond(bukkitplayer1, component);
 						BungeeMessageSender.respondProcessedMessage(processed, messageId);
 					} catch (Exception e) {
 						e.printStackTrace();

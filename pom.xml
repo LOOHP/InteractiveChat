@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>3.2.12.3</version>
+	<version>3.2.13.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -262,11 +262,18 @@
 			<systemPath>${basedir}/lib/spigot-1.16.5.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>bungeecord-proxy-1.16-R0.5-SNAPSHOTT</groupId>
+			<groupId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</groupId>
 			<artifactId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
 			<systemPath>${basedir}/lib/bungeecord-proxy-1.16-R0.5-SNAPSHOT.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>Dynmap-3.1-beta7-spigot</groupId>
+			<artifactId>Dynmap-3.1-beta7-spigot</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/Dynmap-3.1-beta7-spigot.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>VentureChat</groupId>

@@ -49,6 +49,7 @@ import com.loohp.interactivechat.Data.Database;
 import com.loohp.interactivechat.Data.PlayerDataManager;
 import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.DiscordSRV.DiscordSRVEvents;
+import com.loohp.interactivechat.Hooks.Dynmap.DynmapListener;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
 import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
 import com.loohp.interactivechat.Listeners.ClientSettingPacket;
@@ -56,8 +57,10 @@ import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Listeners.InChatPacket;
 import com.loohp.interactivechat.Listeners.MapViewer;
 import com.loohp.interactivechat.Listeners.OutChatPacket;
+import com.loohp.interactivechat.Listeners.OutTabCompletePacket;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
+import com.loohp.interactivechat.Modules.ProcessExternalMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
 import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
@@ -106,6 +109,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean cmiHook = false;
 	public static Boolean ventureChatHook = false;
 	public static Boolean discordSrvHook = false;
+	public static Boolean dynmapHook = false;
 	
 	public static Permission perms = null;
 	
@@ -141,6 +145,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static String usePlayerNameClickValue = "";
 	public static boolean usePlayerNameCaseSensitive = true;
 	public static boolean usePlayerNameOnTranslatables = true;
+	
+	public static boolean useTooltipOnTab = true;
+	public static String tabTooltip = "";
 	
 	public static boolean playerNotFoundHoverEnable = true;
 	public static String playerNotFoundHoverText = "&cUnable to parse placeholder..";
@@ -257,10 +264,14 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
+	
+	public ProcessExternalMessage externalProcessor;
 
 	@Override
 	public void onEnable() {	
 		plugin = this;
+		
+		externalProcessor = new ProcessExternalMessage();
 		
 		getServer().getPluginManager().registerEvents(new Debug(), this);
 
@@ -338,6 +349,9 @@ public class InteractiveChat extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(new MapViewer(), this);
 	    OutChatPacket.chatMessageListener();
 	    InChatPacket.chatMessageListener();
+	    if (!version.isLegacy()) {
+	    	OutTabCompletePacket.tabCompleteListener();
+	    }
 	    
 	    RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
@@ -376,7 +390,7 @@ public class InteractiveChat extends JavaPlugin {
 	    			}
 	    		}
 	    	});
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
 	    	ventureChatHook = true;
 		}
 	    
@@ -384,6 +398,12 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
 	    	DiscordSRV.api.subscribe(new DiscordSRVEvents());
 			discordSrvHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("Dynmap") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into Dynmap!");
+	    	DynmapListener._init_();
+			dynmapHook = true;
 		}
 		
 	    RarityUtils.setupRarity();

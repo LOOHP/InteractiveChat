@@ -16,7 +16,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class ProcessAccurateSender {
 	
 	public static ProcessSenderResult process(BaseComponent basecomponent) {
-		
 		UUID sender = null;
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
@@ -49,5 +48,16 @@ public class ProcessAccurateSender {
 			product.addExtra(each);
 		}
 		return new ProcessSenderResult(product, sender);
+	}
+	
+	public static UUID find(String text) {
+		UUID sender = null;
+		for (Entry<String, SenderPlaceholderInfo> entry : InteractiveChat.senderPlaceholderMatch.entrySet()) {
+			if (text.contains(entry.getKey())) {
+				sender = entry.getValue().getSender();
+				break;
+			}
+		}
+		return sender;
 	}
 }

@@ -428,14 +428,21 @@ public class ChatComponentUtils {
 			newlist.add(current);
 		}
 
-		ColorSettings colorsEnabled = ClientSettingPacket.getSettings(player);
 		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			if (colorsEnabled.equals(ColorSettings.OFF)) {
-				removeFormattingColor(each);
+		if (player == null) {
+			for (int i = 0; i < newlist.size(); i++) {
+				BaseComponent each = newlist.get(i);
+				product.addExtra(each);
 			}
-			product.addExtra(each);
+		} else {
+			ColorSettings colorsEnabled = ClientSettingPacket.getSettings(player);
+			for (int i = 0; i < newlist.size(); i++) {
+				BaseComponent each = newlist.get(i);
+				if (colorsEnabled.equals(ColorSettings.OFF)) {
+					removeFormattingColor(each);
+				}
+				product.addExtra(each);
+			}
 		}
 
 		return product;

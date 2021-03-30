@@ -1,6 +1,8 @@
 package com.loohp.interactivechat;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.API.InteractiveChatAPI;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
@@ -34,6 +38,7 @@ import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.InventoryUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
+import com.loohp.interactivechat.Utils.VanishUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -222,30 +227,54 @@ public class Commands implements CommandExecutor, TabCompleter {
 		}
 		
 		if (args[0].equalsIgnoreCase("list")) {
-			if (sender.hasPermission("interactivechat.list")) {
-				if (sender.hasPermission("interactivechat.list.all")) {
-					InteractiveChatAPI.sendMessageUnprocessed(sender, InteractiveChat.listPlaceholderHeader);
-					String body = InteractiveChat.listPlaceholderBody;
-					int i = 0;
-					for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
-						i++;
-						String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-						InteractiveChatAPI.sendMessageUnprocessed(sender, text);
-					}
-				} else {
-					InteractiveChatAPI.sendMessageUnprocessed(sender, InteractiveChat.listPlaceholderHeader);
-					String body = InteractiveChat.listPlaceholderBody;
-					int i = 0;
-					for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
-						if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
-							i++;
-							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-							InteractiveChatAPI.sendMessageUnprocessed(sender, text);
+			try {
+				if (sender.hasPermission("interactivechat.list")) {
+					Player player = sender instanceof Player ? (Player) sender : null;
+					int start = 0;
+					int end = InteractiveChat.placeholderList.size();
+					if (args.length > 1) {
+						start = Integer.parseInt(args[1]) - 1;
+						if (start < 0) {
+							start = 0;
+							throw new NumberFormatException();
 						}
 					}
+					if (args.length > 2) {
+						end = Integer.parseInt(args[2]);
+						if (end < 0) {
+							end = InteractiveChat.placeholderList.size();
+							throw new NumberFormatException();
+						}
+					}
+					InteractiveChatAPI.sendMessageUnprocessed(sender, ChatComponentUtils.cleanUpLegacyText(new TextComponent(InteractiveChat.listPlaceholderHeader), player));
+					String body = InteractiveChat.listPlaceholderBody;
+					List<BaseComponent> items = new ArrayList<>();
+					if (sender.hasPermission("interactivechat.list.all")) {
+						int i = 0;
+						for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+							i++;
+							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+							items.add(ChatComponentUtils.cleanUpLegacyText(new TextComponent(text), player));
+						}
+					} else {
+						int i = 0;
+						for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+							if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
+								i++;
+								String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+								items.add(ChatComponentUtils.cleanUpLegacyText(new TextComponent(text), player));
+							}
+						}
+					}
+					
+					for (int i = start; i < end && i < items.size(); i++) {
+						InteractiveChatAPI.sendMessageUnprocessed(sender, items.get(i));
+					}
+				} else {
+					sender.sendMessage(InteractiveChat.noPermissionMessage);
 				}
-			} else {
-				sender.sendMessage(InteractiveChat.noPermissionMessage);
+			} catch (Exception e) {
+				sender.sendMessage(InteractiveChat.invalidArgs);
 			}
 			return true;
 		}
@@ -309,6 +338,28 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
+		if (args[0].equalsIgnoreCase("chat")) {
+			if (sender.hasPermission("interactivechat.chat")) {
+				if (args.length > 1) {
+					if (sender instanceof Player) {
+						String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+						PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Client.CHAT);
+						packet.getStrings().write(0, message);
+						try {
+							InteractiveChat.protocolManager.recieveClientPacket((Player) sender, packet);
+						} catch (IllegalAccessException | InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					} else {
+						sender.sendMessage(InteractiveChat.noConsoleMessage);
+					}
+				}
+			} else {
+				sender.sendMessage(InteractiveChat.noPermissionMessage);
+			}
+			return true;
+		}
+		/*
 		if (args[0].equalsIgnoreCase("lengthtest") && sender.hasPermission("interactivechat.debug")) {
 			Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 				try {
@@ -324,7 +375,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			});
 			return true;
 		}
-		
+		*/
 		if (sender instanceof Player && args.length > 1) {
 			Player player = (Player) sender;
 			if (args[0].equals("viewinv")) {
@@ -386,6 +437,44 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return tab;
 		}
 		
+		if (sender instanceof Player && args.length > 1 && ("chat".equalsIgnoreCase(args[0]) || "parse".equalsIgnoreCase(args[0]))) {
+			if (InteractiveChat.version.isLegacy()) {
+				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
+						String text = placeholder.getKeyword();
+						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
+							tab.add(text);
+						}
+					}
+				}
+			} else {
+				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
+						String text = placeholder.getKeyword();
+						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
+							TextComponent description = new TextComponent(placeholder.getDescription());
+							tab.add(text + "\0" + ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(description, (Player) sender)));
+						}
+					}
+				}
+			}
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (!VanishUtils.isVanished(player.getUniqueId())) {
+					if (player.getName().toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+						tab.add(player.getName());
+					}
+				}
+			}
+			for (ICPlayer player : InteractiveChat.remotePlayers.values()) {
+				if (!player.isLocal() && !VanishUtils.isVanished(player.getUniqueId())) {
+					if (player.getName().toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+						tab.add(player.getName());
+					}
+				}
+			}
+			return tab;
+		}
+		
 		switch (args.length) {
 		case 0:
 			if (sender.hasPermission("interactivechat.reload")) {
@@ -405,6 +494,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 			}
 			if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
 				tab.add("setinvdisplaylayout");
+			}
+			if (sender.hasPermission("interactivechat.chat")) {
+				tab.add("chat");
 			}
 			return tab;
 		case 1:
@@ -438,12 +530,17 @@ public class Commands implements CommandExecutor, TabCompleter {
 					tab.add("setinvdisplaylayout");
 				}
 			}
+			if (sender.hasPermission("interactivechat.chat")) {
+				if ("chat".startsWith(args[0].toLowerCase())) {
+					tab.add("chat");
+				}
+			}
 			return tab;
 		case 2:
 			if (sender.hasPermission("interactivechat.mention.toggle.others")) {
 				if ("mentiontoggle".equalsIgnoreCase(args[0])) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
-						if (player.getName().toLowerCase().startsWith(args[1])) {
+						if (player.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
 							tab.add(player.getName());
 						}
 					}
@@ -461,7 +558,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.module.inventory.setlayout.others")) {
 				if ("setinvdisplaylayout".equalsIgnoreCase(args[0])) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
-						if (player.getName().toLowerCase().startsWith(args[2])) {
+						if (player.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
 							tab.add(player.getName());
 						}
 					}

@@ -437,7 +437,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return tab;
 		}
 		
-		if (sender instanceof Player && args.length > 1 && ("chat".equalsIgnoreCase(args[0]) || "parse".equalsIgnoreCase(args[0]))) {
+		if (sender instanceof Player && args.length > 1 && (("chat".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.chat")) || ("parse".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.parse")))) {
 			if (InteractiveChat.version.isLegacy()) {
 				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {

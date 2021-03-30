@@ -32,3 +32,9 @@ Plugins built against Spigot usually also work with [Paper](https://papermc.io/)
 - [DeathMessagesPrime](https://www.spigotmc.org/resources/deathmessagesprime.3789/)
 - [ChatManager](https://www.spigotmc.org/resources/chat-manager-1-7-1-16-with-30-features-and-40-commands.52245/)
 - [VentureChat](https://www.spigotmc.org/resources/venturechat.771/)
+- [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/)
+- [Dynmap](https://www.spigotmc.org/resources/dynmap.274/)
+
+## Addons
+
+- [InteractiveChat-DiscordSRV-Addon](https://www.spigotmc.org/resources/83917/) (Adds InteractiveChat functionalities to DiscordSRV)

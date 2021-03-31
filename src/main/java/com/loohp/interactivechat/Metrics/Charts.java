@@ -44,6 +44,13 @@ public class Charts {
 	        }
 	    }));
 		
+		metrics.addCustomChart(new Metrics.SimplePie("map_preview_enabled", new Callable<String>() {
+	        @Override
+	        public String call() throws Exception {
+	        	return InteractiveChat.itemMapPreview ? "Enabled" : "Disabled";
+	        }
+	    }));
+		
 		metrics.addCustomChart(new Metrics.SimplePie("inventory_display_enabled", new Callable<String>() {
 	        @Override
 	        public String call() throws Exception {

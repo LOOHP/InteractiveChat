@@ -109,6 +109,8 @@ public class ConfigManager {
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
 		InteractiveChat.useEnder = getConfig().getBoolean("ItemDisplay.EnderChest.Enabled");
 		
+		InteractiveChat.itemMapPreview = getConfig().getBoolean("ItemDisplay.Item.PreviewMaps");
+		
 		InteractiveChat.itemCaseSensitive = getConfig().getBoolean("ItemDisplay.Item.CaseSensitive");
 		InteractiveChat.invCaseSensitive = getConfig().getBoolean("ItemDisplay.Inventory.CaseSensitive");
 		InteractiveChat.enderCaseSensitive = getConfig().getBoolean("ItemDisplay.EnderChest.CaseSensitive");

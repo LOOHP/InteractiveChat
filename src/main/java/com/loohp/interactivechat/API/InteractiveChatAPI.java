@@ -330,13 +330,13 @@ public class InteractiveChatAPI {
 		}
 		return null;
 	}
-	
+		
 	/**
 	 * Get the shared map list
 	 * @return The shared map list
 	 */
-	public static BiMap<String, ItemStack> getMapShareList() {
-		return Maps.unmodifiableBiMap(InteractiveChat.mapDisplay);
+	public static Map<String, ItemStack> getMapShareList() {
+		return Collections.unmodifiableMap(InteractiveChat.mapDisplay);
 	}
 	
 	/**

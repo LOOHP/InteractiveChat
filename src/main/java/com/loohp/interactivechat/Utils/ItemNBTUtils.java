@@ -22,7 +22,7 @@ public class ItemNBTUtils {
 	private static Method parseMojangsonMethod;
 	private static Method asBukkitCopyMethod;
 	
-	public static void setup() {
+	static {
 		try {
 			craftItemStackClass = getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
 			nmsItemStackClass = getNMSClass("net.minecraft.server.", "ItemStack");

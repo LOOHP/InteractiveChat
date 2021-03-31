@@ -191,4 +191,13 @@ public class JsonUtils {
         	return false;
         }
     }
+    
+    public static boolean isValid(String test) {
+	    try {
+	        Object obj = new JSONParser().parse(test);
+	        return obj instanceof JSONObject || obj instanceof JSONArray;
+	    } catch (ParseException e) {
+	    	return false;
+	    }
+    }
 }

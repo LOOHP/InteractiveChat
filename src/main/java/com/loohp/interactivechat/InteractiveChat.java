@@ -71,7 +71,6 @@ import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.PlaceholderAPI.Placeholders;
 import com.loohp.interactivechat.Updater.Updater;
-import com.loohp.interactivechat.Utils.ItemNBTUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.PlayerUtils;
@@ -118,6 +117,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean useItem = true;
 	public static boolean useInventory = true;
 	public static boolean useEnder = true;
+	
+	public static boolean itemMapPreview = true;
 	
 	public static boolean itemCaseSensitive = false;
 	public static boolean invCaseSensitive = false;
@@ -200,7 +201,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static BiMap<String, Inventory> inventoryDisplay1Upper = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> inventoryDisplay1Lower = Maps.synchronizedBiMap(HashBiMap.create());
 	public static BiMap<String, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<String, ItemStack> mapDisplay = Maps.synchronizedBiMap(HashBiMap.create());
+	public static Map<String, ItemStack> mapDisplay = new ConcurrentHashMap<>();
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	
@@ -340,8 +341,6 @@ public class InteractiveChat extends JavaPlugin {
 	    FileConfiguration storage = ConfigManager.getStorageConfig();
 		database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));
 		database.setup();
-		
-	    ItemNBTUtils.setup();
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    getServer().getPluginManager().registerEvents(new PlayerUtils(), this);

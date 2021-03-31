@@ -175,7 +175,13 @@ public class OutChatPacket implements Listener {
 	        search: for (ChatComponentType t : ChatComponentType.byPriority()) {
 	        	for (int i = 0; i < packet.getModifier().size(); i++) {
 	        		if (packet.getModifier().read(i) != null && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
-	        			basecomponentarray = t.convertFrom(packet.getModifier().read(i));
+	        			try {
+	        				basecomponentarray = t.convertFrom(packet.getModifier().read(i));
+	        			} catch (Throwable e) {
+	        				lock.set(false);
+	        	        	orderAndSend(reciever, packet, messageUUID, queue);
+	        	        	return;
+	        			}
 	        			field = i;
 	        			type = t;
 	        			break search;

@@ -30,10 +30,12 @@ import com.loohp.interactivechat.API.Events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.FilledMapUtils;
 import com.loohp.interactivechat.Utils.HashUtils;
 import com.loohp.interactivechat.Utils.ItemNBTUtils;
+import com.loohp.interactivechat.Utils.JsonUtils;
 import com.loohp.interactivechat.Utils.LanguageUtils;
 import com.loohp.interactivechat.Utils.NBTUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
@@ -47,6 +49,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ItemDisplay {
 	
@@ -201,19 +204,42 @@ public class ItemDisplay {
 								    	trimmed = true;
 								    }
 								    String message = "";
-								    String itemString = "";
+								    String itemString = null;
 								    String amountString = "";
-								    boolean useTranslatable = false;
-								    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-								    	if (item.getEnchantments().isEmpty()) {
-								    		itemString = item.getItemMeta().getDisplayName();
-								    	} else {
-								    		itemString = ChatColor.AQUA + item.getItemMeta().getDisplayName();
+								    int componentMode = 0;
+								    //0 regular string; 1 translatable string; 2 direct json
+								    
+								    String rawDisplayName = NBTUtils.getString(item, "display", "Name");
+								    if (rawDisplayName != null && JsonUtils.isValid(rawDisplayName)) {
+								    	try {
+								    		componentMode = 2;
+								    		if (item.getEnchantments().isEmpty()) {
+								    			ComponentSerializer.parse(rawDisplayName);								    			
+								    			itemString = rawDisplayName;
+								    		} else {							
+								    			TextComponent coloring = new TextComponent(ChatColor.AQUA + "");
+								    			coloring.setExtra(Arrays.asList(ComponentSerializer.parse(rawDisplayName)));
+								    			itemString = ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(coloring, null));
+								    		}
+								    	} catch (Throwable e) {
+								    		itemString = null;
 								    	}
-								    } else {
-								    	useTranslatable = true;
-								    	itemString = LanguageUtils.getTranslationKey(item);
 								    }
+								    
+								    if (itemString == null) {
+									    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
+									    	componentMode = 0;
+									    	if (item.getEnchantments().isEmpty()) {
+									    		itemString = item.getItemMeta().getDisplayName();
+									    	} else {
+									    		itemString = ChatColor.AQUA + item.getItemMeta().getDisplayName();
+									    	}
+									    } else {
+									    	componentMode = 1;
+									    	itemString = LanguageUtils.getTranslationKey(item);
+									    }
+								    }
+								    
 								    itemString = ChatColorUtils.filterIllegalColorCodes(itemString);
 								    amountString = String.valueOf(item.getAmount());
 								    message = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString)));
@@ -222,7 +248,7 @@ public class ItemDisplay {
 									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
 									String sha1 = HashUtils.createSha1(title, item);
 									boolean isMapView = false;
-									if (FilledMapUtils.isFilledMap(item)) {
+									if (InteractiveChat.itemMapPreview && FilledMapUtils.isFilledMap(item)) {
 										isMapView = true;
 										if (!InteractiveChat.mapDisplay.containsKey(sha1)) {
 											InteractiveChatAPI.addMapToMapSharedList(sha1, item);
@@ -286,34 +312,7 @@ public class ItemDisplay {
 									
 					            	String[] parts = message.split("\\{Item\\}");					            	
 					            	if (message.startsWith("{Item}")) {
-					            		if (useTranslatable) {
-											TranslatableComponent transItem = new TranslatableComponent(itemString);
-											if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-												String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-												if (owner != null) {
-													transItem.addWith(owner);
-												}
-											}
-											transItem.setColor(RarityUtils.getRarityColor(item));
-											if (!isAir) {
-												transItem.setHoverEvent(hoverItem);
-											}
-										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
-												transItem.setClickEvent(clickItem);
-										    }
-										    newlist.add(transItem);
-										} else {
-											TextComponent itemitemtextcomponent = new TextComponent(itemString);
-											if (!isAir) {
-												itemitemtextcomponent.setHoverEvent(hoverItem);
-											}
-										    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-												ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
-												itemitemtextcomponent.setClickEvent(clickItem);
-										    }
-										    newlist.add(itemitemtextcomponent);
-										}
+					            		addComponent(componentMode, itemString, hoverItem, command, item, xMaterial, isAir, newlist);
 					            	}
 
 									for (int u = 0; u < parts.length; u++) {
@@ -329,34 +328,7 @@ public class ItemDisplay {
 									    newlist.add(itemtextcomponent);
 										
 										if (u < parts.length - 1 || message.endsWith("{Item}")) {
-											if (useTranslatable) {
-												TranslatableComponent transItem = new TranslatableComponent(itemString);
-												transItem.setColor(RarityUtils.getRarityColor(item));
-												if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-													String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-													if (owner != null) {
-														transItem.addWith(owner);
-													}
-												}
-												if (!isAir) {
-													transItem.setHoverEvent(hoverItem);
-												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
-													transItem.setClickEvent(clickItem);
-											    }
-											    newlist.add(transItem);
-											} else {
-												TextComponent itemitemtextcomponent = new TextComponent(itemString);
-												if (!isAir) {
-													itemitemtextcomponent.setHoverEvent(hoverItem);
-												}
-											    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
-													ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
-													itemitemtextcomponent.setClickEvent(clickItem);
-											    }
-											    newlist.add(itemitemtextcomponent);
-											}
+											addComponent(componentMode, itemString, hoverItem, command, item, xMaterial, isAir, newlist);
 										}
 									}
 								} else {
@@ -417,6 +389,50 @@ public class ItemDisplay {
 			}
 		}
 		return false;
+	}
+	
+	private static void addComponent(int componentMode, String itemString, HoverEvent hoverItem, String command, ItemStack item, XMaterial xMaterial, boolean isAir, List<BaseComponent> newlist) {
+		if (componentMode == 0) {
+			TextComponent itemitemtextcomponent = new TextComponent(itemString);
+			if (!isAir) {
+				itemitemtextcomponent.setHoverEvent(hoverItem);
+			}
+		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+				itemitemtextcomponent.setClickEvent(clickItem);
+		    }
+		    newlist.add(itemitemtextcomponent);								    					
+		} else if (componentMode == 1) {
+			TranslatableComponent transItem = new TranslatableComponent(itemString);
+			if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+				String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+				if (owner != null) {
+					transItem.addWith(owner);
+				}
+			}
+			transItem.setColor(RarityUtils.getRarityColor(item));
+			if (!isAir) {
+				transItem.setHoverEvent(hoverItem);
+			}
+		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+				transItem.setClickEvent(clickItem);
+		    }
+		    newlist.add(transItem);
+		} else {
+			BaseComponent component = ChatComponentUtils.join(ComponentSerializer.parse(itemString));
+			TextComponent coloring = new TextComponent();
+			coloring.addExtra(component);
+			coloring.setColor(RarityUtils.getRarityColor(item));
+			if (!isAir) {
+				coloring.setHoverEvent(hoverItem);
+			}
+		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+				coloring.setClickEvent(clickItem);
+		    }
+		    newlist.add(coloring);	
+		}
 	}
 
 }

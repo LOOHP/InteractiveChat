@@ -199,6 +199,8 @@ ItemDisplay:
     Frame:
       Primary: BLACK_STAINED_GLASS_PANE
       Secondary: WHITE_STAINED_GLASS_PANE
+    #Whether to show shared maps or not
+    PreviewMaps: true
     #This text is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 

@@ -218,6 +218,7 @@ public class ItemDisplay {
 								    			itemString = rawDisplayName;
 								    		} else {							
 								    			TextComponent coloring = new TextComponent(ChatColor.AQUA + "");
+								    			coloring.setColor(ChatColor.AQUA);
 								    			coloring.setExtra(Arrays.asList(ComponentSerializer.parse(rawDisplayName)));
 								    			itemString = ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(coloring, null));
 								    		}

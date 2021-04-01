@@ -38,7 +38,6 @@ import com.loohp.interactivechat.Utils.ChatComponentUtils;
 import com.loohp.interactivechat.Utils.InventoryUtils;
 import com.loohp.interactivechat.Utils.MCVersion;
 import com.loohp.interactivechat.Utils.PlayerUtils;
-import com.loohp.interactivechat.Utils.VanishUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -455,20 +454,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 							TextComponent description = new TextComponent(placeholder.getDescription());
 							tab.add(text + "\0" + ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(description, (Player) sender)));
 						}
-					}
-				}
-			}
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (!VanishUtils.isVanished(player.getUniqueId())) {
-					if (player.getName().toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
-						tab.add(player.getName());
-					}
-				}
-			}
-			for (ICPlayer player : InteractiveChat.remotePlayers.values()) {
-				if (!player.isLocal() && !VanishUtils.isVanished(player.getUniqueId())) {
-					if (player.getName().toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
-						tab.add(player.getName());
 					}
 				}
 			}

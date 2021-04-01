@@ -60,6 +60,7 @@ import com.loohp.interactivechat.Listeners.OutChatPacket;
 import com.loohp.interactivechat.Listeners.OutTabCompletePacket;
 import com.loohp.interactivechat.Metrics.Charts;
 import com.loohp.interactivechat.Metrics.Metrics;
+import com.loohp.interactivechat.Modules.PlayernameDisplay;
 import com.loohp.interactivechat.Modules.ProcessExternalMessage;
 import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
@@ -407,6 +408,7 @@ public class InteractiveChat extends JavaPlugin {
 		
 	    RarityUtils.setupRarity();
 	    PotionUtils.setupPotions();
+	    PlayernameDisplay.setup();
 	    
 	    Charts.setup(metrics);
 	    

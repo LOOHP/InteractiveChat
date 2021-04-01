@@ -32,7 +32,31 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public class OutTabCompletePacket {
 	
+	private static Map<String, UUID> playernames = new HashMap<>();
+	
 	public static void tabCompleteListener() {
+		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+			if (InteractiveChat.useTooltipOnTab) {
+				Map<String, UUID> playernames = new HashMap<>();
+				for (Player player : Bukkit.getOnlinePlayers()) {
+	    			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
+	    			if (!player.getName().equals(player.getDisplayName())) {
+	    				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
+	    			}
+					List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
+					for (String name : names) {
+						playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
+					}
+				}
+				synchronized (InteractiveChat.remotePlayers) {
+					for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
+						playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
+					}
+				}
+				Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames = playernames);
+			}
+		}, 0, 100);
+		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.HIGHEST).types(PacketType.Play.Server.TAB_COMPLETE)) {
 			@Override
 			public void onPacketSending(PacketEvent event) {
@@ -53,22 +77,6 @@ public class OutTabCompletePacket {
 					if (pos < 0) {
 						if (InteractiveChat.useTooltipOnTab) {
 							ICPlayer icplayer = null;
-							Map<String, UUID> playernames = new HashMap<>();
-							for (Player player : Bukkit.getOnlinePlayers()) {
-				    			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
-				    			if (!player.getName().equals(player.getDisplayName())) {
-				    				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
-				    			}
-								List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
-								for (String name : names) {
-									playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
-								}
-							}
-							synchronized (InteractiveChat.remotePlayers) {
-								for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
-									playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
-								}
-							}
 							for (Entry<String, UUID> entry : playernames.entrySet()) {
 								if (entry.getKey().equalsIgnoreCase(text)) {
 									icplayer = InteractiveChat.remotePlayers.get(entry.getValue());

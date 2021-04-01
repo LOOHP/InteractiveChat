@@ -7,9 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.API.InteractiveChatAPI;
@@ -28,41 +34,44 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
-public class PlayernameDisplay {
+public class PlayernameDisplay implements Listener {
 	
-	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";
+	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";	
+	private static Random random = new Random();
+	private static AtomicInteger flag = new AtomicInteger();
+	private static List<ReplaceTextBundle> names = new ArrayList<>();
+	
+	public static void setup() {
+		Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+			int valid = flag.get();
+			List<ReplaceTextBundle> names = getNames();
+			Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+				if (flag.get() == valid) {
+					PlayernameDisplay.names = names;
+				}
+			});
+		}, 0, 100);
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event) {
+		flag.set(random.nextInt());
+		names = null;
+	}
+	
+	@EventHandler
+	public void onLeave(PlayerQuitEvent event) {
+		flag.set(random.nextInt());
+		names = null;
+	}
 	
 	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, Player reciever, long unix) {
-		List<ReplaceTextBundle> names = new ArrayList<>();
-		Bukkit.getOnlinePlayers().forEach(each -> {
-			if (VanishUtils.isVanished(each.getUniqueId())) {
-				return;
-			}
-			ICPlayer icplayer = new ICPlayer(each);
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
-			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
-			}
-			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
-			for (String name : list) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), icplayer, name));
-			}
-		});	
-		InteractiveChat.remotePlayers.values().forEach(each -> {
-			if (each.isLocal() || VanishUtils.isVanished(each.getUniqueId())) {
-				return;
-			}
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
-			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
-			for (String name : list) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), each, name));
-			}
-		});
-		
-		Collections.sort(names);
-		Collections.reverse(names);
-		
 		List<BaseComponent> matched = new ArrayList<>();
+		List<ReplaceTextBundle> names = PlayernameDisplay.names;
+		if (names == null) {
+			names = getNames();
+		}
 		for (ReplaceTextBundle entry : names) {
 			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, entry.getReplaceText(), basecomponent, matched, unix);
 		}
@@ -200,7 +209,43 @@ public class PlayernameDisplay {
 		}
 		TextComponent text = (TextComponent) component[0];
 		String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.get().getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
+		if (text == null || text.getText() == null) {
+			return false;
+		}
 		return text.getText().equals(hoverText);
+	}
+	
+	private static List<ReplaceTextBundle> getNames() {
+		List<ReplaceTextBundle> names = new ArrayList<>();
+		Bukkit.getOnlinePlayers().forEach(each -> {
+			if (VanishUtils.isVanished(each.getUniqueId())) {
+				return;
+			}
+			ICPlayer icplayer = new ICPlayer(each);
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
+			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
+			}
+			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
+			for (String name : list) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), icplayer, name));
+			}
+		});	
+		InteractiveChat.remotePlayers.values().forEach(each -> {
+			if (each.isLocal() || VanishUtils.isVanished(each.getUniqueId())) {
+				return;
+			}
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
+			for (String name : list) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), each, name));
+			}
+		});
+		
+		Collections.sort(names);
+		Collections.reverse(names);
+		
+		return names;
 	}
 
 }

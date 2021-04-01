@@ -277,13 +277,29 @@ public class ChatComponentUtils {
 		return baseComponent;
 	}
 	
-	public static BaseComponent preventFurtherInheritanceFormatting(BaseComponent baseComponent) {
-		baseComponent.setBold(baseComponent.isBold());
-		baseComponent.setColor(baseComponent.getColor());
-		baseComponent.setItalic(baseComponent.isItalic());
-		baseComponent.setObfuscated(baseComponent.isObfuscated());
-		baseComponent.setStrikethrough(baseComponent.isStrikethrough());
-		baseComponent.setUnderlined(baseComponent.isUnderlined());
+	public static BaseComponent preventFurtherInheritanceFormatting(BaseComponent baseComponent, BaseComponent toPreventFrom) {
+		BaseComponent baseComponentClone = clone(baseComponent);
+		BaseComponent toPreventFromClone = clone(toPreventFrom);
+		toPreventFromClone.addExtra(baseComponentClone);
+		
+		if (baseComponentClone.isBold() != baseComponent.isBold()) {
+			baseComponent.setBold(baseComponent.isBold());
+		}
+		if (!baseComponentClone.getColor().equals(baseComponent.getColor())) {
+			baseComponent.setColor(baseComponent.getColor());
+		}
+		if (baseComponentClone.isItalic() != baseComponent.isItalic()) {
+			baseComponent.setItalic(baseComponent.isItalic());
+		}
+		if (baseComponentClone.isObfuscated() != baseComponent.isObfuscated()) {
+			baseComponent.setObfuscated(baseComponent.isObfuscated());
+		}
+		if (baseComponentClone.isStrikethrough() != baseComponent.isStrikethrough()) {
+			baseComponent.setStrikethrough(baseComponent.isStrikethrough());
+		}
+		if (baseComponentClone.isUnderlined() != baseComponent.isUnderlined()) {
+			baseComponent.setUnderlined(baseComponent.isUnderlined());
+		}
 		return baseComponent;
 	}
 	
@@ -356,7 +372,7 @@ public class ChatComponentUtils {
 					
 					for (TextComponent each : texts.subList(1, texts.size())) {
 						if (areEventsSimilar(current2, each)) {
-							each = (TextComponent) preventFurtherInheritanceFormatting(each);
+							each = (TextComponent) preventFurtherInheritanceFormatting(each, current2);
 							current2.addExtra(each);
 						} else {
 							thislist.add(current2);
@@ -393,14 +409,14 @@ public class ChatComponentUtils {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
-					each = preventFurtherInheritanceFormatting(each);
+					each = preventFurtherInheritanceFormatting(each, current);
 					current.addExtra(each);
 				}
 			} else if (areEventsSimilar(current, base)) {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
-					each = preventFurtherInheritanceFormatting(each);
+					each = preventFurtherInheritanceFormatting(each, current);
 					current.addExtra(each);
 				}
 			} else {
@@ -419,7 +435,7 @@ public class ChatComponentUtils {
 				for (BaseComponent each : thislist) {
 					each.setClickEvent(null);
 					each.setHoverEvent(null);
-					each = preventFurtherInheritanceFormatting(each);
+					each = preventFurtherInheritanceFormatting(each, current);
 					current.addExtra(each);
 				}
 			}

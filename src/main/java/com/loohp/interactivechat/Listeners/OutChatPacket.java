@@ -301,6 +301,8 @@ public class OutChatPacket implements Listener {
 			}
 			basecomponent = product;
 			
+			//System.out.println(ComponentSerializer.toString(basecomponent).replace(ChatColor.COLOR_CHAR, '$'));
+			
 			if (InteractiveChat.allowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 	        	if (data == null || !data.isMentionDisabled()) {
@@ -340,7 +342,8 @@ public class OutChatPacket implements Listener {
 	        String json = ComponentSerializer.toString(basecomponent);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;
 
-	        //Bukkit.getConsoleSender().sendMessage(json);
+	        //Bukkit.getConsoleSender().sendMessage(json.replace(ChatColor.COLOR_CHAR, '$'));
+	        
 	        try {
 	        	packet.getModifier().write(field, type.convertTo(basecomponent));
 	        } catch (Throwable e) {

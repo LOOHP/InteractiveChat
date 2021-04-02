@@ -36,6 +36,7 @@ import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.Modules.CommandsDisplay;
 import com.loohp.interactivechat.Modules.CustomPlaceholderDisplay;
 import com.loohp.interactivechat.Modules.EnderchestDisplay;
+import com.loohp.interactivechat.Modules.HoverableItemDisplay;
 import com.loohp.interactivechat.Modules.InventoryDisplay;
 import com.loohp.interactivechat.Modules.ItemDisplay;
 import com.loohp.interactivechat.Modules.MentionDisplay;
@@ -302,6 +303,10 @@ public class OutChatPacket implements Listener {
 			basecomponent = product;
 			
 			//System.out.println(ComponentSerializer.toString(basecomponent).replace(ChatColor.COLOR_CHAR, '$'));
+			
+			if (InteractiveChat.translateHoverableItems && InteractiveChat.itemGUI) {
+				basecomponent = HoverableItemDisplay.process(basecomponent, reciever);
+			}
 			
 			if (InteractiveChat.allowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);

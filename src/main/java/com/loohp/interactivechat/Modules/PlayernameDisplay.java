@@ -109,7 +109,7 @@ public class PlayernameDisplay implements Listener {
 							if (withs.get(i) instanceof TextComponent) {
 								TextComponent text = (TextComponent) withs.get(i);
 								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
-									TextComponent message = new TextComponent(ChatColorUtils.stripColor(replaceText));
+									TextComponent message = new TextComponent(text.toLegacyText());
 									if (InteractiveChat.usePlayerNameHoverEnable) {
 										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText);
 										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
@@ -118,7 +118,7 @@ public class PlayernameDisplay implements Listener {
 										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
 										message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
 									}
-									withs.set(i, message);
+									withs.set(i, ChatComponentUtils.cleanUpLegacyText(message, reciever));
 								}
 							}
 						}

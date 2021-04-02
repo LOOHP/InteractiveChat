@@ -322,7 +322,7 @@ public class ItemDisplay {
 										if (!isAir) {
 											itemtextcomponent.setHoverEvent(hoverItem);
 										}
-									    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+									    if (InteractiveChat.itemGUI) {
 											ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 											itemtextcomponent.setClickEvent(clickItem);
 									    }
@@ -373,7 +373,7 @@ public class ItemDisplay {
 		return product;
 	}
 	
-	private static boolean useInventoryView(ItemStack item) {
+	protected static boolean useInventoryView(ItemStack item) {
 		if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
 			BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
 			if (bsm instanceof InventoryHolder) {
@@ -398,7 +398,7 @@ public class ItemDisplay {
 			if (!isAir) {
 				itemitemtextcomponent.setHoverEvent(hoverItem);
 			}
-		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+		    if (InteractiveChat.itemGUI) {
 				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 				itemitemtextcomponent.setClickEvent(clickItem);
 		    }
@@ -415,7 +415,7 @@ public class ItemDisplay {
 			if (!isAir) {
 				transItem.setHoverEvent(hoverItem);
 			}
-		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+		    if (InteractiveChat.itemGUI) {
 				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 				transItem.setClickEvent(clickItem);
 		    }
@@ -428,7 +428,7 @@ public class ItemDisplay {
 			if (!isAir) {
 				coloring.setHoverEvent(hoverItem);
 			}
-		    if (ConfigManager.getConfig().getBoolean("ItemDisplay.Item.GUIEnabled")) {
+		    if (InteractiveChat.itemGUI) {
 				ClickEvent clickItem = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
 				coloring.setClickEvent(clickItem);
 		    }

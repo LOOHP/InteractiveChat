@@ -204,6 +204,13 @@ ItemDisplay:
     #This text is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 
+    HoverableItemsTranslation:
+      #Whether or not to make all chat message item tooltips clickable (e.g. death messages, give command results)
+      #Only have an effect if GUIEnabled is enabled above
+      Enabled: true
+      #The title of the inventory view
+      InventoryTitle: "Item Preview"
+
   Inventory:    
     #Enable players to show their inventory
     Enabled: true

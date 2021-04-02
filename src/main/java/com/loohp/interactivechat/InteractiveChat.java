@@ -137,6 +137,10 @@ public class InteractiveChat extends JavaPlugin {
 	public static String invTitle = "%player_name%'s Inventory";
 	public static String enderTitle = "%player_name%'s Ender Chest";
 	
+	public static boolean itemGUI = true;
+	public static boolean translateHoverableItems = true;
+	public static String hoverableItemTitle = "";
+	
 	public static String containerViewTitle = "Container Contents";
 	
 	public static boolean usePlayerName = true;

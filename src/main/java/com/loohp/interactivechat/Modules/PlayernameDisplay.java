@@ -23,6 +23,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.ChatComponentUtils;
+import com.loohp.interactivechat.Utils.CollectionUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.PlaceholderParser;
 import com.loohp.interactivechat.Utils.VanishUtils;
@@ -242,8 +243,8 @@ public class PlayernameDisplay implements Listener {
 			}
 		});
 		
-		Collections.sort(names);
-		Collections.reverse(names);
+		CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
+		Collections.sort(names, Collections.reverseOrder());
 		
 		return names;
 	}

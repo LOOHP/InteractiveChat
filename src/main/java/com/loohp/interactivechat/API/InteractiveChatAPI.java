@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -431,6 +432,32 @@ public class InteractiveChatAPI {
 				List<String> names = entry.getValue().apply(uuid);
 				if (names != null) {
 					nicks.addAll(names);
+				}
+			} catch (Throwable e) {
+				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] " + entry.getKey().getName() + " " + entry.getKey().getDescription().getVersion() + " threw an error while providing registered nicknames.");
+				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Unless this is Essentials, please contact that plugin's developer for support");
+				e.printStackTrace();
+			}
+		}
+		return nicks;
+	}
+	
+	/**
+	 * Get all plugin provided nicknames of the provided player, can return an empty {@link List}
+	 * @param uuid, predicate
+	 * @return A list of nicknames
+	 */
+	public static List<String> getNicknames(UUID uuid, Predicate<String> predicate) {
+		List<String> nicks = new ArrayList<>();
+		for (Entry<Plugin, Function<UUID, List<String>>> entry : InteractiveChat.pluginNicknames.entrySet()) {
+			try {
+				List<String> names = entry.getValue().apply(uuid);
+				if (names != null) {
+					for (String name : names) {
+						if (predicate.test(name)) {
+							nicks.add(name);
+						}
+					}
 				}
 			} catch (Throwable e) {
 				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] " + entry.getKey().getName() + " " + entry.getKey().getDescription().getVersion() + " threw an error while providing registered nicknames.");

@@ -98,8 +98,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	protected static Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
 	protected static Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
 	
-	private static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
-	private static Map<UUID, Byte> messagePositions = new ConcurrentHashMap<>();
+	protected static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
 	private static Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
@@ -317,7 +316,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				        			public void run() {
 				        				while (true) {
 				        					if (messageQueue.indexOf(messageId) == 0) {
-				        						messageQueue.remove(messageId);
 				        						future.complete(null);
 				        						break;
 				        					}
@@ -340,8 +338,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				        			future.complete(null);
 	        					}			     
 				        		
-				        		Byte position = messagePositions.remove(messageId);
-				        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", position == null ? 0 : position);
+				        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
 				        		UserConnection userConnection = (UserConnection) getProxy().getPlayer(playerUUID);
 				        		ChannelWrapper channelWrapper;
 				        		Field channelField = null;
@@ -619,7 +616,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 								ServerInfo server = player.getServer().getInfo();
 								UUID messageId = UUID.randomUUID();
 								messageQueue.add(messageId);
-								messagePositions.put(messageId, position);
 								new Timer().schedule(new TimerTask() {
 									@Override
 									public void run() {

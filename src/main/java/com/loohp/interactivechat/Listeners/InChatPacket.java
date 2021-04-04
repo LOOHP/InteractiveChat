@@ -35,8 +35,10 @@ public class InChatPacket {
 				Player player = event.getPlayer();
 				String message = packet.getStrings().read(0);
 				
-				if (message != null && (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*"))) {
-					message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim();
+				if (message != null && !message.startsWith("/")) {
+					if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+						message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim();
+					}
 					AsyncPlayerChatEvent chatEvent = new AsyncPlayerChatEvent(true, player, message, new HashSet<>());
 					RegisteredListener[] listeners = chatEvent.getHandlers().getRegisteredListeners();
 					

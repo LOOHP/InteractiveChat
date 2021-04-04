@@ -70,6 +70,7 @@ public class ConfigManager {
 		
 		InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
 		
+		InteractiveChat.restoreIsolatedChatListeners();
 		InteractiveChat.compatibilityListeners.clear();
 		List<String> compatibility = getConfig().getStringList("Settings.ChatListeningPlugins");
 		for (String str : compatibility) {

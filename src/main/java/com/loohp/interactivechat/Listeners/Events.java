@@ -40,6 +40,7 @@ import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
 import com.loohp.interactivechat.ObjectHolders.ICPlayer;
 import com.loohp.interactivechat.ObjectHolders.MentionPair;
 import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
+import com.loohp.interactivechat.Registry.Registry;
 import com.loohp.interactivechat.Utils.ChatColorUtils;
 import com.loohp.interactivechat.Utils.CustomStringUtils;
 import com.loohp.interactivechat.Utils.InventoryUtils;
@@ -120,6 +121,15 @@ public class Events implements Listener {
 					break;
 				}
 			}
+		}
+	}
+	
+	@EventHandler(priority=EventPriority.LOWEST)
+	public void eventCancelledCheck(AsyncPlayerChatEvent event) {
+		String message = event.getMessage();
+		if (message.contains(Registry.CANCELLED_IDENTIFIER)) {
+			event.setMessage(message.replace(Registry.CANCELLED_IDENTIFIER, ""));
+			event.setCancelled(true);
 		}
 	}
 

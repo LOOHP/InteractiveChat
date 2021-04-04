@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,9 +29,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -261,6 +266,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static ItemStack unknownReplaceItem;
 	
 	public static Map<String, CompatibilityListener> compatibilityListeners = new LinkedHashMap<>();
+	public static Map<EventPriority, Set<RegisteredListener>> isolatedListeners = new EnumMap<>(EventPriority.class);
 	
 	public static boolean useAccurateSenderFinder = true;
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
@@ -456,6 +462,7 @@ public class InteractiveChat extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		restoreIsolatedChatListeners();
 		getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
 	}
 	
@@ -498,4 +505,18 @@ public class InteractiveChat extends JavaPlugin {
 			}
 		}, 0, 1200);
 	}
+	
+	protected static void restoreIsolatedChatListeners() {
+		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
+		for (EventPriority priority : EventPriority.values()) {
+			Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedListeners.get(priority);
+			if (isolatedListeners != null) {
+				for (RegisteredListener registration : isolatedListeners) {
+					handlerList.register(registration);
+				}
+			}
+		}
+		InteractiveChat.isolatedListeners.clear();
+	}
+	
 }

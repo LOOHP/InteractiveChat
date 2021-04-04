@@ -34,11 +34,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.ListeningWhitelist;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
@@ -51,7 +48,7 @@ import com.loohp.interactivechat.Debug.Debug;
 import com.loohp.interactivechat.Hooks.DiscordSRV.DiscordSRVEvents;
 import com.loohp.interactivechat.Hooks.Dynmap.DynmapListener;
 import com.loohp.interactivechat.Hooks.Essentials.EssentialsNicknames;
-import com.loohp.interactivechat.Hooks.VentureChat.PacketListener;
+import com.loohp.interactivechat.Hooks.VentureChat.VentureChatInjection;
 import com.loohp.interactivechat.Listeners.ClientSettingPacket;
 import com.loohp.interactivechat.Listeners.Events;
 import com.loohp.interactivechat.Listeners.InChatPacket;
@@ -381,30 +378,19 @@ public class InteractiveChat extends JavaPlugin {
 			chatManagerHook = true;
 		}
 	    
-	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
-	    	protocolManager.getPacketListeners().forEach(each -> {
-	    		if (each.getPlugin().getName().equals("VentureChat")) {
-	    			ListeningWhitelist whitelist = each.getSendingWhitelist();
-	    			if (whitelist.getTypes().contains(PacketType.Play.Server.CHAT)) {
-	    				if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
-	    					protocolManager.removePacketListener(each);
-	    					protocolManager.addPacketListener(new PacketListener());
-	    					return;
-	    				}
-	    			}
-	    		}
-	    	});
-	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
-	    	ventureChatHook = true;
-		}
-	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
 	    	DiscordSRV.api.subscribe(new DiscordSRVEvents());
 			discordSrvHook = true;
 		}
 	    
-	    if (Bukkit.getServer().getPluginManager().getPlugin("Dynmap") != null) {
+	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
+	    	VentureChatInjection._init_();
+	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+	    	ventureChatHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("dynmap") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into Dynmap!");
 	    	DynmapListener._init_();
 			dynmapHook = true;

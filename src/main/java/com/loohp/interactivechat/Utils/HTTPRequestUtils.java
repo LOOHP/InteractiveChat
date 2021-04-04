@@ -64,7 +64,13 @@ public class HTTPRequestUtils {
 	public static byte[] download(String link) {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			InputStream is = new URL(link).openStream();
+			URLConnection connection = new URL(link).openConnection();
+			connection.setUseCaches(false);
+			connection.setDefaultUseCaches(false);
+			connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+			connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+			connection.addRequestProperty("Pragma", "no-cache");
+			InputStream is = connection.getInputStream();
 			byte[] byteChunk = new byte[4096];
 			int n;
 			while ((n = is.read(byteChunk)) > 0) {

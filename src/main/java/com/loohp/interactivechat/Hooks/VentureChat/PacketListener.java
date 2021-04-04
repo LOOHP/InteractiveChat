@@ -1,5 +1,7 @@
 package com.loohp.interactivechat.Hooks.VentureChat;
 
+import org.bukkit.plugin.Plugin;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -19,8 +21,8 @@ import mineverse.Aust1n46.chat.versions.VersionHandler;
 //player has permission to remove messages.
 public class PacketListener extends PacketAdapter {
 	
-	public PacketListener() {
-		super(MineverseChat.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Server.CHAT });
+	public PacketListener(Plugin plugin) {
+		super(plugin, ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Server.CHAT });
 	}
 
 	@Override

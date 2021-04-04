@@ -5,25 +5,25 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.dynmap.Client;
+import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.dynmap.DynmapCore;
 import org.dynmap.bukkit.DynmapPlugin;
 import org.dynmap.common.DynmapListenerManager;
-import org.dynmap.common.DynmapListenerManager.ChatEventListener;
 import org.dynmap.common.DynmapListenerManager.EventListener;
 import org.dynmap.common.DynmapListenerManager.EventType;
-import org.dynmap.common.DynmapPlayer;
 
-import com.loohp.interactivechat.Modules.ProcessExternalMessage;
+import com.loohp.interactivechat.InteractiveChat;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
-
-public class DynmapListener implements ChatEventListener {
+public class DynmapListener implements Listener {
+	
+	private static boolean init = false;
 	
 	@SuppressWarnings("unchecked")
 	public static void _init_() {
+		Bukkit.getPluginManager().registerEvents(new DynmapListener(), InteractiveChat.plugin);
 		try {
 			DynmapPlugin dynmapPlugin = DynmapPlugin.plugin;
 			Field coreField = dynmapPlugin.getClass().getDeclaredField("core");
@@ -36,40 +36,23 @@ public class DynmapListener implements ChatEventListener {
 			Map<EventType, ArrayList<EventListener>> listeners = (Map<EventType, ArrayList<EventListener>>) listenerField.get(dynmapEvents);
 			listenerField.setAccessible(false);
 			listeners.remove(EventType.PLAYER_CHAT);
-			dynmapEvents.addListener(EventType.PLAYER_CHAT, new DynmapListener(dynmapCore));
+			dynmapEvents.addListener(EventType.PLAYER_CHAT, new DynmapCoreChatListener(dynmapCore));
+			init = true;
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-	
-	private DynmapCore core;
-	
-	public DynmapListener(DynmapCore core) {
-		this.core = core;
-	}
-
-	@Override
-	public void chatEvent(DynmapPlayer p, String msg) {
-		if (core.disable_chat_to_web) {
-			return;
+	@EventHandler
+	public void onPluginEnable(PluginEnableEvent event) {
+		if (init) {
+			if (event.getPlugin().getName().equalsIgnoreCase("dynmap")) {
+				Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+					_init_();
+					Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into Dynmap!");
+				}, 100);
+			}
 		}
-        if (core.mapManager != null) {
-        	Player bukkitplayer = Bukkit.getPlayer(p.getUUID());
-        	if (bukkitplayer == null) {
-        		msg = msg.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "");
-        		core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), msg, p.getName()));
-        	} else {
-				try {
-					String component = ComponentSerializer.toString(new TextComponent(msg));
-		        	String processed = ComponentSerializer.parse(ProcessExternalMessage.processAndRespond(bukkitplayer, component))[0].toPlainText();
-		        	core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), processed, p.getName()));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-        	}
-        }
 	}
 
 }

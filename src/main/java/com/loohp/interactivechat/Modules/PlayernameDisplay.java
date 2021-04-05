@@ -112,8 +112,8 @@ public class PlayernameDisplay implements Listener {
 								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
 									TextComponent message = new TextComponent(text.toLegacyText());
 									if (InteractiveChat.usePlayerNameHoverEnable) {
-										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText);
-										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playertext).create()));
+										String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
+										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(playertext)}));
 									}
 									if (InteractiveChat.usePlayerNameClickEnable) {
 										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);

@@ -40,6 +40,20 @@ import org.yaml.snakeyaml.util.PlatformFeatureDetector;
 
 public class VelocityFileConfiguration {
 	
+	private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS = new HashMap<>();
+	
+	static {
+		PRIMITIVES_TO_WRAPPERS.put(boolean.class, Boolean.class);
+		PRIMITIVES_TO_WRAPPERS.put(byte.class, Byte.class);
+		PRIMITIVES_TO_WRAPPERS.put(char.class, Character.class);
+		PRIMITIVES_TO_WRAPPERS.put(double.class, Double.class);
+		PRIMITIVES_TO_WRAPPERS.put(float.class, Float.class);
+		PRIMITIVES_TO_WRAPPERS.put(int.class, Integer.class);
+		PRIMITIVES_TO_WRAPPERS.put(long.class, Long.class);
+		PRIMITIVES_TO_WRAPPERS.put(short.class, Short.class);
+		PRIMITIVES_TO_WRAPPERS.put(void.class, Void.class);
+	}
+	
 	private Map<String, Object> mapping;
 	private String header;
 	
@@ -84,6 +98,7 @@ public class VelocityFileConfiguration {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T get(String key, Class<T> returnType) {
+		Class<?> actualReturnType = PRIMITIVES_TO_WRAPPERS.getOrDefault(returnType, returnType);
 		try {
 			String[] tree = key.split("\\.");
 			Map<String, Object> map = mapping;
@@ -93,7 +108,7 @@ public class VelocityFileConfiguration {
 			if (returnType.equals(String.class)) {
 				return (T) map.get(tree[tree.length - 1]).toString();
 			}
-			return returnType.cast(map.get(tree[tree.length - 1]));
+			return (T) actualReturnType.cast(map.get(tree[tree.length - 1]));
 		} catch (Exception e) {
 			return null;
 		}

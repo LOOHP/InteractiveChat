@@ -59,7 +59,7 @@ public class CommandsVelocity {
 		    .build();
 		
         LiteralCommandNode<CommandSource> rootNode = LiteralArgumentBuilder
-            .<CommandSource>literal("interactivechatbungee")
+            .<CommandSource>literal("interactivechatproxy")
             .then(backendinfoNode)
             .executes(command -> {
             	defaultMessage(command.getSource());
@@ -68,7 +68,7 @@ public class CommandsVelocity {
             .build();
         
         LiteralCommandNode<CommandSource> aliasNode1 = LiteralArgumentBuilder
-            .<CommandSource>literal("icb")
+            .<CommandSource>literal("icp")
             .then(backendinfoNode)
             .executes(command -> {
             	defaultMessage(command.getSource());

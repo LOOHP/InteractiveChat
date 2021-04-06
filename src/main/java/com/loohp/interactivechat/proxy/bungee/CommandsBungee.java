@@ -21,7 +21,7 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 public class CommandsBungee extends Command implements TabExecutor {
 
 	public CommandsBungee() {
-		super("interactivechatbungee", null, "icb");
+		super("interactivechatproxy", null, "icp");
 	}
 
 	@Override

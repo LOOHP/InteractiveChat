@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -35,8 +35,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.Pair;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Utils.FilledMapUtils;
-import com.loohp.interactivechat.Utils.MCVersion;
+import com.loohp.interactivechat.utils.FilledMapUtils;
+import com.loohp.interactivechat.utils.MCVersion;
 
 public class MapViewer implements Listener {
 	

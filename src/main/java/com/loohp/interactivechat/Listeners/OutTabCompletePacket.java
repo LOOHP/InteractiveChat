@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +17,11 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.ChatComponentUtils;
-import com.loohp.interactivechat.Utils.PlaceholderParser;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;

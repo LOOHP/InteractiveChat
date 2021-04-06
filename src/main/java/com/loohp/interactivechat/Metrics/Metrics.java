@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Metrics;
+package com.loohp.interactivechat.metrics;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

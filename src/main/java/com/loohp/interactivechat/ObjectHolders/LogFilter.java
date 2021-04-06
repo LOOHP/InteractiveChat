@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.ObjectHolders;
+package com.loohp.interactivechat.objectholders;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +9,7 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
-import com.loohp.interactivechat.Modules.ProcessExternalMessage;
+import com.loohp.interactivechat.modules.ProcessExternalMessage;
 
 public class LogFilter implements Filter {
 	

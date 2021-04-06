@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;

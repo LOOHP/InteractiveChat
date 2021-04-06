@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.ObjectHolders;
+package com.loohp.interactivechat.objectholders;
 
 public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 	

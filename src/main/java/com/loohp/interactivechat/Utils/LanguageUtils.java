@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

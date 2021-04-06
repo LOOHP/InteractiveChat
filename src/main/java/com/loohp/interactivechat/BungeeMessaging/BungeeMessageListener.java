@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.BungeeMessaging;
+package com.loohp.interactivechat.bungeemessaging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,23 +21,22 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.Modules.ProcessExternalMessage;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.RemoteEquipment;
-import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
-import com.loohp.interactivechat.Utils.CompressionUtils;
-import com.loohp.interactivechat.Utils.DataTypeIO;
-
-import net.md_5.bungee.api.chat.ClickEvent;
+import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.modules.ProcessExternalMessage;
+import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.RemoteEquipment;
+import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
+import com.loohp.interactivechat.utils.CompressionUtils;
+import com.loohp.interactivechat.utils.DataTypeIO;
 
 public class BungeeMessageListener implements PluginMessageListener {
 
@@ -264,7 +263,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 
-	        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
+	        			list.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
 	        		}
 	        	}
 	        	InteractiveChat.remotePlaceholderList.put(server, list);

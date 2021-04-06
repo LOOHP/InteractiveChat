@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,19 +32,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
-import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.ObjectHolders.CommandPlaceholderInfo;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
-import com.loohp.interactivechat.Registry.Registry;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.InventoryUtils;
-import com.loohp.interactivechat.Utils.MessageUtils;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
+import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InventoryUtils;
+import com.loohp.interactivechat.utils.MessageUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;

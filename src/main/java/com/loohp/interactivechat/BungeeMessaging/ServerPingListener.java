@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.BungeeMessaging;
+package com.loohp.interactivechat.bungeemessaging;
 
 import java.net.InetAddress;
 import java.util.Iterator;
@@ -20,7 +20,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.netty.SocketAdapter;
 import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Registry.Registry;
+import com.loohp.interactivechat.registry.Registry;
 
 @SuppressWarnings("unchecked")
 public class ServerPingListener implements Listener {

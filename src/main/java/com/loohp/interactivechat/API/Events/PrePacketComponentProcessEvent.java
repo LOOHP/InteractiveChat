@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.API.Events;
+package com.loohp.interactivechat.api.events;
 
 import java.util.UUID;
 

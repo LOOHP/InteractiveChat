@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Updater;
+package com.loohp.interactivechat.updater;
 
 public class Version implements Comparable<Version> {
 

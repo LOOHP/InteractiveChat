@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Data;
+package com.loohp.interactivechat.data;
 
 import java.util.Map;
 import java.util.UUID;

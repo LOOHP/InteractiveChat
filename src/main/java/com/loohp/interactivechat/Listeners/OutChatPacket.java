@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,29 +30,29 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.Events.PostPacketComponentProcessEvent;
-import com.loohp.interactivechat.API.Events.PrePacketComponentProcessEvent;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.Modules.CommandsDisplay;
-import com.loohp.interactivechat.Modules.CustomPlaceholderDisplay;
-import com.loohp.interactivechat.Modules.EnderchestDisplay;
-import com.loohp.interactivechat.Modules.HoverableItemDisplay;
-import com.loohp.interactivechat.Modules.InventoryDisplay;
-import com.loohp.interactivechat.Modules.ItemDisplay;
-import com.loohp.interactivechat.Modules.MentionDisplay;
-import com.loohp.interactivechat.Modules.PlayernameDisplay;
-import com.loohp.interactivechat.Modules.ProcessAccurateSender;
-import com.loohp.interactivechat.Modules.ProcessCommands;
-import com.loohp.interactivechat.Modules.SenderFinder;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.OutboundPacket;
-import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.ChatComponentUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.JsonUtils;
-import com.loohp.interactivechat.Utils.MCVersion;
-import com.loohp.interactivechat.Utils.PlayerUtils;
+import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
+import com.loohp.interactivechat.api.events.PrePacketComponentProcessEvent;
+import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.modules.CommandsDisplay;
+import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
+import com.loohp.interactivechat.modules.EnderchestDisplay;
+import com.loohp.interactivechat.modules.HoverableItemDisplay;
+import com.loohp.interactivechat.modules.InventoryDisplay;
+import com.loohp.interactivechat.modules.ItemDisplay;
+import com.loohp.interactivechat.modules.MentionDisplay;
+import com.loohp.interactivechat.modules.PlayernameDisplay;
+import com.loohp.interactivechat.modules.ProcessAccurateSender;
+import com.loohp.interactivechat.modules.ProcessCommands;
+import com.loohp.interactivechat.modules.SenderFinder;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.OutboundPacket;
+import com.loohp.interactivechat.objectholders.ProcessSenderResult;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.JsonUtils;
+import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.PlayerUtils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -235,14 +235,23 @@ public class OutChatPacket implements Listener {
 	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
 	        }
 
+	        @SuppressWarnings("unused")
+			boolean isCommand = false;
+	        @SuppressWarnings("unused")
+	        boolean isChat = false;
 	        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);
 	        Optional<ICPlayer> sender = Optional.empty();
 	        if (commandSender.getSender() != null) {
 	        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
 	        	if (bukkitplayer != null) {
 	        		sender = Optional.of(new ICPlayer(bukkitplayer));
+	        		isCommand = true;
 	        	} else {
-	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandSender.getSender()));
+	        		ICPlayer remote = InteractiveChat.remotePlayers.get(commandSender.getSender());
+	        		if (remote != null) {
+	        			sender = Optional.of(remote);
+	        			isCommand = true;
+	        		}
 	        	}
 	        }
 	        ProcessSenderResult chatSender = null;
@@ -253,8 +262,13 @@ public class OutChatPacket implements Listener {
 	    	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
 	    	        	if (bukkitplayer != null) {
 	    	        		sender = Optional.of(new ICPlayer(bukkitplayer));
+	    	        		isChat = true;
 	    	        	} else {
-	    	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(chatSender.getSender()));
+	    	        		ICPlayer remote = InteractiveChat.remotePlayers.get(chatSender.getSender());
+	    	        		if (remote != null) {
+	    	        			sender = Optional.of(remote);
+	    	        			isChat = true;
+	    	        		}
 	    	        	}
 	    	        }
 	        	}

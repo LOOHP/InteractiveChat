@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.util.HashMap;
 
@@ -15,7 +15,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ChatColorUtils;
 
 public class ClientSettingPacket implements Listener {
 	

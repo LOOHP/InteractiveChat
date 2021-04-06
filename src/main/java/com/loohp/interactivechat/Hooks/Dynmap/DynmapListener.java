@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Hooks.Dynmap;
+package com.loohp.interactivechat.hooks.dynmap;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

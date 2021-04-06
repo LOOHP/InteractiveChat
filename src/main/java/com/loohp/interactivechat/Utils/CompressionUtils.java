@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

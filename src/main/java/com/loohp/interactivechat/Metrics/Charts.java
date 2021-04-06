@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Metrics;
+package com.loohp.interactivechat.metrics;
 
 import java.util.concurrent.Callable;
 

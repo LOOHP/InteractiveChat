@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,9 +15,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.BungeeMessaging.BungeeMessageSender;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.ValuePairs;
+import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;

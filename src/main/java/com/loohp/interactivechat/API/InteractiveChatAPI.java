@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.API;
+package com.loohp.interactivechat.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.SharedDisplayTimeoutInfo;
-import com.loohp.interactivechat.Utils.MCVersion;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
+import com.loohp.interactivechat.utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

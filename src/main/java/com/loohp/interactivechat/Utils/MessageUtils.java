@@ -1,9 +1,9 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.util.List;
 import java.util.Map;
 
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
 
 public class MessageUtils {
 

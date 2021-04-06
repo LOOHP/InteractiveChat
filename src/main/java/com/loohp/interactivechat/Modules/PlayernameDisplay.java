@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Modules;
+package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,20 +13,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.ReplaceTextBundle;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.ChatComponentUtils;
-import com.loohp.interactivechat.Utils.CollectionUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.PlaceholderParser;
-import com.loohp.interactivechat.Utils.VanishUtils;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ReplaceTextBundle;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.CollectionUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.interactivechat.utils.VanishUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -54,10 +55,12 @@ public class PlayernameDisplay implements Listener {
 		}, 0, 100);
 	}
 	
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event) {
-		flag.set(random.nextInt());
-		names = null;
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onJoin(PlayerLoginEvent event) {
+		if (event.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
+			flag.set(random.nextInt());
+			names = null;
+		}
 	}
 	
 	@EventHandler

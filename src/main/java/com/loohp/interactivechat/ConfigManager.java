@@ -19,17 +19,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.WebData;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.LanguageUtils;
-import com.loohp.interactivechat.Utils.MCVersion;
+import com.loohp.interactivechat.objectholders.CompatibilityListener;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.WebData;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.LanguageUtils;
+import com.loohp.interactivechat.utils.MCVersion;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -284,7 +285,7 @@ public class ConfigManager {
 			List<String> aliases = s.getStringList("Aliases");
 			String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
 
-			InteractiveChat.placeholderList.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEvent.Action.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
+			InteractiveChat.placeholderList.add(new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description));
 			
 			for (String alias : aliases) {
 				alias = ChatColorUtils.translateAlternateColorCodes('&', alias);

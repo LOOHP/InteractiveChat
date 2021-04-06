@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Listeners;
+package com.loohp.interactivechat.listeners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +24,8 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CompatibilityListener;
-import com.loohp.interactivechat.Registry.Registry;
+import com.loohp.interactivechat.objectholders.CompatibilityListener;
+import com.loohp.interactivechat.registry.Registry;
 
 public class InChatPacket {
 	

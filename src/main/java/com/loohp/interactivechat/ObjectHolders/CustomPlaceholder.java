@@ -1,9 +1,7 @@
-package com.loohp.interactivechat.ObjectHolders;
+package com.loohp.interactivechat.objectholders;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.md_5.bungee.api.chat.ClickEvent;
 
 public class CustomPlaceholder extends ICPlaceholder {
 	
@@ -131,10 +129,10 @@ public class CustomPlaceholder extends ICPlaceholder {
 	public static class CustomPlaceholderClickEvent {
 		
 		private boolean enabled;
-		private ClickEvent.Action action;
+		private ClickEventAction action;
 		private String value;
 		
-		public CustomPlaceholderClickEvent(boolean enabled, ClickEvent.Action action, String value) {
+		public CustomPlaceholderClickEvent(boolean enabled, ClickEventAction action, String value) {
 			this.enabled = enabled;
 			this.action = action;
 			this.value = value;
@@ -144,7 +142,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 			return enabled;
 		}
 		
-		public ClickEvent.Action getAction() {
+		public ClickEventAction getAction() {
 			return action;
 		}
 		
@@ -170,6 +168,41 @@ public class CustomPlaceholder extends ICPlaceholder {
 		public String getReplaceText() {
 			return replaceText;
 		}
+	}
+	
+	public static enum ClickEventAction {
+        /**
+         * Open a url at the path given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
+         */
+        OPEN_URL,
+        /**
+         * Open a file at the path given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
+         */
+        OPEN_FILE,
+        /**
+         * Run the command given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
+         */
+        RUN_COMMAND,
+        /**
+         * Inserts the string given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
+         * text box.
+         */
+        SUGGEST_COMMAND,
+        /**
+         * Change to the page number given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} in a book.
+         */
+        CHANGE_PAGE,
+        /**
+         * Copy the string given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
+         * clipboard.
+         */
+        COPY_TO_CLIPBOARD;
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Hooks.Dynmap;
+package com.loohp.interactivechat.hooks.dynmap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -7,7 +7,7 @@ import org.dynmap.DynmapCore;
 import org.dynmap.common.DynmapListenerManager.ChatEventListener;
 import org.dynmap.common.DynmapPlayer;
 
-import com.loohp.interactivechat.Modules.ProcessExternalMessage;
+import com.loohp.interactivechat.modules.ProcessExternalMessage;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;

@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Modules;
+package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +14,14 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
-import com.loohp.interactivechat.API.InteractiveChatAPI.SharedType;
-import com.loohp.interactivechat.Utils.ChatComponentUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.FilledMapUtils;
-import com.loohp.interactivechat.Utils.HashUtils;
-import com.loohp.interactivechat.Utils.ItemNBTUtils;
-import com.loohp.interactivechat.Utils.NBTUtils;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
+import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.FilledMapUtils;
+import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.ItemNBTUtils;
+import com.loohp.interactivechat.utils.NBTUtils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

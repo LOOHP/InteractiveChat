@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.ObjectHolders;
+package com.loohp.interactivechat.objectholders;
 
 import org.bukkit.entity.Player;
 

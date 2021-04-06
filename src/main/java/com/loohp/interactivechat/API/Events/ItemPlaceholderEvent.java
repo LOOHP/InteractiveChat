@@ -1,10 +1,10 @@
-package com.loohp.interactivechat.API.Events;
+package com.loohp.interactivechat.api.events;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayer;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;

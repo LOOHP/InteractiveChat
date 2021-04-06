@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Modules;
+package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,15 +11,15 @@ import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
-import com.loohp.interactivechat.API.Events.PlayerMentionPlayerEvent;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.MentionPair;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.PlaceholderParser;
-import com.loohp.interactivechat.Utils.SoundUtils;
-import com.loohp.interactivechat.Utils.TitleUtils;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.interactivechat.utils.SoundUtils;
+import com.loohp.interactivechat.utils.TitleUtils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

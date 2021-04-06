@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.API.Events;
+package com.loohp.interactivechat.api.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -6,7 +6,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayer;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 

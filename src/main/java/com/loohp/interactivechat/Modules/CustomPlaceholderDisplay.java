@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Modules;
+package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,19 +12,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.ParsePlayer;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.ICPlayer;
-import com.loohp.interactivechat.ObjectHolders.WebData;
-import com.loohp.interactivechat.Utils.ChatColorUtils;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
-import com.loohp.interactivechat.Utils.PlaceholderParser;
-import com.loohp.interactivechat.Utils.PlayerUtils;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.WebData;
+import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.interactivechat.utils.PlayerUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -64,7 +64,7 @@ public class CustomPlaceholderDisplay {
 			boolean hoverEnabled = cp.getHover().isEnabled();
 			String hoverText = cp.getHover().getText();
 			boolean clickEnabled = cp.getClick().isEnabled();
-			Action clickAction = cp.getClick().getAction();
+			ClickEventAction clickAction = cp.getClick().getAction();
 			String clickValue = cp.getClick().getValue();
 			boolean replaceEnabled = cp.getReplace().isEnabled();
 			String replaceText = cp.getReplace().getReplaceText();
@@ -86,7 +86,7 @@ public class CustomPlaceholderDisplay {
 				boolean hoverEnabled = cp.getHover().isEnabled();
 				String hoverText = cp.getHover().getText();
 				boolean clickEnabled = cp.getClick().isEnabled();
-				Action clickAction = cp.getClick().getAction();
+				ClickEventAction clickAction = cp.getClick().getAction();
 				String clickValue = cp.getClick().getValue();
 				boolean replaceEnabled = cp.getReplace().isEnabled();
 				String replaceText = cp.getReplace().getReplaceText();
@@ -102,7 +102,7 @@ public class CustomPlaceholderDisplay {
 		return basecomponent;
 	}
 	
-	public static BaseComponent processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
+	public static BaseComponent processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
 		boolean contain = (casesensitive) ? (basecomponent.toPlainText().contains(placeholder)) : (basecomponent.toPlainText().toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -136,7 +136,7 @@ public class CustomPlaceholderDisplay {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent processCustomPlaceholderWithoutCooldown(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, Action clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
+	public static BaseComponent processCustomPlaceholderWithoutCooldown(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, BaseComponent basecomponent, Optional<ICPlayer> optplayer, long unix) {
 		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
 		List<BaseComponent> newlist = new ArrayList<>();
 		for (BaseComponent base : basecomponentlist) {
@@ -201,7 +201,7 @@ public class CustomPlaceholderDisplay {
 								
 								if (clickEnabled) {
 									String clicktext = PlaceholderParser.parse(player, clickValue);
-									message.setClickEvent(new ClickEvent(clickAction, clicktext));
+									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(clickAction.name()), clicktext));
 								}
 								
 								newlist.add(message);

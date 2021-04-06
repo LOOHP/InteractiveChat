@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Modules;
+package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.ProcessSenderResult;
-import com.loohp.interactivechat.ObjectHolders.SenderPlaceholderInfo;
-import com.loohp.interactivechat.Utils.CustomStringUtils;
+import com.loohp.interactivechat.objectholders.ProcessSenderResult;
+import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
+import com.loohp.interactivechat.utils.CustomStringUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;

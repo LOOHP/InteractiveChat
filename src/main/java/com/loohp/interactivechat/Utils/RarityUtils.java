@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

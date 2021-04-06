@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Hooks.VentureChat;
+package com.loohp.interactivechat.hooks.venturechat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

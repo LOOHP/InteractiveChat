@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.BungeeMessaging;
+package com.loohp.interactivechat.bungeemessaging;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,15 +16,15 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderClickEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderHoverEvent;
-import com.loohp.interactivechat.ObjectHolders.CustomPlaceholder.CustomPlaceholderReplaceText;
-import com.loohp.interactivechat.ObjectHolders.ICPlaceholder;
-import com.loohp.interactivechat.ObjectHolders.ValuePairs;
-import com.loohp.interactivechat.Utils.CompressionUtils;
-import com.loohp.interactivechat.Utils.CustomArrayUtils;
-import com.loohp.interactivechat.Utils.DataTypeIO;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.utils.CompressionUtils;
+import com.loohp.interactivechat.utils.CustomArrayUtils;
+import com.loohp.interactivechat.utils.DataTypeIO;
 
 public class BungeeMessageSender {
 	

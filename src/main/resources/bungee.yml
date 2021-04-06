@@ -1,4 +1,4 @@
 name: InteractiveChatBungee
-main: com.loohp.interactivechat.Bungee.InteractiveChatBungee
+main: com.loohp.interactivechat.proxy.bungee.InteractiveChatBungee
 version: ${project.version}
 author: LOOHP

@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Hooks.DiscordSRV;
+package com.loohp.interactivechat.hooks.discordsrv;
 
 import com.loohp.interactivechat.InteractiveChat;
 

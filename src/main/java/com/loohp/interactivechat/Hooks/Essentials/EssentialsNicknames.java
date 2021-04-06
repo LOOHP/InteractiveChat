@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Hooks.Essentials;
+package com.loohp.interactivechat.hooks.essentials;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.earth2me.essentials.Essentials;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.API.InteractiveChatAPI;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
 
 import net.ess3.api.events.NickChangeEvent;
 

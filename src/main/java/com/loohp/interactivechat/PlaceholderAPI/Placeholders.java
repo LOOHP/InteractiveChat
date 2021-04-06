@@ -1,10 +1,10 @@
-package com.loohp.interactivechat.PlaceholderAPI;
+package com.loohp.interactivechat.placeholderapi;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 

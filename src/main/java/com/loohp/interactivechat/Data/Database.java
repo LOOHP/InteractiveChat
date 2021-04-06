@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Data;
+package com.loohp.interactivechat.data;
 
 import java.io.File;
 import java.sql.Connection;
@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;

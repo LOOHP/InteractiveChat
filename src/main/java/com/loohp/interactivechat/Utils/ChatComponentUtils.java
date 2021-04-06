@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.Utils;
+package com.loohp.interactivechat.utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,8 +13,8 @@ import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.Listeners.ClientSettingPacket;
-import com.loohp.interactivechat.Listeners.ClientSettingPacket.ColorSettings;
+import com.loohp.interactivechat.listeners.ClientSettingPacket;
+import com.loohp.interactivechat.listeners.ClientSettingPacket.ColorSettings;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

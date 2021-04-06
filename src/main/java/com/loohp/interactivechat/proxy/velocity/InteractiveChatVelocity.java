@@ -201,7 +201,7 @@ public class InteractiveChatVelocity {
     	try {
 			config.reloadConfig(configFile);
 			parseCommands = (ArrayList<String>) config.get("Settings.CommandsToParse", ArrayList.class);
-			useAccurateSenderFinder = config.get("Settings.UseAccurateSenderParser", boolean.class);
+			useAccurateSenderFinder = config.get("Settings.UseAccurateSenderParser", Boolean.class);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

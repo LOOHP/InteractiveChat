@@ -72,6 +72,9 @@ public class VelocityFileConfiguration {
 	public VelocityFileConfiguration reloadConfig(Reader reader) {
 		Yaml yml = new Yaml();
 		mapping = yml.load(reader);
+		try {
+			reader.close();
+		} catch (IOException e) {}
 		return this;
 	}
 	

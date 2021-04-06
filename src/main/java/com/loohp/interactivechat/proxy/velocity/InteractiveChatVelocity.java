@@ -177,7 +177,7 @@ public class InteractiveChatVelocity {
     
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-    	getLogger().info(TextColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
+    	getLogger().info(TextColor.RED + "[InteractiveChat] InteractiveChatVelocity has been disabled!");
     }
     
     public File getDataFolder() {

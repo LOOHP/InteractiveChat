@@ -26,6 +26,7 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatComponentUtils {
 	
@@ -490,7 +491,11 @@ public class ChatComponentUtils {
 			Class<? extends BaseComponent> clazz = chatComponent.getClass();
 			return (T) clazz.getConstructor(clazz).newInstance(clazz.cast(chatComponent));
 		} catch (Throwable e) {
-			throw new UnsupportedOperationException(chatComponent.getClass() + " is not supported to be cloned.", e);
+			try {
+				return (T) ComponentSerializer.parse(ComponentSerializer.toString(chatComponent))[0];
+			} catch (Throwable e1) {
+				throw new UnsupportedOperationException(chatComponent.getClass() + " is not supported to be cloned.", e);
+			}
 		}
 	}
 	

@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -265,7 +264,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static ItemStack unknownReplaceItem;
 	
-	public static Map<String, CompatibilityListener> compatibilityListeners = new LinkedHashMap<>();
+	public static List<CompatibilityListener> compatibilityListeners = new ArrayList<>();
 	public static Map<EventPriority, Set<RegisteredListener>> isolatedListeners = new EnumMap<>(EventPriority.class);
 	
 	public static boolean useAccurateSenderFinder = true;

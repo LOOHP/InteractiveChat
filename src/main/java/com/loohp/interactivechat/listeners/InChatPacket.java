@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -47,9 +46,9 @@ public class InChatPacket {
 	            	continue;
 	            }
 	            CompatibilityListener compatibilityListener = null;
-	            for (Entry<String, CompatibilityListener> entry : InteractiveChat.compatibilityListeners.entrySet()) {
-	            	if (pluginName.matches(entry.getKey())) {
-	            		compatibilityListener = entry.getValue();
+	            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
+	            	if (pluginName.matches(listener.getPluginRegex())) {
+	            		compatibilityListener = listener;
 	            		break;
 	            	}
 	            }

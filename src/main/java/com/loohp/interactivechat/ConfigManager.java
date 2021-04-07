@@ -80,7 +80,7 @@ public class ConfigManager {
 				if (args.length == 3) {
 					String plugin = args[0].replace("Plugin:", "").trim();
 					CompatibilityListener listener = new CompatibilityListener(plugin, args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
-					InteractiveChat.compatibilityListeners.put(plugin, listener);
+					InteractiveChat.compatibilityListeners.add(listener);
 				}
 			} catch (Exception e) {}
 		}

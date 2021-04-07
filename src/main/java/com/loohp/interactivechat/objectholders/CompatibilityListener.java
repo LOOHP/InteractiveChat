@@ -14,7 +14,7 @@ public class CompatibilityListener {
 		this.priority = priority;
 	}
 
-	public String getPlugin() {
+	public String getPluginRegex() {
 		return plugin;
 	}
 

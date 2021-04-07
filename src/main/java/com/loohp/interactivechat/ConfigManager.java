@@ -78,8 +78,7 @@ public class ConfigManager {
 			try {
 				String[] args = str.split(",");
 				if (args.length == 3) {
-					String plugin = args[0].replace("Plugin:", "").trim();
-					CompatibilityListener listener = new CompatibilityListener(plugin, args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
+					CompatibilityListener listener = new CompatibilityListener(args[0].replace("Plugin:", "").trim(), args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
 					InteractiveChat.compatibilityListeners.add(listener);
 				}
 			} catch (Exception e) {}

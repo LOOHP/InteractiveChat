@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.listeners;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -67,6 +68,7 @@ public class InChatPacket {
 	            	list = new LinkedHashSet<>();
 	            	InteractiveChat.isolatedListeners.put(registration.getPriority(), list);
 	            }
+	            
 	            list.add(registration);
 	            
 	            toRemove.add(registration);
@@ -79,7 +81,12 @@ public class InChatPacket {
 			});
 		}, 0, 200);
 		
-		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.LOWEST).types(PacketType.Play.Client.CHAT)) {
+		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.CHAT)) {
+			@Override
+			public void onPacketSending(PacketEvent event) {
+				//do nothing
+			}
+			
 			@Override
 			public void onPacketReceiving(PacketEvent event) {
 				if (!event.isFiltered() || event.isCancelled() || !event.getPacketType().equals(PacketType.Play.Client.CHAT) || event.isPlayerTemporary()) {
@@ -88,44 +95,58 @@ public class InChatPacket {
 				
 				PacketContainer packet = event.getPacket();
 				Player player = event.getPlayer();
-				String message = packet.getStrings().read(0);
+				String message0 = packet.getStrings().read(0);
 				
-				if (message != null && !message.startsWith("/")) {
-					if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-						message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim();
-					}
+				if (message0 != null && !message0.startsWith("/")) {
+					PacketContainer newPacket = packet.deepClone();
+					event.setReadOnly(false);
+					event.setCancelled(true);
+					event.setReadOnly(true);
 					
-					AsyncPlayerChatEvent chatEvent = new AsyncPlayerChatEvent(true, player, message, new HashSet<>());
-					
-					for (EventPriority priority : EVENT_PRIORITIES) {
-						Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedListeners.get(priority);
-						if (isolatedListeners != null) {
-							for (RegisteredListener registration : isolatedListeners) {
-								try {
-					                registration.callEvent(chatEvent);
-					            } catch (AuthorNagException ex) {
-					                Plugin plugin = registration.getPlugin();
+					Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+						String message = message0;
+						
+						if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+							message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim();
+						}
+						
+						AsyncPlayerChatEvent chatEvent = new AsyncPlayerChatEvent(true, player, message, new HashSet<>());
+						
+						for (EventPriority priority : EVENT_PRIORITIES) {
+							Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedListeners.get(priority);
+							if (isolatedListeners != null) {
+								for (RegisteredListener registration : isolatedListeners) {
+									try {
+						                registration.callEvent(chatEvent);
+						            } catch (AuthorNagException ex) {
+						                Plugin plugin = registration.getPlugin();
 
-					                if (plugin.isNaggable()) {
-					                    plugin.setNaggable(false);
+						                if (plugin.isNaggable()) {
+						                    plugin.setNaggable(false);
 
-					                    Bukkit.getLogger().log(Level.SEVERE, String.format(
-					                            "Nag author(s): '%s' of '%s' about the following: %s",
-					                            plugin.getDescription().getAuthors(),
-					                            plugin.getDescription().getFullName(),
-					                            ex.getMessage()
-					                            ));
-					                }
-					            } catch (Throwable ex) {
-					            	Bukkit.getLogger().log(Level.SEVERE, "Could not pass event " + chatEvent.getEventName() + " to " + registration.getPlugin().getDescription().getFullName(), ex);
-					            }
+						                    Bukkit.getLogger().log(Level.SEVERE, String.format(
+						                            "Nag author(s): '%s' of '%s' about the following: %s",
+						                            plugin.getDescription().getAuthors(),
+						                            plugin.getDescription().getFullName(),
+						                            ex.getMessage()
+						                            ));
+						                }
+						            } catch (Throwable ex) {
+						            	Bukkit.getLogger().log(Level.SEVERE, "Could not pass event " + chatEvent.getEventName() + " to " + registration.getPlugin().getDescription().getFullName(), ex);
+						            }
+								}
 							}
 						}
-					}
-					
-					if (chatEvent.isCancelled()) {
-						packet.getStrings().write(0, message + Registry.CANCELLED_IDENTIFIER);
-					}
+						
+						if (chatEvent.isCancelled()) {
+							newPacket.getStrings().write(0, message + Registry.CANCELLED_IDENTIFIER);
+						}
+						try {
+							InteractiveChat.protocolManager.recieveClientPacket(player, newPacket, false);
+						} catch (IllegalAccessException | InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					});
 				}	
 			}
 		});

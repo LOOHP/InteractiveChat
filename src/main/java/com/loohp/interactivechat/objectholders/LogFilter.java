@@ -19,7 +19,8 @@ public class LogFilter implements Filter {
         if (!message.matches(".*<cmd=" + UUID_REGEX + ">.*") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
     		return Filter.Result.NEUTRAL;
     	} else {
-    		LogManager.getRootLogger().log(level, ProcessExternalMessage.processWithoutReviever(message));
+    		String processed = ProcessExternalMessage.processWithoutReviever(message);
+    		LogManager.getRootLogger().log(level, processed);
     		return Filter.Result.DENY;
     	}
     }

@@ -360,6 +360,8 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
+		InteractiveChat.language = getConfig().getString("Settings.Language");
+		
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 			LanguageUtils.loadTranslations(InteractiveChat.language);
 			if (WebData.getInstance() == null) {

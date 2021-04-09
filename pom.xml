@@ -259,11 +259,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>Spigot-1.16.5</groupId>
-			<artifactId>Spigot-1.16.5</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/spigot-1.16.5.jar</systemPath>
+			<groupId>org.bukkit</groupId>
+			<artifactId>craftbukkit</artifactId>
+			<version>1.16.5-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</groupId>

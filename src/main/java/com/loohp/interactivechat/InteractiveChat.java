@@ -221,7 +221,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<UUID, Long> universalCooldowns = new ConcurrentHashMap<>();
 	
 	public static List<ICPlaceholder> placeholderList = new ArrayList<>();
-	public static int maxPlacholders = -1;
+	public static int maxPlaceholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
 	public static Map<Player, Long> mentionCooldown = new ConcurrentHashMap<>();	

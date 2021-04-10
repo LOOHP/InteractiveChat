@@ -298,7 +298,7 @@ public class ConfigManager {
 		
 		InteractiveChat.commandList = getConfig().getStringList("Settings.CommandsToParse");
 		
-		InteractiveChat.maxPlacholders = getConfig().getInt("Settings.MaxPlaceholders");
+		InteractiveChat.maxPlaceholders = getConfig().getInt("Settings.MaxPlaceholders");
 		InteractiveChat.limitReachMessage = getConfig().getString("Messages.LimitReached");
 		
 		InteractiveChat.mentionPrefix = getConfig().getString("Chat.MentionPrefix");

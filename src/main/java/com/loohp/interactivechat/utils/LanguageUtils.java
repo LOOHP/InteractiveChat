@@ -260,7 +260,7 @@ public class LanguageUtils {
 			path = "item." + material.getKey().getNamespace() + "." + material.getKey().getKey();
 		}
 		
-		if (itemStack.getType().equals(Material.POTION) || itemStack.getType().equals(Material.SPLASH_POTION) || itemStack.getType().equals(Material.LINGERING_POTION)) {
+		if (itemStack.getType().equals(Material.POTION) || itemStack.getType().equals(Material.SPLASH_POTION) || itemStack.getType().equals(Material.LINGERING_POTION) || itemStack.getType().equals(Material.TIPPED_ARROW)) {
 			PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
 			String namespace = PotionUtils.getVanillaPotionName(meta.getBasePotionData().getType());
 			path += ".effect." + namespace;

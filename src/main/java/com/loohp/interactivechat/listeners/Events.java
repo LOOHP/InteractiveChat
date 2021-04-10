@@ -78,7 +78,7 @@ public class Events implements Listener {
 				}
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 				
-				if (InteractiveChat.maxPlacholders >= 0) {
+				if (InteractiveChat.maxPlaceholders >= 0) {
 					int count = 0;
 					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 						String findStr = icplaceholder.getKeyword();
@@ -91,7 +91,7 @@ public class Events implements Listener {
 						    }
 						}
 					}
-					if (count > InteractiveChat.maxPlacholders) {
+					if (count > InteractiveChat.maxPlaceholders) {
 						event.setCancelled(true);
 						String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
 						event.getPlayer().sendMessage(cancelmessage);
@@ -169,7 +169,7 @@ public class Events implements Listener {
 		
 		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 		
-		if (InteractiveChat.maxPlacholders >= 0) {
+		if (InteractiveChat.maxPlaceholders >= 0) {
 			int count = 0;
 			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 				String findStr = icplaceholder.getKeyword();
@@ -182,7 +182,7 @@ public class Events implements Listener {
 				    }
 				}
 			}
-			if (count > InteractiveChat.maxPlacholders) {
+			if (count > InteractiveChat.maxPlaceholders) {
 				event.setCancelled(true);
 				String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.limitReachMessage));
 				player.sendMessage(cancelmessage);

@@ -80,7 +80,8 @@ public class CommandsDisplay {
 								each.setClickEvent(click);
 								newlist.add(each);
 							}
-							textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(end + InteractiveChat.clickableCommandsSuffix.length()));
+							int after = end + InteractiveChat.clickableCommandsSuffix.length();
+							textComp.setText(ChatColorUtils.getLastColors(before.getText()) + textComp.getText().substring(after < 0 ? 0 : after));
 							parsingCommand = false;
 						}
 					}

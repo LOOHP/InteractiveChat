@@ -15,6 +15,23 @@ Plugins built against Spigot usually also work with [Paper](https://papermc.io/)
 
 - [Jenkins](https://ci.loohpjames.com/job/InteractiveChat/)
 
+## Maven
+```html
+<repository>
+  <id>loohp-repo</id>
+  <url>https://repo.loohpjames.com/repository</url>
+</repository>
+```
+```html
+<dependency>
+  <groupId>com.loohp</groupId>
+  <artifactId>InteractiveChat</artifactId>
+  <version>VERSION</version>
+  <scope>provided</scope>
+</dependency>
+```
+Replace `VERSION` with the version number.
+
 ## Dependencies 
 
 - [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/)

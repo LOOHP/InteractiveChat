@@ -28,6 +28,7 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.hooks.viaversion.ItemRewriter;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ChatComponentUtils;
@@ -185,7 +186,7 @@ public class ItemDisplay {
 									Bukkit.getPluginManager().callEvent(event);
 									item = event.getItemStack();
 									
-								    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
+								    String itemJson = InteractiveChat.viaVersionHook ? ItemRewriter.getConvertedItemStackNbtJson(item, reciever) : ItemNBTUtils.getNMSItemStackJson(item);
 								    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
 								    if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > 32767) {
 								    	ItemStack trimedItem = new ItemStack(item.getType());
@@ -195,12 +196,12 @@ public class ItemDisplay {
 							    			ItemMeta meta = loreItem.getItemMeta();
 							    			meta.setLore(item.getItemMeta().getLore());
 							    			loreItem.setItemMeta(meta);
-							    			String newjson = ItemNBTUtils.getNMSItemStackJson(loreItem);
+							    			String newjson = InteractiveChat.viaVersionHook ? ItemRewriter.getConvertedItemStackNbtJson(loreItem, reciever) : ItemNBTUtils.getNMSItemStackJson(loreItem);
 							    			if (newjson.length() <= 30000) {
 							    				trimedItem = loreItem;
 							    			}
 								    	}
-								    	itemJson = ItemNBTUtils.getNMSItemStackJson(trimedItem);
+								    	itemJson = InteractiveChat.viaVersionHook ? ItemRewriter.getConvertedItemStackNbtJson(trimedItem, reciever) : ItemNBTUtils.getNMSItemStackJson(trimedItem);
 								    	trimmed = true;
 								    }
 								    String message = "";

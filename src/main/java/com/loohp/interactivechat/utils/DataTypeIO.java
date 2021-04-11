@@ -2,6 +2,7 @@ package com.loohp.interactivechat.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,10 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.hooks.viaversion.ItemRewriter;
+import com.loohp.interactivechat.registry.Registry;
+
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class DataTypeIO {
 	
@@ -101,6 +106,9 @@ public class DataTypeIO {
 					boolean setDurability = in.readBoolean();
 					int durability = setDurability ? in.readInt() : -1;
 					String nbtStr = readString(in, charset);
+					if (InteractiveChat.viaVersionHook) {
+						nbtStr = ItemRewriter.getConvertedItemStackNbtJson(itemStack.getType().getId(), (byte) itemStack.getAmount(), itemStack.getDurability(), nbtStr, ItemRewriter.getServerProtocolVersion(), ItemRewriter.getProtocolToVersionMap().get(Registry.VIAVERSION_LATEST_PROTOCOL));
+					}
 					ItemStack fromTag = ItemNBTUtils.getItemFromNBTJson(nbtStr);
 					if (fromTag != null && fromTag.getType().equals(itemStack.getType())) {
 						itemStack = fromTag;
@@ -113,6 +121,30 @@ public class DataTypeIO {
 							((Damageable) meta).setDamage(durability);
 							itemStack.setItemMeta(meta);
 						}
+					}
+					if (InteractiveChat.version.isOlderOrEqualTo(MCVersion.V1_14) && itemStack.hasItemMeta() && itemStack.getItemMeta() != null) {
+						ItemMeta meta = itemStack.getItemMeta();
+						if (meta.hasDisplayName() && meta.getDisplayName() != null) {
+							String name = meta.getDisplayName();
+							if (JsonUtils.isValid(name)) {
+								try {
+									meta.setDisplayName(ChatComponentUtils.join(ComponentSerializer.parse(name)).toLegacyText());
+								} catch (Throwable e) {}
+							}
+						}
+						if (meta.hasLore() && meta.getLore() != null) {
+							List<String> lores = meta.getLore();
+							for (int i = 0; i < lores.size(); i++) {
+								String lore = lores.get(i);
+								if (JsonUtils.isValid(lore)) {
+									try {
+										lores.set(i, ChatComponentUtils.join(ComponentSerializer.parse(lore)).toLegacyText());
+									} catch (Throwable e) {}
+								}
+							}
+							meta.setLore(lores);
+						}
+						itemStack.setItemMeta(meta);
 					}
 				}
 				return itemStack;
@@ -148,7 +180,7 @@ public class DataTypeIO {
 				} else {
 					out.writeBoolean(false);
 				}
-				String nbt = ItemNBTUtils.getNMSItemStackJson(itemStack);
+				String nbt = InteractiveChat.viaVersionHook ? ItemRewriter.getConvertedItemStackNbtJson(itemStack, Registry.VIAVERSION_LATEST_PROTOCOL) : ItemNBTUtils.getNMSItemStackJson(itemStack);
 				writeString(out, nbt, charset);
 			}
 			break;

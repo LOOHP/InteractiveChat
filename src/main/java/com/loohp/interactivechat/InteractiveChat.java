@@ -111,6 +111,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean ventureChatHook = false;
 	public static Boolean discordSrvHook = false;
 	public static Boolean dynmapHook = false;
+	public static Boolean viaVersionHook = false;
 	
 	public static Permission perms = null;
 	
@@ -387,6 +388,11 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
 	    	DiscordSRV.api.subscribe(new DiscordSRVEvents());
 			discordSrvHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("ViaVersion") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ViaVersion!");
+			viaVersionHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {

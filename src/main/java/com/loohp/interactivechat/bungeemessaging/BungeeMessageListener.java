@@ -22,6 +22,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -53,6 +54,10 @@ public class BungeeMessageListener implements PluginMessageListener {
    
         if (!channel.equals("interchat:main")) {
             return;
+        }
+        
+        if (InteractiveChat.viaVersionHook) {
+        	ViaUniversalHook.reducePacketPerSecondReceived(pluginMessagingPlayer.getUniqueId(), 1);
         }
    
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);

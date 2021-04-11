@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -71,6 +72,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.messages.ChannelMessageSink;
 import com.velocitypowered.api.proxy.messages.ChannelMessageSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
@@ -94,6 +96,8 @@ public class InteractiveChatVelocity {
 	protected static Random random = new Random();
 	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
 	private static volatile boolean filtersAdded = false;
+	
+	private static boolean viaVersionHook = false;
 	
 	private static Map<Integer, byte[]> incomming = new HashMap<>();
 	
@@ -221,6 +225,16 @@ public class InteractiveChatVelocity {
 	    	getLogger().info(TextColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
 	    }
     }
+    
+    public static boolean viaVersionHook() {
+		if (viaVersionHook) {
+			return true;
+		} else if (InteractiveChatVelocity.plugin.getServer().getPluginManager().isLoaded("viaversion")) {
+			viaVersionHook = true;
+			return true;
+		}
+		return false;
+	}
 	
 	public static CompletableFuture<Boolean> hasPermission(CommandSource sender, String permission) {
 		CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -283,10 +297,14 @@ public class InteractiveChatVelocity {
 			return;
 		}
 		
-		ChannelMessageSource source = event.getSource();
-		
+		ChannelMessageSource source = event.getSource();	
 		if (!(source instanceof ServerConnection)) {
 			return;
+		}
+		
+		ChannelMessageSink target = event.getTarget();
+		if (target instanceof ConnectedPlayer && InteractiveChatVelocity.viaVersionHook()) {
+			ViaUniversalHook.reducePacketPerSecondReceived(((ConnectedPlayer) target).getUniqueId(), 1);
 		}
 		
 		event.setResult(ForwardResult.handled());

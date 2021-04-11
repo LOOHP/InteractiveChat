@@ -34,6 +34,7 @@ import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -62,6 +63,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -87,6 +89,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static Configuration config = null;
 	public static ConfigurationProvider yamlConfigProvider = null;
 	public static File configFile;
+	
+	private static boolean viaVersionHook = false;
 
 	public static InteractiveChatBungee plugin;
 	public static Metrics metrics;
@@ -167,6 +171,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@Override
 	public void onDisable() {
 		ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
+	}
+	
+	public static boolean viaVersionHook() {
+		if (viaVersionHook) {
+			return true;
+		} else if (ProxyServer.getInstance().getPluginManager().getPlugin("ViaVersion") != null) {
+			viaVersionHook = true;
+			return true;
+		}
+		return false;
 	}
 	
 	private void addFilters() {
@@ -271,6 +285,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		
 		event.setCancelled(true);
+		
+		Connection target = event.getReceiver();
+		if (target instanceof UserConnection && InteractiveChatBungee.viaVersionHook()) {
+			ViaUniversalHook.reducePacketPerSecondReceived(((UserConnection) target).getUniqueId(), 1);
+		}
 
 		SocketAddress senderServer = event.getSender().getSocketAddress();
 		

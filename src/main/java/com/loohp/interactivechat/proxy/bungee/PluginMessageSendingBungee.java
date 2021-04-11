@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -28,17 +26,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class PluginMessageSendingBungee {
-	
-	private static void sendData(ServerInfo server, String channel, byte[] data) {
-		Iterator<ProxiedPlayer> itr = server.getPlayers().iterator();
-        if (itr.hasNext()) {
-            ProxiedPlayer player = itr.next();
-            player.getServer().sendData(channel, data);
-            if (InteractiveChatBungee.viaVersionHook()) {
-            	ViaUniversalHook.reducePacketPerSecondSent(player.getUniqueId(), 1);
-            }
-        }
-	}
 	
 	public static void sendPlayerListData() throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
@@ -76,7 +63,7 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				sendData(server, "interchat:main", out.toByteArray());
+				server.sendData("interchat:main", out.toByteArray());
 				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -158,7 +145,7 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				sendData(server, "interchat:main", out.toByteArray());
+				server.sendData("interchat:main", out.toByteArray());
 				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -188,7 +175,7 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				sendData(server, "interchat:main", out.toByteArray());
+				server.sendData("interchat:main", out.toByteArray());
 				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -220,7 +207,7 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				sendData(server, "interchat:main", out.toByteArray());
+				server.sendData("interchat:main", out.toByteArray());
 				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -251,7 +238,7 @@ public class PluginMessageSendingBungee {
 			out.write(chunk);
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-				sendData(server, "interchat:main", out.toByteArray());
+				server.sendData("interchat:main", out.toByteArray());
 				InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -281,7 +268,7 @@ public class PluginMessageSendingBungee {
 
 			out.write(chunk);
 
-			sendData(server, "interchat:main", out.toByteArray());
+			server.sendData("interchat:main", out.toByteArray());
 			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 		}
 		
@@ -351,7 +338,7 @@ public class PluginMessageSendingBungee {
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
 				if (!server.getName().equals(serverFrom.getName())) {
-					sendData(server, "interchat:main", out.toByteArray());
+					server.sendData("interchat:main", out.toByteArray());
 					InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 				}
 			}
@@ -378,7 +365,7 @@ public class PluginMessageSendingBungee {
 
 			out.write(chunk);
 
-			sendData(server, "interchat:main", out.toByteArray());
+			server.sendData("interchat:main", out.toByteArray());
 			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 		}
 	}
@@ -434,7 +421,7 @@ public class PluginMessageSendingBungee {
 
 			out.write(chunk);
 
-			sendData(server, "interchat:main", out.toByteArray());
+			server.sendData("interchat:main", out.toByteArray());
 			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 		}
 	}
@@ -463,7 +450,7 @@ public class PluginMessageSendingBungee {
 
 			for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
 				if (!server.getName().equals(serverFrom.getName())) {
-					sendData(server, "interchat:main", out.toByteArray());
+					server.sendData("interchat:main", out.toByteArray());
 					InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 				}
 			}

@@ -17,7 +17,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.hooks.viaversion.ViaItemRewriter;
+import com.loohp.interactivechat.hooks.viaversion.ItemRewriter;
 import com.loohp.interactivechat.registry.Registry;
 
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -107,7 +107,7 @@ public class DataTypeIO {
 					int durability = setDurability ? in.readInt() : -1;
 					String nbtStr = readString(in, charset);
 					if (InteractiveChat.viaVersionHook) {
-						nbtStr = ViaItemRewriter.getConvertedItemStackNbtJson(itemStack.getType().getId(), (byte) itemStack.getAmount(), itemStack.getDurability(), nbtStr, ViaItemRewriter.getServerProtocolVersion(), ViaItemRewriter.getProtocolToVersionMap().get(Registry.VIAVERSION_LATEST_PROTOCOL));
+						nbtStr = ItemRewriter.getConvertedItemStackNbtJson(itemStack.getType().getId(), (byte) itemStack.getAmount(), itemStack.getDurability(), nbtStr, ItemRewriter.getServerProtocolVersion(), ItemRewriter.getProtocolToVersionMap().get(Registry.VIAVERSION_LATEST_PROTOCOL));
 					}
 					ItemStack fromTag = ItemNBTUtils.getItemFromNBTJson(nbtStr);
 					if (fromTag != null && fromTag.getType().equals(itemStack.getType())) {
@@ -180,7 +180,7 @@ public class DataTypeIO {
 				} else {
 					out.writeBoolean(false);
 				}
-				String nbt = InteractiveChat.viaVersionHook ? ViaItemRewriter.getConvertedItemStackNbtJson(itemStack, Registry.VIAVERSION_LATEST_PROTOCOL) : ItemNBTUtils.getNMSItemStackJson(itemStack);
+				String nbt = InteractiveChat.viaVersionHook ? ItemRewriter.getConvertedItemStackNbtJson(itemStack, Registry.VIAVERSION_LATEST_PROTOCOL) : ItemNBTUtils.getNMSItemStackJson(itemStack);
 				writeString(out, nbt, charset);
 			}
 			break;

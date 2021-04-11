@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -23,25 +22,9 @@ import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
-import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 
 public class PluginMessageSendingVelocity {
-	
-	private static void sendPluginMessage(RegisteredServer server, ChannelIdentifier identifier, byte[] data) {
-		for (Player player : server.getPlayersConnected()) {
-			VelocityServerConnection connection = ((ConnectedPlayer) player).getConnectedServer();
-		    if (connection != null && connection.getServer() == server) {
-		        connection.sendPluginMessage(identifier, data);
-		        if (InteractiveChatVelocity.viaVersionHook()) {
-	            	ViaUniversalHook.reducePacketPerSecondSent(player.getUniqueId(), 1);
-	            }
-		        return;
-		    }
-		}
-	}
 	
 	private static ProxyServer getServer() {
 		return InteractiveChatVelocity.plugin.getServer();
@@ -83,7 +66,7 @@ public class PluginMessageSendingVelocity {
 			out.write(chunk);
 
 			for (RegisteredServer server : getServer().getAllServers()) {
-				sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+				server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -165,7 +148,7 @@ public class PluginMessageSendingVelocity {
 			out.write(chunk);
 
 			for (RegisteredServer server : getServer().getAllServers()) {
-				sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+				server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -195,7 +178,7 @@ public class PluginMessageSendingVelocity {
 			out.write(chunk);
 
 			for (RegisteredServer server : getServer().getAllServers()) {
-				sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+				server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -227,7 +210,7 @@ public class PluginMessageSendingVelocity {
 			out.write(chunk);
 
 			for (RegisteredServer server : getServer().getAllServers()) {
-				sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+				server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -258,7 +241,7 @@ public class PluginMessageSendingVelocity {
 			out.write(chunk);
 
 			for (RegisteredServer server : getServer().getAllServers()) {
-				sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+				server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
 		}
@@ -288,7 +271,7 @@ public class PluginMessageSendingVelocity {
 
 			out.write(chunk);
 
-			sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 		}
 		
@@ -358,7 +341,7 @@ public class PluginMessageSendingVelocity {
 
 			for (RegisteredServer server : getServer().getAllServers()) {
 				if (!server.getServerInfo().getName().equals(serverFrom.getServerInfo().getName())) {
-					sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+					server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 					InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 				}
 			}
@@ -385,7 +368,7 @@ public class PluginMessageSendingVelocity {
 
 			out.write(chunk);
 
-			sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 		}
 	}
@@ -441,7 +424,7 @@ public class PluginMessageSendingVelocity {
 
 			out.write(chunk);
 
-			sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 		}
 	}
@@ -470,7 +453,7 @@ public class PluginMessageSendingVelocity {
 
 			for (RegisteredServer server : getServer().getAllServers()) {
 				if (!server.getServerInfo().getName().equals(serverFrom.getServerInfo().getName())) {
-					sendPluginMessage(server, ICChannelIdentifier.INSTANCE, out.toByteArray());
+					server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 					InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 				}
 			}

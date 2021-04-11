@@ -16,7 +16,7 @@ import us.myles.ViaVersion.api.Via;
 import us.myles.ViaVersion.api.minecraft.item.Item;
 import us.myles.ViaVersion.api.minecraft.nbt.BinaryTagIO;
 
-public class ViaItemRewriter {
+public class ItemRewriter {
 	
 	private static final Map<Integer, MCVersion> PROTOCOL_TO_VERSION = new HashMap<>();
 	private static MCVersion SERVER_PROTOCOL_VERSION;

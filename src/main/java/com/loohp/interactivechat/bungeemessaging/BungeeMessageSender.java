@@ -2,7 +2,6 @@ package com.loohp.interactivechat.bungeemessaging;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.hooks.viaversion.ViaUniversalHook;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -43,17 +41,15 @@ public class BungeeMessageSender {
 	}
 	
 	public static boolean forwardData(int packetId, byte[] data) {
-		Iterator<? extends Player> itr = Bukkit.getOnlinePlayers().iterator();
-		if (!itr.hasNext()) {
+		Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+		if (player == null) {
 			return false;
 		}
-		Player player = itr.next();
 		
 		int packetNumber = random.nextInt();
-		int numberOfPackets = 0;
 		try {
 			byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
-			numberOfPackets = dataArray.length;
+			
 			for (int i = 0; i < dataArray.length; i++) {
 				byte[] chunk = dataArray[i];
 				
@@ -68,10 +64,6 @@ public class BungeeMessageSender {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		if (InteractiveChat.viaVersionHook) {
-			ViaUniversalHook.reducePacketPerSecondSent(player.getUniqueId(), numberOfPackets);
 		}
         return true;
 	}

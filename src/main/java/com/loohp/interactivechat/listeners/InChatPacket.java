@@ -104,12 +104,18 @@ public class InChatPacket {
 					event.setReadOnly(true);
 					
 					Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-						String message = message0;
+						String message = message0.trim();
 						
 						if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
 							message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim();
 						}
 						
+						if (player.isConversing()) {
+							String conver = message;
+							Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(conver));
+							return;
+						}
+
 						AsyncPlayerChatEvent chatEvent = new AsyncPlayerChatEvent(true, player, message, new HashSet<>());
 						
 						for (EventPriority priority : EVENT_PRIORITIES) {

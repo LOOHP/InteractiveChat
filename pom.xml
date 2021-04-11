@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>3.3.1.0</version>
+	<version>3.3.0.6</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -200,19 +200,9 @@
 			<id>velocity</id>
 			<url>https://nexus.velocitypowered.com/repository/maven-public/</url>
 		</repository>
-		<repository>
-			<id>viaversion-repo</id>
-			<url>https://repo.viaversion.com</url>
-		</repository>
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>us.myles</groupId>
-			<artifactId>viaversion</artifactId>
-			<version>3.2.1</version>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>

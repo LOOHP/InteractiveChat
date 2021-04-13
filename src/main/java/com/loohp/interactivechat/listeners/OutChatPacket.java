@@ -55,7 +55,6 @@ import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 
-import mineverse.Aust1n46.chat.listeners.PacketListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;

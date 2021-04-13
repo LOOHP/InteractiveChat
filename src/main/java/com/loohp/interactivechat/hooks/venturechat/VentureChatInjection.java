@@ -17,6 +17,7 @@ import mineverse.Aust1n46.chat.listeners.PacketListener;
 public class VentureChatInjection implements Listener {
 	
 	private static boolean init = false;
+	private static PacketListener packetListener = null;
 	
 	public static void _init_() {
 		Bukkit.getPluginManager().registerEvents(new VentureChatInjection(), InteractiveChat.plugin);
@@ -35,7 +36,10 @@ public class VentureChatInjection implements Listener {
 	}
 	
 	public static void firePacketListener(PacketEvent event) {
-		new PacketListener().onPacketSending(event);
+		if (packetListener == null) {
+			packetListener = new PacketListener();
+		}
+		packetListener.onPacketSending(event);
 	}
 	
 	@EventHandler

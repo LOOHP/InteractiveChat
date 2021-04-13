@@ -33,6 +33,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.api.events.PrePacketComponentProcessEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
 import com.loohp.interactivechat.modules.EnderchestDisplay;
@@ -54,6 +55,7 @@ import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 
+import mineverse.Aust1n46.chat.listeners.PacketListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
@@ -89,6 +91,10 @@ public class OutChatPacket implements Listener {
 		    public void onPacketSending(PacketEvent event) {
 		    	if (!event.isFiltered() || event.isCancelled() || !event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
 		    		return;
+		    	}
+		    	
+		    	if (InteractiveChat.ventureChatHook) {
+		    		VentureChatInjection.firePacketListener(event);
 		    	}
 		    	
 		    	InteractiveChat.messagesCounter.getAndIncrement();

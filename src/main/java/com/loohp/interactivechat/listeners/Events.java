@@ -192,7 +192,7 @@ public class Events implements Listener {
 		
 		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
 			String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
-			message += uuidmatch;
+			message = message + " " + uuidmatch;
 			InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(new ICPlayer(event.getPlayer()), uuidmatch));
 			if (InteractiveChat.bungeecordMode) {
 				try {

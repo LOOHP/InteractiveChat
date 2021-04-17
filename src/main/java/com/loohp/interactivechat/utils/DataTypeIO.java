@@ -78,8 +78,7 @@ public class DataTypeIO {
 			YamlConfiguration config = new YamlConfiguration();
 			try {
 				config.loadFromString(data);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Throwable e) {
 				return null;
 			}
 			return config.getItemStack("i", null);

@@ -37,8 +37,7 @@ Settings:
   Bungeecord: false
   #Add chat listening plugins here for compatibility
   #Format: "Plugin:<REGEX of Plugin Name>, Class:<REGEX of Class Name>, EventPriority:<String of EventPriority>"
-  ChatListeningPlugins:
-    - "Plugin:QuickShop, Class:.*, EventPriority:LOWEST"
+  ChatListeningPlugins: []
   #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   UseAccurateSenderParser: true
   SendOriginalMessageIfExceedLengthLimit: true

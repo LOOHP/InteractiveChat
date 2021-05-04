@@ -209,7 +209,7 @@ public class ItemDisplay {
 								    int componentMode = 0;
 								    //0 regular string; 1 translatable string; 2 direct json
 								    
-								    String rawDisplayName = NBTUtils.getString(item, "display", "Name");
+								    String rawDisplayName = item.hasItemMeta() && item.getItemMeta() != null ? NBTUtils.getString(item, "display", "Name") : null;
 								    if (rawDisplayName != null && JsonUtils.isValid(rawDisplayName)) {
 								    	try {
 								    		componentMode = 2;

@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>3.3.0.12</version>
+	<version>3.3.0.13</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -203,6 +203,14 @@
 	</repositories>
 
 	<dependencies>
+		<!-- 
+		<dependency>
+			<groupId>com.github.Querz</groupId>
+			<artifactId>NBT</artifactId>
+			<version>5.5</version>
+			<scope>compile</scope>
+		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>

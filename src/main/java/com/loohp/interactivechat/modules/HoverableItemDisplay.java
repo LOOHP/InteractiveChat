@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.modules;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +86,9 @@ public class HoverableItemDisplay {
 								if (tag != null) {
 									String nbt = tag.getNbt();
 									if (nbt != null) {
-										item = NBTUtils.set(item, NBTUtils.getNBTCompound(nbt));
+										try {
+											item = NBTUtils.set(item, NBTUtils.getNBTCompound(nbt));
+										} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
 									}
 								}
 								base.setClickEvent(createItemDisplay(item));

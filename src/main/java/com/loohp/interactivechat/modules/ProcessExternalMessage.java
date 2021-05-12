@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.text.translate.UnicodeUnescaper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -235,7 +234,7 @@ public class ProcessExternalMessage {
 	}
 	
 	public String processAndRespond0(Player reciever, String component) throws Exception {
-		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(new UnicodeUnescaper().translate(component))));
+		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(InteractiveChat.COLOR_CHAR_UNESCAPE.apply(component))));
 		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
         
         try {

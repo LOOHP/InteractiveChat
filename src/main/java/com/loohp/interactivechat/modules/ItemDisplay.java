@@ -203,6 +203,10 @@ public class ItemDisplay {
 								    	itemJson = ItemNBTUtils.getNMSItemStackJson(trimedItem);
 								    	trimmed = true;
 								    }
+								    
+								    //itemJson = ItemNBTUtils.convertToVersion(xMaterial, itemJson, MCVersion.V1_12);
+								    //ystem.out.println(itemJson);
+								    
 								    String message = "";
 								    String itemString = null;
 								    String amountString = "";

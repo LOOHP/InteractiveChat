@@ -344,39 +344,30 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		
-		if (!InteractiveChat.chatAltColorCode.isPresent()) {
-			return;
-		}
-		
 		Player player = event.getPlayer();
-		
-		if (!player.hasPermission("interactivechat.chatcolor.translate")) {
-			return;
+		if (player.hasPermission("interactivechat.chatcolor.translate")) {
+			if (InteractiveChat.chatAltColorCode.isPresent()) {
+				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
+			}
+		} else {
+			System.out.println(event.getMessage());
+			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));
+			System.out.println(event.getMessage());
 		}
-		
-		String message = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
-		event.setMessage(message);
-		//Bukkit.getConsoleSender().sendMessage(message.replace(ChatColor.COLOR_CHAR, '&'));
 	}
 	
 	private void translateAltColorCode(PlayerCommandPreprocessEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-		
-		if (!InteractiveChat.chatAltColorCode.isPresent()) {
-			return;
-		}
-		
 		Player player = event.getPlayer();
-		
-		if (!player.hasPermission("interactivechat.chatcolor.translate")) {
-			return;
+		if (player.hasPermission("interactivechat.chatcolor.translate")) {
+			if (InteractiveChat.chatAltColorCode.isPresent()) {
+				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
+			}
+		} else {
+			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));
 		}
-		
-		String message = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
-		event.setMessage(message);
 	}
 	
 	private Set<InventoryClickEvent> cancelledInventory = new HashSet<>();

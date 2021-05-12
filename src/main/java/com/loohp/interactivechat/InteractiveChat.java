@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -87,9 +89,19 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.milkbowl.vault.permission.Permission;
 
+@SuppressWarnings("deprecation")
 public class InteractiveChat extends JavaPlugin {
 	
 	public static final int BSTATS_PLUGIN_ID = 6747;
+	
+	public static Optional<Character> chatAltColorCode = Optional.empty();
+	
+	public static final Function<String, String> COLOR_CHAR_ESCAPE = str -> {
+		return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", InteractiveChat.chatAltColorCode.orElse(' ') + "");
+	};
+	public static final Function<String, String> COLOR_CHAR_UNESCAPE = str -> {
+		return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
+	};
 	
 	public static InteractiveChat plugin = null;
 	
@@ -224,7 +236,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static int maxPlaceholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
-	public static Map<Player, Long> mentionCooldown = new ConcurrentHashMap<>();	
+	public static Map<Player, Long> mentionCooldown = new ConcurrentHashMap<>();
 	public static Map<UUID, MentionPair> mentionPair = new ConcurrentHashMap<>();
 	public static String mentionPrefix = "@";
 	public static String mentionHightlight = "&e{MentionedPlayer}";
@@ -252,8 +264,6 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean sendOriginalIfTooLong = false;
 	
-	public static Optional<Character> chatAltColorCode = Optional.empty();
-	
 	public static AtomicLong messagesCounter = new AtomicLong(0);
 	
 	public static Boolean bungeecordMode = false;
@@ -265,7 +275,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static ItemStack unknownReplaceItem;
 	
 	public static List<CompatibilityListener> compatibilityListeners = new ArrayList<>();
-	public static Map<EventPriority, Set<RegisteredListener>> isolatedListeners = new EnumMap<>(EventPriority.class);
+	public static Map<EventPriority, Set<RegisteredListener>> isolatedAsyncListeners = new EnumMap<>(EventPriority.class);
+	public static Map<EventPriority, Set<RegisteredListener>> isolatedSyncListeners = new EnumMap<>(EventPriority.class);
 	
 	public static boolean useAccurateSenderFinder = true;
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
@@ -316,11 +327,6 @@ public class InteractiveChat extends JavaPlugin {
                 getLogger().severe("[InteractiveChat] Unable to copy storage.yml");
             }
     	}
-		
-		if (getConfig().contains("Settings.BlockMessagesLongerThan30000RegardlessOfVersion")) {
-			getConfig().set("Settings.BlockMessagesLongerThan30000RegardlessOfVersion", null);
-			saveConfig();
-		}
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
 
@@ -456,16 +462,17 @@ public class InteractiveChat extends JavaPlugin {
 	    	Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
 	    }
 	    
-	    displayTimeout();
+	    gc();
 	}
 
 	@Override
 	public void onDisable() {
 		restoreIsolatedChatListeners();
+		OutChatPacket.shutdown();
 		getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
 	}
 	
-	private void displayTimeout() {
+	private void gc() {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
 			List<SharedDisplayTimeoutInfo> remove = new ArrayList<>();
 			long now = System.currentTimeMillis();
@@ -502,20 +509,39 @@ public class InteractiveChat extends JavaPlugin {
 					}
 				});
 			}
+			
+			Iterator<Long> itr = cooldownbypass.keySet().iterator();
+			while (itr.hasNext()) {
+				Long time = itr.next();
+				if (time == null || time + 10000 < now) {
+					itr.remove();
+				}
+			}
 		}, 0, 1200);
 	}
 	
 	protected static void restoreIsolatedChatListeners() {
 		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
 		for (EventPriority priority : EventPriority.values()) {
-			Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedListeners.get(priority);
+			Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedAsyncListeners.get(priority);
 			if (isolatedListeners != null) {
 				for (RegisteredListener registration : isolatedListeners) {
 					handlerList.register(registration);
 				}
 			}
 		}
-		InteractiveChat.isolatedListeners.clear();
+		InteractiveChat.isolatedAsyncListeners.clear();
+		
+		HandlerList syncHandlerList = PlayerChatEvent.getHandlerList();
+		for (EventPriority priority : EventPriority.values()) {
+			Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedSyncListeners.get(priority);
+			if (isolatedListeners != null) {
+				for (RegisteredListener registration : isolatedListeners) {
+					syncHandlerList.register(registration);
+				}
+			}
+		}
+		InteractiveChat.isolatedSyncListeners.clear();
 	}
 	
 }

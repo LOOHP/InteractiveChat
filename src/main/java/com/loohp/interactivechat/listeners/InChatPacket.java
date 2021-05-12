@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -14,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.plugin.AuthorNagException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
@@ -27,6 +30,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.registry.Registry;
 
+@SuppressWarnings("deprecation")
 public class InChatPacket {
 	
 	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
@@ -34,51 +38,8 @@ public class InChatPacket {
 	
 	public static void chatMessageListener() {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
-			HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
-			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
-			List<RegisteredListener> toRemove = new ArrayList<>();
-			
-			for (RegisteredListener registration : listeners) {
-	            if (!registration.getPlugin().isEnabled()) {
-	                continue;
-	            }
-	            String pluginName = registration.getPlugin().getName();
-	            if (pluginName.equalsIgnoreCase("InteractiveChat")) {
-	            	continue;
-	            }
-	            CompatibilityListener compatibilityListener = null;
-	            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
-	            	if (pluginName.matches(listener.getPluginRegex())) {
-	            		compatibilityListener = listener;
-	            		break;
-	            	}
-	            }
-	            if (compatibilityListener == null) {
-	            	continue;
-	            }
-	            if (!registration.getPriority().equals(compatibilityListener.getPriority())) {
-	            	continue;
-	            }
-	            if (!registration.getListener().getClass().getName().matches(compatibilityListener.getClassName())) {
-	            	continue;
-	            }
-	            
-	            Set<RegisteredListener> list = InteractiveChat.isolatedListeners.get(registration.getPriority());
-	            if (list == null) {
-	            	list = new LinkedHashSet<>();
-	            	InteractiveChat.isolatedListeners.put(registration.getPriority(), list);
-	            }
-	            
-	            list.add(registration);
-	            
-	            toRemove.add(registration);
-	        }
-			
-			Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-				for (RegisteredListener registration : toRemove) {
-					handlerList.unregister(registration);
-				}
-			});
+			checkAsync();
+			checkSync();
 		}, 0, 200);
 		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.CHAT)) {
@@ -119,7 +80,7 @@ public class InChatPacket {
 						AsyncPlayerChatEvent chatEvent = new AsyncPlayerChatEvent(true, player, message, new HashSet<>());
 						
 						for (EventPriority priority : EVENT_PRIORITIES) {
-							Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedListeners.get(priority);
+							Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedAsyncListeners.get(priority);
 							if (isolatedListeners != null) {
 								for (RegisteredListener registration : isolatedListeners) {
 									try {
@@ -144,9 +105,54 @@ public class InChatPacket {
 							}
 						}
 						
-						if (chatEvent.isCancelled()) {
+						AtomicBoolean isCancelled = new AtomicBoolean(chatEvent.isCancelled());
+						String message1 = chatEvent.getMessage();
+						
+						if (!InteractiveChat.isolatedAsyncListeners.isEmpty()) {
+							AtomicBoolean flag = new AtomicBoolean(false);
+							
+							Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+								PlayerChatEvent syncChatEvent = new PlayerChatEvent(player, message1);
+								
+								for (EventPriority priority : EVENT_PRIORITIES) {
+									Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedSyncListeners.get(priority);
+									if (isolatedListeners != null) {
+										for (RegisteredListener registration : isolatedListeners) {
+											try {
+								                registration.callEvent(syncChatEvent);
+								            } catch (AuthorNagException ex) {
+								                Plugin plugin = registration.getPlugin();
+
+								                if (plugin.isNaggable()) {
+								                    plugin.setNaggable(false);
+
+								                    Bukkit.getLogger().log(Level.SEVERE, String.format(
+								                            "Nag author(s): '%s' of '%s' about the following: %s",
+								                            plugin.getDescription().getAuthors(),
+								                            plugin.getDescription().getFullName(),
+								                            ex.getMessage()
+								                            ));
+								                }
+								            } catch (Throwable ex) {
+								            	Bukkit.getLogger().log(Level.SEVERE, "Could not pass event " + chatEvent.getEventName() + " to " + registration.getPlugin().getDescription().getFullName(), ex);
+								            }
+										}
+									}
+								}
+								
+								isCancelled.set(syncChatEvent.isCancelled() || isCancelled.get());
+								flag.set(true);
+							});
+							
+							while (!flag.get()) {
+								try {TimeUnit.NANOSECONDS.sleep(10000);} catch (InterruptedException e) {}
+							}
+						}
+						
+						if (isCancelled.get()) {
 							newPacket.getStrings().write(0, message + Registry.CANCELLED_IDENTIFIER);
 						}
+						
 						try {
 							InteractiveChat.protocolManager.recieveClientPacket(player, newPacket, false);
 						} catch (IllegalAccessException | InvocationTargetException e) {
@@ -154,6 +160,106 @@ public class InChatPacket {
 						}
 					});
 				}	
+			}
+		});
+	}
+	
+	private static void checkAsync() {
+		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
+		List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
+		List<RegisteredListener> toRemove = new ArrayList<>();
+		
+		for (RegisteredListener registration : listeners) {
+            if (!registration.getPlugin().isEnabled()) {
+                continue;
+            }
+            String pluginName = registration.getPlugin().getName();
+            if (pluginName.equalsIgnoreCase("InteractiveChat")) {
+            	continue;
+            }
+            CompatibilityListener compatibilityListener = null;
+            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
+            	if (pluginName.matches(listener.getPluginRegex())) {
+            		compatibilityListener = listener;
+            		break;
+            	}
+            }
+            if (compatibilityListener == null) {
+            	continue;
+            }
+            if (!registration.getPriority().equals(compatibilityListener.getPriority())) {
+            	continue;
+            }
+            if (!registration.getListener().getClass().getName().matches(compatibilityListener.getClassName())) {
+            	continue;
+            }
+            
+            Set<RegisteredListener> list = InteractiveChat.isolatedAsyncListeners.get(registration.getPriority());
+            if (list == null) {
+            	list = new LinkedHashSet<>();
+            	InteractiveChat.isolatedAsyncListeners.put(registration.getPriority(), list);
+            }
+            
+            list.add(registration);
+            
+            toRemove.add(registration);
+        }
+		
+		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			for (RegisteredListener registration : toRemove) {
+				handlerList.unregister(registration);
+			}
+		});
+	}
+	
+	private static void checkSync() {
+		HandlerList handlerList = PlayerChatEvent.getHandlerList();
+		if (handlerList.getRegisteredListeners().length == 0) {
+			return;
+		}
+		
+		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
+			List<RegisteredListener> toRemove = new ArrayList<>();
+			
+			for (RegisteredListener registration : listeners) {
+	            if (!registration.getPlugin().isEnabled()) {
+	                continue;
+	            }
+	            String pluginName = registration.getPlugin().getName();
+	            if (pluginName.equalsIgnoreCase("InteractiveChat")) {
+	            	continue;
+	            }
+	            CompatibilityListener compatibilityListener = null;
+	            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
+	            	if (pluginName.matches(listener.getPluginRegex())) {
+	            		compatibilityListener = listener;
+	            		break;
+	            	}
+	            }
+	            if (compatibilityListener == null) {
+	            	continue;
+	            }
+	            if (!registration.getPriority().equals(compatibilityListener.getPriority())) {
+	            	continue;
+	            }
+	            if (!registration.getListener().getClass().getName().matches(compatibilityListener.getClassName())) {
+	            	continue;
+	            }
+	            
+	            Set<RegisteredListener> list = InteractiveChat.isolatedSyncListeners.get(registration.getPriority());
+	            if (list == null) {
+	            	list = new LinkedHashSet<>();
+	            	InteractiveChat.isolatedSyncListeners.put(registration.getPriority(), list);
+	            }
+	            
+	            list.add(registration);
+	            
+	            toRemove.add(registration);
+	        }
+		
+			for (RegisteredListener registration : toRemove) {
+				handlerList.unregister(registration);
 			}
 		});
 	}

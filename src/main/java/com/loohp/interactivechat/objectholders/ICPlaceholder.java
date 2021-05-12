@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class ICPlaceholder {
 	
-	private final boolean isCustomPlaceholder;
+	private boolean isCustomPlaceholder;
 	private String keyword;
 	private boolean caseSensitive;
 	private String description;

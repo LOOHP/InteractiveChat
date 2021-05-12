@@ -71,6 +71,8 @@ public class CustomPlaceholder extends ICPlaceholder {
 		VIEWER("viewer", 0),
 		SENDER("sender", 1);
 		
+		private static final ParsePlayer[] VALUES = values();
+		
 		private String name;
 		private int ord;
 		
@@ -89,7 +91,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 		}
 		
 		public static ParsePlayer fromString(String name) {
-			for (ParsePlayer parsePlayer : values()) {
+			for (ParsePlayer parsePlayer : VALUES) {
 				if (name.equalsIgnoreCase(parsePlayer.toString())) {
 					return parsePlayer;
 				}
@@ -98,7 +100,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 		}
 		
 		public static ParsePlayer fromOrder(int order) {
-			for (ParsePlayer parsePlayer : values()) {
+			for (ParsePlayer parsePlayer : VALUES) {
 				if (order == parsePlayer.getOrder()) {
 					return parsePlayer;
 				}

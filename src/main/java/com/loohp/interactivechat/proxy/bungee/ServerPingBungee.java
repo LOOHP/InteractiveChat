@@ -17,6 +17,7 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataStreamIO;
 import com.loohp.interactivechat.utils.MCVersion;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -92,7 +93,7 @@ public class ServerPingBungee {
 						    JSONObject data;
 						    if (descriptionObj instanceof JSONObject) {
 						    	JSONObject description = (JSONObject) json.get("description");
-							    String descriptionAsStr = ComponentSerializer.parse(description.toJSONString())[0].toPlainText();
+							    String descriptionAsStr = ChatColor.stripColor(ComponentSerializer.parse(description.toJSONString())[0].toPlainText());
 							    data = (JSONObject) new JSONParser().parse(descriptionAsStr);
 						    } else {
 						    	data = (JSONObject) new JSONParser().parse(StringEscapeUtils.unescapeJava(descriptionObj.toString()));

@@ -3,7 +3,7 @@ package com.loohp.interactivechat.registry;
 public class Registry {
 	
 	public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InterativeChatBungeePing";
-	public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 3;
+	public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 4;
 	
 	public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 0;
 	

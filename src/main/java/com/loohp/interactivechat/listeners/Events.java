@@ -350,9 +350,7 @@ public class Events implements Listener {
 				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
 			}
 		} else {
-			System.out.println(event.getMessage());
 			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));
-			System.out.println(event.getMessage());
 		}
 	}
 	

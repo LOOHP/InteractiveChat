@@ -504,9 +504,21 @@ public class ChatComponentUtils {
 		}
 		
 		BaseComponent base = toJoin[0];
-		for (int i = 1; i < toJoin.length; i++) {
-			BaseComponent each = toJoin[i];
-			base.addExtra(each);
+		try {
+			for (int i = 1; i < toJoin.length; i++) {
+				BaseComponent each = toJoin[i];
+				base.addExtra(each);
+			}
+		} catch (UnsupportedOperationException e) {
+			List<BaseComponent> extras = new ArrayList<>();
+			if (base.getExtra() != null) {
+				extras.addAll(base.getExtra());
+			}
+			for (int i = 1; i < toJoin.length; i++) {
+				BaseComponent each = toJoin[i];
+				extras.add(each);
+			}
+			base.setExtra(extras);
 		}
 		
 		return base;
@@ -514,7 +526,7 @@ public class ChatComponentUtils {
 	
 	public static BaseComponent translatePluginFontFormatting(BaseComponent basecomponent) {
 		List<BaseComponent> list = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<BaseComponent>();
+		List<BaseComponent> newlist = new ArrayList<>();
 		Optional<String> currentFont = Optional.empty();
 		
 		for (BaseComponent each : list) {

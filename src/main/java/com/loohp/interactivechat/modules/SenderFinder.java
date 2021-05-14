@@ -2,6 +2,7 @@ package com.loohp.interactivechat.modules;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,7 +69,7 @@ public class SenderFinder {
 			}
 		}
 		
-		HashMap<String, UUID> names = new HashMap<String, UUID>();
+		Map<String, UUID> names = new HashMap<>();
 		Bukkit.getOnlinePlayers().forEach((each) -> {
 			names.put(ChatColorUtils.stripColor(each.getName()), each.getUniqueId());
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {

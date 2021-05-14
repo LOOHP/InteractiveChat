@@ -11,12 +11,11 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,11 +71,10 @@ public class OutChatPacket implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	private static Queue<OutboundPacket> sendingQueue = new ConcurrentLinkedQueue<>();
-	private static AtomicBoolean lock = new AtomicBoolean(false);
 	private static int chatFieldsSize;
 	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
-	private static ThreadPoolExecutor asyncThreadPool;
+	private static ExecutorService asyncThreadPool;
 	private static Map<Future<?>, Long> executingTasks = new ConcurrentHashMap<>();
 	
 	static {
@@ -90,8 +88,9 @@ public class OutChatPacket implements Listener {
 				break;
 			}
 		}
+		
 		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
-		asyncThreadPool = new ThreadPoolExecutor(8, 8, 10000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), factory);
+		asyncThreadPool = Executors.newCachedThreadPool(factory);
 	}
 	
 	private static void execute(Runnable runnable) {
@@ -142,10 +141,6 @@ public class OutChatPacket implements Listener {
 					future.cancel(true);
 					itr.remove();
 				}
-			}
-			int threadCount = Math.max(8, Math.min(Bukkit.getOnlinePlayers().size() * 4, 32));
-			if (asyncThreadPool.getMaximumPoolSize() != threadCount) {
-				asyncThreadPool.setMaximumPoolSize(threadCount);
 			}
 		}, 0, 20);
 	}
@@ -205,11 +200,6 @@ public class OutChatPacket implements Listener {
 	}
 	
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
-		long timeout = System.currentTimeMillis() + (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 1000;
-		while (lock.get() && System.currentTimeMillis() < timeout) {
-			try {TimeUnit.NANOSECONDS.sleep(1000);} catch (InterruptedException e) {}
-		}
-		lock.set(true);
 		PacketContainer originalPacket = packet.deepClone();
     	try {
     		BaseComponent[] basecomponentarray = null;
@@ -222,7 +212,6 @@ public class OutChatPacket implements Listener {
 	        			try {
 	        				basecomponentarray = t.convertFrom(packet.getModifier().read(i));
 	        			} catch (Throwable e) {
-	        				lock.set(false);
 	        	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	        	return;
 	        			}
@@ -233,7 +222,6 @@ public class OutChatPacket implements Listener {
 	        	}
 	        }
 	        if (field < 0 || type == null || basecomponentarray == null) {
-	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -243,7 +231,6 @@ public class OutChatPacket implements Listener {
 	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(InteractiveChat.COLOR_CHAR_UNESCAPE.apply(ComponentSerializer.toString(basecomponentarray)))));
 	        } catch (Exception e) {
 	        	e.printStackTrace();
-	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -251,39 +238,36 @@ public class OutChatPacket implements Listener {
 	        try {
 	        	String text = basecomponent.toLegacyText();
 	        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
-	        		lock.set(false);
 	        		orderAndSend(reciever, packet, messageUUID, queue);
 	        		return;
 	        	}
 	        } catch (Exception e) {
-	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
 
 	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
-	        	lock.set(false);
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
-	        }
-
-	        String rawMessageKey = basecomponent.toPlainText();
-	        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
-	        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
-	        }
-
-	        Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
-	        long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
-	        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
-	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
 	        }
 
 	        @SuppressWarnings("unused")
 			boolean isCommand = false;
 	        @SuppressWarnings("unused")
 	        boolean isChat = false;
-	        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);
+
 	        Optional<ICPlayer> sender = Optional.empty();
+	        String rawMessageKey = basecomponent.toPlainText();
+	        	   
+	        InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
+
+	        Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
+	        long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
+	        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
+	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
+	        }
+	        
+	        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);		    
 	        if (commandSender.getSender() != null) {
 	        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
 	        	if (bukkitplayer != null) {
@@ -322,7 +306,6 @@ public class OutChatPacket implements Listener {
 	        
 	        if (sender.isPresent() && !sender.get().isLocal()) {
 	        	if (isFiltered) {
-	        		lock.set(false);
 	        		Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
 	        			execute(() -> {
 	        				processPacket(reciever, packet, messageUUID, queue, false);
@@ -432,7 +415,6 @@ public class OutChatPacket implements Listener {
 	        if (postEvent.isCancelled()) {
         		if (postEvent.sendOriginalIfCancelled()) {
         			PacketContainer originalPacketModified = postEvent.getOriginal();
-        			lock.set(false);
 		        	orderAndSend(reciever, originalPacketModified, messageUUID, queue);
 		        	return;
         		} else {
@@ -443,16 +425,13 @@ public class OutChatPacket implements Listener {
 	        	queue.remove(messageUUID);
 	        	return;
 	        }
-	        lock.set(false);
 	        orderAndSend(reciever, packet, messageUUID, queue);
     	} catch (Exception e) {
     		e.printStackTrace();
     		try {
-    			lock.set(false);
 				orderAndSend(reciever, originalPacket, messageUUID, queue);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
-				lock.set(false);
 			}
     	}
 	}

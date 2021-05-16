@@ -211,6 +211,9 @@ public class PlayernameDisplay implements Listener {
 			return false;
 		}
 		TextComponent text = (TextComponent) component[0];
+		if (!sender.get().isValid()) {
+			return false;
+		}
 		String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.get().getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
 		if (text == null || text.getText() == null) {
 			return false;

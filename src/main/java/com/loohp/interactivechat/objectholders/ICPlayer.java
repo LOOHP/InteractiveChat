@@ -47,6 +47,10 @@ public class ICPlayer {
 	public boolean isLocal() {
 		return Bukkit.getPlayer(uuid) != null;
 	}
+	
+	public boolean isValid() {
+		return isLocal() ? true : (remoteServer != null);
+	}
 
 	public Player getLocalPlayer() {
 		return Bukkit.getPlayer(uuid);

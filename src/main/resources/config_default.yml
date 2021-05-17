@@ -44,6 +44,7 @@ Settings:
     - "Plugin:MangoQuest, Class:.*, EventPriority:NORMAL"
     - "Plugin:Quests, Class:.*, EventPriority:NORMAL"
     - "Plugin:JetsMinions, Class:.*, EventPriority:NORMAL"
+    - "Plugin:Slimefun, Class:.*, EventPriority:LOWEST"
   #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   UseAccurateSenderParser: true
   SendOriginalMessageIfExceedLengthLimit: true

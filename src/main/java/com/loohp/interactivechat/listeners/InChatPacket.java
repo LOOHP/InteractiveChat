@@ -108,7 +108,7 @@ public class InChatPacket {
 						AtomicBoolean isCancelled = new AtomicBoolean(chatEvent.isCancelled());
 						String message1 = chatEvent.getMessage();
 						
-						if (!InteractiveChat.isolatedAsyncListeners.isEmpty()) {
+						if (!InteractiveChat.isolatedSyncListeners.isEmpty()) {
 							AtomicBoolean flag = new AtomicBoolean(false);
 							
 							Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {

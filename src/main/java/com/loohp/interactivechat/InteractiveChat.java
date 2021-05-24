@@ -266,6 +266,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static AtomicLong messagesCounter = new AtomicLong(0);
 	
+	public static boolean parsePAPIOnMainThread = false;
+	
 	public static Boolean bungeecordMode = false;
 	public static BiMap<UUID, ICPlayer> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
 	public static Map<String, List<ICPlaceholder>> remotePlaceholderList = new HashMap<>();

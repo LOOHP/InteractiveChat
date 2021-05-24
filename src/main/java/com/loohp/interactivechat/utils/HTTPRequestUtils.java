@@ -22,7 +22,11 @@ public class HTTPRequestUtils {
 
 	public static JSONObject getJSONResponse(String link) {
 		try {
-			return (JSONObject) new JSONParser().parse(getTextResponse(link, true));
+			String response = getTextResponse(link, true);
+			if (response != null) {
+				return (JSONObject) new JSONParser().parse(response);
+			}
+			return null;
 		} catch (ParseException e) {
 			return null;
 		}

@@ -69,6 +69,7 @@ public class ConfigManager {
 	public static void loadConfig() {		
 		InteractiveChat.aliasesMapping.clear();
 		
+		InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
 		InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
 		
 		InteractiveChat.restoreIsolatedChatListeners();

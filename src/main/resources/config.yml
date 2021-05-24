@@ -276,7 +276,7 @@ Player:
     #Supports multiple lines
     Text: 
       - '&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%'
-      - '&eBiome: &6%player_biome%'
+      - '&eBiome: &6%player_biome_capitalized%'
       - '&cHealth: %player_health_rounded%&7/%player_max_health_rounded%'
       - '&bPing: &7%player_colored_ping% &bms'
   Click:

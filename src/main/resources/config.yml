@@ -170,6 +170,8 @@ Chat:
   MentionHoverText:
     - "&b{Sender} mentioned you!"
 
+  UseEssentialsNicknames: true
+
 ItemDisplay:
   Settings:
     #How long should an item display be stored in memory after its creation

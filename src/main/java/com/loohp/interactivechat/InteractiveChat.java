@@ -283,6 +283,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean useAccurateSenderFinder = true;
 	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
 	
+	public static boolean useEssentialsNicknames = true;
+	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
 	

@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.hooks.essentials;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class EssentialsNicknames implements Listener {
 	private static Essentials essen;
 	private static String prefix;
 	
+	private static final List<String> EMPTY_LIST = Collections.emptyList();
 	private static final Map<UUID, List<String>> ESSENTIALS_NICK = new ConcurrentHashMap<>();
 	
 	public static void setup() {
@@ -33,8 +35,12 @@ public class EssentialsNicknames implements Listener {
 		prefix = essen.getConfig().getString("nickname-prefix");
 		
 		InteractiveChatAPI.registerNicknameProvider(essen, uuid -> {
-			List<String> names = ESSENTIALS_NICK.get(uuid);
-			return names;
+			if (InteractiveChat.useEssentialsNicknames) {
+				List<String> names = ESSENTIALS_NICK.get(uuid);
+				return names;
+			} else {
+				return EMPTY_LIST;
+			}
 		});
 		
 		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {

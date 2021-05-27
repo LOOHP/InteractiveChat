@@ -361,6 +361,8 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
+		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
+		
 		InteractiveChat.language = getConfig().getString("Settings.Language");
 		
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {

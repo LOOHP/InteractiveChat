@@ -325,9 +325,6 @@ public class ItemDisplay {
 			itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
 		}
 		
-		System.out.println(Registry.ADVENTURE_GSON_SERIALIZER.serialize(itemDisplayComponent));
-		System.out.println(Registry.ADVENTURE_GSON_SERIALIZER.serialize(ComponentCompacting.optimize(itemDisplayComponent, null)));
-		
 		return ComponentCompacting.optimize(itemDisplayComponent, null);
 	}
 

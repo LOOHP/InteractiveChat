@@ -30,8 +30,9 @@ import org.json.simple.parser.JSONParser;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class LanguageUtils {
 	
@@ -295,17 +296,14 @@ public class LanguageUtils {
 		return path;
 	}
 	
-	public static Set<String> getSupportedLanguages() {
+	public static Set<String> getLoadedLanguages() {
 		return Collections.unmodifiableSet(translations.keySet());
 	}
 	
 	public static String getTranslation(String translationKey, String language) {
 		try {
-			if (InteractiveChat.version.isLegacy() && translationKey.equals("item.skull.player.name")) {
-				return "%s's Head";
-			}
 			Map<String, String> mapping = translations.get(language);
-			return mapping == null ? new TranslatableComponent(translationKey).toPlainText() : mapping.getOrDefault(translationKey, translationKey);
+			return mapping == null ? LegacyComponentSerializer.legacySection().serialize(Component.translatable(translationKey)) : mapping.getOrDefault(translationKey, translationKey);
 		} catch (Exception e) {
 			return translationKey;
 		}

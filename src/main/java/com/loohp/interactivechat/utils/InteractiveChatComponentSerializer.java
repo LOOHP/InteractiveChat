@@ -44,6 +44,7 @@ public class InteractiveChatComponentSerializer {
 				for (Component with : trans.args()) {
 					translated = translated.replaceText(TextReplacementConfig.builder().matchLiteral("%s").replacement(with).times(1).build());
 				}
+				component = translated;
 			}
 			List<Component> children = new ArrayList<>(component.children());
 			for (int i = 0; i < children.size(); i++) {

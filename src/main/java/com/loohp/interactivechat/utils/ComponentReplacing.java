@@ -95,8 +95,7 @@ public class ComponentReplacing {
 					}
 				}
 				Component replace = replaceFunction.apply(getAllGroups(matcher));
-				children.add(insertPos, replace.style(replace.style().toBuilder().merge(style, Merge.Strategy.IF_ABSENT_ON_TARGET).build()));
-			
+				children.add(insertPos, replace.style(replace.style().merge(style, Merge.Strategy.IF_ABSENT_ON_TARGET)));
 				component = ComponentCompacting.optimize(component.children(children), null);
 				component = ComponentFlattening.flatten(component);
 				children = new ArrayList<>(component.children());

@@ -16,7 +16,7 @@ public class ComponentFlattening {
 		List<Component> list = new ArrayList<>();
 		list.add(component.children(new ArrayList<>()));
 		for (Component child : component.children()) {
-			child = child.style(child.style().toBuilder().merge(component.style(), Merge.Strategy.IF_ABSENT_ON_TARGET).build());
+			child = child.style(child.style().merge(component.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
 			list.addAll(getChildren(child));
 		}
 		return list;

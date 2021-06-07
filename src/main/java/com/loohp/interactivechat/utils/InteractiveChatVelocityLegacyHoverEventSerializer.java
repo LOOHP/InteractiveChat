@@ -39,12 +39,12 @@ import net.kyori.adventure.util.Codec.Encoder;
  * An implementation of {@link LegacyHoverEventSerializer} that implements the interface in the
  * most literal, albeit "incompatible" way possible.
  */
-public class CustomLegacyHoverEventSerializer implements LegacyHoverEventSerializer {
+public class InteractiveChatVelocityLegacyHoverEventSerializer implements LegacyHoverEventSerializer {
 
   public static final LegacyHoverEventSerializer INSTANCE =
-      new CustomLegacyHoverEventSerializer();
+      new InteractiveChatVelocityLegacyHoverEventSerializer();
 
-  private CustomLegacyHoverEventSerializer() {
+  private InteractiveChatVelocityLegacyHoverEventSerializer() {
 
   }
 

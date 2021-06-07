@@ -140,36 +140,20 @@ public class ChatColorUtils {
     	return false;
     }
     
-    public static BaseComponent applyColor(BaseComponent basecomponent, String color) {
+    public static ChatColor getColor(String color) {
     	if (color.length() >= 2 && color.charAt(1) != 'r') {
 	    	if (color.length() == 2) {
-	    		basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
+	    		return ChatColor.getByChar(color.charAt(1));
 	    	} else {
 	    		if (color.charAt(1) == 'x') {
 	    			String hex = "#" + String.valueOf(color.charAt(3)) + String.valueOf(color.charAt(5)) + String.valueOf(color.charAt(7)) + String.valueOf(color.charAt(9)) + String.valueOf(color.charAt(11)) + String.valueOf(color.charAt(13));
-	    			basecomponent.setColor(ChatColor.of(hex));
+	    			return ChatColor.of(hex);
 	    		} else {
-	    			basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
-	    		}
-	    		for (int i = 3; i < color.length(); i = i + 2) {
-	    			char cha = color.charAt(i);
-	    			if (cha == 'k' || cha == 'l' || cha == 'm' || cha == 'n' || cha == 'o') { 
-		    			if (ChatColor.getByChar(cha).equals(ChatColor.BOLD)) {
-							basecomponent.setBold(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.ITALIC)) {
-							basecomponent.setItalic(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.MAGIC)) {
-							basecomponent.setObfuscated(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.STRIKETHROUGH)) {
-							basecomponent.setStrikethrough(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.UNDERLINE)) {
-							basecomponent.setUnderlined(true);
-						}
-	    			}
+	    			return ChatColor.getByChar(color.charAt(1));
 	    		}
 	    	}
     	}
-    	return basecomponent;
+    	return null;
     }
     
     public static String addColorToEachWord(String text, String leadingColor) {

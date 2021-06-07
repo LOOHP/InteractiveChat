@@ -123,5 +123,9 @@ public enum MCVersion {
 	public boolean isSupported() {
 		return this.shortNum >= 0;
 	}
+	
+	public boolean isLegacyRGB() {
+		return isOlderThan(MCVersion.V1_16);
+	}
 
 }

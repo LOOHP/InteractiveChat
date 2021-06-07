@@ -29,7 +29,9 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
+import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
@@ -114,7 +116,7 @@ public class ItemDisplay {
 		if (optplayer.isPresent()) {
 			ICPlayer player = optplayer.get();
 			if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
-				Component itemComponent = createItemDisplay(player, reciever, component, unix);
+				Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix));
 				component = ComponentReplacing.replace(component, regex, true, itemComponent);
 			}
 		} else {
@@ -212,12 +214,16 @@ public class ItemDisplay {
 	    
 	    String amountString = "";
 	    Component itemDisplayNameComponent = null;
-	    NamedTextColor rarityColor = ColorUtils.toNamedTextColor(RarityUtils.getRarityColor(item));
+	    ChatColor rarityChatColor = RarityUtils.getRarityColor(item);
+	    NamedTextColor rarityColor = ColorUtils.toNamedTextColor(rarityChatColor);
 	    
 	    String rawDisplayName = item.hasItemMeta() && item.getItemMeta() != null ? NBTUtils.getString(item, "display", "Name") : null;
 	    if (rawDisplayName != null && JsonUtils.isValid(rawDisplayName)) {
 	    	try {
 	    		itemDisplayNameComponent = Registry.ADVENTURE_GSON_SERIALIZER.deserialize(rawDisplayName);
+	    		if (ComponentStyling.getFirstColor(itemDisplayNameComponent) == null) {
+	    			itemDisplayNameComponent = itemDisplayNameComponent.color(rarityColor);
+	    		}
 	    	} catch (Throwable e) {
 	    		itemDisplayNameComponent = null;
 	    	}
@@ -225,9 +231,10 @@ public class ItemDisplay {
 	    
 	    if (itemDisplayNameComponent == null) {
 		    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-		    	itemDisplayNameComponent = LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName());
+		    	itemDisplayNameComponent = LegacyComponentSerializer.legacySection().deserialize(rarityChatColor + item.getItemMeta().getDisplayName());
 		    } else {
 		    	itemDisplayNameComponent = Component.translatable(LanguageUtils.getTranslationKey(item));
+		    	itemDisplayNameComponent = itemDisplayNameComponent.color(rarityColor);
 		    	if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
 					String owner = NBTUtils.getString(item, "SkullOwner", "Name");
 					if (owner != null) {
@@ -236,8 +243,6 @@ public class ItemDisplay {
 				}
 		    }
 	    }
-	    
-	    itemDisplayNameComponent = itemDisplayNameComponent.colorIfAbsent(rarityColor);
 	    
 	    amountString = String.valueOf(item.getAmount());
 	    Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
@@ -319,6 +324,9 @@ public class ItemDisplay {
 		if (!isAir) {
 			itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
 		}
+		
+		System.out.println(Registry.ADVENTURE_GSON_SERIALIZER.serialize(itemDisplayComponent));
+		System.out.println(Registry.ADVENTURE_GSON_SERIALIZER.serialize(ComponentCompacting.optimize(itemDisplayComponent, null)));
 		
 		return ComponentCompacting.optimize(itemDisplayComponent, null);
 	}

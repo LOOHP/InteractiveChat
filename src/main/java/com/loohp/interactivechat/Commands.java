@@ -450,7 +450,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 						String text = placeholder.getKeyword();
 						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
 							Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder.getDescription());
-							String json = PlayerUtils.isRGBLegacy((Player) sender) ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+							String json = InteractiveChat.version.isLegacyRGB() ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
 							tab.add(text + "\0" + json);
 						}
 					}

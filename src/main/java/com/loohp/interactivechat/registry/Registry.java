@@ -2,7 +2,7 @@ package com.loohp.interactivechat.registry;
 
 import java.util.regex.Pattern;
 
-import com.loohp.interactivechat.utils.CustomLegacyHoverEventSerializer;
+import com.loohp.interactivechat.utils.InteractiveChatVelocityLegacyHoverEventSerializer;
 
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -16,8 +16,8 @@ public class Registry {
 	public static final String CANCELLED_IDENTIFIER = "<Event-Cancelled-eda06945-39b7-4235-95bc-4cf38e063de4>";
 	public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*))?>)");
 	
-	public static final GsonComponentSerializer ADVENTURE_GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(CustomLegacyHoverEventSerializer.INSTANCE).build();
-	public static final GsonComponentSerializer ADVENTURE_GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(CustomLegacyHoverEventSerializer.INSTANCE).build();
+	public static final GsonComponentSerializer ADVENTURE_GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(InteractiveChatVelocityLegacyHoverEventSerializer.INSTANCE).build();
+	public static final GsonComponentSerializer ADVENTURE_GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(InteractiveChatVelocityLegacyHoverEventSerializer.INSTANCE).build();
 	
 	public static final int MINECRAFT_1_16_PROTOCOL_VERSION = 735;
 	

@@ -544,19 +544,10 @@ public class InteractiveChat extends JavaPlugin {
 	}
 	
 	public static void sendMessage(CommandSender sender, Component component) {
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
-			if (PlayerUtils.isRGBLegacy(player)) {
-				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
-			} else {
-				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
-			}
+		if (InteractiveChat.version.isLegacyRGB()) {
+			sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
 		} else {
-			if (version.isOlderThan(MCVersion.V1_16)) {
-				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
-			} else {
-				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
-			}
+			sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
 		}
 	}
 	

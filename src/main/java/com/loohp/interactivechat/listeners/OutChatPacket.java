@@ -370,13 +370,14 @@ public class OutChatPacket implements Listener {
 				component = ComponentStyling.stripColor(component);
 			}
 	        
-	        String json = PlayerUtils.isRGBLegacy(reciever) ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+	        boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+	        String json = legacyRGB ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;
 
 	        //Bukkit.getConsoleSender().sendMessage(json.replace(ChatColor.COLOR_CHAR, '$'));
 	        
 	        try {
-	        	packet.getModifier().write(field, type.convertTo(component));
+	        	packet.getModifier().write(field, type.convertTo(component, legacyRGB));
 	        } catch (Throwable e) {
 	        	for (int i = 0; i < chatFieldsSize; i++) {
 	        		packet.getModifier().write(i, null);

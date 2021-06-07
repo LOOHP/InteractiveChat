@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
-import com.loohp.interactivechat.registry.Registry;
 
 public class PlayerUtils implements Listener {
 	
@@ -78,15 +77,6 @@ public class PlayerUtils implements Listener {
 			protocolVersion = InteractiveChat.protocolManager.getProtocolVersion(player);
 		}
 		return protocolVersion;
-	}
-	
-	public static boolean isRGBLegacy(Player player) {
-		int protocolVersion = getProtocolVersion(player);
-		if (protocolVersion >= 0) {
-			return protocolVersion < Registry.MINECRAFT_1_16_PROTOCOL_VERSION;
-		} else {
-			return InteractiveChat.version.isOlderThan(MCVersion.V1_16);
-		}
 	}
 
 }

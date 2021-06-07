@@ -7,6 +7,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 
 public class ColorUtils {
@@ -86,7 +87,13 @@ public class ColorUtils {
 	}
 	
 	public static NamedTextColor toNamedTextColor(ChatColor color) {
-    	return NamedTextColor.ofExact(getColor(color).getRGB());
+		Color awtColor = getColor(color);
+    	return NamedTextColor.nearestTo(TextColor.color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue()));
+    }
+	
+	public static TextColor toTextColor(ChatColor color) {
+		Color awtColor = getColor(color);
+    	return TextColor.color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
     
     public static ChatColor toChatColor(NamedTextColor color) {

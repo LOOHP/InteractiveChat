@@ -23,7 +23,6 @@ import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
-import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -34,7 +33,6 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.RemoteEquipment;
-import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 
@@ -192,26 +190,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	    		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(message), 60);
 	        	break;
 	        case 0x07:
-	        	UUID uuid4 = DataTypeIO.readUUID(input);
-	        	Player bukkitplayer = Bukkit.getPlayer(uuid4);
-	        	ICPlayer player4;
-	        	if (bukkitplayer != null) {
-	        		player4 = new ICPlayer(bukkitplayer);
-	        	} else {
-	        		player4 = InteractiveChat.remotePlayers.get(uuid4);
-	        	}
-	        	if (player4 == null) {
-	        		break;
-	        	}
-	        	byte mode = input.readByte();
-	        	if (mode == 0) {
-	        		String placeholder1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(player4, placeholder1, uuidmatch));
-	        	} else if (mode == 1) {
-		        	String uuidmatch = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(player4, uuidmatch));
-	        	}
+	        	
 	        	break;
 	        case 0x08:
 	        	UUID messageId = DataTypeIO.readUUID(input);
@@ -224,7 +203,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 	        		try {
 	        			String processed = ProcessExternalMessage.processAndRespond(bukkitplayer1, component);
-						BungeeMessageSender.respondProcessedMessage(processed, messageId);
+						BungeeMessageSender.respondProcessedMessage(System.currentTimeMillis(), processed, messageId);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -269,17 +248,17 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	InteractiveChat.remotePlaceholderList.put(server, list);
 	        	break;
 	        case 0x0A:
-	        	BungeeMessageSender.resetAndForwardPlaceholderList(InteractiveChat.placeholderList);
+	        	BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList);
 	        	break;
 	        case 0x0B:
 	        	int id = input.readInt();
 	        	UUID playerUUID1 = DataTypeIO.readUUID(input);
 	        	String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	Player player5 = Bukkit.getPlayer(playerUUID1);
-	        	BungeeMessageSender.permissionCheckResponse(id, player5 == null ? false : player5.hasPermission(permission));
+	        	BungeeMessageSender.permissionCheckResponse(System.currentTimeMillis(), id, player5 == null ? false : player5.hasPermission(permission));
 	        	break;
 	        case 0x0C:
-	        	BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping);
+	        	BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping);
 	        	break;
 	        case 0x0D:
 	        	UUID playerUUID = DataTypeIO.readUUID(input);

@@ -18,7 +18,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class Database {
 	
@@ -58,7 +57,7 @@ public class Database {
     
     private void consoleMessage(String str) {
     	if (bungee) {
-    		net.md_5.bungee.api.ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(str));
+    		net.md_5.bungee.api.ProxyServer.getInstance().getConsole().sendMessage(new net.md_5.bungee.api.chat.TextComponent(str));
     	} else {
     		org.bukkit.Bukkit.getConsoleSender().sendMessage(str);
     	}

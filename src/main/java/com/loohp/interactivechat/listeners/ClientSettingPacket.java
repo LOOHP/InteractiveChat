@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.listeners;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,16 +17,11 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 
 public class ClientSettingPacket implements Listener {
 	
-	private static HashMap<Player, Boolean> colorSettingsMap = new HashMap<>();
-	
-	public enum ColorSettings {
-		ON, 
-		OFF, 
-		WAITING
-	}
+	private static Map<Player, Boolean> colorSettingsMap = new HashMap<>();
 	
 	public static ColorSettings getSettings(Player player) {
 		Boolean settings = colorSettingsMap.get(player);

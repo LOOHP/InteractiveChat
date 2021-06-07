@@ -11,11 +11,12 @@ import org.json.simple.JSONObject;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.HTTPRequestUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class Updater implements Listener {
 	
@@ -40,23 +41,22 @@ public class Updater implements Listener {
 		sendUpdateMessage(sender, version, spigotPluginId, false);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static void sendUpdateMessage(CommandSender sender, String version, int spigotPluginId, boolean devbuild) {
 		if (!version.equals("error")) {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
 				if (!devbuild) {
 					player.sendMessage(ChatColor.YELLOW + "[InteractiveChat] A new version is available on SpigotMC: " + version);
-					TextComponent url = new TextComponent(ChatColor.GOLD + "https://www.spigotmc.org/resources/" + spigotPluginId);
-					url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
-					url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/" + spigotPluginId));
-					player.spigot().sendMessage(url);
+					Component url = LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "https://www.spigotmc.org/resources/" + spigotPluginId);
+					url = url.hoverEvent(HoverEvent.showText(Component.text("Click me!").color(NamedTextColor.AQUA)));
+					url = url.clickEvent(ClickEvent.openUrl("https://www.spigotmc.org/resources/" + spigotPluginId));
+					InteractiveChat.sendMessage(player, url);
 				} else {
 					sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest release!");
-					TextComponent url = new TextComponent(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
-					url.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + "Click me!").create()));
-					url.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ci.loohpjames.com/job/" + PLUGIN_NAME));
-					player.spigot().sendMessage(url);
+					Component url = LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + "[InteractiveChat] However, a new Development Build is available if you want to try that!");
+					url = url.hoverEvent(HoverEvent.showText(Component.text("Click me!").color(NamedTextColor.AQUA)));
+					url = url.clickEvent(ClickEvent.openUrl("https://ci.loohpjames.com/job/" + PLUGIN_NAME));
+					InteractiveChat.sendMessage(player, url);
 				}
 			} else {
 				if (!devbuild) {

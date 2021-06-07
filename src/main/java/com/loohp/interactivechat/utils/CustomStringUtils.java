@@ -1,15 +1,9 @@
 package com.loohp.interactivechat.utils;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.loohp.interactivechat.InteractiveChat;
-
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class CustomStringUtils {
 	
@@ -145,151 +139,6 @@ public class CustomStringUtils {
 	
 	public static String getIgnoreColorCodeRegex(String input) {
 		return input.replaceAll("(?<!^)(?=(?<!\u00a7.).)(?=(?<!\u00a7).)(?=(?<!\\\\).)", "(\u00a7.)*?");
-	}
-	
-	public static List<BaseComponent> loadExtras(BaseComponent basecomponent) {
-		List<BaseComponent> list = new ArrayList<BaseComponent>();
-		list.add(basecomponent);
-		return loadExtras(list);
-	}
-	
-	public static List<BaseComponent> loadExtras(List<BaseComponent> baseComp) {
-		List<BaseComponent> list = new ArrayList<BaseComponent>();
-			
-		for (BaseComponent each : baseComp) {
-	        if (each.getExtra() == null || each.getExtra().isEmpty()) {
-	        	if (each instanceof TextComponent) {
-		        	TextComponent text = new TextComponent(ChatColorUtils.addColorToEachWord(each.toLegacyText(), each.getColor() != null ? each.getColor().toString() : ""));
-		        	if (InteractiveChat.version.isLegacy()) {
-	 	        		text = (TextComponent) copyFormatting(text, each);
-	 	        	} else {
-	 	        		text.copyFormatting(each);
-	 	        	}
-	 	        	list.add(text);	 	        	
-	        	} else {
-	        		list.add(each);
-	        	}
-	        } else {
-	        	BaseComponent noExtra = each.duplicate();
-	        	noExtra.getExtra().clear();
-	        	TextComponent text = each instanceof TextComponent ? new TextComponent(ChatColorUtils.addColorToEachWord(noExtra.toLegacyText(), each.getColor() != null ? each.getColor().toString() : "")) : null;
-	        	if (each instanceof TextComponent || text != null) {
-	        		if (InteractiveChat.version.isLegacy()) {
-	 	        		text = (TextComponent) copyFormatting(text, noExtra);
-	 	        	} else {
-	 	        		text.copyFormatting(noExtra);
-	 	        	}
-	        	} else {
-	        		list.add(noExtra);
-	        	}
-	        	for (BaseComponent extra : loadExtras(each.getExtra())) {
-	        		if (InteractiveChat.version.isLegacy()) {
-	        			extra = copyFormattingNoReplace(extra, noExtra);
-	 	        	} else {
-	 	        		extra.copyFormatting(noExtra, false);
-	 	        	}	       
-	        		if (extra instanceof TextComponent && text != null && ChatComponentUtils.areEventsSimilar(extra, text) && ChatComponentUtils.areFontsSimilar(extra, text)) {
-	        			TextComponent extraNoExtra = (TextComponent) extra.duplicate();
-	        			if (extraNoExtra.getExtra() != null) {
-	        				extraNoExtra.getExtra().clear();
-	        			}
-	        			text.setText(text.getText() + ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), ChatColorUtils.getLastColors(text.getText())));
-	        			//Bukkit.getConsoleSender().sendMessage(text.getText().replace("\u00a7", "&"));
-	        		} else if (!(extra instanceof TextComponent)) {
-	        			if (text != null) {
-	        				list.add(text);
-	        			}
-	        			list.add(extra);
-	        			text = null;
-	        		} else {
-	        			if (text != null) {
-	        				list.add(text);
-	        			}
-	        			BaseComponent extraNoExtra = extra.duplicate();
-	        			if (extraNoExtra.getExtra() != null) {
-	        				extraNoExtra.getExtra().clear();
-	        			}
-	    	        	text = new TextComponent(ChatColorUtils.addColorToEachWord(extraNoExtra.toLegacyText(), extra.getColor() != null ? extra.getColor().toString() : ""));
-	    	        	if (InteractiveChat.version.isLegacy() && !InteractiveChat.version.equals(MCVersion.V1_12)) {
-	     	        		text = (TextComponent) copyFormatting(text, extraNoExtra);
-	     	        	} else {
-	     	        		text.copyFormatting(extraNoExtra);
-	     	        	}
-	        		}
-	        	}
-	        	if (text != null) {
-	        		list.add(text);
-	        	}
-	        }
-	    }
-	    
-	    return list;
-	}
-	
-	public static BaseComponent copyFormattingNoReplace(BaseComponent set, BaseComponent get) {
-		if (set.getClickEvent() == null) {
-			set.setClickEvent(get.getClickEvent());
-		}
-		if (set.getHoverEvent() == null) {
-			set.setHoverEvent(get.getHoverEvent());
-		}
-		if (set.isBoldRaw() == null) {
-			set.setBold(get.isBoldRaw());
-		}
-		if (set.getColorRaw() == null) {
-			set.setColor(get.getColorRaw());
-		}
-		if (set.isItalicRaw() == null) {
-			set.setItalic(get.isItalicRaw());
-		}
-		if (set.isObfuscatedRaw() == null) {
-			set.setObfuscated(get.isObfuscatedRaw());
-		}
-		if (set.isStrikethroughRaw() == null) {
-			set.setStrikethrough(get.isStrikethroughRaw());
-		}
-		if (set.isUnderlinedRaw() == null) {
-			set.setUnderlined(get.isUnderlinedRaw());
-		}
-		if (!InteractiveChat.version.isOld()) {
-			if (set.getInsertion() == null) {
-				set.setInsertion(get.getInsertion());
-			}
-		}
-		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-			if (set.getFontRaw() == null) {
-				set.setFont(get.getFontRaw());
-			}
-		}
-		return set;
-	}
-	
-	public static BaseComponent copyFormattingEventsNoReplace(BaseComponent set, BaseComponent get) {
-		if (set.getClickEvent() == null) {
-			set.setClickEvent(get.getClickEvent());
-		}
-		if (set.getHoverEvent() == null) {
-			set.setHoverEvent(get.getHoverEvent());
-		}
-		return set;
-	}
-	
-	public static BaseComponent copyFormatting(BaseComponent set, BaseComponent get) {
-		set.setBold(get.isBold());
-		set.setClickEvent(get.getClickEvent());
-		set.setColor(get.getColor());
-		set.setHoverEvent(get.getHoverEvent());
-		if (!InteractiveChat.version.isOld()) {
-			set.setInsertion(get.getInsertion());
-		}
-		set.setItalic(get.isItalic());
-		set.setObfuscated(get.isObfuscated());
-		set.setStrikethrough(get.isStrikethrough());
-		set.setUnderlined(get.isUnderlined());
-		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-			set.setFont(get.getFontRaw());
-		}
-		return set;
 	}
 	
 	public static String insert(String bag, String marble, int index) {

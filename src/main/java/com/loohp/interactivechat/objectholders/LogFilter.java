@@ -10,13 +10,12 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
+import com.loohp.interactivechat.registry.Registry;
 
 public class LogFilter implements Filter {
-	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public Filter.Result checkMessage(String message, Level level) {
-        if (!message.matches(".*<cmd=" + UUID_REGEX + ">.*") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+        if (!Registry.ID_PATTERN.matcher(message).find()) {
     		return Filter.Result.NEUTRAL;
     	} else {
     		String processed = ProcessExternalMessage.processWithoutReviever(message);

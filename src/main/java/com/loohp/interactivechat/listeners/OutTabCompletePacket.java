@@ -19,16 +19,19 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class OutTabCompletePacket {
 	
@@ -87,8 +90,12 @@ public class OutTabCompletePacket {
 								}
 							}
 							if (icplayer != null) {
-								TextComponent playertext = new TextComponent(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip)));
-								newMatches.add(new Suggestion(range, text, (Message) WrappedChatComponent.fromJson(ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(playertext, tabCompleter))).getHandle()));
+								Component component = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip)));
+								if (PlayerUtils.getColorSettings(tabCompleter).equals(ColorSettings.OFF)) {
+									component = ComponentStyling.stripColor(component);
+								}
+								String json = PlayerUtils.isRGBLegacy(tabCompleter) ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+								newMatches.add(new Suggestion(range, text, (Message) WrappedChatComponent.fromJson(json).getHandle()));
 							} else {
 								newMatches.add(suggestion);
 							}

@@ -1,63 +1,33 @@
 package com.loohp.interactivechat.modules;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
-import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
-import com.loohp.interactivechat.utils.CustomStringUtils;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 public class ProcessAccurateSender {
 	
-	public static ProcessSenderResult process(BaseComponent basecomponent) {
-		UUID sender = null;
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<>();
-		for (BaseComponent base : basecomponentlist) {
-			if (!(base instanceof TextComponent)) {
-				newlist.add(base);
-			} else {
-				TextComponent textcomponent = (TextComponent) base;
-				String text = textcomponent.getText();
-				boolean contains = false;
-				for (Entry<String, SenderPlaceholderInfo> entry : InteractiveChat.senderPlaceholderMatch.entrySet()) {
-					if (text.contains(entry.getKey())) {
-						String newText = text.replace(entry.getKey(), "");
-						textcomponent.setText(newText);
-						newlist.add(textcomponent);
-						sender = entry.getValue().getSender();
-						contains = true;
-						break;
-					}
-				}
-				if (!contains) {
-					newlist.add(textcomponent);
-				}
-			}
-		}
-		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			product.addExtra(each);
-		}
-		return new ProcessSenderResult(product, sender);
+	private static final Pattern PATTERN = Pattern.compile("(?:<chat=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})>)");
+	
+	public static ProcessSenderResult process(Component component) {
+		String text = PlainComponentSerializer.plain().serialize(component);
+		UUID uuid = find(text);
+		component = component.replaceText(TextReplacementConfig.builder().match(PATTERN).replacement("").build());
+		return new ProcessSenderResult(component, uuid);
 	}
 	
 	public static UUID find(String text) {
-		UUID sender = null;
-		for (Entry<String, SenderPlaceholderInfo> entry : InteractiveChat.senderPlaceholderMatch.entrySet()) {
-			if (text.contains(entry.getKey())) {
-				sender = entry.getValue().getSender();
-				break;
-			}
+		UUID uuid = null;
+		Matcher matcher = PATTERN.matcher(text);
+		if (matcher.find()) {
+			uuid = UUID.fromString(matcher.group(1));
 		}
-		return sender;
+		return uuid;
 	}
+	
 }

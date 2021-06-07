@@ -479,27 +479,17 @@ public class InteractiveChatVelocity {
 				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
 				if (newMessage.matches(parsecommand)) {
 					String command = newMessage.trim();
-					String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
+					String uuidmatch = "<cmd=" + uuid.toString() + ">";
 					command += " " + uuidmatch;
 					event.setResult(ChatResult.message(command));
-					try {
-						PluginMessageSendingVelocity.sendCommandMatch(uuid, "", uuidmatch);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 					break;
 				}
 			}
 		} else {
 			if (InteractiveChatVelocity.useAccurateSenderFinder) {
-				String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
+				String uuidmatch = "<chat=" + uuid.toString() + ">";
 				message += " " + uuidmatch;
 				event.setResult(ChatResult.message(message));
-				try {
-					PluginMessageSendingVelocity.sendSenderMatch(uuid, uuidmatch);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 			}
 
 			new Timer().schedule(new TimerTask() {
@@ -578,7 +568,6 @@ public class InteractiveChatVelocity {
 		ChannelPipeline pipeline = userConnection.getConnection().getChannel().pipeline();
 
 		pipeline.addBefore(Connections.HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
-			private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -589,8 +578,8 @@ public class InteractiveChatVelocity {
 						if ((position == 0 || position == 1) && message != null) {
 							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-								if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-									packet.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim());
+								if (Registry.ID_PATTERN.matcher(message).find()) {
+									packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
 								}
 							} else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
 								RegisteredServer server = player.getCurrentServer().get().getServer();

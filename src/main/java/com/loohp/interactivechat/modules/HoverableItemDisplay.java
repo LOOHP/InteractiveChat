@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.modules;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,99 +16,63 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
-import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.ComponentCompacting;
+import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
-import com.loohp.interactivechat.utils.NBTUtils;
 
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.event.HoverEvent.ShowItem;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.ItemTag;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
-import net.md_5.bungee.api.chat.hover.content.Content;
-import net.md_5.bungee.api.chat.hover.content.Item;
 
 public class HoverableItemDisplay {
 	
 	@SuppressWarnings("deprecation")
-	public static BaseComponent process(BaseComponent basecomponent, Player reciever) throws Exception {
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<>();
-		
-		for (BaseComponent base : basecomponentlist) {
-			if (base instanceof TranslatableComponent) {
-				TranslatableComponent trans = (TranslatableComponent) base;
-				List<BaseComponent> withs = trans.getWith();
-				if (withs != null) {
-					for (int i = 0; i < withs.size(); i++) {
-						BaseComponent eachWith = withs.get(i);
-						if (eachWith != null) {
-							withs.set(i, ChatComponentUtils.cleanUpLegacyText(process(eachWith, reciever), reciever));
-						}
-					}
+	public static Component process(Component component, Player reciever) throws Exception {
+		component = ComponentFlattening.flatten(component);
+		List<Component> children = new ArrayList<>(component.children());
+		for (int i = 0; i < children.size(); i++) {
+			Component child = children.get(i);
+			HoverEvent<?> hoverEvent = child.hoverEvent();
+			if (hoverEvent != null && hoverEvent.action().equals(HoverEvent.Action.SHOW_ITEM)) {
+				ShowItem showItem = (ShowItem) hoverEvent.value();
+				Key key = showItem.item();
+				int count = showItem.count();
+				String simpleNbt = "{id:\"" + key.asString() + "\", Count: " + count + "b}";
+				String longNbt = showItem.nbt() == null ? null : showItem.nbt().string();
+				ItemStack itemstack = null;
+				try {
+					itemstack = ItemNBTUtils.getItemFromNBTJson(simpleNbt);
+				} catch (Throwable e) {}
+				if (longNbt != null) {
+					try {
+						itemstack = Bukkit.getUnsafe().modifyItemStack(itemstack, longNbt);
+					} catch (Throwable e) {}
+				}
+				if (itemstack != null) {
+					ClickEvent clickEvent = createItemDisplay(itemstack.clone());
+					child = child.clickEvent(clickEvent);
+					children.set(i, child);
 				}
 			}
-			if (base.getClickEvent() != null || base.getHoverEvent() == null) {
-				newlist.add(base);
-			} else {
-				HoverEvent hoverEvent = base.getHoverEvent();
-				if (hoverEvent.getAction().equals(HoverEvent.Action.SHOW_ITEM)) {
-					if (InteractiveChat.legacyChatAPI) {
-						BaseComponent[] components = hoverEvent.getValue();
-						if (components != null) {
-							for (BaseComponent forEach : components) {
-								if (forEach instanceof TextComponent) {
-									String text = ((TextComponent) forEach).getText();
-									if (text != null) {
-										ItemStack item = ItemNBTUtils.getItemFromNBTJson(text);
-										if (item != null) {	
-											base.setClickEvent(createItemDisplay(item));
-											break;
-										}
-									}
-								}
-							}
-						}
-						newlist.add(base);
-					} else {
-						List<Content> contents = hoverEvent.getContents();
-						for (Content content : contents) {
-							if (content instanceof Item) {
-								Item contentItem = (Item) content;
-								ItemStack item = new ItemStack(Material.valueOf(contentItem.getId().replaceAll("^(.*?):", "").toUpperCase()), Math.max(1, contentItem.getCount()));
-								ItemTag tag = contentItem.getTag();
-								if (tag != null) {
-									String nbt = tag.getNbt();
-									if (nbt != null) {
-										try {
-											item = NBTUtils.set(item, NBTUtils.getNBTCompound(nbt));
-										} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
-									}
-								}
-								base.setClickEvent(createItemDisplay(item));
-								break;
-							}
-						}
-						newlist.add(base);
-					}
-				} else {
-					newlist.add(base);
+			if (child instanceof TranslatableComponent) {
+				TranslatableComponent trans = (TranslatableComponent) child;
+				List<Component> withs = new ArrayList<>(trans.args());
+				for (int u = 0; u < withs.size(); u++) {
+					Component with = withs.get(u);
+					withs.set(u, process(with, reciever));
 				}
+				trans = trans.args(withs);
+				children.set(i, trans);
 			}
 		}
 		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			product.addExtra(each);
-		}
-		
-		return product;
+		return ComponentCompacting.optimize(component.children(children), null);
 	}
 	
 	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {
@@ -170,13 +133,13 @@ public class HoverableItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(4, item);				            							
+					inv.setItem(4, item);
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				}
 			}
 		}
 		
-		return new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat " + (isMapView ? "viewmap " : "viewitem ") + sha1);
+		return ClickEvent.runCommand("/interactivechat " + (isMapView ? "viewmap " : "viewitem ") + sha1);
 	}
 
 }

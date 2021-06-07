@@ -4,23 +4,25 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.registry.Registry;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.transformation.TransformationType;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatColorUtils {
 	
-	private static final Set<Character> COLORS = new HashSet<Character>();
-	private static final Pattern COLOR_FORMATTING = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
-	private static final Pattern COLOR_ESCAPE = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
+	private static final Set<Character> COLORS = new HashSet<>();
 	
 	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";
 	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
 	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
+	
+	private static final MiniMessage MINIMESSAGE_COLOR_PARSER = MiniMessage.builder().transformation(TransformationType.COLOR).build();
 	
 	static {
 		COLORS.add('0');
@@ -197,66 +199,6 @@ public class ChatColorUtils {
     	return "\u00a7x\u00a7" + String.valueOf(hex.charAt(1)) + "\u00a7" + String.valueOf(hex.charAt(2)) + "\u00a7" + String.valueOf(hex.charAt(3)) + "\u00a7" + String.valueOf(hex.charAt(4)) + "\u00a7" + String.valueOf(hex.charAt(5)) + "\u00a7" + String.valueOf(hex.charAt(6));
     }
     
-    public static String translatePluginColorFormatting(String text) {
-    	while (true) {
-    		Matcher matcher = COLOR_FORMATTING.matcher(text);
-    		
-    		if (matcher.find()) {
-	    	    String foramtedColor = matcher.group().toLowerCase();
-	    	    int start = matcher.start();
-	    	    int pos = foramtedColor.indexOf("color");
-	    	    int absPos = text.indexOf("color", start);
-	    	    int end = matcher.end();
-	    	    
-	    	    if (pos < 0) {
-	    	    	continue;
-	    	    }
-	
-	    	    String colorCode = hexToColorCode(foramtedColor.substring(pos + 6, pos + 13));
-	    	    
-	    	    StringBuilder sb = new StringBuilder(text);
-	    	    sb.insert(end, colorCode);
-	    	    
-	    	    sb.delete(absPos, absPos + 13);
-
-	    	    while (sb.charAt(absPos) == ',' || sb.charAt(absPos) == ' ') {
-	    	    	sb.deleteCharAt(absPos);
-	    	    }
-	    	    
-	    	    while (sb.charAt(absPos - 1) == ',' || sb.charAt(absPos - 1) == ' ') {
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	absPos--;
-	    	    }
-	    	    
-	    	    if (sb.charAt(absPos) == ']' && sb.charAt(absPos - 1) == '[') {
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	
-	    	    	if (absPos > 2 && sb.charAt(absPos - 2) == '\\' && sb.charAt(absPos - 3) == '\\') {
-		    	    	sb.deleteCharAt(absPos - 2);
-		    	    }
-	    	    }	    	  
-	    	    
-	    	    text = sb.toString();	    	    
-    		} else {
-    			break;
-    		}
-    	}
-    	
-    	while (true) {
-    		Matcher matcher = COLOR_ESCAPE.matcher(text);  		
-    		if (matcher.find()) {
-	    	    StringBuilder sb = new StringBuilder(text);
-	    	    sb.deleteCharAt(matcher.start());
-	    	    text = sb.toString();	    	    
-    		} else {
-    			break;
-    		}
-    	}
-
-    	return text;
-    }
-    
     public static String translateAlternateColorCodes(char code, String text) {    	
 		if (text == null) {
 			return text;
@@ -267,7 +209,10 @@ public class ChatColorUtils {
         }
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-    		text = translatePluginColorFormatting(text);
+    		text = BaseComponent.toLegacyText(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
+    		if (text.startsWith(ChatColor.COLOR_CHAR + "f")) {
+    			text = text.substring(2);
+    		}
     	}
         
         for (int i = 0; i < text.length() - 1; i++) {

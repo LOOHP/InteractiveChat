@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.listeners;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,26 +51,27 @@ import com.loohp.interactivechat.modules.SenderFinder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.OutboundPacket;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
-import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
-import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.ChatComponentType;
+import com.loohp.interactivechat.utils.ComponentFont;
+import com.loohp.interactivechat.utils.ComponentModernizing;
+import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class OutChatPacket implements Listener {
 	
 	private static Map<UUID, Queue<UUID>> messagesOrder = new ConcurrentHashMap<>();
 	private static Queue<OutboundPacket> sendingQueue = new ConcurrentLinkedQueue<>();
 	private static int chatFieldsSize;
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
 	private static ExecutorService asyncThreadPool;
 	private static Map<Future<?>, Long> executingTasks = new ConcurrentHashMap<>();
@@ -202,7 +201,7 @@ public class OutChatPacket implements Listener {
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
 		PacketContainer originalPacket = packet.deepClone();
     	try {
-    		BaseComponent[] basecomponentarray = null;
+    		Component component = null;
     		ChatComponentType type = null;
 	        int field = -1;
 	        
@@ -210,7 +209,7 @@ public class OutChatPacket implements Listener {
 	        	for (int i = 0; i < packet.getModifier().size(); i++) {
 	        		if (packet.getModifier().read(i) != null && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
 	        			try {
-	        				basecomponentarray = t.convertFrom(packet.getModifier().read(i));
+	        				component = t.convertFrom(packet.getModifier().read(i));
 	        			} catch (Throwable e) {
 	        	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	        	return;
@@ -221,23 +220,14 @@ public class OutChatPacket implements Listener {
 	        		}
 	        	}
 	        }
-	        if (field < 0 || type == null || basecomponentarray == null) {
-	        	orderAndSend(reciever, packet, messageUUID, queue);
-	        	return;
-	        }
-
-	        BaseComponent basecomponent;
-	        try {
-	        	basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(InteractiveChat.COLOR_CHAR_UNESCAPE.apply(ComponentSerializer.toString(basecomponentarray)))));
-	        } catch (Exception e) {
-	        	e.printStackTrace();
+	        if (field < 0 || type == null || component == null) {
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
 	        
+	        String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
 	        try {
-	        	String text = basecomponent.toLegacyText();
-	        	if (text.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+	        	if (legacyText.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> legacyText.matches(each))) {
 	        		orderAndSend(reciever, packet, messageUUID, queue);
 	        		return;
 	        	}
@@ -246,7 +236,7 @@ public class OutChatPacket implements Listener {
 	        	return;
 	        }
 
-	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {
+	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component), "translate")) {
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -257,7 +247,7 @@ public class OutChatPacket implements Listener {
 	        boolean isChat = false;
 
 	        Optional<ICPlayer> sender = Optional.empty();
-	        String rawMessageKey = basecomponent.toPlainText();
+	        String rawMessageKey = PlainComponentSerializer.plain().serializeOr(component, "");
 	        	   
 	        InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
 
@@ -267,7 +257,7 @@ public class OutChatPacket implements Listener {
 	        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
 	        }
 	        
-	        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);		    
+	        ProcessSenderResult commandSender = ProcessCommands.process(component);		    
 	        if (commandSender.getSender() != null) {
 	        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
 	        	if (bukkitplayer != null) {
@@ -284,7 +274,7 @@ public class OutChatPacket implements Listener {
 	        ProcessSenderResult chatSender = null;
 	        if (!sender.isPresent()) {
 	        	if (InteractiveChat.useAccurateSenderFinder) {
-	        		chatSender = ProcessAccurateSender.process(basecomponent);
+	        		chatSender = ProcessAccurateSender.process(component);
 	        		if (chatSender.getSender() != null) {
 	    	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
 	    	        	if (bukkitplayer != null) {
@@ -301,7 +291,7 @@ public class OutChatPacket implements Listener {
 	        	}
 	        }
 	        if (!sender.isPresent()) {
-	        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+	        	sender = SenderFinder.getSender(component, rawMessageKey);
 	        }
 	        
 	        if (sender.isPresent() && !sender.get().isLocal()) {
@@ -314,16 +304,18 @@ public class OutChatPacket implements Listener {
 	        		return;
 	        	}
 	        }
-	        basecomponent = commandSender.getBaseComponent();
+	        component = commandSender.getComponent();
 	        if (chatSender != null) {
-	        	basecomponent = chatSender.getBaseComponent();
+	        	component = chatSender.getComponent();
 	        }
 	        if (sender.isPresent()) {
 	        	InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
 	        }
+	        
+	        component = ComponentModernizing.modernize(component);
 
 	        UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, basecomponent, preEventSenderUUID);
+			PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, component, preEventSenderUUID);
 			Bukkit.getPluginManager().callEvent(preEvent);
 			if (preEvent.getSender() != null) {
 				Player newsender = Bukkit.getPlayer(preEvent.getSender());
@@ -331,68 +323,60 @@ public class OutChatPacket implements Listener {
 					sender = Optional.of(new ICPlayer(newsender));
 				}
 			}
-			basecomponent = preEvent.getBaseComponent();
+			component = preEvent.getComponent();
 			
-			List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-			TextComponent product = new TextComponent("");
-			for (int i = 0; i < basecomponentlist.size(); i++) {
-				BaseComponent each = basecomponentlist.get(i);
-				if (each instanceof TextComponent) {
-					((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
-				}
-				product.addExtra(each);
-			}
-			basecomponent = product;
-			
-			//System.out.println(ComponentSerializer.toString(basecomponent).replace(ChatColor.COLOR_CHAR, '$'));
+			component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
 			
 			if (InteractiveChat.translateHoverableItems && InteractiveChat.itemGUI) {
-				basecomponent = HoverableItemDisplay.process(basecomponent, reciever);
+				component = HoverableItemDisplay.process(component, reciever);
 			}
+			
+			if (InteractiveChat.usePlayerName) {
+				component = PlayernameDisplay.process(component, sender, reciever, unix);
+	        }
 			
 			if (InteractiveChat.allowMention && sender.isPresent()) {
 	        	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
 	        	if (data == null || !data.isMentionDisabled()) {
-	        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, true);
+	        		component = MentionDisplay.process(component, reciever, sender.get(), unix, true);
 	        	}
-	        }
-			
-	        if (InteractiveChat.usePlayerName) {
-	        	basecomponent = PlayernameDisplay.process(basecomponent, sender, reciever, unix);
-	        }
+	        }				    
 
 	        if (InteractiveChat.useItem) {
-	        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, unix);
+	        	component = ItemDisplay.process(component, sender, reciever, unix);
 	        }
 
 	        if (InteractiveChat.useInventory) {
-	        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, unix);
+	        	component = InventoryDisplay.process(component, sender, reciever, unix);
 	        }
-
+	        
 	        if (InteractiveChat.useEnder) {
-	        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, unix);
+	        	component = EnderchestDisplay.process(component, sender, reciever, unix);
 	        }
 
-	        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, InteractiveChat.placeholderList, unix);
+	        component = CustomPlaceholderDisplay.process(component, sender, reciever, InteractiveChat.placeholderList, unix);
 
 	        if (InteractiveChat.clickableCommands) {
-	        	basecomponent = CommandsDisplay.process(basecomponent);
+	        	component = CommandsDisplay.process(component);
 	        }
 
 	        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 		        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
-		        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
+		        	component = ComponentFont.parseMiniMessageFont(component);
 		        }
 	        }
 	        
-	        basecomponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
-	        String json = ComponentSerializer.toString(basecomponent);
+	        if (PlayerUtils.getColorSettings(reciever).equals(ColorSettings.OFF)) {
+				component = ComponentStyling.stripColor(component);
+			}
+	        
+	        String json = PlayerUtils.isRGBLegacy(reciever) ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;
 
 	        //Bukkit.getConsoleSender().sendMessage(json.replace(ChatColor.COLOR_CHAR, '$'));
 	        
 	        try {
-	        	packet.getModifier().write(field, type.convertTo(basecomponent));
+	        	packet.getModifier().write(field, type.convertTo(component));
 	        } catch (Throwable e) {
 	        	for (int i = 0; i < chatFieldsSize; i++) {
 	        		packet.getModifier().write(i, null);
@@ -434,51 +418,6 @@ public class OutChatPacket implements Listener {
 				e1.printStackTrace();
 			}
     	}
-	}
-	
-	public static enum ChatComponentType {
-		IChatBaseComponent(".*net\\.minecraft\\.server\\..*\\.IChatBaseComponent.*", object -> {
-			return ComponentSerializer.parse(WrappedChatComponent.fromHandle(object).getJson());
-		}, component -> {
-			return WrappedChatComponent.fromJson(ComponentSerializer.toString(component)).getHandle();
-		}),
-		BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", object -> {
-			return (BaseComponent[]) object;
-		}, component -> {
-			return component;
-		}),
-		AdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
-			return ComponentSerializer.parse(GsonComponentSerializer.gson().serialize((Component) object));
-		}, component -> {
-			return GsonComponentSerializer.gson().deserialize(ComponentSerializer.toString(component));
-		});
-		
-		private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, BaseComponentArray, IChatBaseComponent};
-		private String regex;
-		private Function<Object, BaseComponent[]> converterFrom;
-		private Function<BaseComponent[], Object> converterTo;
-		
-		ChatComponentType(String regex, Function<Object, BaseComponent[]> converterFrom, Function<BaseComponent[], Object> converterTo) {
-			this.regex = regex;
-			this.converterFrom = converterFrom;
-			this.converterTo = converterTo;
-		}
-		
-		public String getMatchingRegex() {
-			return regex;
-		}
-		
-		public BaseComponent[] convertFrom(Object object) {
-			return converterFrom.apply(object);
-		}
-		
-		public Object convertTo(BaseComponent... component) {
-			return converterTo.apply(component);
-		}
-		
-		public static ChatComponentType[] byPriority() {
-			return Arrays.copyOf(BY_PRIORITY, BY_PRIORITY.length);
-		}
 	}
 
 }

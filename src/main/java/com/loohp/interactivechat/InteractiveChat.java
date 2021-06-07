@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Filter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -65,15 +66,14 @@ import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
-import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
-import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
+import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
@@ -82,11 +82,9 @@ import com.loohp.interactivechat.utils.PotionUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.HoverEvent.Action;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.milkbowl.vault.permission.Permission;
 
 @SuppressWarnings("deprecation")
@@ -123,6 +121,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean ventureChatHook = false;
 	public static Boolean discordSrvHook = false;
 	public static Boolean dynmapHook = false;
+	public static Boolean viaVersionHook = false;
+	public static Boolean procotcolSupportHook = false;
 	
 	public static Permission perms = null;
 	
@@ -186,12 +186,10 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean allowMention = true;
 	
 	public static boolean clickableCommands = true;
-	public static String clickableCommandsPrefix = "[";
-	public static String clickableCommandsSuffix = "]";
-	public static ClickEvent.Action clickableCommandsAction = ClickEvent.Action.SUGGEST_COMMAND;
 	public static String clickableCommandsFormat = "";
+	public static ClickEvent.Action clickableCommandsAction = ClickEvent.Action.SUGGEST_COMMAND;
+	public static String clickableCommandsDisplay = "";
 	public static String clickableCommandsHoverText = null;
-	public static boolean clickableCommandsEnforceColors = true;
 	
 	public static String noPermissionMessage = "&cYou do not have permission to use that command!";
 	public static String invExpiredMessage = "&cThis inventory view has expired!";
@@ -246,7 +244,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static String mentionDisable = "";
 	
 	public static List<String> commandList = new ArrayList<String>();
-	public static Map<String, CommandPlaceholderInfo> commandPlaceholderMatch = new ConcurrentHashMap<>();
 	
 	public static Set<String> messageToIgnore = new HashSet<>();
 	
@@ -259,7 +256,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean updaterEnabled = true;
 	public static boolean cancelledMessage = true;
 	
-	public static boolean legacyChatAPI = false;
 	public static boolean useCustomPlaceholderPermissions = false;
 	
 	public static boolean sendOriginalIfTooLong = false;
@@ -281,7 +277,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<EventPriority, Set<RegisteredListener>> isolatedSyncListeners = new EnumMap<>(EventPriority.class);
 	
 	public static boolean useAccurateSenderFinder = true;
-	public static Map<String, SenderPlaceholderInfo> senderPlaceholderMatch = new ConcurrentHashMap<>();
 	
 	public static boolean useEssentialsNicknames = true;
 	
@@ -323,7 +318,7 @@ public class InteractiveChat extends JavaPlugin {
 		plugin.getConfig().options().copyDefaults(true);
 		ConfigManager.saveConfig();
 		
-		File storageFile = new File(getDataFolder(), "storage.yml"); 
+		File storageFile = new File(getDataFolder(), "storage.yml");
         if (!storageFile.exists()) {
             try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
                 Files.copy(in, storageFile.toPath());
@@ -399,6 +394,16 @@ public class InteractiveChat extends JavaPlugin {
 			discordSrvHook = true;
 		}
 	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("ViaVersion") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ViaVersion!");
+			viaVersionHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolSupport") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ProtocolSupport!");
+			procotcolSupportHook = true;
+		}
+	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
 	    	VentureChatInjection._init_();
 	    	getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
@@ -429,16 +434,6 @@ public class InteractiveChat extends JavaPlugin {
 			new Placeholders().register();
 		}
 	    
-	    try {
-			TextComponent test = new TextComponent("Legacy Bungeecord Chat API Test");
-			test.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new Text("Test Hover Text")));
-			test.getHoverEvent().getContents();
-			legacyChatAPI = false;
-		} catch (Throwable e) {
-			legacyChatAPI = true;
-			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Legacy Bungeecord Chat API detected, using legacy methods...");
-		}
-	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 	    
 	    for (Player player : Bukkit.getOnlinePlayers()) {
@@ -448,7 +443,7 @@ public class InteractiveChat extends JavaPlugin {
 	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
 	    	if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {
 	    		try {
-					if (BungeeMessageSender.resetAndForwardPlaceholderList(InteractiveChat.placeholderList) && BungeeMessageSender.resetAndForwardAliasMapping(InteractiveChat.aliasesMapping)) {
+					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList) && BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping)) {
 						queueRemoteUpdate = false;
 					}
 				} catch (IOException e) {
@@ -546,6 +541,23 @@ public class InteractiveChat extends JavaPlugin {
 			}
 		}
 		InteractiveChat.isolatedSyncListeners.clear();
+	}
+	
+	public static void sendMessage(CommandSender sender, Component component) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			if (PlayerUtils.isRGBLegacy(player)) {
+				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
+			} else {
+				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
+			}
+		} else {
+			if (version.isOlderThan(MCVersion.V1_16)) {
+				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
+			} else {
+				sender.spigot().sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
+			}
+		}
 	}
 	
 }

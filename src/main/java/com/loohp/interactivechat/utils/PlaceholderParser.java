@@ -62,7 +62,7 @@ public class PlaceholderParser {
 					pairs.add(new ValuePairs<>(entry.getKey(), entry.getValue()));
 				}
 				try {
-					BungeeMessageSender.forwardPlaceholders(player.getUniqueId(), pairs);
+					BungeeMessageSender.forwardPlaceholders(System.currentTimeMillis(), player.getUniqueId(), pairs);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

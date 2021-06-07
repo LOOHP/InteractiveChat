@@ -35,11 +35,9 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.objectholders.CommandPlaceholderInfo;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
-import com.loohp.interactivechat.objectholders.SenderPlaceholderInfo;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
@@ -51,8 +49,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 public class Events implements Listener {
-	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
@@ -99,21 +95,13 @@ public class Events implements Listener {
 					}
 				}
 				
-				if (!command.matches(".*<cmd=" + UUID_REGEX + ">.*")) {
+				if (!Registry.ID_PATTERN.matcher(command).find()) {
 					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 						String placeholder = icplaceholder.getKeyword();
 						if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
 							String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
-							String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
-							command = command.replaceFirst(regexPlaceholder,  uuidmatch);
-							InteractiveChat.commandPlaceholderMatch.put(uuidmatch, new CommandPlaceholderInfo(new ICPlayer(event.getPlayer()), placeholder, uuidmatch));
-							if (InteractiveChat.bungeecordMode) {
-								try {
-									BungeeMessageSender.addCommandMatch(event.getPlayer().getUniqueId(), placeholder, uuidmatch);
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-							}
+							String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId().toString() + ":" + placeholder + ">";
+							command = command.replaceFirst(regexPlaceholder, uuidmatch);
 							event.setMessage(command);
 							break;
 						}
@@ -190,17 +178,9 @@ public class Events implements Listener {
 			}
 		}
 		
-		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-			String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
+		if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !Registry.ID_PATTERN.matcher(message).find()) {
+			String uuidmatch = "<chat=" + player.getUniqueId().toString() + ">";
 			message = message + " " + uuidmatch;
-			InteractiveChat.senderPlaceholderMatch.put(uuidmatch, new SenderPlaceholderInfo(new ICPlayer(event.getPlayer()), uuidmatch));
-			if (InteractiveChat.bungeecordMode) {
-				try {
-					BungeeMessageSender.addSenderMatch(event.getPlayer().getUniqueId(), uuidmatch);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 		
 		event.setMessage(message);
@@ -211,7 +191,7 @@ public class Events implements Listener {
 		
 		if (InteractiveChat.bungeecordMode) {
 			try {
-				BungeeMessageSender.addMessage(ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
+				BungeeMessageSender.addMessage(System.currentTimeMillis(), ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -263,7 +243,7 @@ public class Events implements Listener {
    							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
    							if (InteractiveChat.bungeecordMode) {
    								try {
-									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -291,7 +271,7 @@ public class Events implements Listener {
 							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -323,7 +303,7 @@ public class Events implements Listener {
 							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.forwardMentionPair(sender.getUniqueId(), uuid);
+									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
 								} catch (IOException e) {
 									e.printStackTrace();
 								}

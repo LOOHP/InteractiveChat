@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 import com.loohp.interactivechat.objectholders.ICPlayer;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 
 /**
  * This is the base class of all events related to parsing placeholders.
@@ -19,21 +19,21 @@ public class PlaceholderEvent extends Event implements Cancellable {
 	
 	protected final ICPlayer sender;
 	protected final Player receiver;
-	protected BaseComponent baseComponent;
+	protected Component component;
 	protected final long timeSent;
 	protected boolean isCancelled;
 	
-	public PlaceholderEvent(ICPlayer sender, Player receiver, BaseComponent baseComponent, long timeSent) {
+	public PlaceholderEvent(ICPlayer sender, Player receiver, Component component, long timeSent) {
 		super(!Bukkit.isPrimaryThread());
 		this.sender = sender;
 		this.receiver = receiver;
-		this.baseComponent = baseComponent;
+		this.component = component;
 		this.timeSent = timeSent;
 		this.isCancelled = false;
 	}
 	
-	public PlaceholderEvent(Player receiver, BaseComponent baseComponent, long timeSent) {
-		this(null, receiver, baseComponent, timeSent);
+	public PlaceholderEvent(Player receiver, Component component, long timeSent) {
+		this(null, receiver, component, timeSent);
 	}
 	
 	public boolean hasSender() {
@@ -48,12 +48,12 @@ public class PlaceholderEvent extends Event implements Cancellable {
 		return receiver;
 	}
 
-	public BaseComponent getBaseComponent() {
-		return baseComponent;
+	public Component getComponent() {
+		return component;
 	}
 
-	public void setBaseComponent(BaseComponent baseComponent) {
-		this.baseComponent = baseComponent;
+	public void setComponent(Component component) {
+		this.component = component;
 	}
 
 	public long getTimeSent() {

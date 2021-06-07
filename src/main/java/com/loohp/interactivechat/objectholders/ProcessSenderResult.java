@@ -2,20 +2,20 @@ package com.loohp.interactivechat.objectholders;
 
 import java.util.UUID;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 
 public class ProcessSenderResult {
 	
-	private BaseComponent basecomponent;
+	private Component component;
 	private UUID sender;
 	
-	public ProcessSenderResult(BaseComponent basecomponent, UUID sender) {
-		this.basecomponent = basecomponent;
+	public ProcessSenderResult(Component component, UUID sender) {
+		this.component = component;
 		this.sender = sender;
 	}
 	
-	public BaseComponent getBaseComponent() {
-		return basecomponent;
+	public Component getComponent() {
+		return component;
 	}
 	
 	public UUID getSender() {

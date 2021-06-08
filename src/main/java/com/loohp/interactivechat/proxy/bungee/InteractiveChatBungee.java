@@ -465,20 +465,30 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		
 		String newMessage = event.getMessage();
+		boolean hasInteractiveChat = false;
+		Server server = player.getServer();
+		if (server != null) {
+			BackendInteractiveChatData data = serverInteractiveChatInfo.get(server.getInfo().getName());
+			if (data != null) {
+				hasInteractiveChat = data.hasInteractiveChat();
+			}
+		}
 		
 		if (newMessage.startsWith("/")) {
-			for (String parsecommand : InteractiveChatBungee.parseCommands) {
-				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
-				if (newMessage.matches(parsecommand)) {
-					String command = newMessage.trim();
-					String uuidmatch = "<cmd=" + uuid.toString() + ">";
-					command += " " + uuidmatch;
-					event.setMessage(command);
-					break;
+			if (hasInteractiveChat) {
+				for (String parsecommand : InteractiveChatBungee.parseCommands) {
+					//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
+					if (newMessage.matches(parsecommand)) {
+						String command = newMessage.trim();
+						String uuidmatch = "<cmd=" + uuid.toString() + ">";
+						command += " " + uuidmatch;
+						event.setMessage(command);
+						break;
+					}
 				}
 			}
 		} else {
-			if (InteractiveChatBungee.useAccurateSenderFinder) {
+			if (InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
 				String uuidmatch = "<chat=" + uuid.toString() + ">";
 				message += " " + uuidmatch;
 				event.setMessage(message);

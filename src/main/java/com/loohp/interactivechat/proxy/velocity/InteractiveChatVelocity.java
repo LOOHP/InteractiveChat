@@ -474,19 +474,27 @@ public class InteractiveChatVelocity {
 		
 		String newMessage = event.getMessage();
 		
+		boolean hasInteractiveChat = false;
+		BackendInteractiveChatData data = serverInteractiveChatInfo.get(player.getCurrentServer().get().getServerInfo().getName());
+		if (data != null) {
+			hasInteractiveChat = data.hasInteractiveChat();
+		}
+		
 		if (newMessage.startsWith("/")) {
-			for (String parsecommand : InteractiveChatVelocity.parseCommands) {
-				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
-				if (newMessage.matches(parsecommand)) {
-					String command = newMessage.trim();
-					String uuidmatch = "<cmd=" + uuid.toString() + ">";
-					command += " " + uuidmatch;
-					event.setResult(ChatResult.message(command));
-					break;
+			if (hasInteractiveChat) {
+				for (String parsecommand : InteractiveChatVelocity.parseCommands) {
+					//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
+					if (newMessage.matches(parsecommand)) {
+						String command = newMessage.trim();
+						String uuidmatch = "<cmd=" + uuid.toString() + ">";
+						command += " " + uuidmatch;
+						event.setResult(ChatResult.message(command));
+						break;
+					}
 				}
 			}
 		} else {
-			if (InteractiveChatVelocity.useAccurateSenderFinder) {
+			if (InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
 				String uuidmatch = "<chat=" + uuid.toString() + ">";
 				message += " " + uuidmatch;
 				event.setResult(ChatResult.message(message));

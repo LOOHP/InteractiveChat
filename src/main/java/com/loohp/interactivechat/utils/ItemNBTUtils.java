@@ -3,7 +3,6 @@ package com.loohp.interactivechat.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.common.collect.BiMap;
@@ -35,13 +34,13 @@ public class ItemNBTUtils {
 	
 	static {
 		try {
-			craftItemStackClass = getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
-			nmsItemStackClass = getNMSClass("net.minecraft.server.", "ItemStack");
+			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
+			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.", "ItemStack");
 			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-			nmsNbtTagCompoundClass = getNMSClass("net.minecraft.server.", "NBTTagCompound");
+			nmsNbtTagCompoundClass = NMSUtils.getNMSClass("net.minecraft.server.", "NBTTagCompound");
 			saveNmsItemStackMethod = nmsItemStackClass.getMethod("save", nmsNbtTagCompoundClass);
 			nbtTagCompoundConstructor = nmsNbtTagCompoundClass.getConstructor();
-			nmsMojangsonParserClass = getNMSClass("net.minecraft.server.", "MojangsonParser");
+			nmsMojangsonParserClass = NMSUtils.getNMSClass("net.minecraft.server.", "MojangsonParser");
 			parseMojangsonMethod = nmsMojangsonParserClass.getMethod("parse", String.class);
 			if (InteractiveChat.version.isOld()) {
 				nmsItemStackFromTagMethod = nmsItemStackClass.getMethod("createStack", nmsNbtTagCompoundClass);
@@ -53,7 +52,7 @@ public class ItemNBTUtils {
 			nbtTagCompoundGetMethod = nmsNbtTagCompoundClass.getMethod("get", String.class);
 			
 			//if (!InteractiveChat.version.isLegacy()) {
-			//	craftLegacyClass = getNMSClass("org.bukkit.craftbukkit.", "legacy.CraftLegacy");
+			//	craftLegacyClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "legacy.CraftLegacy");
 			//	toLegacyMethod = craftLegacyClass.getMethod("toLegacy", Material.class);
 			//}
 		} catch (Exception e) {
@@ -91,12 +90,6 @@ public class ItemNBTUtils {
 		enchantmentIds.put("mending", 70);
 		enchantmentIds.put("vanishing_curse", 71);
 	}
-	
-	private static Class<?> getNMSClass(String prefix, String nmsClassString) throws ClassNotFoundException {	
-        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
-        String name = prefix + version + nmsClassString;
-        return Class.forName(name);
-    }
 	
 	public static ItemStack getItemFromNBTJson(String json) {
 		try {

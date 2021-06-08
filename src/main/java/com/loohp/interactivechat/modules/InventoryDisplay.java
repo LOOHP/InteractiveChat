@@ -26,11 +26,11 @@ import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.NBTUtils;
@@ -183,7 +183,7 @@ public class InventoryDisplay {
 			if (level != 1) {
 				expText = expText.args(Component.text(level + ""));
 			}
-			exp = NBTUtils.set(exp, Registry.ADVENTURE_GSON_SERIALIZER.serialize(expText), "display", "Name");
+			exp = NBTUtils.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
 			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));
@@ -281,7 +281,7 @@ public class InventoryDisplay {
 			if (level != 1) {
 				expText = expText.args(Component.text(level + ""));
 			}
-			exp = NBTUtils.set(exp, Registry.ADVENTURE_GSON_SERIALIZER.serialize(expText), "display", "Name");
+			exp = NBTUtils.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
 			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));

@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.loohp.interactivechat.registry.Registry;
 
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -14,15 +13,15 @@ import net.md_5.bungee.chat.ComponentSerializer;
 public enum ChatComponentType {
 
 	IChatBaseComponent(".*net\\.minecraft\\.server\\..*\\.IChatBaseComponent.*", object -> {
-		return Registry.ADVENTURE_GSON_SERIALIZER.deserialize(WrappedChatComponent.fromHandle(object).getJson());
+		return InteractiveChatComponentSerializer.gson().deserialize(WrappedChatComponent.fromHandle(object).getJson());
 	}, (component, legacyRGB) -> {
-		return WrappedChatComponent.fromJson(legacyRGB ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)).getHandle();
+		return WrappedChatComponent.fromJson(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component)).getHandle();
 	}), 
 	
 	BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", object -> {
-		return Registry.ADVENTURE_GSON_SERIALIZER.deserialize(ComponentSerializer.toString((BaseComponent[]) object));
+		return InteractiveChatComponentSerializer.gson().deserialize(ComponentSerializer.toString((BaseComponent[]) object));
 	}, (component, legacyRGB) -> {
-		return ComponentSerializer.parse(legacyRGB ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component));
+		return ComponentSerializer.parse(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
 	}), 
 	
 	AdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {

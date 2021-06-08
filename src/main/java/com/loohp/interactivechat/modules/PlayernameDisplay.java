@@ -23,6 +23,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CollectionUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.VanishUtils;
 
@@ -92,7 +93,7 @@ public class PlayernameDisplay implements Listener {
 			clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext);
 		}
 		Component replace = LegacyComponentSerializer.legacySection().deserialize(replaceText).hoverEvent(hoverEvent).clickEvent(clickEvent);
-		String regex = InteractiveChat.usePlayerNameCaseSensitive ? placeholder : "(?i)" + placeholder;
+		String regex = InteractiveChat.usePlayerNameCaseSensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
 		component = ComponentReplacing.replace(component, regex, true, replace);
 		List<Component> children = new ArrayList<>(component.children());
 		for (int i = 0; i < children.size(); i++) {

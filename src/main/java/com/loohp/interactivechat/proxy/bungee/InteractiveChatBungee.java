@@ -47,6 +47,7 @@ import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MessageUtils;
 
 import io.netty.channel.ChannelDuplexHandler;
@@ -715,12 +716,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		if (sender instanceof ProxiedPlayer) {
 			ProxiedPlayer player = (ProxiedPlayer) sender;
 			if (player.getPendingConnection().getVersion() < Registry.MINECRAFT_1_16_PROTOCOL_VERSION) {
-				sender.sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component)));
+				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
 			} else {
-				sender.sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
+				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
 			}
 		} else {
-			sender.sendMessage(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)));
+			sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
 		}
 	}
 	

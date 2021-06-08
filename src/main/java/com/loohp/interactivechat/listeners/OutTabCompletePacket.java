@@ -19,9 +19,9 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentStyling;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
@@ -94,7 +94,7 @@ public class OutTabCompletePacket {
 								if (PlayerUtils.getColorSettings(tabCompleter).equals(ColorSettings.OFF)) {
 									component = ComponentStyling.stripColor(component);
 								}
-								String json = InteractiveChat.version.isLegacyRGB() ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+								String json = InteractiveChat.version.isLegacyRGB() ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
 								newMatches.add(new Suggestion(range, text, (Message) WrappedChatComponent.fromJson(json).getHandle()));
 							} else {
 								newMatches.add(suggestion);

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.registry.Registry;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.transformation.TransformationType;
@@ -193,7 +192,7 @@ public class ChatColorUtils {
         }
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-    		text = BaseComponent.toLegacyText(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
+    		text = BaseComponent.toLegacyText(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
     		if (text.startsWith(ChatColor.COLOR_CHAR + "f")) {
     			text = text.substring(2);
     		}

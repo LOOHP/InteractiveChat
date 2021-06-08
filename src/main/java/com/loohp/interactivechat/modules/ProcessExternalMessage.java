@@ -27,6 +27,7 @@ import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -235,7 +236,7 @@ public class ProcessExternalMessage {
 	}
 	
 	public String processAndRespond0(Player reciever, String json) throws Exception {
-		Component component = Registry.ADVENTURE_GSON_SERIALIZER.deserialize(json);
+		Component component = InteractiveChatComponentSerializer.gson().deserialize(json);
 		Component originalComponent = component;
         
         try {
@@ -246,7 +247,7 @@ public class ProcessExternalMessage {
         	return json;
         }
         
-        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component), "translate")) {		       
+        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(InteractiveChatComponentSerializer.gson().serialize(component), "translate")) {		       
         	return json;
         }
         
@@ -360,9 +361,9 @@ public class ProcessExternalMessage {
         	InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);
         
-        String newJson = Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+        String newJson = InteractiveChatComponentSerializer.gson().serialize(component);
         if (InteractiveChat.sendOriginalIfTooLong && newJson.length() > 32767) {
-        	String originalJson = Registry.ADVENTURE_GSON_SERIALIZER.serialize(originalComponent);
+        	String originalJson = InteractiveChatComponentSerializer.gson().serialize(originalComponent);
         	if (originalJson.length() > 32767) {
         		return "{\"text\":\"\"}";
         	} else {

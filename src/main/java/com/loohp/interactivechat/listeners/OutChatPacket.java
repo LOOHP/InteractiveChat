@@ -56,6 +56,7 @@ import com.loohp.interactivechat.utils.ChatComponentType;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentModernizing;
 import com.loohp.interactivechat.utils.ComponentStyling;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
@@ -236,7 +237,7 @@ public class OutChatPacket implements Listener {
 	        	return;
 	        }
 
-	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component), "translate")) {
+	        if (InteractiveChat.version.isOld() && JsonUtils.containsKey(InteractiveChatComponentSerializer.gson().serialize(component), "translate")) {
 	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	return;
 	        }
@@ -371,7 +372,7 @@ public class OutChatPacket implements Listener {
 			}
 	        
 	        boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-	        String json = legacyRGB ? Registry.ADVENTURE_GSON_SERIALIZER_LEGACY.serialize(component) : Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+	        String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > 32767;
 
 	        //Bukkit.getConsoleSender().sendMessage(json.replace(ChatColor.COLOR_CHAR, '$'));

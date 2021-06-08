@@ -15,6 +15,7 @@ import org.json.simple.parser.JSONParser;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataStreamIO;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
@@ -93,7 +94,7 @@ public class ServerPingVelocity {
 						    JSONObject data;
 						    if (descriptionObj instanceof JSONObject) {
 						    	JSONObject description = (JSONObject) json.get("description");
-							    String descriptionAsStr = ChatColor.stripColor(PlainComponentSerializer.plain().serialize(Registry.ADVENTURE_GSON_SERIALIZER.deserialize(description.toJSONString())));
+							    String descriptionAsStr = ChatColor.stripColor(PlainComponentSerializer.plain().serialize(InteractiveChatComponentSerializer.gson().deserialize(description.toJSONString())));
 							    data = (JSONObject) new JSONParser().parse(descriptionAsStr);
 						    } else {
 						    	data = (JSONObject) new JSONParser().parse(StringEscapeUtils.unescapeJava(descriptionObj.toString()));

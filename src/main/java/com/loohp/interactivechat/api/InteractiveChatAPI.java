@@ -30,7 +30,7 @@ import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
-import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 
 import net.kyori.adventure.text.Component;
@@ -74,7 +74,7 @@ public class InteractiveChatAPI {
 	 * @param component
 	 */
 	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, Component component) {
-		String json = Registry.ADVENTURE_GSON_SERIALIZER.serialize(component);
+		String json = InteractiveChatComponentSerializer.gson().serialize(component);
 		if (sender instanceof Player) {
 			PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
 			if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {

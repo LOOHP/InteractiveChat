@@ -31,7 +31,6 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class LanguageUtils {
 	
@@ -296,7 +295,7 @@ public class LanguageUtils {
 	public static String getTranslation(String translationKey, String language) {
 		try {
 			Map<String, String> mapping = translations.get(language);
-			return mapping == null ? new TranslatableComponent(translationKey).toLegacyText() : mapping.getOrDefault(translationKey, translationKey);
+			return mapping == null ? new net.md_5.bungee.api.chat.TranslatableComponent(translationKey).toLegacyText() : mapping.getOrDefault(translationKey, translationKey);
 		} catch (Exception e) {
 			return translationKey;
 		}

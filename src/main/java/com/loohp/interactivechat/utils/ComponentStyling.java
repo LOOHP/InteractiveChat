@@ -3,8 +3,6 @@ package com.loohp.interactivechat.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.loohp.interactivechat.registry.Registry;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
@@ -23,7 +21,7 @@ public class ComponentStyling {
 	}
 	
 	public static TextColor getFirstColor(Component component) {
-		ChatColor chatColor = ChatColorUtils.getColor(ChatColorUtils.getFirstColors(BaseComponent.toLegacyText(ComponentSerializer.parse(Registry.ADVENTURE_GSON_SERIALIZER.serialize(component)))));
+		ChatColor chatColor = ChatColorUtils.getColor(ChatColorUtils.getFirstColors(BaseComponent.toLegacyText(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)))));
 		return chatColor == null ? null : ColorUtils.toTextColor(chatColor);
 	}
 

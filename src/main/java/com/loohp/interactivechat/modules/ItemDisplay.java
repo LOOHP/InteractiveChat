@@ -25,7 +25,6 @@ import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
@@ -35,6 +34,7 @@ import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
@@ -220,7 +220,7 @@ public class ItemDisplay {
 	    String rawDisplayName = item.hasItemMeta() && item.getItemMeta() != null ? NBTUtils.getString(item, "display", "Name") : null;
 	    if (rawDisplayName != null && JsonUtils.isValid(rawDisplayName)) {
 	    	try {
-	    		itemDisplayNameComponent = Registry.ADVENTURE_GSON_SERIALIZER.deserialize(rawDisplayName);
+	    		itemDisplayNameComponent = InteractiveChatComponentSerializer.gson().deserialize(rawDisplayName);
 	    		if (ComponentStyling.getFirstColor(itemDisplayNameComponent) == null) {
 	    			itemDisplayNameComponent = itemDisplayNameComponent.color(rarityColor);
 	    		}

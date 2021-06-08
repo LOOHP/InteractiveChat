@@ -30,9 +30,8 @@ import org.json.simple.parser.JSONParser;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class LanguageUtils {
 	
@@ -303,7 +302,7 @@ public class LanguageUtils {
 	public static String getTranslation(String translationKey, String language) {
 		try {
 			Map<String, String> mapping = translations.get(language);
-			return mapping == null ? LegacyComponentSerializer.legacySection().serialize(Component.translatable(translationKey)) : mapping.getOrDefault(translationKey, translationKey);
+			return mapping == null ? new TranslatableComponent(translationKey).toLegacyText() : mapping.getOrDefault(translationKey, translationKey);
 		} catch (Exception e) {
 			return translationKey;
 		}

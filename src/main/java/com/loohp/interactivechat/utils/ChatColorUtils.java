@@ -21,7 +21,7 @@ public class ChatColorUtils {
 	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
 	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
 	
-	private static final MiniMessage MINIMESSAGE_COLOR_PARSER = MiniMessage.builder().transformation(TransformationType.COLOR).build();
+	private static final MiniMessage MINIMESSAGE_COLOR_PARSER = MiniMessage.builder().removeDefaultTransformations().transformation(TransformationType.COLOR).build();
 	
 	static {
 		COLORS.add('0');

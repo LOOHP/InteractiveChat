@@ -12,7 +12,7 @@ import net.kyori.adventure.text.minimessage.transformation.TransformationType;
 
 public class ComponentFont {
 	
-	private static final MiniMessage MINIMESSAGE_FONT_PARSER = MiniMessage.builder().transformation(TransformationType.FONT).build();
+	private static final MiniMessage MINIMESSAGE_FONT_PARSER = MiniMessage.builder().removeDefaultTransformations().transformation(TransformationType.FONT).build();
 	
 	public static Component parseMiniMessageFont(Component component) {
 		component = ComponentFlattening.flatten(component);

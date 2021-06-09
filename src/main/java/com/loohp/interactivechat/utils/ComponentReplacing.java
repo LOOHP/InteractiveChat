@@ -59,7 +59,7 @@ public class ComponentReplacing {
 			ComponentReplacingData data = sections.get(i);
 			String text = data.getText();
 			Matcher matcher = pattern.matcher(text);
-			if (text.length() > offset && matcher.find(offset)) {
+			if (text.length() > offset && matcher.find(offset) && matcher.start() < matcher.end()) {
 				int start = matcher.start();
 				int end = matcher.end() - 1;
 				int childIndexOfStart = data.getChildIndexAt(start);
@@ -87,7 +87,11 @@ public class ComponentReplacing {
 					for (int u = childIndexOfStart + 1; u < indexEnd; u++) {
 						childIndexOfEnd--;
 					}
-					String lastContent = ((TextComponent) children.get(childIndexOfEnd)).content().substring(data.getPosWithinChild(end) + 1);
+					String lastContent = ((TextComponent) children.get(childIndexOfEnd)).content();
+					int posToCut = data.getPosWithinChild(end) + 1;
+					if (lastContent.length() <= posToCut) {
+						lastContent = lastContent.substring(posToCut);
+					}
 					if (lastContent.isEmpty()) {
 						children.remove(childIndexOfEnd);
 					} else {

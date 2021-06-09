@@ -103,7 +103,11 @@ public class MapViewer implements Listener {
 			nmsWorldMapClassColorsField = nmsWorldMapClass.getField("colors");
 			nmsMapIconClass = NMSUtils.getNMSClass("net.minecraft.server.", "MapIcon");
 			nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("decorations");
-			nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("getType");
+			try {
+				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("getType");
+			} catch (NoSuchMethodException e) {
+				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("b");
+			}
 			nmsMapIconClassGetTypeMethodReturnsByte = nmsMapIconClassGetTypeMethod.getReturnType().equals(byte.class);
 		} catch (Exception e) {
 			e.printStackTrace();

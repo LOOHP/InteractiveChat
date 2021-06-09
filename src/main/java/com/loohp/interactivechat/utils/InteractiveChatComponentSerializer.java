@@ -40,9 +40,7 @@ public class InteractiveChatComponentSerializer {
 			Field field = paperNative.getField("INSTANCE");
 			field.setAccessible(true);
 			LEGACY_HOVER_SERIALIZER = (LegacyHoverEventSerializer) field.get(null);
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
 		
 		if (LEGACY_HOVER_SERIALIZER == null) {
 			LEGACY_HOVER_SERIALIZER = new VelocityLegacyHoverEventSerializer();

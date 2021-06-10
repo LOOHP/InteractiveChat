@@ -1,11 +1,21 @@
 package com.loohp.interactivechat.utils;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CustomStringUtils {
+	
+	public static Set<Character> getCharacterSet(String str) {
+		Set<Character> unique = new HashSet<>();
+		for (char c : str.toCharArray()) {
+		    unique.add(c);
+		}
+		return unique;
+	}
 	
 	public static String replaceRespectColor(String str, String find, String replace) {
 		for (int i = 0; i < str.length(); i++) {
@@ -111,7 +121,7 @@ public class CustomStringUtils {
 	    return costs[s2.length()];
     }
 	
-	public static String escapeMetaCharacters(String inputString){
+	public static String escapeMetaCharacters(String inputString) {
 	    final String[] metaCharacters = {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
 
 	    for (int i = 0; i < metaCharacters.length; i++){

@@ -28,7 +28,7 @@ public class ComponentFont {
 				children.set(i, text);
 			}
 		}
-		return ComponentCompacting.optimize(component, null);
+		return ComponentCompacting.optimize(component);
 	}
 
 }

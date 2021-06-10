@@ -202,6 +202,7 @@ public class OutChatPacket implements Listener {
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
 		PacketContainer originalPacket = packet.deepClone();
     	try {
+    		
     		Component component = null;
     		ChatComponentType type = null;
 	        int field = -1;

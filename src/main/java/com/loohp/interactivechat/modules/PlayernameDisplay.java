@@ -109,7 +109,7 @@ public class PlayernameDisplay implements Listener {
 				children.set(i, trans);
 			}
 		}
-		return ComponentCompacting.optimize(component.children(children), null);
+		return ComponentCompacting.optimize(component.children(children));
 	}
 	
 	private static List<ReplaceTextBundle> getNames() {

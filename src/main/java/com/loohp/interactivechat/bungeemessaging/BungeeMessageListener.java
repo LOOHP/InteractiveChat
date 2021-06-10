@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.bungeemessaging;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -271,7 +269,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        //for (Player player : Bukkit.getOnlinePlayers()) {
 	        //	player.sendMessage(packetId + "");
 	        //}
-        } catch (IOException | DataFormatException e) {
+        } catch (Exception e) {
 			e.printStackTrace();
 		}  
     }

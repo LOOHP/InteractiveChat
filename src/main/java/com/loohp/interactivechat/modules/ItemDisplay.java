@@ -325,7 +325,7 @@ public class ItemDisplay {
 			itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
 		}
 		
-		return ComponentCompacting.optimize(itemDisplayComponent, null);
+		return ComponentCompacting.optimize(itemDisplayComponent);
 	}
 
 }

@@ -35,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 
@@ -45,8 +47,39 @@ public class ComponentCompacting {
 	private ComponentCompacting() {
 
 	}
+	
+	public static Component optimize(Component component) {
+		return optimizeStyle(optimizeEvents(component), null);
+	}
+	
+	public static Component optimizeEvents(Component component) {
+		component = ComponentFlattening.flatten(component);
+		List<Component> children = component.children();
+		if (children.isEmpty()) {
+			return component;
+		}
+		List<Component> optimized = new ArrayList<>();
+		HoverEvent<?> hoverEvent = children.get(0).hoverEvent();
+		ClickEvent clickEvent = children.get(0).clickEvent();
+		Component currentComponent = Component.text("").hoverEvent(hoverEvent).clickEvent(clickEvent);
+		for (int i = 0; i < children.size(); i++) {
+			Component child = children.get(i);
+			HoverEvent<?> childHover = child.hoverEvent();
+			ClickEvent childClick = child.clickEvent();
+			if (Objects.equals(hoverEvent, childHover) && Objects.equals(clickEvent, childClick)) {
+				currentComponent = currentComponent.append(child.hoverEvent(null).clickEvent(null));
+			} else {
+				optimized.add(currentComponent);
+				hoverEvent = childHover;
+				clickEvent = childClick;
+				currentComponent = Component.text("").hoverEvent(hoverEvent).clickEvent(clickEvent).append(child.hoverEvent(null).clickEvent(null));
+			}
+		}
+		optimized.add(currentComponent);
+		return component.children(optimized);
+	}
 
-	public static @NonNull Component optimize(final @NotNull Component component, final @Nullable Style parentStyle) {
+	public static @NonNull Component optimizeStyle(final @NotNull Component component, final @Nullable Style parentStyle) {
 		Component optimized = component.children(Collections.emptyList());
 
 		if (parentStyle != null) {
@@ -63,7 +96,7 @@ public class ComponentCompacting {
 		// optimize all children
 		final List<Component> childrenToAppend = new ArrayList<>(component.children().size());
 		for (int i = 0; i < component.children().size(); ++i) {
-			childrenToAppend.add(optimize(component.children().get(i), childParentStyle));
+			childrenToAppend.add(optimizeStyle(component.children().get(i), childParentStyle));
 		}
 
 		// try to merge children into this parent component

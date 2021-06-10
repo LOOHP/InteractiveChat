@@ -35,7 +35,7 @@ public class ComponentModernizing {
 				children.set(i, trans);
 			}
 		}
-		return ComponentCompacting.optimize(component.children(children), null);
+		return ComponentCompacting.optimize(component.children(children));
 	}
 
 }

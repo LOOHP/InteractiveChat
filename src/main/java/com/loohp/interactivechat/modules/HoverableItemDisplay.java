@@ -72,7 +72,7 @@ public class HoverableItemDisplay {
 			}
 		}
 		
-		return ComponentCompacting.optimize(component.children(children), null);
+		return ComponentCompacting.optimize(component.children(children));
 	}
 	
 	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {

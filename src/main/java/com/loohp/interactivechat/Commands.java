@@ -1,6 +1,5 @@
 package com.loohp.interactivechat;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				if (InteractiveChat.bungeecordMode) {
 					try {
 						BungeeMessageSender.reloadBungeeConfig(System.currentTimeMillis());
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
@@ -123,7 +122,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
-							} catch (IOException e) {
+							} catch (Exception e) {
 								e.printStackTrace();
 							}
 						}
@@ -147,7 +146,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							if (InteractiveChat.bungeecordMode) {
 								try {
 									BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
-								} catch (IOException e) {
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
@@ -183,7 +182,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							if (InteractiveChat.bungeecordMode) {
 								try {
 									BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
-								} catch (IOException e) {
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
@@ -205,7 +204,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 								if (InteractiveChat.bungeecordMode) {
 									try {
 										BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
-									} catch (IOException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}

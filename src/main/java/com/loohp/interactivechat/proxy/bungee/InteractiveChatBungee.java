@@ -81,10 +81,13 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.Chat;
+import us.myles.ViaVersion.api.Via;
 
 public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	public static final int BSTATS_PLUGIN_ID = 8839;
+	
+	public static boolean viaVersionHook = false;
 	
 	public static Configuration config = null;
 	public static ConfigurationProvider yamlConfigProvider = null;
@@ -153,6 +156,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		getProxy().getPluginManager().registerListener(this, this);
 
 		getProxy().getPluginManager().registerCommand(this, new CommandsBungee());
+		
+		if (ProxyServer.getInstance().getPluginManager().getPlugin("ViaVersion") != null) {
+			viaVersionHook = true;
+			ProxyServer.getInstance().getLogger().info(ChatColor.AQUA + "[InteractiveChat] InteractiveChatBungee has hooked into ViaVersion!");
+		}
 
 		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
 
@@ -715,7 +723,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	public static void sendMessage(CommandSender sender, Component component) {
 		if (sender instanceof ProxiedPlayer) {
 			ProxiedPlayer player = (ProxiedPlayer) sender;
-			if (player.getPendingConnection().getVersion() < Registry.MINECRAFT_1_16_PROTOCOL_VERSION) {
+			if (getVersion(player) < Registry.MINECRAFT_1_16_PROTOCOL_VERSION) {
 				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
 			} else {
 				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
@@ -724,5 +732,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
 		}
 	}
+	
+	public static int getVersion(ProxiedPlayer player) {
+        if (viaVersionHook) {
+            return Via.getAPI().getPlayerVersion(player.getUniqueId());
+        }
+        return player.getPendingConnection().getVersion();
+    }
 	
 }

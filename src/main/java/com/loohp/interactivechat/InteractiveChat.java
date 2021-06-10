@@ -447,7 +447,7 @@ public class InteractiveChat extends JavaPlugin {
 					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList) && BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping)) {
 						queueRemoteUpdate = false;
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 	    	}

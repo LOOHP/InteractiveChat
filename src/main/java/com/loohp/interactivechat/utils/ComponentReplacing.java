@@ -64,54 +64,78 @@ public class ComponentReplacing {
 				int end = matcher.end() - 1;
 				int childIndexOfStart = data.getChildIndexAt(start);
 				int childIndexOfEnd = data.getChildIndexAt(end);
-				int insertPos = childIndexOfStart;
 				Style style = children.get(childIndexOfStart).style();
-				TextComponent firstComponentBackup = (TextComponent) children.get(childIndexOfStart);
-				String firstContentBackup = firstComponentBackup.content();
-				String firstContent = firstContentBackup.substring(0, data.getPosWithinChild(start));
-				if (firstContent.isEmpty()) {
-					childIndexOfEnd--;
-					children.remove(childIndexOfStart);
-				} else {
-					children.set(childIndexOfStart, ((TextComponent) children.get(childIndexOfStart)).content(firstContent));
-				}
-				if (childIndexOfEnd + 1 == childIndexOfStart && firstContent.isEmpty()) {
-					String firstContentEnd = firstContentBackup.substring(data.getPosWithinChild(end) + 1);
-					children.add(childIndexOfStart, firstComponentBackup.content(firstContentEnd));
-				} else if (childIndexOfEnd == childIndexOfStart && !firstContent.isEmpty()) {
-					String firstContentEnd = firstContentBackup.substring(data.getPosWithinChild(end) + 1);
-					children.add(childIndexOfStart + 1, ((TextComponent) children.get(childIndexOfStart)).content(firstContentEnd));
-					insertPos++;
-				} else {
-					int indexEnd = childIndexOfEnd;
-					for (int u = childIndexOfStart + 1; u < indexEnd; u++) {
-						childIndexOfEnd--;
+				int indexOfStartInStartChild = data.getPosWithinChild(start);
+				int indexOfEndInEndChild = data.getPosWithinChild(end);
+				int insertPos = indexOfStartInStartChild <= 0 ? childIndexOfStart : childIndexOfStart + 1;
+				
+				if (childIndexOfStart == childIndexOfEnd) {
+					TextComponent textComponent = (TextComponent) children.get(childIndexOfStart);
+					String content = textComponent.content();
+					if (indexOfStartInStartChild == 0 && indexOfEndInEndChild == content.length() - 1) {
+						children.remove(childIndexOfStart);
+					} else if (indexOfStartInStartChild == 0) {
+						String trailingContent = content.substring(indexOfEndInEndChild + 1);
+						children.set(childIndexOfStart, textComponent.content(trailingContent));
+					} else if (indexOfEndInEndChild == content.length() - 1) {
+						String leadingContent = content.substring(0, indexOfStartInStartChild);
+						children.set(childIndexOfStart, textComponent.content(leadingContent));
+					} else {
+						String leadingContent = content.substring(0, indexOfStartInStartChild);
+						String trailingContent = content.substring(indexOfEndInEndChild + 1);
+						children.set(childIndexOfStart, textComponent.content(leadingContent));
+						children.add(insertPos, textComponent.content(trailingContent));
 					}
-					String lastContent = ((TextComponent) children.get(childIndexOfEnd)).content();
-					int posToCut = data.getPosWithinChild(end) + 1;
-					if (lastContent.length() <= posToCut) {
-						lastContent = lastContent.substring(posToCut);
+				} else {
+					for (; childIndexOfEnd > childIndexOfStart + 1; childIndexOfEnd--) {
+						children.remove(childIndexOfEnd - 1);
 					}
-					if (lastContent.isEmpty()) {
+					TextComponent textComponentStart = (TextComponent) children.get(childIndexOfStart);
+					TextComponent textComponentEnd = (TextComponent) children.get(childIndexOfEnd);
+					String contentStart = textComponentStart.content();
+					String contentEnd = textComponentEnd.content();
+					if (indexOfStartInStartChild == 0 && indexOfEndInEndChild == contentEnd.length() - 1) {
+						children.remove(childIndexOfStart);
+						children.remove(childIndexOfEnd);
+					} else if (indexOfStartInStartChild == 0) {
+						String trailingContent = contentEnd.substring(indexOfEndInEndChild + 1);
+						children.set(childIndexOfEnd, textComponentEnd.content(trailingContent));
+						children.remove(childIndexOfStart);
+					} else if (indexOfEndInEndChild == contentEnd.length() - 1) {
+						String leadingContent = contentStart.substring(0, indexOfStartInStartChild);
+						children.set(childIndexOfStart, textComponentStart.content(leadingContent));
 						children.remove(childIndexOfEnd);
 					} else {
-						children.set(childIndexOfEnd, ((TextComponent) children.get(childIndexOfEnd)).content(lastContent));
+						String leadingContent = contentStart.substring(0, indexOfStartInStartChild);
+						String trailingContent = contentEnd.substring(indexOfEndInEndChild + 1);
+						children.set(childIndexOfStart, textComponentStart.content(leadingContent));
+						children.set(childIndexOfEnd, textComponentEnd.content(trailingContent));
 					}
 				}
+				
 				Component replace = replaceFunction.apply(getAllGroups(matcher));
 				children.add(insertPos, replace.style(replace.style().merge(style, Merge.Strategy.IF_ABSENT_ON_TARGET)));
-				component = ComponentCompacting.optimize(component.children(children), null);
+				component = ComponentCompacting.optimize(component.children(children));
 				component = ComponentFlattening.flatten(component);
 				children = new ArrayList<>(component.children());
 				sections = getData(component);
-				i--;
-				offset = start + PlainComponentSerializer.plain().serialize(replace).length();
+				
+				int sectionsInReplace = getData(ComponentFlattening.flatten(replace)).size();
+				if (sectionsInReplace > 1) {
+					offset = 0;
+					if (sectionsInReplace > 2) {
+						i += sectionsInReplace - 2;
+					}
+				} else {
+					i--;
+					offset = start + PlainComponentSerializer.plain().serialize(replace).length();
+				}
 			} else {
 				offset = 0;
 			}
 		}
 		
-		component = ComponentCompacting.optimize(component.children(children), null);
+		component = ComponentCompacting.optimize(component.children(children));
 		
 		if (escaping) {
 			component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, groups -> Component.text(groups[1]));
@@ -145,10 +169,12 @@ public class ComponentReplacing {
 					pos.add(i);
 				}
 			} else {
-				lastIsTextComponent = false;
-				sections.add(new ComponentReplacingData(current, pos));
-				current = "";
-				pos = new ArrayList<>();
+				if (lastIsTextComponent) {
+					lastIsTextComponent = false;
+					sections.add(new ComponentReplacingData(current, pos));
+					current = "";
+					pos = new ArrayList<>();
+				}
 			}
 		}
 		if (lastIsTextComponent) {

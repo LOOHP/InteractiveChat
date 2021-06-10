@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.listeners;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,7 +191,7 @@ public class Events implements Listener {
 		if (InteractiveChat.bungeecordMode) {
 			try {
 				BungeeMessageSender.addMessage(System.currentTimeMillis(), ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage())), event.getPlayer().getUniqueId());
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -244,7 +243,7 @@ public class Events implements Listener {
    							if (InteractiveChat.bungeecordMode) {
    								try {
 									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (IOException e) {
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
    							}
@@ -272,7 +271,7 @@ public class Events implements Listener {
 							if (InteractiveChat.bungeecordMode) {
 								try {
 									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (IOException e) {
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
@@ -304,7 +303,7 @@ public class Events implements Listener {
 							if (InteractiveChat.bungeecordMode) {
 								try {
 									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (IOException e) {
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}

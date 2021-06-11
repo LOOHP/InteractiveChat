@@ -95,8 +95,8 @@ public class ComponentReplacing {
 					String contentStart = textComponentStart.content();
 					String contentEnd = textComponentEnd.content();
 					if (indexOfStartInStartChild == 0 && indexOfEndInEndChild == contentEnd.length() - 1) {
-						children.remove(childIndexOfStart);
 						children.remove(childIndexOfEnd);
+						children.remove(childIndexOfStart);
 					} else if (indexOfStartInStartChild == 0) {
 						String trailingContent = contentEnd.substring(indexOfEndInEndChild + 1);
 						children.set(childIndexOfEnd, textComponentEnd.content(trailingContent));

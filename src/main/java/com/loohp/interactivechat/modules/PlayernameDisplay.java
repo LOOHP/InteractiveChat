@@ -28,7 +28,6 @@ import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.VanishUtils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -36,7 +35,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class PlayernameDisplay implements Listener {
 	
-	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";	
 	private static Random random = new Random();
 	private static AtomicInteger flag = new AtomicInteger();
 	private static List<ReplaceTextBundle> names = new ArrayList<>();
@@ -77,8 +75,7 @@ public class PlayernameDisplay implements Listener {
 			component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, entry.getReplaceText(), component, unix);
 		}
 		
-		//clean
-		return component.replaceText(TextReplacementConfig.builder().match(PROCESSED_IDENTIFIER).replacement("").build());
+		return component;
 	}
 	
 	private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, String replaceText, Component component, long unix) {
@@ -92,7 +89,7 @@ public class PlayernameDisplay implements Listener {
 			String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
 			clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext);
 		}
-		Component replace = LegacyComponentSerializer.legacySection().deserialize(replaceText).hoverEvent(hoverEvent).clickEvent(clickEvent);
+		Component replace = ComponentCompacting.optimize(LegacyComponentSerializer.legacySection().deserialize(replaceText).hoverEvent(hoverEvent).clickEvent(clickEvent));
 		String regex = InteractiveChat.usePlayerNameCaseSensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
 		component = ComponentReplacing.replace(component, regex, true, replace);
 		List<Component> children = new ArrayList<>(component.children());

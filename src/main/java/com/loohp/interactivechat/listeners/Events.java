@@ -337,7 +337,8 @@ public class Events implements Listener {
 		Player player = event.getPlayer();
 		if (player.hasPermission("interactivechat.chatcolor.translate")) {
 			if (InteractiveChat.chatAltColorCode.isPresent()) {
-				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
+				String translated = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
+				event.setMessage(translated.substring(translated.indexOf("/")));
 			}
 		} else {
 			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));

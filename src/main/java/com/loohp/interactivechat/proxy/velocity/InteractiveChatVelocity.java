@@ -523,7 +523,7 @@ public class InteractiveChatVelocity {
 		VelocityServerConnection serverConnection = ((ConnectedPlayer) event.getPlayer()).getConnectedServer();
 		ChannelPipeline pipeline = serverConnection.ensureConnected().getChannel().pipeline();
 
-		pipeline.addBefore(Connections.HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+		pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -575,7 +575,7 @@ public class InteractiveChatVelocity {
 		ConnectedPlayer userConnection = (ConnectedPlayer) player;
 		ChannelPipeline pipeline = userConnection.getConnection().getChannel().pipeline();
 
-		pipeline.addBefore(Connections.HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+		pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {

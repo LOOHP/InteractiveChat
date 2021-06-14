@@ -541,7 +541,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
-		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -608,7 +608,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
-		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {

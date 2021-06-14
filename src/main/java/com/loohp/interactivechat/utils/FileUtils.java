@@ -11,6 +11,8 @@ import java.nio.file.Path;
 
 public class FileUtils {
 
+	private static final ClassLoader NULL_CLASSLOADER = null;
+
 	public static void removeFolderRecursively(File folder) {
 		if (folder.exists()) {
 			File[] files = folder.listFiles();
@@ -41,7 +43,7 @@ public class FileUtils {
 	}
 	
 	public static void copyZipEntry(File zipFile, String fileName, File outputFile) throws IOException {
-		try (FileSystem fileSystem = FileSystems.newFileSystem(zipFile.toPath(), null)) {
+		try (FileSystem fileSystem = FileSystems.newFileSystem(zipFile.toPath(), NULL_CLASSLOADER)) {
 	        Path fileToExtract = fileSystem.getPath(fileName);
 	        Files.copy(fileToExtract, outputFile.toPath());
 	    }

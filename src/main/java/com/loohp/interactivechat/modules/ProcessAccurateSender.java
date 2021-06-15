@@ -8,14 +8,14 @@ import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ProcessAccurateSender {
 	
 	private static final Pattern PATTERN = Pattern.compile("(?:<chat=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})>)");
 	
 	public static ProcessSenderResult process(Component component) {
-		String text = PlainComponentSerializer.plain().serialize(component);
+		String text = PlainTextComponentSerializer.plainText().serialize(component);
 		UUID uuid = find(text);
 		component = component.replaceText(TextReplacementConfig.builder().match(PATTERN).replacement("").build());
 		return new ProcessSenderResult(component, uuid);

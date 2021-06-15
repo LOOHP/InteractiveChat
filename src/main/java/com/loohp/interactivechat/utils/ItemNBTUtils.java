@@ -34,13 +34,13 @@ public class ItemNBTUtils {
 	
 	static {
 		try {
-			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
-			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.", "ItemStack");
+			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
+			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
 			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-			nmsNbtTagCompoundClass = NMSUtils.getNMSClass("net.minecraft.server.", "NBTTagCompound");
+			nmsNbtTagCompoundClass = NMSUtils.getNMSClass("net.minecraft.server.%s.NBTTagCompound", "net.minecraft.nbt.NBTTagCompound");
 			saveNmsItemStackMethod = nmsItemStackClass.getMethod("save", nmsNbtTagCompoundClass);
 			nbtTagCompoundConstructor = nmsNbtTagCompoundClass.getConstructor();
-			nmsMojangsonParserClass = NMSUtils.getNMSClass("net.minecraft.server.", "MojangsonParser");
+			nmsMojangsonParserClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MojangsonParser", "net.minecraft.nbt.MojangsonParser");
 			parseMojangsonMethod = nmsMojangsonParserClass.getMethod("parse", String.class);
 			if (InteractiveChat.version.isOld()) {
 				nmsItemStackFromTagMethod = nmsItemStackClass.getMethod("createStack", nmsNbtTagCompoundClass);
@@ -52,7 +52,7 @@ public class ItemNBTUtils {
 			nbtTagCompoundGetMethod = nmsNbtTagCompoundClass.getMethod("get", String.class);
 			
 			//if (!InteractiveChat.version.isLegacy()) {
-			//	craftLegacyClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "legacy.CraftLegacy");
+			//	craftLegacyClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.legacy.CraftLegacy");
 			//	toLegacyMethod = craftLegacyClass.getMethod("toLegacy", Material.class);
 			//}
 		} catch (Exception e) {

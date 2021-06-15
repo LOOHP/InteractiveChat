@@ -42,8 +42,8 @@ public class LanguageUtils {
 	static {
 		if (InteractiveChat.version.isLegacy()) {
 			try {
-				craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
-				nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.", "ItemStack");
+				craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
+				nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
 				asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
 				getRawItemTypeNameMethod = nmsItemStackClass.getMethod("a");
 			} catch (Exception e) {

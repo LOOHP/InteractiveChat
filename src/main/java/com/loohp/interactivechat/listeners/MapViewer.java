@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -32,6 +33,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.Pair;
 import com.loohp.interactivechat.InteractiveChat;
@@ -60,6 +62,8 @@ public class MapViewer implements Listener {
 	private static Field nmsWorldMapClassDecorationsField;
 	private static Method nmsMapIconClassGetTypeMethod;
 	private static boolean nmsMapIconClassGetTypeMethodReturnsByte;
+	private static Class<?> nmsWorldMapBClass;
+	private static Constructor<?> nmsWorldMapBClassConstructor;
 	
 	private static Object nmsItemWorldMapInstance;
 	
@@ -76,7 +80,7 @@ public class MapViewer implements Listener {
 				bukkitMapViewClassGetIdMethod = null;
 			}
 			
-			nmsItemWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.", "ItemWorldMap");
+			nmsItemWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemWorldMap", "net.minecraft.world.item.ItemWorldMap");
 			try {
 				if (InteractiveChat.version.isLegacy()) {
 					nmsItemWorldMapClassContructor = nmsItemWorldMapClass.getDeclaredConstructor();
@@ -92,23 +96,36 @@ public class MapViewer implements Listener {
 				nmsItemWorldMapInstance = null;
 			}
 			
-			nmsWorldClass = NMSUtils.getNMSClass("net.minecraft.server.", "World");
-			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.", "ItemStack");
+			nmsWorldClass = NMSUtils.getNMSClass("net.minecraft.server.%s.World", "net.minecraft.world.level.World");
+			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
 			nmsItemWorldMapClassGetSavedMapMethod = nmsItemWorldMapClass.getMethod("getSavedMap", nmsItemStackClass, nmsWorldClass);
-			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
+			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
 			craftItemStackClassAsNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-			craftWorldClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.", "CraftWorld");
+			craftWorldClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftWorld");
 			craftWorldClassGetHandleMethod = craftWorldClass.getMethod("getHandle");
-			nmsWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.", "WorldMap");
-			nmsWorldMapClassColorsField = nmsWorldMapClass.getField("colors");
-			nmsMapIconClass = NMSUtils.getNMSClass("net.minecraft.server.", "MapIcon");
-			nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("decorations");
+			nmsWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.%s.WorldMap", "net.minecraft.world.level.saveddata.maps.WorldMap");
+			try {
+				nmsWorldMapClassColorsField = nmsWorldMapClass.getField("g");
+			} catch (NoSuchFieldException e) {
+				nmsWorldMapClassColorsField = nmsWorldMapClass.getField("colors");
+			}
+			nmsMapIconClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MapIcon", "net.minecraft.world.level.saveddata.maps.MapIcon");
+			try {
+				nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("q");
+			} catch (NoSuchFieldException e) {
+				nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("decorations");
+			}
 			try {
 				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("getType");
 			} catch (NoSuchMethodException e) {
 				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("b");
 			}
 			nmsMapIconClassGetTypeMethodReturnsByte = nmsMapIconClassGetTypeMethod.getReturnType().equals(byte.class);
+			
+			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
+				nmsWorldMapBClass = Stream.of(nmsWorldMapClass.getClasses()).filter(each -> each.getName().endsWith("$b")).findFirst().get();
+				nmsWorldMapBClassConstructor = nmsWorldMapBClass.getConstructor(int.class, int.class, int.class, int.class, byte[].class);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -161,20 +178,26 @@ public class MapViewer implements Listener {
 			
 			PacketContainer packet2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.MAP);
 			int mapIconFieldPos = 2;
-			packet2.getIntegers().write(0, (int) mapId);
-			packet2.getBytes().write(0, (byte) 0);
-			if (!InteractiveChat.version.isOld()) {
+			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
+				packet2.getIntegers().write(0, (int) mapId);
+				packet2.getBytes().write(0, (byte) 0);
 				packet2.getBooleans().write(0, false);
-				mapIconFieldPos++;
+			} else {
+				packet2.getIntegers().write(0, (int) mapId);
+				packet2.getBytes().write(0, (byte) 0);
+				if (!InteractiveChat.version.isOld()) {
+					packet2.getBooleans().write(0, false);
+					mapIconFieldPos++;
+				}
+				if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_14)) {
+					packet2.getBooleans().write(1, false);
+					mapIconFieldPos++;
+				}
+				packet2.getIntegers().write(1, 0);
+				packet2.getIntegers().write(2, 0);
+				packet2.getIntegers().write(3, 128);
+				packet2.getIntegers().write(4, 128);
 			}
-			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_14)) {
-				packet2.getBooleans().write(1, false);
-				mapIconFieldPos++;
-			}
-			packet2.getIntegers().write(1, 0);
-			packet2.getIntegers().write(2, 0);
-			packet2.getIntegers().write(3, 128);
-			packet2.getIntegers().write(4, 128);  
 			
 			MAP_VIEWERS.put(player, item);
 			
@@ -204,16 +227,21 @@ public class MapViewer implements Listener {
 										itr.remove();
 									}
 								}
-								Object nmsMapIconsArray = Array.newInstance(nmsMapIconClass, nmsMapIconsList.size());
-								for (int i = 0; i < nmsMapIconsList.size(); i++) {
-									Object nmsMapIconObject = nmsMapIconsList.get(i);
-									Array.set(nmsMapIconsArray, i, nmsMapIconObject);
+								if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
+									packet2.getModifier().write(3, nmsMapIconsList);
+									packet2.getModifier().write(4, nmsWorldMapBClassConstructor.newInstance(0, 0, 128, 128, colors));
+								} else {
+									Object nmsMapIconsArray = Array.newInstance(nmsMapIconClass, nmsMapIconsList.size());
+									for (int i = 0; i < nmsMapIconsList.size(); i++) {
+										Object nmsMapIconObject = nmsMapIconsList.get(i);
+										Array.set(nmsMapIconsArray, i, nmsMapIconObject);
+									}
+									
+									packet2.getByteArrays().write(0, colors);
+									packet2.getModifier().write(mapIconFieldPos0, nmsMapIconsArray);
+									InteractiveChat.protocolManager.sendServerPacket(player, packet2);
 								}
-								
-								packet2.getByteArrays().write(0, colors);
-								packet2.getModifier().write(mapIconFieldPos0, nmsMapIconsArray);
-								InteractiveChat.protocolManager.sendServerPacket(player, packet2);
-							} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+							} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException | FieldAccessException | InstantiationException e) {
 								e.printStackTrace();
 							}
 						}

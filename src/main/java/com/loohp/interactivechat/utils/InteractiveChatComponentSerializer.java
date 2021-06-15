@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import com.loohp.interactivechat.utils.NativeAdventureConverter.NativeLegacyHoverEventSerializerWrapper;
+
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.TagStringIO;
@@ -22,7 +24,7 @@ import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.LegacyHoverEventSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.util.Codec.Decoder;
 import net.kyori.adventure.util.Codec.Encoder;
 
@@ -39,7 +41,7 @@ public class InteractiveChatComponentSerializer {
 			Class<?> paperNative = Class.forName("io.papermc.paper.adventure.NBTLegacyHoverEventSerializer");
 			Field field = paperNative.getField("INSTANCE");
 			field.setAccessible(true);
-			LEGACY_HOVER_SERIALIZER = (LegacyHoverEventSerializer) field.get(null);
+			LEGACY_HOVER_SERIALIZER = new NativeLegacyHoverEventSerializerWrapper(field.get(null));
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
 		
 		if (LEGACY_HOVER_SERIALIZER == null) {
@@ -139,7 +141,7 @@ public class InteractiveChatComponentSerializer {
 
 		@Override
 		public HoverEvent.@NonNull ShowItem deserializeShowItem(@NonNull Component input) throws IOException {
-			String snbt = PlainComponentSerializer.plain().serialize(input);
+			String snbt = PlainTextComponentSerializer.plainText().serialize(input);
 			CompoundBinaryTag item = TagStringIO.get().asCompound(snbt);
 
 			Key key;
@@ -156,7 +158,7 @@ public class InteractiveChatComponentSerializer {
 
 		@Override
 		public HoverEvent.@NonNull ShowEntity deserializeShowEntity(@NonNull Component input, Decoder<Component, String, ? extends RuntimeException> componentDecoder) throws IOException {
-			String snbt = PlainComponentSerializer.plain().serialize(input);
+			String snbt = PlainTextComponentSerializer.plainText().serialize(input);
 			CompoundBinaryTag item = TagStringIO.get().asCompound(snbt);
 
 			Component name;

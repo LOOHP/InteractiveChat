@@ -53,7 +53,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ItemDisplay {
@@ -62,7 +62,7 @@ public class ItemDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainComponentSerializer.plain().serialize(component);
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (plain.contains(InteractiveChat.itemPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
 			if (optplayer.isPresent()) {

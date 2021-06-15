@@ -12,7 +12,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 public enum ChatComponentType {
 
-	IChatBaseComponent(".*net\\.minecraft\\.server\\..*\\.IChatBaseComponent.*", object -> {
+	IChatBaseComponent(".*net\\.minecraft\\..*\\.IChatBaseComponent.*", object -> {
 		return InteractiveChatComponentSerializer.gson().deserialize(WrappedChatComponent.fromHandle(object).getJson());
 	}, (component, legacyRGB) -> {
 		return WrappedChatComponent.fromJson(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component)).getHandle();
@@ -24,13 +24,19 @@ public enum ChatComponentType {
 		return ComponentSerializer.parse(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
 	}), 
 	
-	AdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
+	NativeAdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
+		return NativeAdventureConverter.componentFromNative(object);
+	}, (component, legacyRGB) -> {
+		return NativeAdventureConverter.componentToNative(component, legacyRGB);
+	}),
+
+	AdventureComponent(".*com\\.loohp\\.interactivechat\\.libs\\.net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
 		return (Component) object;
 	}, (component, legacyRGB) -> {
 		return component;
 	});
 
-	private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, BaseComponentArray, IChatBaseComponent};
+	private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent};
 	private String regex;
 	private Function<Object, Component> converterFrom;
 	private BiFunction<Component, Boolean, Object> converterTo;

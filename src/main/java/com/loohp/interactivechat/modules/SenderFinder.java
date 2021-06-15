@@ -17,7 +17,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class SenderFinder {
 	
@@ -27,7 +27,7 @@ public class SenderFinder {
 			return Optional.of(keyPlayer);
 		}
 		
-		String chat = PlainComponentSerializer.plain().serialize(component);
+		String chat = PlainTextComponentSerializer.plainText().serialize(component);
 		
 		for (Entry<String, UUID> entry : InteractiveChat.messages.entrySet()) {
 			String msg = entry.getKey();

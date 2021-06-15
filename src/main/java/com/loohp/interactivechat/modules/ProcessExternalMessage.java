@@ -39,7 +39,7 @@ import com.loohp.interactivechat.utils.RarityUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ProcessExternalMessage {
@@ -251,7 +251,7 @@ public class ProcessExternalMessage {
         	return json;
         }
         
-        String rawMessageKey = PlainComponentSerializer.plain().serialize(component);
+        String rawMessageKey = PlainTextComponentSerializer.plainText().serialize(component);
         if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
         	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
         }

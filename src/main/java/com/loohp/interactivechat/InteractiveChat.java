@@ -76,13 +76,13 @@ import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.PotionUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -279,6 +279,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean useAccurateSenderFinder = true;
 	
+	public static boolean useBukkitDisplayName = true;
 	public static boolean useEssentialsNicknames = true;
 	
 	public static PlayerDataManager playerDataManager;
@@ -545,8 +546,8 @@ public class InteractiveChat extends JavaPlugin {
 	}
 	
 	public static void sendMessage(CommandSender sender, Component component) {
-		if (sender instanceof Audience) {
-			((Audience) sender).sendMessage(component);
+		if (NativeAdventureConverter.isInstanceOfNativeAudience(sender)) {
+			NativeAdventureConverter.sendNativeAudienceMessage(sender, component, InteractiveChat.version.isLegacyRGB());
 		} else {
 			if (InteractiveChat.version.isLegacyRGB()) {
 				sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));

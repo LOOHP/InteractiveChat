@@ -65,7 +65,7 @@ import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class OutChatPacket implements Listener {
@@ -202,7 +202,6 @@ public class OutChatPacket implements Listener {
 	private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, Queue<UUID> queue, boolean isFiltered) {
 		PacketContainer originalPacket = packet.deepClone();
     	try {
-    		
     		Component component = null;
     		ChatComponentType type = null;
 	        int field = -1;
@@ -213,6 +212,7 @@ public class OutChatPacket implements Listener {
 	        			try {
 	        				component = t.convertFrom(packet.getModifier().read(i));
 	        			} catch (Throwable e) {
+	        				e.printStackTrace();
 	        	        	orderAndSend(reciever, packet, messageUUID, queue);
 	        	        	return;
 	        			}
@@ -249,7 +249,7 @@ public class OutChatPacket implements Listener {
 	        boolean isChat = false;
 
 	        Optional<ICPlayer> sender = Optional.empty();
-	        String rawMessageKey = PlainComponentSerializer.plain().serializeOr(component, "");
+			String rawMessageKey = PlainTextComponentSerializer.plainText().serializeOr(component, "");
 	        	   
 	        InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
 

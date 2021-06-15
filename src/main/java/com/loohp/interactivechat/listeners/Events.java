@@ -220,6 +220,9 @@ public class Events implements Listener {
 			Map<String, UUID> playernames = new HashMap<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
     			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
+    			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(player.getName()).equals(ChatColorUtils.stripColor(player.getDisplayName()))) {
+    				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
+    			}
 				List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
 				for (String name : names) {
 					playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());

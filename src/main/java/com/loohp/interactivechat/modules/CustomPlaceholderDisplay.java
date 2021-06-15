@@ -25,7 +25,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class CustomPlaceholderDisplay {
 	
@@ -101,7 +101,7 @@ public class CustomPlaceholderDisplay {
 	}
 	
 	public static Component processCustomPlaceholder(ICPlayer parseplayer, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, Component component, Optional<ICPlayer> optplayer, long unix) {
-		String plain = PlainComponentSerializer.plain().serialize(component);
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
 		boolean contain = (casesensitive) ? (plain.contains(placeholder)) : (plain.toLowerCase().contains(placeholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(placeholder) && contain) {
 			if (optplayer.isPresent()) {

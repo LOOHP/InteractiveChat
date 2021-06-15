@@ -358,6 +358,7 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
+		InteractiveChat.useBukkitDisplayName = getConfig().getBoolean("Chat.UseBukkitDisplayName");
 		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
 		
 		InteractiveChat.language = getConfig().getString("Settings.Language");

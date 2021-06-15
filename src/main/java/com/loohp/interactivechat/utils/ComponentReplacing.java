@@ -10,7 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.Style.Merge;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ComponentReplacing {
 	
@@ -128,7 +128,7 @@ public class ComponentReplacing {
 					}
 				} else {
 					i--;
-					offset = start + PlainComponentSerializer.plain().serialize(replace).length();
+					offset = start + PlainTextComponentSerializer.plainText().serialize(replace).length();
 				}
 			} else {
 				offset = 0;

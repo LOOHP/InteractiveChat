@@ -8,7 +8,7 @@ import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ProcessCommands {
 	
@@ -18,7 +18,7 @@ public class ProcessCommands {
 	public static ProcessSenderResult process(Component component) {
 		UUID uuid = null;
 		String replacement = "";
-		String text = PlainComponentSerializer.plain().serialize(component);
+		String text = PlainTextComponentSerializer.plainText().serialize(component);
 		Matcher matcher0 = PATTERN_0.matcher(text);
 		if (matcher0.find()) {
 			uuid = UUID.fromString(matcher0.group(1));

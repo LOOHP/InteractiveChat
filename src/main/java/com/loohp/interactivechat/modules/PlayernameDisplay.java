@@ -117,7 +117,7 @@ public class PlayernameDisplay implements Listener {
 			}
 			ICPlayer icplayer = new ICPlayer(each);
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
-			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
 			}
 			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());

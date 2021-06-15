@@ -16,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.cryptomorin.xseries.SkullUtils;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
@@ -36,6 +35,7 @@ import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.NBTUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.SkinUtils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -44,7 +44,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class InventoryDisplay {
@@ -55,7 +55,7 @@ public class InventoryDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainComponentSerializer.plain().serialize(component);
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
 		boolean contain = (InteractiveChat.invCaseSensitive) ? (plain.contains(InteractiveChat.invPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
@@ -207,7 +207,7 @@ public class InventoryDisplay {
 		
 		Inventory finalRef = inv;
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-			ItemStack skull = SkullUtils.getSkull(player.getUniqueId());
+			ItemStack skull = SkinUtils.getSkull(player.getUniqueId());
 			ItemMeta meta = skull.getItemMeta();
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);
@@ -307,7 +307,7 @@ public class InventoryDisplay {
 		
 		Inventory finalRef = inv;
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-			ItemStack skull = SkullUtils.getSkull(player.getUniqueId());
+			ItemStack skull = SkinUtils.getSkull(player.getUniqueId());
 			ItemMeta meta = skull.getItemMeta();
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);

@@ -31,7 +31,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class EnderchestDisplay {
 	
@@ -39,7 +39,7 @@ public class EnderchestDisplay {
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainComponentSerializer.plain().serialize(component);
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
 		boolean contain = (InteractiveChat.enderCaseSensitive) ? (plain.contains(InteractiveChat.enderPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.enderPlaceholder) && contain) {
 			if (optplayer.isPresent()) {

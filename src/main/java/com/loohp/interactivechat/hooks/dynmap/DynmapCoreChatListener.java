@@ -12,7 +12,7 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class DynmapCoreChatListener implements ChatEventListener {
 	
@@ -35,7 +35,7 @@ public class DynmapCoreChatListener implements ChatEventListener {
         	} else {
 				try {
 					String component = InteractiveChatComponentSerializer.gson().serialize(LegacyComponentSerializer.legacySection().deserialize(msg));
-		        	String processed = PlainComponentSerializer.plain().serialize(InteractiveChatComponentSerializer.gson().deserialize(ProcessExternalMessage.processAndRespond(bukkitplayer, component)));
+		        	String processed = PlainTextComponentSerializer.plainText().serialize(InteractiveChatComponentSerializer.gson().deserialize(ProcessExternalMessage.processAndRespond(bukkitplayer, component)));
 		        	core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), processed, p.getName()));
 				} catch (Exception e) {
 					e.printStackTrace();

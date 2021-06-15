@@ -164,6 +164,7 @@ Chat:
   MentionHoverText:
     - "&b{Sender} mentioned you!"
 
+  UseBukkitDisplayName: true
   UseEssentialsNicknames: true
 
 ItemDisplay:

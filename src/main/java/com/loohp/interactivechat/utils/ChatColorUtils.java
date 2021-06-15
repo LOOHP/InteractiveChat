@@ -193,9 +193,6 @@ public class ChatColorUtils {
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
     		text = BaseComponent.toLegacyText(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
-    		if (text.startsWith(ChatColor.COLOR_CHAR + "f")) {
-    			text = text.substring(2);
-    		}
     	}
         
         for (int i = 0; i < text.length() - 1; i++) {

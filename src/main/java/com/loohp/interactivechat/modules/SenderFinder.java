@@ -16,17 +16,18 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class SenderFinder {
 	
-	public static Optional<ICPlayer> getSender(BaseComponent basecomponent, String messageKey) {
+	public static Optional<ICPlayer> getSender(Component component, String messageKey) {
 		ICPlayer keyPlayer = InteractiveChat.keyPlayer.get(messageKey);
 		if (keyPlayer != null) {
 			return Optional.of(keyPlayer);
 		}
 		
-		String chat = basecomponent.toPlainText();
+		String chat = PlainTextComponentSerializer.plainText().serialize(component);
 		
 		for (Entry<String, UUID> entry : InteractiveChat.messages.entrySet()) {
 			String msg = entry.getKey();

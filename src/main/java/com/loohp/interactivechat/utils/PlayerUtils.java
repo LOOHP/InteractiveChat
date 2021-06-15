@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.listeners.ClientSettingPacket;
 
 public class PlayerUtils implements Listener {
 	
@@ -54,6 +55,28 @@ public class PlayerUtils implements Listener {
 				return def; 
 			}
 		}
+	}
+	
+	public static enum ColorSettings {
+		ON, 
+		OFF, 
+		WAITING
+	}
+	
+	public static ColorSettings getColorSettings(Player player) {
+		return ClientSettingPacket.getSettings(player);
+	}
+	
+	public static int getProtocolVersion(Player player) {
+		int protocolVersion = -1;
+		if (InteractiveChat.viaVersionHook) {
+			protocolVersion = us.myles.ViaVersion.api.Via.getAPI().getPlayerVersion(player.getUniqueId());
+		} else if (InteractiveChat.procotcolSupportHook) {
+			protocolVersion = protocolsupport.api.ProtocolSupportAPI.getProtocolVersion(player).getId();
+		} else {
+			protocolVersion = InteractiveChat.protocolManager.getProtocolVersion(player);
+		}
+		return protocolVersion;
 	}
 
 }

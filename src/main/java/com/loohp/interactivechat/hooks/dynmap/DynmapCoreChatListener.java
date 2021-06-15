@@ -8,13 +8,13 @@ import org.dynmap.common.DynmapListenerManager.ChatEventListener;
 import org.dynmap.common.DynmapPlayer;
 
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
+import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class DynmapCoreChatListener implements ChatEventListener {
-
-private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	
 	private DynmapCore core;
 	
@@ -30,12 +30,12 @@ private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0
         if (core.mapManager != null) {
         	Player bukkitplayer = Bukkit.getPlayer(p.getUUID());
         	if (bukkitplayer == null) {
-        		msg = msg.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "");
+        		msg = msg.replaceAll(Registry.ID_PATTERN.pattern(), "");
         		core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), msg, p.getName()));
         	} else {
 				try {
-					String component = ComponentSerializer.toString(new TextComponent(msg));
-		        	String processed = ComponentSerializer.parse(ProcessExternalMessage.processAndRespond(bukkitplayer, component))[0].toPlainText();
+					String component = InteractiveChatComponentSerializer.gson().serialize(LegacyComponentSerializer.legacySection().deserialize(msg));
+		        	String processed = PlainTextComponentSerializer.plainText().serialize(InteractiveChatComponentSerializer.gson().deserialize(ProcessExternalMessage.processAndRespond(bukkitplayer, component)));
 		        	core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), processed, p.getName()));
 				} catch (Exception e) {
 					e.printStackTrace();

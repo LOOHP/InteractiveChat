@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutionException;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
@@ -36,24 +36,24 @@ public class CommandsBungee extends Command implements TabExecutor {
 					}
 					
 					if (args[0].equalsIgnoreCase("backendinfo") && InteractiveChatBungee.hasPermission(sender, "interactivechat.backendinfo").get()) {
-						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Proxy -> InteractiveChat: " + InteractiveChatBungee.plugin.getDescription().getVersion() + " (PM Protocol: " + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")"));
-						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Expected latency: " + InteractiveChatBungee.delay + " ms"));
-						sender.sendMessage(new TextComponent(ChatColor.AQUA + "Backends under this proxy:"));
+						InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Proxy -> InteractiveChat: " + InteractiveChatBungee.plugin.getDescription().getVersion() + " (PM Protocol: " + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")"));
+						InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Expected latency: " + InteractiveChatBungee.delay + " ms"));
+						InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Backends under this proxy:"));
 						ProxyServer.getInstance().getServers().values().stream().sorted(Comparator.comparing(each -> each.getName())).forEach(server -> {
 							String name = server.getName();
 							BackendInteractiveChatData data = InteractiveChatBungee.serverInteractiveChatInfo.get(name);
 							if (data == null) {
-								sender.sendMessage(new TextComponent(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
+								InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
 							} else {
 								String minecraftVersion = data.getExactMinecraftVersion();
 								if (data.isOnline()) {
 									if (!data.hasInteractiveChat()) {
-										sender.sendMessage(new TextComponent(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED (PM Protocol: -1) | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+										InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED (PM Protocol: -1) | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 									} else {
-										sender.sendMessage(new TextComponent(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " (PM Protocol: " + data.getProtocolVersion() + ") | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+										InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " (PM Protocol: " + data.getProtocolVersion() + ") | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
 									}
 								} else {
-									sender.sendMessage(new TextComponent(ChatColor.RED + name + " -> Status: OFFLINE"));
+									InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Status: OFFLINE"));
 								}
 								
 							}
@@ -83,14 +83,13 @@ public class CommandsBungee extends Command implements TabExecutor {
 		return tab;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void defaultMessage(CommandSender sender) {
-		sender.sendMessage(new TextComponent(ChatColor.AQUA + "InteractiveChat written by LOOHP!"));
-		sender.sendMessage(new TextComponent(ChatColor.GOLD + "You are running InteractiveChat " + ChatColor.GREEN + "(Bungeecord)" + ChatColor.GOLD + " version: " + InteractiveChatBungee.plugin.getDescription().getVersion()));
-		TextComponent update = new TextComponent(ChatColor.YELLOW + "Use " + ChatColor.GREEN + "/interactivechat update" + ChatColor.YELLOW + " for update checks!");
-		update.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat update"));
-		update.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(ChatColor.LIGHT_PURPLE + "Or Click Me!")}));
-		sender.sendMessage(update);
+		InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "InteractiveChat written by LOOHP!"));
+		InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "You are running InteractiveChat " + ChatColor.GREEN + "(Bungeecord)" + ChatColor.GOLD + " version: " + InteractiveChatBungee.plugin.getDescription().getVersion()));
+		Component update = LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + "Use " + ChatColor.GREEN + "/interactivechat update" + ChatColor.YELLOW + " for update checks!");
+		update = update.clickEvent(ClickEvent.runCommand("/interactivechat update"));
+		update = update.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(ChatColor.LIGHT_PURPLE + "Or Click Me!")));
+		InteractiveChatBungee.sendMessage(sender, update);
 	}
 
 }

@@ -3,12 +3,13 @@ package com.loohp.interactivechat.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.loohp.interactivechat.InteractiveChat;
+
+import net.kyori.adventure.key.Key;
 
 public class ItemNBTUtils {
 	
@@ -23,6 +24,8 @@ public class ItemNBTUtils {
 	private static Class<?> nmsMojangsonParserClass;
 	private static Method parseMojangsonMethod;
 	private static Method asBukkitCopyMethod;
+	private static Method nbtTagCompoundGetStringMethod;
+	private static Method nbtTagCompoundGetMethod;
 	
 	//private static Class<?> craftLegacyClass;
 	//private static Method toLegacyMethod;
@@ -31,13 +34,13 @@ public class ItemNBTUtils {
 	
 	static {
 		try {
-			craftItemStackClass = getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
-			nmsItemStackClass = getNMSClass("net.minecraft.server.", "ItemStack");
+			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
+			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
 			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-			nmsNbtTagCompoundClass = getNMSClass("net.minecraft.server.", "NBTTagCompound");
+			nmsNbtTagCompoundClass = NMSUtils.getNMSClass("net.minecraft.server.%s.NBTTagCompound", "net.minecraft.nbt.NBTTagCompound");
 			saveNmsItemStackMethod = nmsItemStackClass.getMethod("save", nmsNbtTagCompoundClass);
 			nbtTagCompoundConstructor = nmsNbtTagCompoundClass.getConstructor();
-			nmsMojangsonParserClass = getNMSClass("net.minecraft.server.", "MojangsonParser");
+			nmsMojangsonParserClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MojangsonParser", "net.minecraft.nbt.MojangsonParser");
 			parseMojangsonMethod = nmsMojangsonParserClass.getMethod("parse", String.class);
 			if (InteractiveChat.version.isOld()) {
 				nmsItemStackFromTagMethod = nmsItemStackClass.getMethod("createStack", nmsNbtTagCompoundClass);
@@ -45,9 +48,11 @@ public class ItemNBTUtils {
 				nmsItemStackFromTagConstructor = nmsItemStackClass.getDeclaredConstructor(nmsNbtTagCompoundClass);
 			}
 			asBukkitCopyMethod = craftItemStackClass.getMethod("asBukkitCopy", nmsItemStackClass);
+			nbtTagCompoundGetStringMethod = nmsNbtTagCompoundClass.getMethod("getString", String.class);
+			nbtTagCompoundGetMethod = nmsNbtTagCompoundClass.getMethod("get", String.class);
 			
 			//if (!InteractiveChat.version.isLegacy()) {
-			//	craftLegacyClass = getNMSClass("org.bukkit.craftbukkit.", "legacy.CraftLegacy");
+			//	craftLegacyClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.legacy.CraftLegacy");
 			//	toLegacyMethod = craftLegacyClass.getMethod("toLegacy", Material.class);
 			//}
 		} catch (Exception e) {
@@ -86,12 +91,6 @@ public class ItemNBTUtils {
 		enchantmentIds.put("vanishing_curse", 71);
 	}
 	
-	private static Class<?> getNMSClass(String prefix, String nmsClassString) throws ClassNotFoundException {	
-        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
-        String name = prefix + version + nmsClassString;
-        return Class.forName(name);
-    }
-	
 	public static ItemStack getItemFromNBTJson(String json) {
 		try {
 			Object nmsNbtTagCompoundObj = parseMojangsonMethod.invoke(null, json);
@@ -112,6 +111,29 @@ public class ItemNBTUtils {
 	        return itemAsJsonObject.toString();
 	    } catch (Throwable t) {
 	        return "{}";
+	    }
+	}
+	
+	public static Key getNMSItemStackNamespacedKey(ItemStack itemStack) {
+	    try {
+	    	Object nmsNbtTagCompoundObj = nbtTagCompoundConstructor.newInstance();
+	    	Object nmsItemStackObj = asNMSCopyMethod.invoke(null, itemStack);
+	    	Object itemAsJsonObject = saveNmsItemStackMethod.invoke(nmsItemStackObj, nmsNbtTagCompoundObj);
+	        String namespacedKeyString = nbtTagCompoundGetStringMethod.invoke(itemAsJsonObject, "id").toString();
+	        return Key.key(namespacedKeyString);
+	    } catch (Throwable t) {
+	        return Key.key("air");
+	    }
+	}
+	
+	public static String getNMSItemStackTag(ItemStack itemStack) {
+	    try {
+	    	Object nmsNbtTagCompoundObj = nbtTagCompoundConstructor.newInstance();
+	    	Object nmsItemStackObj = asNMSCopyMethod.invoke(null, itemStack);
+	    	Object itemAsJsonObject = saveNmsItemStackMethod.invoke(nmsItemStackObj, nmsNbtTagCompoundObj);
+	        return nbtTagCompoundGetMethod.invoke(itemAsJsonObject, "tag").toString();
+	    } catch (Throwable t) {
+	        return null;
 	    }
 	}
 	/*

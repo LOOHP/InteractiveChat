@@ -9,15 +9,15 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
+import com.loohp.interactivechat.registry.Registry;
+
 public class LogFilterVelocity implements Filter {
-	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public Filter.Result checkMessage(String message, Level level) {
-        if (!message.matches(".*<cmd=" + UUID_REGEX + ">.*") && !message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
+    	 if (!Registry.ID_PATTERN.matcher(message).find()) {
     		return Filter.Result.NEUTRAL;
     	} else {
-    		LogManager.getRootLogger().log(level, message.replaceAll(".*<cmd=" + UUID_REGEX + ">.*", message).replaceAll(".*<chat=" + UUID_REGEX + ">.*", message));
+    		LogManager.getRootLogger().log(level, message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
     		return Filter.Result.DENY;
     	}
     }

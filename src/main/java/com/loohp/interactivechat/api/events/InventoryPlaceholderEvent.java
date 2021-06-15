@@ -5,13 +5,12 @@ import org.bukkit.inventory.Inventory;
 
 import com.loohp.interactivechat.objectholders.ICPlayer;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import net.kyori.adventure.text.Component;
 
 /**
  * This event is called whenever the inventory (and enderchest) placeholder is
  * used. Only the inventory can be changed in this event, nothing else. Inventory
- * cannot be null. Changing the BaseComponent or Canceling the event will cause
+ * cannot be null. Changing the Component or Canceling the event will cause
  * UnsupportedOperationException to be thrown.
  * @author LOOHP
  *
@@ -21,8 +20,8 @@ public class InventoryPlaceholderEvent extends PlaceholderEvent {
 	private Inventory inventory;
 	private final InventoryPlaceholderType type;
 
-	public InventoryPlaceholderEvent(ICPlayer sender, Player receiver, BaseComponent baseComponent, long timeSent, Inventory inventory, InventoryPlaceholderType type) {
-		super(sender, receiver, baseComponent, timeSent);
+	public InventoryPlaceholderEvent(ICPlayer sender, Player receiver, Component component, long timeSent, Inventory inventory, InventoryPlaceholderType type) {
+		super(sender, receiver, component, timeSent);
 		this.inventory = inventory;
 		this.type = type;
 	}
@@ -43,14 +42,14 @@ public class InventoryPlaceholderEvent extends PlaceholderEvent {
 	}
 
 	@Override
-	public BaseComponent getBaseComponent() {
-		return ComponentSerializer.parse(ComponentSerializer.toString(baseComponent))[0];
+	public Component getComponent() {
+		return component;
 	}
 
 	@Override
 	@Deprecated
-	public void setBaseComponent(BaseComponent baseComponent) {
-		throw new UnsupportedOperationException("Changing the BaseComponent in this event is not allowed");
+	public void setComponent(Component component) {
+		throw new UnsupportedOperationException("Changing the Component in this event is not allowed");
 	}
 
 	@Override

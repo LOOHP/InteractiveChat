@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,10 +22,10 @@ public class RarityUtils {
 	
 	public static void setupRarity() {
 		try {
-			craftItemStackClass = getNMSClass("org.bukkit.craftbukkit.", "inventory.CraftItemStack");
-			nmsItemStackClass = getNMSClass("net.minecraft.server.", "ItemStack");
-			nmsEnumItemRarityClass = getNMSClass("net.minecraft.server.", "EnumItemRarity");
-			nmsEnumChatFormatClass = getNMSClass("net.minecraft.server.", "EnumChatFormat");
+			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
+			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
+			nmsEnumItemRarityClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EnumItemRarity", "net.minecraft.world.item.EnumItemRarity");
+			nmsEnumChatFormatClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EnumChatFormat", "net.minecraft.EnumChatFormat");
 			asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
 			getItemRarityMethod = Stream.of(nmsItemStackClass.getMethods()).filter(each -> each.getReturnType().equals(nmsEnumItemRarityClass)).findFirst().orElse(null);
 			getItemRarityColorField = Stream.of(nmsEnumItemRarityClass.getFields()).filter(each -> each.getType().equals(nmsEnumChatFormatClass)).findFirst().orElse(null);
@@ -34,12 +33,6 @@ public class RarityUtils {
 			e.printStackTrace();
 		}	
 	}
-	
-	private static Class<?> getNMSClass(String prefix, String nmsClassString) throws ClassNotFoundException {
-        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
-        String name = prefix + version + nmsClassString;
-        return Class.forName(name);
-    }
 	
 	public static ChatColor getRarityColor(ItemStack item) {
 		ChatColor color = ChatColor.WHITE;

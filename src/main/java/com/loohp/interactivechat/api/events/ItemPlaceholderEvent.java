@@ -6,12 +6,11 @@ import org.bukkit.inventory.ItemStack;
 
 import com.loohp.interactivechat.objectholders.ICPlayer;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import net.kyori.adventure.text.Component;
 
 /**
  * This event is called whenever the item placeholder is used. Only the itemStack
- * can be changed in this event, nothing else. Changing the BaseComponent or
+ * can be changed in this event, nothing else. Changing the Component or
  * Canceling the event will cause UnsupportedOperationException to be thrown.
  * @author LOOHP
  *
@@ -20,8 +19,8 @@ public class ItemPlaceholderEvent extends PlaceholderEvent {
 
 	private ItemStack itemStack;
 
-	public ItemPlaceholderEvent(ICPlayer sender, Player receiver, BaseComponent baseComponent, long timeSent, ItemStack itemStack) {
-		super(sender, receiver, baseComponent, timeSent);
+	public ItemPlaceholderEvent(ICPlayer sender, Player receiver, Component component, long timeSent, ItemStack itemStack) {
+		super(sender, receiver, component, timeSent);
 		this.itemStack = itemStack;
 	}
 
@@ -37,14 +36,14 @@ public class ItemPlaceholderEvent extends PlaceholderEvent {
 	}
 
 	@Override
-	public BaseComponent getBaseComponent() {
-		return ComponentSerializer.parse(ComponentSerializer.toString(baseComponent))[0];
+	public Component getComponent() {
+		return component;
 	}
 
 	@Override
 	@Deprecated
-	public void setBaseComponent(BaseComponent baseComponent) {
-		throw new UnsupportedOperationException("Changing the BaseComponent in this event is not allowed");
+	public void setComponent(Component component) {
+		throw new UnsupportedOperationException("Changing the Component in this event is not allowed");
 	}
 
 	@Override

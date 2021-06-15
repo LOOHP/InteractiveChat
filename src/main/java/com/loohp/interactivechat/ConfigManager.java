@@ -32,8 +32,8 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 
+import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
 
 public class ConfigManager {
 	
@@ -117,9 +117,9 @@ public class ConfigManager {
 		InteractiveChat.invCaseSensitive = getConfig().getBoolean("ItemDisplay.Inventory.CaseSensitive");
 		InteractiveChat.enderCaseSensitive = getConfig().getBoolean("ItemDisplay.EnderChest.CaseSensitive");
 	
-		InteractiveChat.itemPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Keyword"));
-		InteractiveChat.invPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Keyword"));
-		InteractiveChat.enderPlaceholder = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Keyword"));
+		InteractiveChat.itemPlaceholder = getConfig().getString("ItemDisplay.Item.Keyword");
+		InteractiveChat.invPlaceholder = getConfig().getString("ItemDisplay.Inventory.Keyword");
+		InteractiveChat.enderPlaceholder = getConfig().getString("ItemDisplay.EnderChest.Keyword");
 		
 		for (String alias : getConfig().getStringList("ItemDisplay.Item.Aliases")) {
 			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
@@ -239,7 +239,7 @@ public class ConfigManager {
 		InteractiveChat.usePlayerNameHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList));
 		InteractiveChat.usePlayerNameClickEnable = getConfig().getBoolean("Player.Click.Enable");
 		InteractiveChat.usePlayerNameClickAction = getConfig().getString("Player.Click.Action");
-		InteractiveChat.usePlayerNameClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Player.Click.Value"));
+		InteractiveChat.usePlayerNameClickValue = getConfig().getString("Player.Click.Value");
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");
 		
@@ -250,8 +250,8 @@ public class ConfigManager {
 		List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
 		InteractiveChat.playerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));
 		InteractiveChat.playerNotFoundClickEnable = getConfig().getBoolean("Settings.PlayerNotFound.Click.Enable");
-		InteractiveChat.playerNotFoundClickAction = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Action"));
-		InteractiveChat.playerNotFoundClickValue = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Click.Value"));
+		InteractiveChat.playerNotFoundClickAction = getConfig().getString("Settings.PlayerNotFound.Click.Action");
+		InteractiveChat.playerNotFoundClickValue = getConfig().getString("Settings.PlayerNotFound.Click.Value");
 		InteractiveChat.playerNotFoundReplaceEnable = getConfig().getBoolean("Settings.PlayerNotFound.Replace.Enable");
 		InteractiveChat.playerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 		
@@ -315,13 +315,10 @@ public class ConfigManager {
 		InteractiveChat.cancelledMessage = getConfig().getBoolean("Options.ShowCancelledNotice");
 		
 		InteractiveChat.clickableCommands = getConfig().getBoolean("Commands.Enabled");
-		String[] commandsFormat = getConfig().getString("Commands.Format").split("\\{Command\\}");
-		InteractiveChat.clickableCommandsPrefix = ChatColorUtils.translateAlternateColorCodes('&', commandsFormat[0]);
-		InteractiveChat.clickableCommandsSuffix = ChatColorUtils.translateAlternateColorCodes('&', commandsFormat[commandsFormat.length - 1]);
+		InteractiveChat.clickableCommandsFormat = getConfig().getString("Commands.Format");
 		InteractiveChat.clickableCommandsAction = ClickEvent.Action.valueOf(getConfig().getString("Commands.Action"));
-		InteractiveChat.clickableCommandsFormat = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Commands.Text"));
+		InteractiveChat.clickableCommandsDisplay = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Commands.Text"));
 		InteractiveChat.clickableCommandsHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("Commands.HoverMessage")));
-		InteractiveChat.clickableCommandsEnforceColors = getConfig().getBoolean("Commands.EnforceReplaceTextColor");
 		
 		InteractiveChat.sendOriginalIfTooLong = getConfig().getBoolean("Settings.SendOriginalMessageIfExceedLengthLimit");
 		
@@ -361,6 +358,7 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		
+		InteractiveChat.useBukkitDisplayName = getConfig().getBoolean("Chat.UseBukkitDisplayName");
 		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
 		
 		InteractiveChat.language = getConfig().getString("Settings.Language");

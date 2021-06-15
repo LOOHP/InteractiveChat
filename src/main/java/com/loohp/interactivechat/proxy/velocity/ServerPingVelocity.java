@@ -15,11 +15,11 @@ import org.json.simple.parser.JSONParser;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataStreamIO;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ServerPingVelocity {
@@ -94,7 +94,7 @@ public class ServerPingVelocity {
 						    JSONObject data;
 						    if (descriptionObj instanceof JSONObject) {
 						    	JSONObject description = (JSONObject) json.get("description");
-							    String descriptionAsStr = ChatColor.stripColor(PlainComponentSerializer.plain().serialize(GsonComponentSerializer.gson().deserialize(description.toJSONString())));
+							    String descriptionAsStr = ChatColor.stripColor(PlainTextComponentSerializer.plainText().serialize(InteractiveChatComponentSerializer.gson().deserialize(description.toJSONString())));
 							    data = (JSONObject) new JSONParser().parse(descriptionAsStr);
 						    } else {
 						    	data = (JSONObject) new JSONParser().parse(StringEscapeUtils.unescapeJava(descriptionObj.toString()));

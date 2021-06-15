@@ -4,23 +4,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.InteractiveChat;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.transformation.TransformationType;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatColorUtils {
 	
-	private static final Set<Character> COLORS = new HashSet<Character>();
-	private static final Pattern COLOR_FORMATTING = Pattern.compile("(?=(?<!\\\\)|(?<=\\\\\\\\))\\[[^\\]]*?color=#[0-9a-fA-F]{6}[^\\[]*?\\]");
-	private static final Pattern COLOR_ESCAPE = Pattern.compile("\\\\\\[ *?color=#[0-9a-fA-F]{6} *?\\]");
+	private static final Set<Character> COLORS = new HashSet<>();
 	
 	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";
 	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
 	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
+	
+	private static final MiniMessage MINIMESSAGE_COLOR_PARSER = MiniMessage.builder().removeDefaultTransformations().transformation(TransformationType.COLOR).build();
 	
 	static {
 		COLORS.add('0');
@@ -138,36 +139,20 @@ public class ChatColorUtils {
     	return false;
     }
     
-    public static BaseComponent applyColor(BaseComponent basecomponent, String color) {
+    public static ChatColor getColor(String color) {
     	if (color.length() >= 2 && color.charAt(1) != 'r') {
 	    	if (color.length() == 2) {
-	    		basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
+	    		return ChatColor.getByChar(color.charAt(1));
 	    	} else {
 	    		if (color.charAt(1) == 'x') {
 	    			String hex = "#" + String.valueOf(color.charAt(3)) + String.valueOf(color.charAt(5)) + String.valueOf(color.charAt(7)) + String.valueOf(color.charAt(9)) + String.valueOf(color.charAt(11)) + String.valueOf(color.charAt(13));
-	    			basecomponent.setColor(ChatColor.of(hex));
+	    			return ChatColor.of(hex);
 	    		} else {
-	    			basecomponent.setColor(ChatColor.getByChar(color.charAt(1)));
-	    		}
-	    		for (int i = 3; i < color.length(); i = i + 2) {
-	    			char cha = color.charAt(i);
-	    			if (cha == 'k' || cha == 'l' || cha == 'm' || cha == 'n' || cha == 'o') { 
-		    			if (ChatColor.getByChar(cha).equals(ChatColor.BOLD)) {
-							basecomponent.setBold(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.ITALIC)) {
-							basecomponent.setItalic(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.MAGIC)) {
-							basecomponent.setObfuscated(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.STRIKETHROUGH)) {
-							basecomponent.setStrikethrough(true);
-			    		} else if (ChatColor.getByChar(cha).equals(ChatColor.UNDERLINE)) {
-							basecomponent.setUnderlined(true);
-						}
-	    			}
+	    			return ChatColor.getByChar(color.charAt(1));
 	    		}
 	    	}
     	}
-    	return basecomponent;
+    	return null;
     }
     
     public static String addColorToEachWord(String text, String leadingColor) {
@@ -197,66 +182,6 @@ public class ChatColorUtils {
     	return "\u00a7x\u00a7" + String.valueOf(hex.charAt(1)) + "\u00a7" + String.valueOf(hex.charAt(2)) + "\u00a7" + String.valueOf(hex.charAt(3)) + "\u00a7" + String.valueOf(hex.charAt(4)) + "\u00a7" + String.valueOf(hex.charAt(5)) + "\u00a7" + String.valueOf(hex.charAt(6));
     }
     
-    public static String translatePluginColorFormatting(String text) {
-    	while (true) {
-    		Matcher matcher = COLOR_FORMATTING.matcher(text);
-    		
-    		if (matcher.find()) {
-	    	    String foramtedColor = matcher.group().toLowerCase();
-	    	    int start = matcher.start();
-	    	    int pos = foramtedColor.indexOf("color");
-	    	    int absPos = text.indexOf("color", start);
-	    	    int end = matcher.end();
-	    	    
-	    	    if (pos < 0) {
-	    	    	continue;
-	    	    }
-	
-	    	    String colorCode = hexToColorCode(foramtedColor.substring(pos + 6, pos + 13));
-	    	    
-	    	    StringBuilder sb = new StringBuilder(text);
-	    	    sb.insert(end, colorCode);
-	    	    
-	    	    sb.delete(absPos, absPos + 13);
-
-	    	    while (sb.charAt(absPos) == ',' || sb.charAt(absPos) == ' ') {
-	    	    	sb.deleteCharAt(absPos);
-	    	    }
-	    	    
-	    	    while (sb.charAt(absPos - 1) == ',' || sb.charAt(absPos - 1) == ' ') {
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	absPos--;
-	    	    }
-	    	    
-	    	    if (sb.charAt(absPos) == ']' && sb.charAt(absPos - 1) == '[') {
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	sb.deleteCharAt(absPos - 1);
-	    	    	
-	    	    	if (absPos > 2 && sb.charAt(absPos - 2) == '\\' && sb.charAt(absPos - 3) == '\\') {
-		    	    	sb.deleteCharAt(absPos - 2);
-		    	    }
-	    	    }	    	  
-	    	    
-	    	    text = sb.toString();	    	    
-    		} else {
-    			break;
-    		}
-    	}
-    	
-    	while (true) {
-    		Matcher matcher = COLOR_ESCAPE.matcher(text);  		
-    		if (matcher.find()) {
-	    	    StringBuilder sb = new StringBuilder(text);
-	    	    sb.deleteCharAt(matcher.start());
-	    	    text = sb.toString();	    	    
-    		} else {
-    			break;
-    		}
-    	}
-
-    	return text;
-    }
-    
     public static String translateAlternateColorCodes(char code, String text) {    	
 		if (text == null) {
 			return text;
@@ -267,7 +192,7 @@ public class ChatColorUtils {
         }
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-    		text = translatePluginColorFormatting(text);
+    		text = BaseComponent.toLegacyText(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
     	}
         
         for (int i = 0; i < text.length() - 1; i++) {

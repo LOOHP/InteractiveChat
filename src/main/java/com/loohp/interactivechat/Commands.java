@@ -1,6 +1,5 @@
 package com.loohp.interactivechat;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,16 +33,16 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.utils.ComponentFont;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class Commands implements CommandExecutor, TabCompleter {
 
@@ -71,8 +70,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
 				if (InteractiveChat.bungeecordMode) {
 					try {
-						BungeeMessageSender.reloadBungeeConfig();
-					} catch (IOException e) {
+						BungeeMessageSender.reloadBungeeConfig(System.currentTimeMillis());
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
@@ -122,8 +121,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 						}
 						if (InteractiveChat.bungeecordMode) {
 							try {
-								BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
-							} catch (IOException e) {
+								BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
+							} catch (Exception e) {
 								e.printStackTrace();
 							}
 						}
@@ -146,8 +145,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 							}
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
-								} catch (IOException e) {
+									BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
@@ -182,8 +181,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 							sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
 							if (InteractiveChat.bungeecordMode) {
 								try {
-									BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
-								} catch (IOException e) {
+									BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
+								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
@@ -204,8 +203,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 								sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
 								if (InteractiveChat.bungeecordMode) {
 									try {
-										BungeeMessageSender.signalPlayerDataReload(player.getUniqueId());
-									} catch (IOException e) {
+										BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}
@@ -228,7 +227,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("list")) {
 			try {
 				if (sender.hasPermission("interactivechat.list")) {
-					Player player = sender instanceof Player ? (Player) sender : null;
 					int start = 0;
 					int end = InteractiveChat.placeholderList.size();
 					if (args.length > 1) {
@@ -245,15 +243,15 @@ public class Commands implements CommandExecutor, TabCompleter {
 							throw new NumberFormatException();
 						}
 					}
-					InteractiveChatAPI.sendMessageUnprocessed(sender, ChatComponentUtils.cleanUpLegacyText(new TextComponent(InteractiveChat.listPlaceholderHeader), player));
+					InteractiveChatAPI.sendMessageUnprocessed(sender, LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.listPlaceholderHeader));
 					String body = InteractiveChat.listPlaceholderBody;
-					List<BaseComponent> items = new ArrayList<>();
+					List<Component> items = new ArrayList<>();
 					if (sender.hasPermission("interactivechat.list.all")) {
 						int i = 0;
 						for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
 							i++;
 							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-							items.add(ChatComponentUtils.cleanUpLegacyText(new TextComponent(text), player));
+							items.add(LegacyComponentSerializer.legacySection().deserialize(text));
 						}
 					} else {
 						int i = 0;
@@ -261,7 +259,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 							if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
 								i++;
 								String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
-								items.add(ChatComponentUtils.cleanUpLegacyText(new TextComponent(text), player));
+								items.add(LegacyComponentSerializer.legacySection().deserialize(text));
 							}
 						}
 					}
@@ -293,36 +291,35 @@ public class Commands implements CommandExecutor, TabCompleter {
 								text = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), str);
 							}
 							
-							BaseComponent baseComponent = new TextComponent(text);
+							Component component = Component.text(text);
 							if (InteractiveChat.usePlayerName) {
-								baseComponent = PlayernameDisplay.process(baseComponent, icplayer, player, unix);
+								component = PlayernameDisplay.process(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useItem) {
-					        	baseComponent = ItemDisplay.processWithoutCooldown(baseComponent, icplayer, player, unix);
+					        	component = ItemDisplay.processWithoutCooldown(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useInventory) {
-					        	baseComponent = InventoryDisplay.processWithoutCooldown(baseComponent, icplayer, player, unix);
+					        	component = InventoryDisplay.processWithoutCooldown(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useEnder) {
-					        	baseComponent = EnderchestDisplay.processWithoutCooldown(baseComponent, icplayer, player, unix);
+					        	component = EnderchestDisplay.processWithoutCooldown(component, icplayer, player, unix);
 					        }
-					        baseComponent = CustomPlaceholderDisplay.process(baseComponent, icplayer, player, InteractiveChat.placeholderList, unix, true);
+					        component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList, unix, true);
 					        if (InteractiveChat.clickableCommands) {
-					        	baseComponent = CommandsDisplay.process(baseComponent);
+					        	component = CommandsDisplay.process(component);
 					        }
 					        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 						        if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
-						        	baseComponent = ChatComponentUtils.translatePluginFontFormatting(baseComponent);
+						        	component = ComponentFont.parseMiniMessageFont(component);
 						        }
 					        }
 					        
-					        baseComponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(baseComponent, player) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(baseComponent, player);       
-					        String json = ComponentSerializer.toString(baseComponent);
+					        String json = InteractiveChatComponentSerializer.gson().serialize(component);
 					        
 					        if (json.length() > 32767) {
-					        	InteractiveChatAPI.sendMessageUnprocessed(sender, new TextComponent(text));
+					        	InteractiveChatAPI.sendMessageUnprocessed(sender, Component.text(text));
 					        } else {
-					        	InteractiveChatAPI.sendMessageUnprocessed(sender, baseComponent);	
+					        	InteractiveChatAPI.sendMessageUnprocessed(sender, component);
 					        }
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -451,8 +448,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
 						String text = placeholder.getKeyword();
 						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
-							TextComponent description = new TextComponent(placeholder.getDescription());
-							tab.add(text + "\0" + ComponentSerializer.toString(ChatComponentUtils.cleanUpLegacyText(description, (Player) sender)));
+							Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder.getDescription());
+							String json = InteractiveChat.version.isLegacyRGB() ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+							tab.add(text + "\0" + json);
 						}
 					}
 				}

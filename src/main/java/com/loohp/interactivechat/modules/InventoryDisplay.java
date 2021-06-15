@@ -1,9 +1,6 @@
 package com.loohp.interactivechat.modules;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.cryptomorin.xseries.SkullUtils;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
@@ -30,22 +26,26 @@ import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryP
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.NBTUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.SkinUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class InventoryDisplay {
 	
@@ -54,15 +54,16 @@ public class InventoryDisplay {
 	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
 	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
 	
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		boolean contain = (InteractiveChat.invCaseSensitive) ? (basecomponent.toPlainText().contains(InteractiveChat.invPlaceholder)) : (basecomponent.toPlainText().toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
+	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		boolean contain = (InteractiveChat.invCaseSensitive) ? (plain.contains(InteractiveChat.invPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
 		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.invPlaceholder) && contain) {
 			if (optplayer.isPresent()) {
 				ICPlayer player = optplayer.get();
 				Long uc = universalCooldowns.get(player.getUniqueId());
 				if (uc != null) {
 					if (uc > unix) {
-						return basecomponent;
+						return component;
 					}
 				}
 				
@@ -73,7 +74,7 @@ public class InventoryDisplay {
 				if (spmap.containsKey(InteractiveChat.itemPlaceholder)) {
 					if (spmap.get(InteractiveChat.itemPlaceholder) > unix) {
 						if (!PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.cooldown.bypass", false, 5)) {
-							return basecomponent;
+							return component;
 						}
 					}
 				}
@@ -84,120 +85,54 @@ public class InventoryDisplay {
 			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
 		}
 		
-		return processWithoutCooldown(basecomponent, optplayer, reciever, unix);
+		return processWithoutCooldown(component, optplayer, reciever, unix);
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static BaseComponent processWithoutCooldown(BaseComponent basecomponent, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {		
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<>();
-		for (BaseComponent base : basecomponentlist) {
-			if (!(base instanceof TextComponent)) {
-				newlist.add(base);
-			} else {
-				TextComponent textcomponent = (TextComponent) base;
-				String text = textcomponent.getText();
-				if (InteractiveChat.invCaseSensitive) {
-					if (!ChatColorUtils.stripColor(text).contains(ChatColorUtils.stripColor(InteractiveChat.invPlaceholder))) {
-						newlist.add(textcomponent);
-						continue;
-					}
-				} else {
-					if (!ChatColorUtils.stripColor(text).toLowerCase().contains(ChatColorUtils.stripColor(InteractiveChat.invPlaceholder).toLowerCase())) {
-						newlist.add(textcomponent);
-						continue;
-					}
+	public static Component processWithoutCooldown(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+		String regex = InteractiveChat.invCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder);
+		if (optplayer.isPresent()) {
+			ICPlayer player = optplayer.get();
+			if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
+				
+				String replaceText = InteractiveChat.invReplaceText;
+				String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
+				String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
+				
+				if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
+					layout0(player, sha1, title, reciever, component, unix);
+					layout1(player, sha1, title, reciever, component, unix);
 				}
 				
-				String regex = InteractiveChat.invCaseSensitive ? "(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) : "(?i)(?<!\u00a7)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder)) + ")";
-				List<String> trim = new LinkedList<String>(Arrays.asList(text.split(regex, -1)));
-				if (trim.get(trim.size() - 1).equals("")) {
-					trim.remove(trim.size() - 1);
-				}
+				String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
 				
-				String lastColor = "";
+				List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
+				String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
 				
-				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = new TextComponent(textcomponent);
-					before.setText(lastColor + trim.get(i));
-					newlist.add(before);
-					lastColor = ChatColorUtils.getLastColors(before.getText());
-					
-					boolean endwith = InteractiveChat.invCaseSensitive ? text.matches(".*" + regex + "$") : text.toLowerCase().matches(".*" + regex.toLowerCase() + "$");
-					if ((trim.size() - 1) > i || endwith) {
-						if (trim.get(i).endsWith("\\") && !trim.get(i).endsWith("\\\\")) {
-							String color = ChatColorUtils.getLastColors(newlist.get(newlist.size() - 1).toLegacyText());
-							TextComponent message = new TextComponent(InteractiveChat.invPlaceholder);
-							message = (TextComponent) ChatColorUtils.applyColor(message, color);
-							((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-							newlist.add(message);
-						} else {
-							if (trim.get(i).endsWith("\\\\")) {
-								((TextComponent) newlist.get(newlist.size() - 1)).setText(trim.get(i).substring(0, trim.get(i).length() - 1));
-							}
-							if (optplayer.isPresent()) {
-								ICPlayer player = optplayer.get();
-								if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
-									
-									String replaceText = InteractiveChat.invReplaceText;
-									String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
-									String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
-									
-									if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
-										layout0(player, sha1, title, reciever, basecomponent, i);
-										layout1(player, sha1, title, reciever, basecomponent, i);
-									}
-									
-									String textComp = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
-									
-									BaseComponent[] bcJson = TextComponent.fromLegacyText(textComp);
-					            	List<BaseComponent> baseJson = new ArrayList<>();
-					            	baseJson = CustomStringUtils.loadExtras(Arrays.asList(bcJson));
-					            	
-					            	List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
-									String invtext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
-					            	
-					            	for (BaseComponent baseComponent : baseJson) {
-					            		TextComponent message = (TextComponent) baseComponent;
-					            		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(invtext).create()));
-		    							message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/interactivechat viewinv " + sha1));
-		    							newlist.add(message);
-					            	}
-														            							
-								} else {
-									TextComponent message = new TextComponent(InteractiveChat.invPlaceholder);
-									
-									newlist.add(message);
-								}
-							} else {
-								TextComponent message = null;
-								if (InteractiveChat.playerNotFoundReplaceEnable == true) {
-									message = new TextComponent(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
-								} else {
-									message = new TextComponent(InteractiveChat.invPlaceholder);
-								}
-								if (InteractiveChat.playerNotFoundHoverEnable == true) {
-									message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder)).create()));
-								}
-								if (InteractiveChat.playerNotFoundClickEnable == true) {
-									String invtext = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
-									message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), invtext));
-								}
-								
-								newlist.add(message);
-							}
-						}
-					}
-				}
+				String command = "/interactivechat viewinv " + sha1;
+				
+				Component invComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+				invComponent = invComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
+				invComponent = invComponent.clickEvent(ClickEvent.runCommand(command));
+				component = ComponentReplacing.replace(component, regex, true, invComponent);
 			}
+		} else {
+			Component message;
+			if (InteractiveChat.playerNotFoundReplaceEnable) {
+				message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+			} else {
+				message = Component.text(InteractiveChat.invPlaceholder);
+			}
+			if (InteractiveChat.playerNotFoundHoverEnable) {
+				message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder))));
+			}
+			if (InteractiveChat.playerNotFoundClickEnable) {
+				String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+				message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+			}
+			component = ComponentReplacing.replace(component, regex, true, message);
 		}
 		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			product.addExtra(each);
-		}
-		return product;
+		return component;
 	}
 	
 	public static String getLevelTranslation(int level) {
@@ -208,7 +143,7 @@ public class InventoryDisplay {
 		}
 	}
 	
-	private static void layout0(ICPlayer player, String sha1, String title, Player reciever, BaseComponent basecomponent, int i) throws Exception {
+	private static void layout0(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
 		Inventory inv = Bukkit.createInventory(null, 54, title);
 		int f1 = 0;
 		int f2 = 0;
@@ -244,13 +179,11 @@ public class InventoryDisplay {
 		int level = player.getExperienceLevel();
 		ItemStack exp = XMaterial.EXPERIENCE_BOTTLE.parseItem();
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
-			TranslatableComponent expText = new TranslatableComponent(getLevelTranslation(level));
+			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
 			if (level != 1) {
-				expText.addWith(level + "");
+				expText = expText.args(Component.text(level + ""));
 			}
-			expText.setColor(ChatColor.YELLOW);
-			expText.setItalic(false);
-			exp = NBTUtils.set(exp, ComponentSerializer.toString(expText), "display", "Name");
+			exp = NBTUtils.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
 			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));
@@ -268,13 +201,13 @@ public class InventoryDisplay {
 			inv.setItem(8, offhand);
 		}
 		
-		InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, basecomponent, i, inv, InventoryPlaceholderType.INVENTORY);
+		InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY);
 		Bukkit.getPluginManager().callEvent(event);
 		inv = event.getInventory();
 		
 		Inventory finalRef = inv;
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-			ItemStack skull = SkullUtils.getSkull(player.getUniqueId());
+			ItemStack skull = SkinUtils.getSkull(player.getUniqueId());
 			ItemMeta meta = skull.getItemMeta();
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);
@@ -294,7 +227,7 @@ public class InventoryDisplay {
 							toForward.setItem(j, item.clone());
 						}
 					}
-					BungeeMessageSender.forwardInventory(player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, toForward);
+					BungeeMessageSender.forwardInventory(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, toForward);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -302,7 +235,7 @@ public class InventoryDisplay {
 		}
 	}
 	
-	private static void layout1(ICPlayer player, String sha1, String title, Player reciever, BaseComponent basecomponent, int i) throws Exception {
+	private static void layout1(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
 		boolean rightHanded = player.isRightHanded();
 		int selectedSlot = player.getSelectedSlot();
 		int level = player.getExperienceLevel();
@@ -344,13 +277,11 @@ public class InventoryDisplay {
 		
 		ItemStack exp = XMaterial.EXPERIENCE_BOTTLE.parseItem();
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
-			TranslatableComponent expText = new TranslatableComponent(getLevelTranslation(level));
+			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
 			if (level != 1) {
-				expText.addWith(level + "");
+				expText = expText.args(Component.text(level + ""));
 			}
-			expText.setColor(ChatColor.YELLOW);
-			expText.setItalic(false);
-			exp = NBTUtils.set(exp, ComponentSerializer.toString(expText), "display", "Name");
+			exp = NBTUtils.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
 			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));
@@ -366,17 +297,17 @@ public class InventoryDisplay {
 			}
 		}
 		
-		InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, basecomponent, i, inv, InventoryPlaceholderType.INVENTORY1_UPPER);
+		InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY1_UPPER);
 		Bukkit.getPluginManager().callEvent(event);
 		inv = event.getInventory();
 		
-		InventoryPlaceholderEvent event2 = new InventoryPlaceholderEvent(player, reciever, basecomponent, i, inv2, InventoryPlaceholderType.INVENTORY1_LOWER);
+		InventoryPlaceholderEvent event2 = new InventoryPlaceholderEvent(player, reciever, component, unix, inv2, InventoryPlaceholderType.INVENTORY1_LOWER);
 		Bukkit.getPluginManager().callEvent(event2);
 		inv2 = event2.getInventory();
 		
 		Inventory finalRef = inv;
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-			ItemStack skull = SkullUtils.getSkull(player.getUniqueId());
+			ItemStack skull = SkinUtils.getSkull(player.getUniqueId());
 			ItemMeta meta = skull.getItemMeta();
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);
@@ -390,7 +321,7 @@ public class InventoryDisplay {
 		if (InteractiveChat.bungeecordMode) {
 			if (player.isLocal()) {
 				try {			    									
-					BungeeMessageSender.forwardInventory(player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv2);
+					BungeeMessageSender.forwardInventory(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv2);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,8 +61,8 @@ public class PlaceholderParser {
 					pairs.add(new ValuePairs<>(entry.getKey(), entry.getValue()));
 				}
 				try {
-					BungeeMessageSender.forwardPlaceholders(player.getUniqueId(), pairs);
-				} catch (IOException e) {
+					BungeeMessageSender.forwardPlaceholders(System.currentTimeMillis(), player.getUniqueId(), pairs);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

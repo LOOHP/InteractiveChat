@@ -1,8 +1,6 @@
 package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -16,19 +14,20 @@ import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.SoundUtils;
 import com.loohp.interactivechat.utils.TitleUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class MentionDisplay {
 	
-	public static BaseComponent process(BaseComponent basecomponent, Player beenpinged, ICPlayer sender, long unix, boolean async) {
+	public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
 			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
     		if (pair.getSender().equals(sender.getUniqueId())) {
@@ -80,6 +79,9 @@ public class MentionDisplay {
 					
 					List<String> names = new ArrayList<>();
 					names.add(ChatColorUtils.stripColor(reciever.getName()));
+					if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(reciever.getName()).equals(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
+						names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
+	    			}
 					List<String> list = InteractiveChatAPI.getNicknames(reciever.getUniqueId());
 					for (String name : list) {
 						names.add(ChatColorUtils.stripColor(name));
@@ -88,7 +90,7 @@ public class MentionDisplay {
 					names.add("everyone");
 					
 					for (String name : names) {
-						basecomponent = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, basecomponent, unix);
+						component = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, component, unix);
 					}
 					
 					InteractiveChat.mentionCooldown.put(reciever, unix + 3000);
@@ -96,52 +98,16 @@ public class MentionDisplay {
 				}
     		}
 		}
-		return basecomponent;
+		return component;
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static BaseComponent processPlayer(String placeholder, Player reciever, ICPlayer sender, BaseComponent basecomponent, long unix) {
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<>();
-		for (BaseComponent base : basecomponentlist) {
-			if (!(base instanceof TextComponent)) {
-				newlist.add(base);
-			} else {
-				TextComponent textcomponent = (TextComponent) base;
-				String text = textcomponent.getText();
-				String regex = "(?i)(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder));
-				
-				if (!text.matches(".*" + regex + ".*")) {
-					newlist.add(textcomponent);
-					continue;
-				}
-				
-				List<String> trim = new LinkedList<>(Arrays.asList(text.split(regex, -1)));
-				if (trim.get(trim.size() - 1).equals("")) {
-					trim.remove(trim.size() - 1);
-				}
-				for (int i = 0; i < trim.size(); i++) {
-					TextComponent before = new TextComponent(textcomponent);
-					before.setText(trim.get(i));
-					newlist.add(before);
-					if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {		    
-						TextComponent message = new TextComponent(ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder)));
-						message = (TextComponent) CustomStringUtils.copyFormattingEventsNoReplace(message, (BaseComponent) before);
-						String hover = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
-						message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(hover)}));
-						
-						newlist.add(message);
-					}
-				}
-			}
-		}
-		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			product.addExtra(each);
-		}
-		return product;
+	public static Component processPlayer(String placeholder, Player reciever, ICPlayer sender, Component component, long unix) {
+		String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder));
+		Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
+		String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
+		HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));
+		replacement = replacement.hoverEvent(hoverEvent);
+		return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, replacement);
 	}
 
 }

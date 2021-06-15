@@ -30,11 +30,11 @@ import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class InteractiveChatAPI {
@@ -53,16 +53,7 @@ public class InteractiveChatAPI {
 	 * @param sender
 	 * @param component
 	 */
-	public static void sendMessageUnprocessed(CommandSender sender, BaseComponent component) {
-		sendMessageUnprocessed(sender, new UUID(0, 0), component);
-	}
-
-	/**
-	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
-	 * @param sender
-	 * @param component
-	 */
-	public static void sendMessageUnprocessed(CommandSender sender, BaseComponent[] component) {
+	public static void sendMessageUnprocessed(CommandSender sender, Component component) {
 		sendMessageUnprocessed(sender, new UUID(0, 0), component);
 	}
 	
@@ -73,17 +64,7 @@ public class InteractiveChatAPI {
 	 * @param message
 	 */
 	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, String message) {
-		sendMessageUnprocessed(sender, uuid, new TextComponent(message));
-	}
-	
-	/**
-	 * Send a message to a {@link CommandSender} that won't be processed by InteractiveChat
-	 * @param sender
-	 * @param uuid
-	 * @param component
-	 */
-	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, BaseComponent component) {
-		sendMessageUnprocessed(sender, uuid, new BaseComponent[] {component});
+		sendMessageUnprocessed(sender, uuid, Component.text(message));
 	}
 
 	/**
@@ -92,9 +73,9 @@ public class InteractiveChatAPI {
 	 * @param uuid
 	 * @param component
 	 */
-	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, BaseComponent[] component) {
+	public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, Component component) {
+		String json = InteractiveChatComponentSerializer.gson().serialize(component);
 		if (sender instanceof Player) {
-			String json = ComponentSerializer.toString(component);
 			PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
 			if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
 		        packet.getChatTypes().write(0, ChatType.SYSTEM);
@@ -111,7 +92,7 @@ public class InteractiveChatAPI {
 				e.printStackTrace();
 			}
 		} else {
-			sender.spigot().sendMessage(component);
+			sender.spigot().sendMessage(ComponentSerializer.parse(json));
 		}
 	}
 	

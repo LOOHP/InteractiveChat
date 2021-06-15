@@ -47,20 +47,21 @@ import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MessageUtils;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -72,6 +73,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -79,10 +81,13 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.Chat;
+import us.myles.ViaVersion.api.Via;
 
 public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	public static final int BSTATS_PLUGIN_ID = 8839;
+	
+	public static boolean viaVersionHook = false;
 	
 	public static Configuration config = null;
 	public static ConfigurationProvider yamlConfigProvider = null;
@@ -151,6 +156,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		getProxy().getPluginManager().registerListener(this, this);
 
 		getProxy().getPluginManager().registerCommand(this, new CommandsBungee());
+		
+		if (ProxyServer.getInstance().getPluginManager().getPlugin("ViaVersion") != null) {
+			viaVersionHook = true;
+			ProxyServer.getInstance().getLogger().info(ChatColor.AQUA + "[InteractiveChat] InteractiveChatBungee has hooked into ViaVersion!");
+		}
 
 		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
 
@@ -177,13 +187,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		for (Entry<String, Logger> entry : loggers.entrySet()) {
 			try {
 				Logger logger = entry.getValue();
-	    		logger.setFilter(new Filter() {	    		
-	        		private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";	    		
+	    		logger.setFilter(new Filter() {	    		    		
 	    			@Override
 	    			public boolean isLoggable(LogRecord record) {
 	    				String message = record.getMessage();
-	    				if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-	    					record.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
+	    				if (!Registry.ID_PATTERN.matcher(message).find()) {
+	    					record.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
 	    				}
 	    				return true;
 	    			}
@@ -465,33 +474,33 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		
 		String newMessage = event.getMessage();
+		boolean hasInteractiveChat = false;
+		Server server = player.getServer();
+		if (server != null) {
+			BackendInteractiveChatData data = serverInteractiveChatInfo.get(server.getInfo().getName());
+			if (data != null) {
+				hasInteractiveChat = data.hasInteractiveChat();
+			}
+		}
 		
 		if (newMessage.startsWith("/")) {
-			for (String parsecommand : InteractiveChatBungee.parseCommands) {
-				//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
-				if (newMessage.matches(parsecommand)) {
-					String command = newMessage.trim();
-					String uuidmatch = "<cmd=" + UUID.randomUUID().toString() + ">";
-					command += " " + uuidmatch;
-					event.setMessage(command);
-					try {
-						PluginMessageSendingBungee.sendCommandMatch(uuid, "", uuidmatch);
-					} catch (IOException e) {
-						e.printStackTrace();
+			if (hasInteractiveChat) {
+				for (String parsecommand : InteractiveChatBungee.parseCommands) {
+					//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
+					if (newMessage.matches(parsecommand)) {
+						String command = newMessage.trim();
+						String uuidmatch = "<cmd=" + uuid.toString() + ">";
+						command += " " + uuidmatch;
+						event.setMessage(command);
+						break;
 					}
-					break;
 				}
 			}
 		} else {
-			if (InteractiveChatBungee.useAccurateSenderFinder) {
-				String uuidmatch = "<chat=" + UUID.randomUUID().toString() + ">";
+			if (InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
+				String uuidmatch = "<chat=" + uuid.toString() + ">";
 				message += " " + uuidmatch;
 				event.setMessage(message);
-				try {
-					PluginMessageSendingBungee.sendSenderMatch(uuid, uuidmatch);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 			}
 
 			new Timer().schedule(new TimerTask() {
@@ -532,7 +541,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
-		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
+		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -556,7 +565,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		});
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerConnected(PostLoginEvent event) {
 		if (!filtersAdded) {
@@ -574,10 +582,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			for (BackendInteractiveChatData data  : serverInteractiveChatInfo.values()) {
 				if (data.isOnline() && data.getProtocolVersion() != Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION) {
 					String msg = ChatColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running a version of InteractiveChat which has the same plugin messaging protocol version as the proxy!";
-					TextComponent text = new TextComponent(msg);
-					text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(ChatColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + ChatColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")")}));
-					player.sendMessage(text);
-					ProxyServer.getInstance().getConsole().sendMessage(text);
+					Component text = LegacyComponentSerializer.legacySection().deserialize(msg);
+					text = text.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + ChatColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")")));
+					sendMessage(player, text);
+					sendMessage(ProxyServer.getInstance().getConsole(), text);
 				}
 			}
 		}
@@ -600,8 +608,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
-		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "packet_interceptor", new ChannelDuplexHandler() {
-			private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+		pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
 				try {
@@ -612,8 +619,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 						if ((position == 0 || position == 1) && message != null) {
 							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
 								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-								if (message.matches(".*<cmd=" + UUID_REGEX + ">.*") || message.matches(".*<chat=" + UUID_REGEX + ">.*")) {
-									packet.setMessage(message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "").trim());
+								if (Registry.ID_PATTERN.matcher(message).find()) {
+									packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
 								}
 							} else if (hasInteractiveChat(player.getServer())) {
 								ServerInfo server = player.getServer().getInfo();
@@ -680,7 +687,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			@Override
 			public void run() {
 				if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEskakE")) {
-					event.getPlayer().sendMessage(new TextComponent(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
+					sendMessage(event.getPlayer(), LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
 				}
 			}
 		}, 100);
@@ -712,5 +719,25 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		}
 		return data.hasInteractiveChat();
 	}
+	
+	public static void sendMessage(CommandSender sender, Component component) {
+		if (sender instanceof ProxiedPlayer) {
+			ProxiedPlayer player = (ProxiedPlayer) sender;
+			if (getVersion(player) < Registry.MINECRAFT_1_16_PROTOCOL_VERSION) {
+				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
+			} else {
+				sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
+			}
+		} else {
+			sender.sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
+		}
+	}
+	
+	public static int getVersion(ProxiedPlayer player) {
+        if (viaVersionHook) {
+            return Via.getAPI().getPlayerVersion(player.getUniqueId());
+        }
+        return player.getPendingConnection().getVersion();
+    }
 	
 }

@@ -24,9 +24,10 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.objectholders.WebData;
-import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
+import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -35,10 +36,11 @@ import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ProcessExternalMessage {
 	
@@ -233,23 +235,23 @@ public class ProcessExternalMessage {
 		return message;
 	}
 	
-	public String processAndRespond0(Player reciever, String component) throws Exception {
-		BaseComponent basecomponent = ChatComponentUtils.join(ComponentSerializer.parse(ChatColorUtils.filterIllegalColorCodes(InteractiveChat.COLOR_CHAR_UNESCAPE.apply(component))));
-		BaseComponent originalComponent = ChatComponentUtils.clone(basecomponent);
+	public String processAndRespond0(Player reciever, String json) throws Exception {
+		Component component = InteractiveChatComponentSerializer.gson().deserialize(json);
+		Component originalComponent = component;
         
         try {
-        	if (basecomponent.toLegacyText().equals("")) {
-        		return component;
+        	if (LegacyComponentSerializer.legacySection().serialize(component).isEmpty()) {
+        		return json;
         	}
         } catch (Exception e) {
-        	return component;
+        	return json;
         }
         
-        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(ComponentSerializer.toString(basecomponent), "translate")) {		       
-        	return component;
+        if ((InteractiveChat.version.isOld()) && JsonUtils.containsKey(InteractiveChatComponentSerializer.gson().serialize(component), "translate")) {		       
+        	return json;
         }
         
-        String rawMessageKey = basecomponent.toPlainText();
+        String rawMessageKey = PlainTextComponentSerializer.plainText().serialize(component);
         if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
         	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
         }
@@ -259,7 +261,7 @@ public class ProcessExternalMessage {
         	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
         }
         
-        ProcessSenderResult commandSender = ProcessCommands.process(basecomponent);
+        ProcessSenderResult commandSender = ProcessCommands.process(component);
         Optional<ICPlayer> sender = Optional.empty();
         if (commandSender.getSender() != null) {
         	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
@@ -272,7 +274,7 @@ public class ProcessExternalMessage {
         ProcessSenderResult chatSender = null;
         if (!sender.isPresent()) {
         	if (InteractiveChat.useAccurateSenderFinder) {
-        		chatSender = ProcessAccurateSender.process(basecomponent);
+        		chatSender = ProcessAccurateSender.process(component);
         		if (chatSender.getSender() != null) {
     	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
     	        	if (bukkitplayer != null) {
@@ -284,17 +286,17 @@ public class ProcessExternalMessage {
         	}
         }
         if (!sender.isPresent()) {
-        	sender = SenderFinder.getSender(basecomponent, rawMessageKey);
+        	sender = SenderFinder.getSender(component, rawMessageKey);
         }
         
-        basecomponent = commandSender.getBaseComponent();
+        component = commandSender.getComponent();
         if (chatSender != null) {
-        	basecomponent = chatSender.getBaseComponent();
+        	component = chatSender.getComponent();
         }
         
-        String text = basecomponent.toLegacyText();
+        String text = LegacyComponentSerializer.legacySection().serialize(component);
         if (InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
-        	return component;
+        	return json;
         }
         
         if (sender.isPresent()) {
@@ -313,53 +315,44 @@ public class ProcessExternalMessage {
         	server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
         
-        List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < basecomponentlist.size(); i++) {
-			BaseComponent each = basecomponentlist.get(i);
-			if (each instanceof TextComponent) {
-				((TextComponent) each).setText(((TextComponent) each).getText().replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", ""));
-			}
-			product.addExtra(each);
-		}
-		basecomponent = product;
+        component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
+        
+        if (InteractiveChat.usePlayerName) {
+        	component = PlayernameDisplay.process(component, sender, reciever, unix);
+        }
         
         if (InteractiveChat.allowMention && sender.isPresent()) {
         	PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
         	if (data == null || !data.isMentionDisabled()) {
-        		basecomponent = MentionDisplay.process(basecomponent, reciever, sender.get(), unix, !Bukkit.isPrimaryThread());
+        		component = MentionDisplay.process(component, reciever, sender.get(), unix, !Bukkit.isPrimaryThread());
         	}
-        }
-		
-        if (InteractiveChat.usePlayerName) {
-        	basecomponent = PlayernameDisplay.process(basecomponent, sender, reciever, unix);
         }
         
         if (InteractiveChat.useItem) {
-        	basecomponent = ItemDisplay.process(basecomponent, sender, reciever, unix);
+        	component = ItemDisplay.process(component, sender, reciever, unix);
         }
         
         if (InteractiveChat.useInventory) {
-        	basecomponent = InventoryDisplay.process(basecomponent, sender, reciever, unix);
+        	component = InventoryDisplay.process(component, sender, reciever, unix);
         }
         
         if (InteractiveChat.useEnder) {
-        	basecomponent = EnderchestDisplay.process(basecomponent, sender, reciever, unix);
+        	component = EnderchestDisplay.process(component, sender, reciever, unix);
         }
         
         List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
         if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
         	serverPlaceholderList = InteractiveChat.placeholderList;
         }
-        basecomponent = CustomPlaceholderDisplay.process(basecomponent, sender, reciever, serverPlaceholderList, unix);
+        component = CustomPlaceholderDisplay.process(component, sender, reciever, serverPlaceholderList, unix);
         
         if (InteractiveChat.clickableCommands) {
-        	basecomponent = CommandsDisplay.process(basecomponent);
+        	component = CommandsDisplay.process(component);
         }
         
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 	        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 5))) {
-	        	basecomponent = ChatComponentUtils.translatePluginFontFormatting(basecomponent);
+	        	component = ComponentFont.parseMiniMessageFont(component);
 	        }
         }
         
@@ -367,12 +360,10 @@ public class ProcessExternalMessage {
         	InteractiveChat.keyTime.remove(rawMessageKey);
         	InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);
-        		        
-        basecomponent = InteractiveChat.filterUselessColorCodes ? ChatComponentUtils.cleanUpLegacyText(basecomponent, reciever) : ChatComponentUtils.respectClientColorSettingsWithoutCleanUp(basecomponent, reciever);       
         
-        String json = ComponentSerializer.toString(basecomponent);
-        if (InteractiveChat.sendOriginalIfTooLong && json.length() > 32767) {
-        	String originalJson = ComponentSerializer.toString(originalComponent);
+        String newJson = InteractiveChatComponentSerializer.gson().serialize(component);
+        if (InteractiveChat.sendOriginalIfTooLong && newJson.length() > 32767) {
+        	String originalJson = InteractiveChatComponentSerializer.gson().serialize(originalComponent);
         	if (originalJson.length() > 32767) {
         		return "{\"text\":\"\"}";
         	} else {
@@ -380,7 +371,7 @@ public class ProcessExternalMessage {
         	}
         }
         
-		return json;
+		return newJson;
 	}
 
 }

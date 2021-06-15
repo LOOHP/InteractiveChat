@@ -1,12 +1,9 @@
 package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,21 +20,21 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ReplaceTextBundle;
 import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentUtils;
 import com.loohp.interactivechat.utils.CollectionUtils;
+import com.loohp.interactivechat.utils.ComponentCompacting;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.VanishUtils;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class PlayernameDisplay implements Listener {
 	
-	private static final String PROCESSED_IDENTIFIER = "<PROCESSED-4d898488-7e0a-42b1-b782-cd7ca66bfc75>";	
 	private static Random random = new Random();
 	private static AtomicInteger flag = new AtomicInteger();
 	private static List<ReplaceTextBundle> names = new ArrayList<>();
@@ -69,156 +66,47 @@ public class PlayernameDisplay implements Listener {
 		names = null;
 	}
 	
-	public static BaseComponent process(BaseComponent basecomponent, Optional<ICPlayer> sender, Player reciever, long unix) {
-		List<BaseComponent> matched = new ArrayList<>();
+	public static Component process(Component component, Optional<ICPlayer> sender, Player reciever, long unix) {
 		List<ReplaceTextBundle> names = PlayernameDisplay.names;
 		if (names == null) {
 			names = getNames();
 		}
 		for (ReplaceTextBundle entry : names) {
-			basecomponent = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, entry.getReplaceText(), basecomponent, matched, unix);
+			component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, entry.getReplaceText(), component, unix);
 		}
 		
-		//clean
-		
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < basecomponentlist.size(); i++) {
-			BaseComponent each = basecomponentlist.get(i);
-			if (each instanceof TextComponent) {
-				((TextComponent) each).setText(((TextComponent) each).getText().replace(PROCESSED_IDENTIFIER, ""));
-			}
-			product.addExtra(each);
-		}
-		
-		return product;
+		return component;
 	}
 	
-	@SuppressWarnings("deprecation")
-	private static BaseComponent processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, String replaceText, BaseComponent basecomponent, List<BaseComponent> matched, long unix) {
-		List<BaseComponent> basecomponentlist = CustomStringUtils.loadExtras(basecomponent);
-		List<BaseComponent> newlist = new ArrayList<>();
-
-		for (BaseComponent base : basecomponentlist) {
-			if (matched.stream().anyMatch(each -> ChatComponentUtils.areSimilar(each, base, true))) {
-				newlist.add(base);
-			} else if (!(base instanceof TextComponent)) {
-				if (InteractiveChat.usePlayerNameOnTranslatables && base instanceof TranslatableComponent) {
-					TranslatableComponent trans = (TranslatableComponent) base;
-					List<BaseComponent> withs = trans.getWith();
-					if (withs != null) {
-						for (int i = 0; i < withs.size(); i++) {
-							if (withs.get(i) instanceof TextComponent) {
-								TextComponent text = (TextComponent) withs.get(i);
-								if (ChatColorUtils.stripColor(text.toLegacyText()).equalsIgnoreCase(placeholder)) {
-									TextComponent message = new TextComponent(text.toLegacyText());
-									if (InteractiveChat.usePlayerNameHoverEnable) {
-										String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
-										message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(playertext)}));
-									}
-									if (InteractiveChat.usePlayerNameClickEnable) {
-										String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
-										message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
-									}
-									withs.set(i, ChatComponentUtils.cleanUpLegacyText(message, reciever));
-								}
-							}
-						}
-					}
-					newlist.add(base);
-				} else {
-					newlist.add(base);
+	private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, String replaceText, Component component, long unix) {
+		HoverEvent<?> hoverEvent = null;
+		ClickEvent clickEvent = null;
+		if (InteractiveChat.usePlayerNameHoverEnable) {
+			String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
+			hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(playertext));
+		}
+		if (InteractiveChat.usePlayerNameClickEnable) {
+			String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
+			clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext);
+		}
+		Component replace = ComponentCompacting.optimize(LegacyComponentSerializer.legacySection().deserialize(replaceText).hoverEvent(hoverEvent).clickEvent(clickEvent));
+		String regex = InteractiveChat.usePlayerNameCaseSensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
+		component = ComponentReplacing.replace(component, regex, true, replace);
+		List<Component> children = new ArrayList<>(component.children());
+		for (int i = 0; i < children.size(); i++) {
+			Component child = children.get(i);
+			if (child instanceof TranslatableComponent) {
+				TranslatableComponent trans = (TranslatableComponent) child;
+				List<Component> withs = new ArrayList<>(trans.args());
+				for (int u = 0; u < withs.size(); u++) {
+					Component with = withs.get(u);
+					withs.set(u, processPlayer(placeholder, player, sender, reciever, replaceText, with, unix));
 				}
-			} else {
-				TextComponent textcomponent = (TextComponent) base;
-				HoverEvent hoverEvent = base.getHoverEvent();
-				if (isMention(hoverEvent, sender, reciever)) {
-					newlist.add(base);
-				} else {
-					String text = textcomponent.getText();
-					String regex = InteractiveChat.usePlayerNameCaseSensitive ? "(?<!\u00a7)" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) : "(?i)(?<!\u00a7)(" + CustomStringUtils.getIgnoreColorCodeRegex(CustomStringUtils.escapeMetaCharacters(placeholder)) + ")";
-					
-					if (!text.matches(".*" + regex + ".*")) {
-						newlist.add(textcomponent);
-						continue;
-					}
-
-					Queue<String> matches = (LinkedList<String>) CustomStringUtils.getAllMatches(regex, text);
-					List<String> trim = new LinkedList<>(Arrays.asList(text.split(regex, -1)));
-					if (trim.get(trim.size() - 1).equals("")) {
-						trim.remove(trim.size() - 1);
-					}
-					
-					String lastColor = "";
-					
-					StringBuilder sb = new StringBuilder();
-					
-					for (int i = 0; i < trim.size(); i++) {
-						TextComponent before = new TextComponent(textcomponent);
-						before.setText(lastColor + trim.get(i));
-						newlist.add(before);
-						sb.append(before.getText());
-						if ((trim.size() - 1) > i || text.matches(".*" + regex + "$")) {
-							lastColor = ChatColorUtils.getLastColors(sb.toString());
-					    
-							String replacement = matches.isEmpty() ? replaceText : matches.poll();
-							replacement = replacement.replace("", PROCESSED_IDENTIFIER);
-							TextComponent message = new TextComponent(replacement);
-							message = (TextComponent) CustomStringUtils.copyFormatting(message, before);
-							message.setText(lastColor + message.getText());
-
-							if (InteractiveChat.usePlayerNameHoverEnable) {
-								String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
-								message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(playertext)}));
-							}
-							if (InteractiveChat.usePlayerNameClickEnable) {
-								String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
-								message.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext));
-							}
-							
-							matched.add(message);
-							newlist.add(message);
-							
-							lastColor = ChatColorUtils.getLastColors(sb.append(message.getText()).toString());
-						}
-					}
-				}
+				trans = trans.args(withs);
+				children.set(i, trans);
 			}
 		}
-		
-		TextComponent product = new TextComponent("");
-		for (int i = 0; i < newlist.size(); i++) {
-			BaseComponent each = newlist.get(i);
-			product.addExtra(each);
-		}
-		return product;
-	}
-	
-	@SuppressWarnings("deprecation")
-	private static boolean isMention(HoverEvent hover, Optional<ICPlayer> sender, Player reciever) {
-		if (hover == null || !sender.isPresent()) {
-			return false;
-		}
-		if (!hover.getAction().equals(HoverEvent.Action.SHOW_TEXT)) {
-			return false;
-		}
-		BaseComponent[] component = hover.getValue();
-		if (component.length <= 0) {
-			return false;
-		}
-		if (!(component[0] instanceof TextComponent)) {
-			return false;
-		}
-		TextComponent text = (TextComponent) component[0];
-		if (!sender.get().isValid()) {
-			return false;
-		}
-		String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.get().getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
-		if (text == null || text.getText() == null) {
-			return false;
-		}
-		return text.getText().equals(hoverText);
+		return ComponentCompacting.optimize(component.children(children));
 	}
 	
 	private static List<ReplaceTextBundle> getNames() {
@@ -229,7 +117,7 @@ public class PlayernameDisplay implements Listener {
 			}
 			ICPlayer icplayer = new ICPlayer(each);
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
-			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
 			}
 			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
@@ -249,7 +137,7 @@ public class PlayernameDisplay implements Listener {
 		});
 		
 		CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
-		Collections.sort(names, Collections.reverseOrder());
+		Collections.sort(names);
 		
 		return names;
 	}

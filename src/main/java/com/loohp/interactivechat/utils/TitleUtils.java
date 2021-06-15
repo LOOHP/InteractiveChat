@@ -23,8 +23,9 @@ public class TitleUtils {
 			if (!title.equals("")) {
 				try {
 					packet2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_TITLE_TEXT);
-					packet2.getModifier().write(0, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(title), InteractiveChat.version.isLegacyRGB()));
+					packet2.getModifier().write(0, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(title), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet2 = null;
 				}
 			}
@@ -33,8 +34,9 @@ public class TitleUtils {
 			if (!subtitle.equals("")) {
 				try {
 					packet3 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_SUBTITLE_TEXT);
-					packet3.getModifier().write(0, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(subtitle), InteractiveChat.version.isLegacyRGB()));
+					packet3.getModifier().write(0, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(subtitle), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet3 = null;
 				}
 			}
@@ -43,8 +45,9 @@ public class TitleUtils {
 			if (!actionbar.equals("")) {
 				try {
 					packet4 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_ACTION_BAR_TEXT);
-					packet4.getModifier().write(0, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(actionbar), InteractiveChat.version.isLegacyRGB()));
+					packet4.getModifier().write(0, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(actionbar), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet4 = null;
 				}
 			}
@@ -78,8 +81,9 @@ public class TitleUtils {
 				try {
 					packet2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.TITLE);
 					packet2.getTitleActions().write(0, TitleAction.TITLE);
-					packet2.getModifier().write(1, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(title), InteractiveChat.version.isLegacyRGB()));
+					packet2.getModifier().write(1, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(title), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet2 = null;
 				}
 			}
@@ -89,8 +93,9 @@ public class TitleUtils {
 				try {
 					packet3 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.TITLE);
 					packet3.getTitleActions().write(0, TitleAction.SUBTITLE);
-					packet3.getModifier().write(1, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(subtitle), InteractiveChat.version.isLegacyRGB()));
+					packet3.getModifier().write(1, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(subtitle), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet3 = null;
 				}
 			}
@@ -100,8 +105,9 @@ public class TitleUtils {
 				try {
 					packet4 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.TITLE);
 					packet4.getTitleActions().write(0, TitleAction.ACTIONBAR);
-					packet4.getModifier().write(1, ChatComponentType.AdventureComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(actionbar), InteractiveChat.version.isLegacyRGB()));
+					packet4.getModifier().write(1, ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(actionbar), InteractiveChat.version.isLegacyRGB()));
 				} catch (Exception e) {
+					e.printStackTrace();
 					packet4 = null;
 				}
 			}

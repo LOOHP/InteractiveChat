@@ -238,22 +238,18 @@ public class Events implements Listener {
 				UUID uuid = entry.getValue();
    				int index = message.toLowerCase().indexOf(name.toLowerCase());
    				if (index >= 0) {
-   					char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-   					char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
-   					if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
-   						if (!uuid.equals(sender.getUniqueId())) {
-   							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
-   							if (InteractiveChat.bungeecordMode) {
-   								try {
-									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-   							}
-   						}
-   						return true;
-   					}
-   				}
+					if (!uuid.equals(sender.getUniqueId())) {
+						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						if (InteractiveChat.bungeecordMode) {
+							try {
+								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					return true;
+				}
 			}
 		}
     	return false;
@@ -264,24 +260,20 @@ public class Events implements Listener {
 			String name = InteractiveChat.mentionPrefix + "here";
 			int index = message.toLowerCase().indexOf(name.toLowerCase());
 			if (index >= 0) {
-				char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-				char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
-				if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						UUID uuid = player.getUniqueId();
-						if (!uuid.equals(sender.getUniqueId())) {
-							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
-							if (InteractiveChat.bungeecordMode) {
-								try {
-									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					UUID uuid = player.getUniqueId();
+					if (!uuid.equals(sender.getUniqueId())) {
+						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						if (InteractiveChat.bungeecordMode) {
+							try {
+								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 					}
-					return true;
 				}
+				return true;
 			}
 		}
     	return false;
@@ -292,28 +284,24 @@ public class Events implements Listener {
 			String name = InteractiveChat.mentionPrefix + "everyone";
 			int index = message.toLowerCase().indexOf(name.toLowerCase());
 			if (index >= 0) {
-				char before = (index - 1) < 0 ? ' ' : message.charAt(index - 1);
-				char after = (index + name.length()) >= message.length() ? ' ' : message.charAt(index + name.length());
-				if (String.valueOf(before).matches("[^a-zA-Z0-9]") && String.valueOf(after).matches("[^a-zA-Z0-9]")) {
-					List<UUID> players = new ArrayList<>();
-					Bukkit.getOnlinePlayers().forEach(each -> players.add(each.getUniqueId()));
-					synchronized (InteractiveChat.remotePlayers) {
-						InteractiveChat.remotePlayers.values().forEach(each -> players.add(each.getUniqueId()));
-					}				
-					for (UUID uuid : players) {
-						if (!uuid.equals(sender.getUniqueId())) {
-							InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
-							if (InteractiveChat.bungeecordMode) {
-								try {
-									BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
+				List<UUID> players = new ArrayList<>();
+				Bukkit.getOnlinePlayers().forEach(each -> players.add(each.getUniqueId()));
+				synchronized (InteractiveChat.remotePlayers) {
+					InteractiveChat.remotePlayers.values().forEach(each -> players.add(each.getUniqueId()));
+				}				
+				for (UUID uuid : players) {
+					if (!uuid.equals(sender.getUniqueId())) {
+						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						if (InteractiveChat.bungeecordMode) {
+							try {
+								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 					}
-					return true;
 				}
+				return true;
 			}
 		}
     	return false;

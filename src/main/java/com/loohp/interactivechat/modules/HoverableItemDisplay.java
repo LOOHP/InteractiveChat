@@ -39,7 +39,7 @@ public class HoverableItemDisplay {
 		for (int i = 0; i < children.size(); i++) {
 			Component child = children.get(i);
 			HoverEvent<?> hoverEvent = child.hoverEvent();
-			if (hoverEvent != null && hoverEvent.action().equals(HoverEvent.Action.SHOW_ITEM)) {
+			if (hoverEvent != null && hoverEvent.action().equals(HoverEvent.Action.SHOW_ITEM) && child.clickEvent() == null) {
 				ShowItem showItem = (ShowItem) hoverEvent.value();
 				Key key = showItem.item();
 				int count = showItem.count();

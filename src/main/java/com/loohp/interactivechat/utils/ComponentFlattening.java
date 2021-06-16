@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.kyori.adventure.text.Component;
@@ -14,7 +15,7 @@ public class ComponentFlattening {
 	
 	private static List<Component> getChildren(Component component) {
 		List<Component> list = new ArrayList<>();
-		list.add(component.children(new ArrayList<>()));
+		list.add(component.children(Collections.emptyList()));
 		for (Component child : component.children()) {
 			child = child.style(child.style().merge(component.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
 			list.addAll(getChildren(child));

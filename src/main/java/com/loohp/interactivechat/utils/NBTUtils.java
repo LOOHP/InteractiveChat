@@ -53,6 +53,7 @@ public final class NBTUtils {
 				classCache.put( "NBTBase", Class.forName( "net.minecraft.server." + VERSION + "." + "NBTBase" ) );
 				classCache.put( "NBTTagCompound", Class.forName( "net.minecraft.server." + VERSION + "." + "NBTTagCompound" ) );
 				classCache.put( "NBTTagList", Class.forName( "net.minecraft.server." + VERSION + "." + "NBTTagList" ) );
+				classCache.put( "NBTTagEnd", Class.forName( "net.minecraft.server." + VERSION + "." + "NBTTagEnd" ) );
 				classCache.put( "MojangsonParser", Class.forName( "net.minecraft.server." + VERSION + "." + "MojangsonParser" ) );
 	
 				classCache.put( "ItemStack", Class.forName( "net.minecraft.server." + VERSION + "." + "ItemStack" ) );
@@ -73,6 +74,7 @@ public final class NBTUtils {
 				classCache.put( "NBTBase", Class.forName( "net.minecraft.nbt.NBTBase" ) );
 				classCache.put( "NBTTagCompound", Class.forName( "net.minecraft.nbt.NBTTagCompound" ) );
 				classCache.put( "NBTTagList", Class.forName( "net.minecraft.nbt.NBTTagList" ) );
+				classCache.put( "NBTTagEnd", Class.forName( "net.minecraft.nbt.NBTTagEnd" ) );
 				classCache.put( "MojangsonParser", Class.forName( "net.minecraft.nbt.MojangsonParser" ) );
 				
 				classCache.put( "ItemStack", Class.forName( "net.minecraft.world.item.ItemStack" ) );

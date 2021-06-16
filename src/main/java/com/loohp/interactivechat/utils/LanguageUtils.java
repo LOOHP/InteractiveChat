@@ -20,8 +20,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.Banner;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -243,6 +247,7 @@ public class LanguageUtils {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static String getModernTranslationKey(ItemStack itemStack) {
 		Material material = itemStack.getType();
 		String path = "";
@@ -263,6 +268,26 @@ public class LanguageUtils {
 			String owner = NBTUtils.getString(itemStack, "SkullOwner", "Name");
 			if (owner != null) {
 				path += ".named";
+			}
+		}
+		
+		if (itemStack.getType().equals(Material.SHIELD)) {
+			if (NBTUtils.contains(itemStack, "BlockEntityTag")) {
+				DyeColor color = DyeColor.WHITE;
+				if (!(itemStack.getItemMeta() instanceof BannerMeta)) {
+					if (itemStack.getItemMeta() instanceof BlockStateMeta) {
+						BlockStateMeta bmeta = (BlockStateMeta) itemStack.getItemMeta();
+						if (bmeta.hasBlockState()) {
+							Banner bannerBlockMeta = (Banner) bmeta.getBlockState();
+				            color = bannerBlockMeta.getBaseColor();
+						}			   
+					}
+				} else {
+					BannerMeta meta = (BannerMeta) itemStack.getItemMeta();
+					color = meta.getBaseColor();
+				}
+				
+	            path += "." + color.name().toLowerCase();	       
 			}
 		}
 	

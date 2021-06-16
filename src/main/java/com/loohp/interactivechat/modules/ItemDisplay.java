@@ -140,21 +140,23 @@ public class ItemDisplay {
 	}
 	
 	protected static boolean useInventoryView(ItemStack item) {
-		if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
-			BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
-			if (bsm instanceof InventoryHolder) {
-				Inventory container = ((InventoryHolder) bsm).getInventory();
-				if ((container.getSize() % 9) != 0) {
-					return false;
-				}
-				for (int i = 0; i < container.getSize(); i++) {
-					ItemStack containerItem = container.getItem(i);
-					if (containerItem != null && !containerItem.getType().equals(Material.AIR)) {
-						return true;
+		try {
+			if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+				BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
+				if (bsm instanceof InventoryHolder) {
+					Inventory container = ((InventoryHolder) bsm).getInventory();
+					if ((container.getSize() % 9) != 0) {
+						return false;
+					}
+					for (int i = 0; i < container.getSize(); i++) {
+						ItemStack containerItem = container.getItem(i);
+						if (containerItem != null && !containerItem.getType().equals(Material.AIR)) {
+							return true;
+						}
 					}
 				}
 			}
-		}
+		} catch (Throwable e) {}
 		return false;
 	}
 	

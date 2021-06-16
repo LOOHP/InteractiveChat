@@ -156,4 +156,27 @@ public class CustomStringUtils {
 	    String bagEnd = bag.substring(index);
 	    return bagBegin + marble + bagEnd;
 	}
+	
+	public static String clearPluginForamttingTags(String str) {
+		Matcher matcher = ChatColorUtils.COLOR_TAG_PATTERN.matcher(str);
+		StringBuilder sb = new StringBuilder();
+		while (matcher.find()) {
+			String escape = matcher.group(1);
+			String replacement = escape == null ? "" : escape;
+			matcher.appendReplacement(sb, replacement);
+		}
+		matcher.appendTail(sb);
+		
+		matcher = ComponentFont.FONT_TAG_PATTERN.matcher(sb.toString());
+		sb = new StringBuilder();
+		while (matcher.find()) {
+			String escape = matcher.group(1);
+			String replacement = escape == null ? "" : escape;
+			matcher.appendReplacement(sb, replacement);
+		}
+		matcher.appendTail(sb);
+		
+		return sb.toString();
+	}
+	
 }

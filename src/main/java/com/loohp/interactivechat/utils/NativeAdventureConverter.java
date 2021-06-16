@@ -105,6 +105,10 @@ public class NativeAdventureConverter {
 		} catch (Throwable e) {}
 	}
 	
+	public static boolean hasNativeAdventure() {
+		return hasNativeAdventureImplementation;
+	}
+	
 	private static void printError(Throwable e) {
 		if (hasNativeAdventureImplementation) {
 			new RuntimeException("There is no native adventure implementation on this platform", e).printStackTrace();

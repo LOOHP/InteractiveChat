@@ -3,6 +3,7 @@ package com.loohp.interactivechat.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,11 +42,19 @@ public class ComponentReplacing {
 		}
 	}
 	
+	public static Component replace(Component component, String regex, Component replace) {
+		return replace(component, regex, false, groups -> replace);
+	}
+	
 	public static Component replace(Component component, String regex, boolean escaping, Component replace) {
 		return replace(component, regex, escaping, groups -> replace);
 	}
 	
-	public static Component replace(Component component, String regex, boolean escaping, Function<String[], Component> replaceFunction) {
+	public static Component replace(Component component, String regex, Function<MatchResult, Component> replaceFunction) {
+		return replace(component, regex, false, replaceFunction);
+	}
+	
+	public static Component replace(Component component, String regex, boolean escaping, Function<MatchResult, Component> replaceFunction) {
 		String regexOriginal = regex;
 		if (escaping) {
 			regex = ESCAPE_PREPEND_PATTERN + regex;
@@ -113,7 +122,7 @@ public class ComponentReplacing {
 					}
 				}
 				
-				Component replace = replaceFunction.apply(getAllGroups(matcher));
+				Component replace = replaceFunction.apply(matcher);
 				children.add(insertPos, replace.style(replace.style().merge(style, Merge.Strategy.IF_ABSENT_ON_TARGET)));
 				component = ComponentCompacting.optimize(component.children(children));
 				component = ComponentFlattening.flatten(component);
@@ -138,19 +147,10 @@ public class ComponentReplacing {
 		component = ComponentCompacting.optimize(component.children(children));
 		
 		if (escaping) {
-			component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, groups -> Component.text(groups[1]));
+			component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, result -> Component.text(result.group(1)));
 		}
 		
 		return component;
-	}
-	
-	private static String[] getAllGroups(Matcher matcher) {
-		String[] array = new String[matcher.groupCount() + 1];
-		array[0] = matcher.group();
-		for (int i = 1; i < array.length; i++) {
-			array[i] = matcher.group(i);
-		}
-		return array;
 	}
 	
 	private static List<ComponentReplacingData> getData(Component component) {

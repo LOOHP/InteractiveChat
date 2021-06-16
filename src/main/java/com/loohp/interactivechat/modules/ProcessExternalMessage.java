@@ -118,6 +118,8 @@ public class ProcessExternalMessage {
 		if (!(uniCooldown < 0 || uniCooldown + 100 > InteractiveChat.universalCooldown)) {
 			return message;
 		}
+		
+		message = CustomStringUtils.clearPluginForamttingTags(message);
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
 			long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), InteractiveChat.itemPlaceholder) - now;

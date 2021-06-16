@@ -60,7 +60,7 @@ public class ComponentFont {
 			if (child instanceof TextComponent) {
 				TextComponent textComponent = (TextComponent) child;
 				matcher = FONT_TAG_ESCAPE.matcher(textComponent.content());
-				StringBuilder sb = new StringBuilder();
+				StringBuffer sb = new StringBuffer();
 				while (matcher.find()) {
 					String escaped = matcher.group(1);
 					matcher.appendReplacement(sb, escaped);

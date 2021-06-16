@@ -159,7 +159,7 @@ public class CustomStringUtils {
 	
 	public static String clearPluginForamttingTags(String str) {
 		Matcher matcher = ChatColorUtils.COLOR_TAG_PATTERN.matcher(str);
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
 			String escape = matcher.group(1);
 			String replacement = escape == null ? "" : escape;
@@ -168,7 +168,7 @@ public class CustomStringUtils {
 		matcher.appendTail(sb);
 		
 		matcher = ComponentFont.FONT_TAG_PATTERN.matcher(sb.toString());
-		sb = new StringBuilder();
+		sb = new StringBuffer();
 		while (matcher.find()) {
 			String escape = matcher.group(1);
 			String replacement = escape == null ? "" : escape;

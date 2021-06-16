@@ -192,7 +192,7 @@ public class ChatColorUtils {
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 			Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
-			StringBuilder sb = new StringBuilder();
+			StringBuffer sb = new StringBuffer();
 			while (matcher.find()) {
 				String escape = matcher.group(1);
 				String color = matcher.group(2);
@@ -205,7 +205,7 @@ public class ChatColorUtils {
 			matcher.appendTail(sb);
 			
 			matcher = COLOR_TAG_ESCAPE.matcher(sb.toString());
-			sb = new StringBuilder();
+			sb = new StringBuffer();
 			while (matcher.find()) {
 				String escaped = matcher.group(1);
 				matcher.appendReplacement(sb, escaped);

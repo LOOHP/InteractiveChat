@@ -352,7 +352,7 @@ public class ProcessExternalMessage {
         
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 	        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 5))) {
-	        	component = ComponentFont.parseMiniMessageFont(component);
+	        	component = ComponentFont.parseFont(component);
 	        }
         }
         

@@ -8,12 +8,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.MainHand;
 
 import com.loohp.interactivechat.InteractiveChat;
 
 public class ICPlayer {
 	
 	public static final String LOCAL_SERVER_REPRESENTATION = "*local_server";
+	public static final String EMPTY_SERVER_REPRESENTATION = "*invalid";
+	private static final Inventory EMPTY_INVENTORY = Bukkit.createInventory(null, 54);
+	private static final Inventory EMPTY_ENDERCHEST = Bukkit.createInventory(null, 18);
+	private static final RemoteEquipment EMPTY_EQUIPMENT = new RemoteEquipment();
 
 	private UUID uuid;
 	private String remoteServer;
@@ -40,8 +45,16 @@ public class ICPlayer {
 	}
 	
 	public ICPlayer(Player player) {
-		remotePlaceholders = new HashMap<>();
-		uuid = player.getUniqueId();
+		this.remoteServer = EMPTY_SERVER_REPRESENTATION;
+		this.remoteName = player.getName();
+		this.uuid = player.getUniqueId();
+		this.rightHanded = player.getMainHand().equals(MainHand.RIGHT);
+		this.selectedSlot = player.getInventory().getHeldItemSlot();
+		this.experienceLevel = player.getLevel();
+		this.remoteEquipment = EMPTY_EQUIPMENT;
+		this.remoteInventory = EMPTY_INVENTORY;
+		this.remoteEnderchest = EMPTY_ENDERCHEST;
+		this.remotePlaceholders = new HashMap<>();
 	}
 
 	public boolean isLocal() {

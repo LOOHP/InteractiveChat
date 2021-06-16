@@ -364,7 +364,7 @@ public class OutChatPacket implements Listener {
 
 	        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 		        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
-		        	component = ComponentFont.parseMiniMessageFont(component);
+		        	component = ComponentFont.parseFont(component);
 		        }
 	        }
 	        

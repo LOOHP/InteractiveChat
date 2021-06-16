@@ -310,7 +310,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					        }
 					        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
 						        if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
-						        	component = ComponentFont.parseMiniMessageFont(component);
+						        	component = ComponentFont.parseFont(component);
 						        }
 					        }
 					        

@@ -2,19 +2,19 @@ package com.loohp.interactivechat.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.transformation.TransformationType;
 
 public class ComponentFont {
 	
-	private static final MiniMessage MINIMESSAGE_FONT_PARSER = MiniMessage.builder().removeDefaultTransformations().transformation(TransformationType.FONT).build();
+	private static final Pattern FONT_TAG_PATTERN = Pattern.compile("(?i)\\[font=([a-z:0-9]*)\\]");
 	
-	public static Component parseMiniMessageFont(Component component) {
+	public static Component parseFont(Component component) {
 		component = ComponentFlattening.flatten(component);
 		List<Component> children = new ArrayList<>(component.children());
 		Key currentFont = null;
@@ -22,12 +22,31 @@ public class ComponentFont {
 			Component child = children.get(i);
 			if (child instanceof TextComponent) {
 				TextComponent text = (TextComponent) child.style(child.style().toBuilder().merge(Style.style().font(currentFont).build()).build());
-				List<Component> converted = ComponentFlattening.flatten(MINIMESSAGE_FONT_PARSER.deserialize(text.content())).children();
+				Component parsed = parseTags(text.content(), text.style());
+				List<Component> converted = ComponentFlattening.flatten(parsed).children();
 				text = text.children(converted).content("");
 				currentFont = converted.get(converted.size() - 1).style().font();
 				children.set(i, text);
 			}
 		}
+		return ComponentCompacting.optimize(component.children(children));
+	}
+	
+	private static Component parseTags(String content, Style style) {
+		Component component = Component.text("");
+		Matcher matcher = FONT_TAG_PATTERN.matcher(content);
+		int start = 0;
+		while (matcher.find()) {
+			String font = matcher.group(1);
+			Key key = font.isEmpty() ? null : Key.key(font);
+			int end = matcher.start();
+			String section = content.substring(start, end);
+			component = component.append(Component.text(section).style(style));
+			style = style.font(key);
+			start = matcher.end();
+		}
+		String section = content.substring(start);
+		component = component.append(Component.text(section).style(style));
 		return ComponentCompacting.optimize(component);
 	}
 

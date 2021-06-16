@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.InteractiveChat;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.transformation.TransformationType;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatColorUtils {
 	
@@ -21,7 +19,7 @@ public class ChatColorUtils {
 	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
 	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
 	
-	private static final MiniMessage MINIMESSAGE_COLOR_PARSER = MiniMessage.builder().removeDefaultTransformations().transformation(TransformationType.COLOR).build();
+	private static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)\\[color=(#[0-9a-fA-F]{6})\\]");
 	
 	static {
 		COLORS.add('0');
@@ -192,7 +190,14 @@ public class ChatColorUtils {
         }
 		
 		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-    		text = BaseComponent.toLegacyText(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(MINIMESSAGE_COLOR_PARSER.deserialize(text))));
+			Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
+			StringBuilder sb = new StringBuilder();
+			while (matcher.find()) {
+				String color = matcher.group(1);
+				matcher.appendReplacement(sb, hexToColorCode(color));
+			}
+			matcher.appendTail(sb);
+			text = sb.toString();
     	}
         
         for (int i = 0; i < text.length() - 1; i++) {

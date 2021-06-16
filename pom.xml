@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.0.0.5</version>
+	<version>4.0.0.6</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -370,7 +370,7 @@
 		<dependency>
 			<groupId>com.discordsrv</groupId>
 			<artifactId>discordsrv</artifactId>
-			<version>1.23.0-SNAPSHOT</version>
+			<version>1.23.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

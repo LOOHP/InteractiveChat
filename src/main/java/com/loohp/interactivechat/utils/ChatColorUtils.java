@@ -19,7 +19,8 @@ public class ChatColorUtils {
 	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
 	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
 	
-	private static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)\\[color=(#[0-9a-fA-F]{6})\\]");
+	public static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[color=(#[0-9a-fA-F]{6})\\]");
+	public static final Pattern COLOR_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[color=#[0-9a-fA-F]{6}\\])");
 	
 	static {
 		COLORS.add('0');
@@ -193,10 +194,24 @@ public class ChatColorUtils {
 			Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
 			StringBuilder sb = new StringBuilder();
 			while (matcher.find()) {
-				String color = matcher.group(1);
-				matcher.appendReplacement(sb, hexToColorCode(color));
+				String escape = matcher.group(1);
+				String color = matcher.group(2);
+				String replacement = hexToColorCode(color);
+				if (escape != null) {
+					replacement = escape + replacement;
+				}
+				matcher.appendReplacement(sb, replacement);
 			}
 			matcher.appendTail(sb);
+			
+			matcher = COLOR_TAG_ESCAPE.matcher(sb.toString());
+			sb = new StringBuilder();
+			while (matcher.find()) {
+				String escaped = matcher.group(1);
+				matcher.appendReplacement(sb, escaped);
+			}
+			matcher.appendTail(sb);
+			
 			text = sb.toString();
     	}
         

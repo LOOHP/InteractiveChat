@@ -12,7 +12,8 @@ import net.kyori.adventure.text.format.Style;
 
 public class ComponentFont {
 	
-	private static final Pattern FONT_TAG_PATTERN = Pattern.compile("(?i)\\[font=([a-z:0-9]*)\\]");
+	public static final Pattern FONT_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[font=([a-z:0-9]*)\\]");
+	public static final Pattern FONT_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[font=[a-z:0-9]*\\])");
 	
 	public static Component parseFont(Component component) {
 		component = ComponentFlattening.flatten(component);
@@ -37,17 +38,41 @@ public class ComponentFont {
 		Matcher matcher = FONT_TAG_PATTERN.matcher(content);
 		int start = 0;
 		while (matcher.find()) {
-			String font = matcher.group(1);
+			String escape = matcher.group(1);
+			String font = matcher.group(2);
 			Key key = font.isEmpty() ? null : Key.key(font);
 			int end = matcher.start();
 			String section = content.substring(start, end);
+			if (escape != null) {
+				section += escape;
+			}
 			component = component.append(Component.text(section).style(style));
 			style = style.font(key);
 			start = matcher.end();
 		}
 		String section = content.substring(start);
 		component = component.append(Component.text(section).style(style));
-		return ComponentCompacting.optimize(component);
+		component = ComponentCompacting.optimize(component);
+		
+		List<Component> children = new ArrayList<>(component.children());
+		for (int i = 0; i < children.size(); i++) {
+			Component child = children.get(i);
+			if (child instanceof TextComponent) {
+				TextComponent textComponent = (TextComponent) child;
+				matcher = FONT_TAG_ESCAPE.matcher(textComponent.content());
+				StringBuilder sb = new StringBuilder();
+				while (matcher.find()) {
+					String escaped = matcher.group(1);
+					matcher.appendReplacement(sb, escaped);
+				}
+				matcher.appendTail(sb);
+				
+				textComponent = textComponent.content(sb.toString());
+				children.set(i, textComponent);
+			}
+		}
+		
+		return component.children(children); 
 	}
 
 }

@@ -157,7 +157,7 @@ public class CustomStringUtils {
 	    return bagBegin + marble + bagEnd;
 	}
 	
-	public static String clearPluginForamttingTags(String str) {
+	public static String clearPluginRGBTags(String str) {
 		Matcher matcher = ChatColorUtils.COLOR_TAG_PATTERN.matcher(str);
 		StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -166,16 +166,18 @@ public class CustomStringUtils {
 			matcher.appendReplacement(sb, replacement);
 		}
 		matcher.appendTail(sb);
-		
-		matcher = ComponentFont.FONT_TAG_PATTERN.matcher(sb.toString());
-		sb = new StringBuffer();
+		return sb.toString();
+	}
+	
+	public static String clearPluginFontTags(String str) {
+		Matcher matcher = ComponentFont.FONT_TAG_PATTERN.matcher(str);
+		StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
 			String escape = matcher.group(1);
 			String replacement = escape == null ? "" : escape;
 			matcher.appendReplacement(sb, replacement);
 		}
 		matcher.appendTail(sb);
-		
 		return sb.toString();
 	}
 	

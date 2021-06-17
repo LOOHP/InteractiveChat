@@ -119,7 +119,12 @@ public class ProcessExternalMessage {
 			return message;
 		}
 		
-		message = CustomStringUtils.clearPluginForamttingTags(message);
+		if (InteractiveChat.rgbTags) {
+			message = CustomStringUtils.clearPluginRGBTags(message);
+		}
+		if (InteractiveChat.fontTags) {
+			message = CustomStringUtils.clearPluginFontTags(message);
+		}
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
 			long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), InteractiveChat.itemPlaceholder) - now;

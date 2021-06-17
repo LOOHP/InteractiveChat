@@ -282,6 +282,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean useBukkitDisplayName = true;
 	public static boolean useEssentialsNicknames = true;
 	
+	public static boolean rgbTags = true;
+	public static boolean fontTags = true;
+	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
 	

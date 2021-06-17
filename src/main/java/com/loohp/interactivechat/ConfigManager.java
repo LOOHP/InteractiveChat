@@ -361,6 +361,9 @@ public class ConfigManager {
 		InteractiveChat.useBukkitDisplayName = getConfig().getBoolean("Chat.UseBukkitDisplayName");
 		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
 		
+		InteractiveChat.rgbTags = getConfig().getBoolean("Settings.ForamttingTags.AllowRGBTags");
+		InteractiveChat.fontTags = getConfig().getBoolean("Settings.ForamttingTags.AllowFontTags");
+		
 		InteractiveChat.language = getConfig().getString("Settings.Language");
 		
 		Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {

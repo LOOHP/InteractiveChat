@@ -51,6 +51,11 @@ Settings:
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
   SendOriginalMessageIfExceedLengthLimit: true
+  ForamttingTags:
+    #Allow the use of "[color=#123456]" RGB tags (1.16+)
+    AllowRGBTags: true
+    #Allow the use of "[font=uniform]" Font tags (1.16+)
+    AllowFontTags: true
   BungeecordUnknownItem:
     ReplaceItem: BARRIER
     DisplayName: "&cUnknown Item {Type}"

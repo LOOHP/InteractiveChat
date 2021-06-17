@@ -190,7 +190,7 @@ public class ChatColorUtils {
         	return text;
         }
 		
-		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.rgbTags) {
 			Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
 			StringBuffer sb = new StringBuffer();
 			while (matcher.find()) {

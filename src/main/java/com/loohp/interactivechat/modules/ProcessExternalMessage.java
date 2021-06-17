@@ -352,7 +352,7 @@ public class ProcessExternalMessage {
         	component = CommandsDisplay.process(component);
         }
         
-        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {
 	        if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 5))) {
 	        	component = ComponentFont.parseFont(component);
 	        }

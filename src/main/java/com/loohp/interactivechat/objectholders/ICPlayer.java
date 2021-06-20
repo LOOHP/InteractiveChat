@@ -48,7 +48,7 @@ public class ICPlayer {
 		this.remoteServer = EMPTY_SERVER_REPRESENTATION;
 		this.remoteName = player.getName();
 		this.uuid = player.getUniqueId();
-		this.rightHanded = player.getMainHand().equals(MainHand.RIGHT);
+		this.rightHanded = InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT);
 		this.selectedSlot = player.getInventory().getHeldItemSlot();
 		this.experienceLevel = player.getLevel();
 		this.remoteEquipment = EMPTY_EQUIPMENT;

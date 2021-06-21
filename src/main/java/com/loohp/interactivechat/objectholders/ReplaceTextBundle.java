@@ -26,7 +26,12 @@ public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 
 	@Override
 	public int compareTo(ReplaceTextBundle anotherReplaceTextBundle) {
-		return Integer.valueOf(placeholder.length()).compareTo(anotherReplaceTextBundle.placeholder.length());
+		int compare = Integer.valueOf(placeholder.length()).compareTo(anotherReplaceTextBundle.placeholder.length());
+		if (compare != 0) {
+			return compare;
+		} else {
+			return Integer.valueOf(replaceText.length()).compareTo(anotherReplaceTextBundle.replaceText.length());
+		}
 	}
 
 }

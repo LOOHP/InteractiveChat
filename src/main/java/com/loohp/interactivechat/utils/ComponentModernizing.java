@@ -21,7 +21,7 @@ public class ComponentModernizing {
 				TextComponent text = (TextComponent) child;
 				String content = text.content();
 				TextComponent modern = serializer.deserialize(content);
-				modern = modern.style(modern.style().toBuilder().merge(text.style(), Merge.Strategy.IF_ABSENT_ON_TARGET).build());
+				modern = modern.style(modern.style().merge(text.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
 				children.set(i, modern);
 			} else if (child instanceof TranslatableComponent) {
 				TranslatableComponent trans = (TranslatableComponent) child;

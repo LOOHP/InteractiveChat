@@ -273,7 +273,7 @@ public class ItemDisplay {
 				for (int j = 0; j < 9; j++) {
 					inv.setItem(j, empty);
 				}
-				inv.setItem(4, item);
+				inv.setItem(4, isAir ? null : item);
 				for (int j = 0; j < container.getSize(); j++) {
 					ItemStack shulkerItem = container.getItem(j);
 					if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
@@ -294,7 +294,7 @@ public class ItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(13, item);				            							
+					inv.setItem(13, isAir ? null : item);				            							
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				} else {
 					Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
@@ -308,7 +308,7 @@ public class ItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(4, item);				            							
+					inv.setItem(4, isAir ? null : item);				            							
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				}
 			}

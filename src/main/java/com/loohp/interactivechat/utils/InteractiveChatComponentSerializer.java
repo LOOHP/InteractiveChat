@@ -5,9 +5,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import com.loohp.interactivechat.utils.NativeAdventureConverter.NativeLegacyHoverEventSerializerWrapper;
 
 import net.kyori.adventure.key.Key;
@@ -30,28 +33,32 @@ import net.kyori.adventure.util.Codec.Encoder;
 
 public class InteractiveChatComponentSerializer {
 	
-	private static LegacyHoverEventSerializer LEGACY_HOVER_SERIALIZER = null;
+	private static final InteractiveChatBungeecordAPILegacyComponentSerializer BUNGEECORD_CHAT_LEGACY;
+	private static final GsonComponentSerializer GSON_SERIALIZER;
+	private static final GsonComponentSerializer GSON_SERIALIZER_LEGACY;
+	//private static final LegacyComponentSerializer LEGACY_SERIALIZER_SPECIAL_HEX;
 	
-	private static InteractiveChatBungeecordAPILegacyComponentSerializer BUNGEECORD_CHAT_LEGACY;
-	private static GsonComponentSerializer GSON_SERIALIZER;
-	private static GsonComponentSerializer GSON_SERIALIZER_LEGACY;
+	private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_([0-9]*)/damage_([0-9]*)$");
+	
+	private static LegacyHoverEventSerializer legacyHoverSerializer;
 
 	static {
 		try {
 			Class<?> paperNative = Class.forName("io.papermc.paper.adventure.NBTLegacyHoverEventSerializer");
 			Field field = paperNative.getField("INSTANCE");
 			field.setAccessible(true);
-			LEGACY_HOVER_SERIALIZER = new NativeLegacyHoverEventSerializerWrapper(field.get(null));
+			legacyHoverSerializer = new NativeLegacyHoverEventSerializerWrapper(field.get(null));
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
 		
-		if (LEGACY_HOVER_SERIALIZER == null) {
-			LEGACY_HOVER_SERIALIZER = new VelocityLegacyHoverEventSerializer();
+		if (legacyHoverSerializer == null) {
+			legacyHoverSerializer = new InteractiveChatLegacyHoverEventSerializer();
 		}
 		
 		BUNGEECORD_CHAT_LEGACY = new InteractiveChatBungeecordAPILegacyComponentSerializer();
 		
-		GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
-		GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
+		GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(legacyHoverSerializer).build();
+		GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(legacyHoverSerializer).build();
+		//LEGACY_SERIALIZER_SPECIAL_HEX = new InteractiveChatLegacyComponentSerializer();
 	}
 	
 	public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {
@@ -64,6 +71,26 @@ public class InteractiveChatComponentSerializer {
 	
 	public static GsonComponentSerializer legacyGson() {
 		return GSON_SERIALIZER_LEGACY;
+	}
+	/*
+	public static LegacyComponentSerializer legacySpecialHex() {
+		return LEGACY_SERIALIZER_SPECIAL_HEX;
+	}
+	*/
+	public static Key legacyIdToInteractiveChatKey(byte id, short damage) {
+		return Key.key("interactivechat", "legacy_hover/id_" + id + "/damage_" + damage);
+	}
+	
+	public static LegacyIdKey interactiveChatKeyToLegacyId(Key key) {
+		Matcher matcher = LEGACY_ID_PATTERN.matcher(key.asString());
+		if (matcher.find()) {
+			try {
+				byte id = Byte.parseByte(matcher.group(1));
+				short damage = Short.parseShort(matcher.group(2));
+				return new LegacyIdKey(id, damage);
+			} catch (NumberFormatException e) {}
+		}
+		return null;
 	}
 
 	private InteractiveChatComponentSerializer() {
@@ -108,52 +135,38 @@ public class InteractiveChatComponentSerializer {
 
 	}
 
-	/*
-	 * Copyright (C) 2018 Velocity Contributors
-	 *
-	 * This program is free software: you can redistribute it and/or modify
-	 * it under the terms of the GNU General Public License as published by
-	 * the Free Software Foundation, either version 3 of the License, or
-	 * (at your option) any later version.
-	 *
-	 * This program is distributed in the hope that it will be useful,
-	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 * GNU General Public License for more details.
-	 *
-	 * You should have received a copy of the GNU General Public License
-	 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-	 */
-	
-	/**
-	 * An implementation of {@link LegacyHoverEventSerializer} that implements the interface in the
-	 * most literal, albeit "incompatible" way possible.
-	 */
-	public static class VelocityLegacyHoverEventSerializer implements LegacyHoverEventSerializer {
+	public static class InteractiveChatLegacyHoverEventSerializer implements LegacyHoverEventSerializer {
 
-		private VelocityLegacyHoverEventSerializer() {
+		private InteractiveChatLegacyHoverEventSerializer() {
 
-		}
-
-		private static Key legacyIdToFakeKey(byte id) {
-			return Key.key("velocity", "legacy_hover/id_" + id);
 		}
 
 		@Override
 		public HoverEvent.@NonNull ShowItem deserializeShowItem(@NonNull Component input) throws IOException {
 			String snbt = PlainTextComponentSerializer.plainText().serialize(input);
 			CompoundBinaryTag item = TagStringIO.get().asCompound(snbt);
+			
+			boolean isTagEmpty = false;
+			CompoundBinaryTag tag = (CompoundBinaryTag) item.get("tag");
+			if (tag == null) {
+				isTagEmpty = true;
+				tag = CompoundBinaryTag.empty();
+			}
 
 			Key key;
 			String idIfString = item.getString("id", "");
 			if (idIfString.isEmpty()) {
-				key = legacyIdToFakeKey(item.getByte("id"));
+				byte idAsByte = item.getByte("id", (byte) 1);
+				short damage = item.getShort("Damage", (short) 0);
+				tag = tag.putInt("Damage", damage);
+				isTagEmpty = false;
+				key = legacyIdToInteractiveChatKey(idAsByte, damage);
 			} else {
 				key = Key.key(idIfString);
 			}
 
 			byte count = item.getByte("Count", (byte) 1);
-			return ShowItem.of(key, count, BinaryTagHolder.of(snbt));
+			return ShowItem.of(key, count, isTagEmpty ? null : BinaryTagHolder.of(TagStringIO.get().asString(tag)));
 		}
 
 		@Override
@@ -173,13 +186,14 @@ public class InteractiveChatComponentSerializer {
 
 		@Override
 		public @NonNull Component serializeShowItem(HoverEvent.@NonNull ShowItem input) throws IOException {
-			final CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().putByte("Count", (byte) input.count());
+			CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().putByte("Count", (byte) input.count());
 
-			String keyAsString = input.item().asString();
-			if (keyAsString.startsWith("velocity:legacy_hover/id_")) {
-				builder.putByte("id", Byte.parseByte(keyAsString.substring("velocity:legacy_hover/id_".length())));
+			LegacyIdKey legacyId = interactiveChatKeyToLegacyId(input.item());
+			if (legacyId != null) {
+				builder.putByte("id", legacyId.getId());
+				builder.putShort("Damage", legacyId.getDamage());
 			} else {
-				builder.putString("id", keyAsString);
+				builder.putString("id", input.item().asString());
 			}
 
 			BinaryTagHolder nbt = input.nbt();
@@ -200,5 +214,43 @@ public class InteractiveChatComponentSerializer {
 			return Component.text(TagStringIO.get().asString(tag.build()));
 		}
 	}
+	/*
+	public static class InteractiveChatLegacyComponentSerializer implements LegacyComponentSerializer {
+		
+		private static final LegacyComponentSerializer DESERIALIZER = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat().hexColors().hexCharacter(SECTION_CHAR).character(SECTION_CHAR).build();
+		private static final LegacyComponentSerializer SERILAIZER = LegacyComponentSerializer.legacySection();
+		private static final Map<Pattern, Function<MatchResult, String>> LIST_OF_COLOR_PATTERNS = new LinkedHashMap<>();
+		
+		static {
+			LIST_OF_COLOR_PATTERNS.put(Pattern.compile(ChatColorUtils.COLOR_CHAR + "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"), result -> {
+				return ChatColorUtils.COLOR_CHAR + "x" + ChatColorUtils.COLOR_CHAR + result.group(1) + ChatColorUtils.COLOR_CHAR + result.group(2) + ChatColorUtils.COLOR_CHAR + result.group(3) + ChatColorUtils.COLOR_CHAR + result.group(4) + ChatColorUtils.COLOR_CHAR + result.group(5) + ChatColorUtils.COLOR_CHAR + result.group(6);
+			});
+		}
 
+		@Override
+		public @NotNull Builder toBuilder() {
+			throw new UnsupportedOperationException("The InteractiveChatLegacyComponentSerializer cannot be turned into a builder");
+		}
+
+		@Override
+		public @NotNull TextComponent deserialize(@NotNull String input) {
+			for (Entry<Pattern, Function<MatchResult, String>> entry : LIST_OF_COLOR_PATTERNS.entrySet()) {
+				Matcher matcher = entry.getKey().matcher(input);
+				StringBuffer sb = new StringBuffer();
+				while (matcher.find()) {
+					matcher.appendReplacement(sb, entry.getValue().apply(matcher));
+				}
+				matcher.appendTail(sb);
+				input = sb.toString();
+			}
+			return DESERIALIZER.deserialize(input);
+		}
+
+		@Override
+		public @NotNull String serialize(@NotNull Component component) {
+			return SERILAIZER.serialize(component);
+		}
+		
+	}
+	*/
 }

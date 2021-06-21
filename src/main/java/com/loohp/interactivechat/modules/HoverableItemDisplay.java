@@ -2,6 +2,7 @@ package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,13 +14,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
+import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 
 import net.kyori.adventure.key.Key;
@@ -43,13 +47,21 @@ public class HoverableItemDisplay {
 				ShowItem showItem = (ShowItem) hoverEvent.value();
 				Key key = showItem.item();
 				int count = showItem.count();
-				String simpleNbt = "{id:\"" + key.asString() + "\", Count: " + count + "b}";
-				String longNbt = showItem.nbt() == null ? null : showItem.nbt().string();
 				ItemStack itemstack = null;
-				try {
-					itemstack = ItemNBTUtils.getItemFromNBTJson(simpleNbt);
-				} catch (Throwable e) {}
-				if (longNbt != null) {
+				LegacyIdKey legacyId = InteractiveChatComponentSerializer.interactiveChatKeyToLegacyId(key);
+				if (legacyId == null) {
+					String simpleNbt = "{id:\"" + key.asString() + "\", Count: " + count + "b}";
+					try {
+						itemstack = ItemNBTUtils.getItemFromNBTJson(simpleNbt);
+					} catch (Throwable e) {}
+				} else {
+					Optional<XMaterial> optXMaterial = XMaterial.matchXMaterial(legacyId.getId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
+					if (optXMaterial.isPresent()) {
+						itemstack = optXMaterial.get().parseItem();
+					}
+				}
+				String longNbt = showItem.nbt() == null ? null : showItem.nbt().string();
+				if (itemstack != null && longNbt != null) {
 					try {
 						itemstack = Bukkit.getUnsafe().modifyItemStack(itemstack, longNbt);
 					} catch (Throwable e) {}
@@ -76,6 +88,7 @@ public class HoverableItemDisplay {
 	}
 	
 	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {
+		boolean isAir = item.getType().equals(Material.AIR);
 		String title = InteractiveChat.hoverableItemTitle;
 		String sha1 = HashUtils.createSha1(title, item);
 		boolean isMapView = false;
@@ -98,7 +111,7 @@ public class HoverableItemDisplay {
 				for (int j = 0; j < 9; j++) {
 					inv.setItem(j, empty);
 				}
-				inv.setItem(4, item);
+				inv.setItem(4, isAir ? null : item);
 				for (int j = 0; j < container.getSize(); j++) {
 					ItemStack shulkerItem = container.getItem(j);
 					if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
@@ -119,7 +132,7 @@ public class HoverableItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(13, item);				            							
+					inv.setItem(13, isAir ? null : item);				            							
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				} else {
 					Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
@@ -133,7 +146,7 @@ public class HoverableItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(4, item);
+					inv.setItem(4, isAir ? null : item);
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				}
 			}

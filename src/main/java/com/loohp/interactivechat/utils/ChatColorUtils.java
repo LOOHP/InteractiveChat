@@ -13,6 +13,8 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ChatColorUtils {
 	
+	public static final char COLOR_CHAR = '\u00a7';
+	
 	private static final Set<Character> COLORS = new HashSet<>();
 	
 	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";

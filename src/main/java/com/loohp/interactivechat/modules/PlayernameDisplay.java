@@ -72,26 +72,42 @@ public class PlayernameDisplay implements Listener {
 			names = getNames();
 		}
 		for (ReplaceTextBundle entry : names) {
-			component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, entry.getReplaceText(), component, unix);
+			component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, component, unix);
 		}
 		
-		return component;
+		return ComponentCompacting.optimize(component);
 	}
 	
-	private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, String replaceText, Component component, long unix) {
-		HoverEvent<?> hoverEvent = null;
-		ClickEvent clickEvent = null;
+	private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, Component component, long unix) {
+		HoverEvent<?> hoverEvent;
+		ClickEvent clickEvent;
 		if (InteractiveChat.usePlayerNameHoverEnable) {
 			String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
 			hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(playertext));
+		} else {
+			hoverEvent = null;
 		}
 		if (InteractiveChat.usePlayerNameClickEnable) {
 			String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
 			clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext);
+		} else {
+			clickEvent = null;
 		}
-		Component replace = ComponentCompacting.optimize(LegacyComponentSerializer.legacySection().deserialize(replaceText).hoverEvent(hoverEvent).clickEvent(clickEvent));
 		String regex = InteractiveChat.usePlayerNameCaseSensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
-		component = ComponentReplacing.replace(component, regex, true, replace);
+		component = ComponentReplacing.replace(component, regex, true, (result, replaced) -> {
+			List<Component> children = new ArrayList<>();
+			for (Component c : replaced) {
+				Component edited = c;
+				if (hoverEvent != null) {
+					edited = edited.hoverEvent(hoverEvent);
+				}
+				if (clickEvent != null) {
+					edited = edited.clickEvent(clickEvent);
+				}
+				children.add(edited);
+			}
+			return Component.empty().children(children);
+		});
 		List<Component> children = new ArrayList<>(component.children());
 		for (int i = 0; i < children.size(); i++) {
 			Component child = children.get(i);
@@ -100,7 +116,7 @@ public class PlayernameDisplay implements Listener {
 				List<Component> withs = new ArrayList<>(trans.args());
 				for (int u = 0; u < withs.size(); u++) {
 					Component with = withs.get(u);
-					withs.set(u, processPlayer(placeholder, player, sender, reciever, replaceText, with, unix));
+					withs.set(u, processPlayer(placeholder, player, sender, reciever, with, unix));
 				}
 				trans = trans.args(withs);
 				children.set(i, trans);
@@ -116,7 +132,7 @@ public class PlayernameDisplay implements Listener {
 				return;
 			}
 			ICPlayer icplayer = new ICPlayer(each);
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), new ICPlayer(each), each.getName()));
+			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), icplayer, each.getName()));
 			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
 			}
@@ -137,7 +153,7 @@ public class PlayernameDisplay implements Listener {
 		});
 		
 		CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
-		Collections.sort(names);
+		Collections.sort(names, Collections.reverseOrder());
 		
 		return names;
 	}

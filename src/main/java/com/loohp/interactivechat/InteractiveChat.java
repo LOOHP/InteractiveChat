@@ -472,7 +472,9 @@ public class InteractiveChat extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		restoreIsolatedChatListeners();
-		OutChatPacket.getAsyncChatSendingExecutor().shutdown();
+		try {
+			OutChatPacket.getAsyncChatSendingExecutor().close();
+		} catch (Exception e) {}
 		getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
 	}
 	

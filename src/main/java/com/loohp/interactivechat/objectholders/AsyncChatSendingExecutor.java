@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.InteractiveChat;
 
-public class AsyncChatSendingExecutor {
+public class AsyncChatSendingExecutor implements AutoCloseable {
 	
 	private Supplier<Long> executionWaitTime;
 	private long killThreadAfter;
@@ -77,7 +77,8 @@ public class AsyncChatSendingExecutor {
 		}
 	}
 	
-	public synchronized void shutdown() {
+	@Override
+	public synchronized void close() throws Exception {
 		isValid.set(false);
 		executor.shutdown();
 	}

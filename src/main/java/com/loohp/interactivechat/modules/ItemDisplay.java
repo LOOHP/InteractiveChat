@@ -42,6 +42,7 @@ import com.loohp.interactivechat.utils.NBTUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
+import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
@@ -186,7 +187,7 @@ public class ItemDisplay {
 				item = player.getEquipment().getItemInMainHand().clone();
 			}
 		}
-		XMaterial xMaterial = XMaterial.matchXMaterial(item);
+		XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
 		
 		ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
 		Bukkit.getPluginManager().callEvent(event);

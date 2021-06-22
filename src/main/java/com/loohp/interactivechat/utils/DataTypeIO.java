@@ -137,7 +137,7 @@ public class DataTypeIO {
 				out.writeBoolean(false);
 			} else {
 				out.writeBoolean(true);
-				XMaterial material = FilledMapUtils.isFilledMap(itemStack) ? XMaterial.FILLED_MAP : XMaterial.matchXMaterial(itemStack);
+				XMaterial material = FilledMapUtils.isFilledMap(itemStack) ? XMaterial.FILLED_MAP : XMaterialUtils.matchXMaterial(itemStack);
 				writeString(out, material.name(), charset);
 				out.writeInt(itemStack.getAmount());
 				boolean isDamagable = itemStack.getType().getMaxDurability() > 0;

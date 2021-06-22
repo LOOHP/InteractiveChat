@@ -35,6 +35,7 @@ import com.loohp.interactivechat.utils.NBTUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
+import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -136,7 +137,7 @@ public class ProcessExternalMessage {
 					if (item == null) {
 						item = new ItemStack(Material.AIR);
 					}
-					XMaterial xMaterial = XMaterial.matchXMaterial(item);
+					XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
 					String itemStr;
 					if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
 						itemStr = item.getItemMeta().getDisplayName();

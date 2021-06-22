@@ -42,6 +42,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MessageUtils;
+import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -394,7 +395,7 @@ public class Events implements Listener {
 	
 	private void inventoryAction(ItemStack item, Player player, Inventory topInventory) {
 		if (item != null) {
-			XMaterial xmaterial = XMaterial.matchXMaterial(item);
+			XMaterial xmaterial = XMaterialUtils.matchXMaterial(item);
 			if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
 				player.openBook(item.clone());
 			} else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {

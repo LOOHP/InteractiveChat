@@ -304,7 +304,7 @@ public class LanguageUtils {
 		}
 		Object nmsItemStackObject = asNMSCopyMethod.invoke(null, itemStack);
 		String path = getRawItemTypeNameMethod.invoke(nmsItemStackObject).toString() + ".name";
-		if (XMaterial.matchXMaterial(itemStack).equals(XMaterial.PLAYER_HEAD)) {
+		if (XMaterialUtils.matchXMaterial(itemStack).equals(XMaterial.PLAYER_HEAD)) {
 			String owner = NBTUtils.getString(itemStack, "SkullOwner", "Name");
 			if (owner != null) {
 				path = "item.skull.player.name";

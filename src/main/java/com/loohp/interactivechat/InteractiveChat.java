@@ -1,10 +1,6 @@
 package com.loohp.interactivechat;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -28,7 +24,6 @@ import org.apache.logging.log4j.core.Filter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -40,6 +35,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.simpleyaml.configuration.file.FileConfiguration;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -49,6 +45,7 @@ import com.google.common.collect.Maps;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
+import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
@@ -76,7 +73,6 @@ import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.PotionUtils;
@@ -144,8 +140,12 @@ public class InteractiveChat extends JavaPlugin {
 	public static String enderPlaceholder = "[ender]";
 	
 	public static String itemReplaceText = "&f[&f{Item} &bx{Amount}&f]";
+	public static String itemSingularReplaceText = "&f[&f{Item}&f]";
 	public static String invReplaceText = "&f[&b%player_name%'s Inventory&f]";
 	public static String enderReplaceText = "&f[&d%player_name%'s Ender Chest&f]";
+	
+	public static boolean itemAirAllow = true;
+	public static String itemAirErrorMessage = "";
 	
 	public static String itemTitle = "%player_name%'s Item";
 	public static String invTitle = "%player_name%'s Inventory";
@@ -310,33 +310,13 @@ public class InteractiveChat extends JavaPlugin {
         if (!getDataFolder().exists()) {
         	getDataFolder().mkdirs();
         }
-        File configFile = new File(getDataFolder(), "config.yml"); 
-        if (!configFile.exists()) {
-            try (InputStream in = this.getClassLoader().getResourceAsStream("config_default.yml")) {
-                Files.copy(in, configFile.toPath());
-            } catch (IOException e) {
-                getLogger().severe("[InteractiveChat] Unable to copy config.yml");
-            }
-        }
-		
-        plugin.getConfig().options().header("For information on what each option does. Please refer to https://github.com/LOOHP/InteractiveChat/blob/master/src/main/resources/config_default.yml");
-		plugin.getConfig().options().copyDefaults(true);
-		ConfigManager.saveConfig();
-		
-		File storageFile = new File(getDataFolder(), "storage.yml");
-        if (!storageFile.exists()) {
-            try (InputStream in = this.getClassLoader().getResourceAsStream("storage.yml")) {
-                Files.copy(in, storageFile.toPath());
-            } catch (IOException e) {
-                getLogger().severe("[InteractiveChat] Unable to copy storage.yml");
-            }
-    	}
+        ConfigManager.setup();
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
 
 	    getCommand("interactivechat").setExecutor(new Commands());
 	    
-	    bungeecordMode = getConfig().getBoolean("Settings.Bungeecord");
+	    bungeecordMode = ConfigManager.getConfig().getBoolean("Settings.Bungeecord");
 	    
 		if (bungeecordMode) {
 			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
@@ -352,8 +332,6 @@ public class InteractiveChat extends JavaPlugin {
 		    	}
 		    }, 0, 100);
 		}
-	    
-	    ConfigManager.loadConfig();
 	    
 	    FileConfiguration storage = ConfigManager.getStorageConfig();
 		database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));
@@ -526,7 +504,11 @@ public class InteractiveChat extends JavaPlugin {
 		}, 0, 1200);
 	}
 	
-	protected static void restoreIsolatedChatListeners() {
+	/**
+	 * <b>Do not invoke unless you know what you are doing!!!</b>
+	 */
+	@Deprecated
+	public static void restoreIsolatedChatListeners() {
 		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
 		for (EventPriority priority : EventPriority.values()) {
 			Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedAsyncListeners.get(priority);
@@ -551,14 +533,10 @@ public class InteractiveChat extends JavaPlugin {
 	}
 	
 	public static void sendMessage(CommandSender sender, Component component) {
-		if (NativeAdventureConverter.isInstanceOfNativeAudience(sender)) {
-			NativeAdventureConverter.sendNativeAudienceMessage(sender, component, InteractiveChat.version.isLegacyRGB());
+		if (InteractiveChat.version.isLegacyRGB()) {
+			sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
 		} else {
-			if (InteractiveChat.version.isLegacyRGB()) {
-				sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
-			} else {
-				sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
-			}
+			sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
 		}
 	}
 	

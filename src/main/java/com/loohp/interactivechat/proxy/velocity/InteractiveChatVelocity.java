@@ -1,20 +1,17 @@
 package com.loohp.interactivechat.proxy.velocity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,9 +21,10 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.DataFormatException;
 
@@ -39,7 +37,9 @@ import org.slf4j.Logger;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -49,6 +49,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.MessageForwardingHandler;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
@@ -89,6 +90,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 public class InteractiveChatVelocity {
 	
 	public static final int BSTATS_PLUGIN_ID = 10945;
+	public static final String CONFIG_ID = "config";
 	
 	public static InteractiveChatVelocity plugin = null;
 	protected static Random random = new Random();
@@ -97,11 +99,8 @@ public class InteractiveChatVelocity {
 	
 	private static Map<Integer, byte[]> incomming = new HashMap<>();
 	
-	protected static Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
-	protected static Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
+	protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
 	
-	private static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
-	private static Map<UUID, Byte> messagePositions = new ConcurrentHashMap<>();
 	private static Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
@@ -114,8 +113,7 @@ public class InteractiveChatVelocity {
 	public static int delay = 200;
 	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
 	
-	public static File configFile = null;
-	public static VelocityFileConfiguration config = null;
+	private static MessageForwardingHandler messageForwardingHandler;
 	
 	private ProxyServer server;
 	private VelocityPluginDescription description;
@@ -142,24 +140,11 @@ public class InteractiveChatVelocity {
 			e1.printStackTrace();
 		}
         
-        if (!getDataFolder().exists()) {
+    	if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
 		}
-        configFile = new File(getDataFolder(), "velocityconfig.yml");
-
-        if (!configFile.exists()) {
-            try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("config_proxy.yml")) {
-                Files.copy(in, configFile.toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        
-        try {
-			config = new VelocityFileConfiguration(configFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
+        loadConfig();
         
         CommandsVelocity.createBrigadierCommand();
         
@@ -170,6 +155,37 @@ public class InteractiveChatVelocity {
         Metrics metrics = metricsFactory.make(this, BSTATS_PLUGIN_ID);
         Charts.setup(metrics);
         
+        ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy ChatMessage Processing Thread #%d").build();
+		ExecutorService threadPool = Executors.newCachedThreadPool(factory);
+		messageForwardingHandler = new MessageForwardingHandler(threadPool, (info, component) -> {
+			Player player = server.getPlayer(info.getPlayer()).get();
+			ServerConnection server = player.getCurrentServer().get();
+			new Timer().schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						if (player != null && server != null) {
+							PluginMessageSendingVelocity.requestMessageProcess(player, server.getServer(), component, info.getId());
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}, delay + 50);
+		}, (info, component) -> {
+			Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition(), null);
+    		Optional<Player> optplayer = getServer().getPlayer(info.getPlayer());
+    		if (optplayer.isPresent()) {
+    			ConnectedPlayer userConnection = (ConnectedPlayer) optplayer.get();				    
+        		userConnection.getConnection().getChannel().write(chatPacket);
+    		}
+		}, uuid -> {
+			return server.getPlayer(uuid).isPresent();
+		}, uuid -> {
+			Optional<ServerConnection> optCurrentServer = server.getPlayer(uuid).get().getCurrentServer();
+			return optCurrentServer.isPresent() && hasInteractiveChat(optCurrentServer.get().getServer());
+		}, () -> (long) delay + 2000);
+        
         getLogger().info(TextColor.GREEN + "[InteractiveChat] InteractiveChatVelocity has been enabled!");
         
         run();
@@ -177,6 +193,11 @@ public class InteractiveChatVelocity {
     
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
+    	try {
+			messageForwardingHandler.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     	getLogger().info(TextColor.RED + "[InteractiveChat] InteractiveChatVelocity has been disabled!");
     }
     
@@ -196,15 +217,12 @@ public class InteractiveChatVelocity {
     	return server;
     }
     
-	@SuppressWarnings("unchecked")
 	public void loadConfig() {
-    	try {
-			config.reloadConfig(configFile);
-			parseCommands = (ArrayList<String>) config.get("Settings.CommandsToParse", ArrayList.class);
-			useAccurateSenderFinder = config.get("Settings.UseAccurateSenderParser", Boolean.class);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Config config = Config.getConfig(CONFIG_ID);
+		config.reload();
+		
+		parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
+		useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
     }
     
     public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
@@ -273,6 +291,17 @@ public class InteractiveChatVelocity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
+				long now = System.currentTimeMillis();
+				for (Map<String, Long> list : forwardedMessages.values()) {
+					Iterator<Long> itr = list.values().iterator();
+					while (itr.hasNext()) {
+						long time = itr.next();
+						if (time - 5000 > now) {
+							itr.remove();
+						}
+					}
+				}
 			}
 		}, 0, 5000);
 	}
@@ -323,54 +352,7 @@ public class InteractiveChatVelocity {
 		        case 0x08:
 		        	UUID messageId = DataTypeIO.readUUID(input);
 		        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	UUID playerUUID = requestedMessages.get(messageId);
-		        	List<UUID> messageQueue = requestedMessageProcesses.get(playerUUID);
-		        	
-		        	//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " <- " + component));
-		        	
-		        	if (playerUUID != null && messageQueue != null) {
-		        		new Thread(new Runnable() {
-		        			@Override
-		        			public void run() {
-				        		CompletableFuture<Void> future = new CompletableFuture<Void>();
-				        		new Thread(new Runnable() {
-				        			@Override
-				        			public void run() {
-				        				while (true) {
-				        					if (messageQueue.indexOf(messageId) == 0) {
-				        						future.complete(null);
-				        						break;
-				        					}
-				        					if (future.isDone()) {
-				        						break;
-				        					}
-				        					try {
-												TimeUnit.MILLISECONDS.sleep(10);
-											} catch (InterruptedException e) {
-												e.printStackTrace();
-											}
-				        				}
-				        			}
-				        		}).start();
-				        		
-				        		try {
-									future.get(delay + 2000, TimeUnit.MILLISECONDS);
-								} catch (InterruptedException | ExecutionException | TimeoutException e) {}
-				        		if (!future.isDone()) {
-				        			future.complete(null);
-	        					}			     
-				        		
-				        		Byte position = messagePositions.remove(messageId);
-				        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", position == null ? 0 : position, null);
-				        		Optional<Player> optplayer = getServer().getPlayer(playerUUID);
-				        		if (optplayer.isPresent()) {
-				        			ConnectedPlayer userConnection = (ConnectedPlayer) optplayer.get();				    
-					        		userConnection.getConnection().getChannel().write(chatPacket);
-					        		messageQueue.remove(messageId);
-				        		}				    
-		        			}
-		        		}).start();
-		        	}
+		        	messageForwardingHandler.recievedProcessedMessage(messageId, component);
 		        	break;
 		        case 0x09:
 		        	loadConfig();
@@ -503,8 +485,8 @@ public class InteractiveChatVelocity {
 			new Timer().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					List<String> messages = forwardedMessages.get(uuid);
-					if (messages != null && !messages.remove(newMessage)) {
+					Map<String, Long> messages = forwardedMessages.get(uuid);
+					if (messages != null && messages.remove(newMessage) != null) {
 						try {
 							PluginMessageSendingVelocity.sendMessagePair(uuid, newMessage);
 						} catch (IOException e) {
@@ -533,9 +515,9 @@ public class InteractiveChatVelocity {
 						String message = packet.getMessage();
 						byte position = packet.getType();
 						if ((position == 0 || position == 1) && uuid != null && message != null) {
-							List<String> list = forwardedMessages.get(uuid);
+							Map<String, Long> list = forwardedMessages.get(uuid);
 							if (list != null) {
-								list.add(message);
+								list.put(message, System.currentTimeMillis());
 							}
 						}
 					}
@@ -555,9 +537,7 @@ public class InteractiveChatVelocity {
 		
 		Player player = event.getPlayer();
 
-		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
-		List<UUID> messageQueue = Collections.synchronizedList(new LinkedList<>());
-		requestedMessageProcesses.put(player.getUniqueId(), messageQueue);
+		forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
 		
 		if (player.hasPermission("interactivechat.backendinfo")) {
 			String proxyVersion = getDescription().getVersion();
@@ -590,22 +570,7 @@ public class InteractiveChatVelocity {
 									packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
 								}
 							} else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
-								RegisteredServer server = player.getCurrentServer().get().getServer();
-								UUID messageId = UUID.randomUUID();
-								messageQueue.add(messageId);
-								messagePositions.put(messageId, position);
-								new Timer().schedule(new TimerTask() {
-									@Override
-									public void run() {
-										try {
-											if (player != null && server != null) {
-												PluginMessageSendingVelocity.requestMessageProcess(player, server, message, messageId);
-											}
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-								}, delay + 50);
+								messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
 								return;
 							}
 						}
@@ -663,7 +628,6 @@ public class InteractiveChatVelocity {
 	@Subscribe
 	public void onLeave(DisconnectEvent event) {
 		forwardedMessages.remove(event.getPlayer().getUniqueId());
-		requestedMessageProcesses.remove(event.getPlayer().getUniqueId());
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {

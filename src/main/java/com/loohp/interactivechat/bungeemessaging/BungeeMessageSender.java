@@ -60,6 +60,9 @@ public class BungeeMessageSender {
 		String hash = HashUtils.createSha1String(new ByteArrayInputStream(data));
 		
 		Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+		if (players.size() <= 0) {
+			return false;
+		}
 		Player player = players.stream().skip(random.nextInt(players.size())).findAny().orElse(null);
 		if (player == null) {
 			return false;

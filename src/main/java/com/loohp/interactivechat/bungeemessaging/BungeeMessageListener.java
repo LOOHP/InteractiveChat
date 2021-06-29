@@ -19,6 +19,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.api.events.RemotePlayerAddedEvent;
+import com.loohp.interactivechat.api.events.RemotePlayerRemovedEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -92,16 +94,24 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			}
 	        		}
 	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			InteractiveChat.remotePlayers.put(uuid, new ICPlayer(server, name, uuid, true, 0, 0, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36)));
+	        			ICPlayer newPlayer = new ICPlayer(server, name, uuid, true, 0, 0, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
+	        			InteractiveChat.remotePlayers.put(uuid, newPlayer);
+	        			Bukkit.getPluginManager().callEvent(new RemotePlayerAddedEvent(newPlayer));
 	        		}
 	        		newSet.add(uuid);
 	        	}
 	        	current.removeAll(newSet);
 	        	for (UUID uuid : current) {
-	        		InteractiveChat.remotePlayers.remove(uuid);
+	        		ICPlayer removedPlayer = InteractiveChat.remotePlayers.remove(uuid);
+	        		if (removedPlayer != null) {
+	        			Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
+	        		}
 	        	}
 	        	for (UUID uuid : localUUID) {
-	        		InteractiveChat.remotePlayers.remove(uuid);
+	        		ICPlayer removedPlayer = InteractiveChat.remotePlayers.remove(uuid);
+	        		if (removedPlayer != null) {
+	        			Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
+	        		}
 	        	}
 	        	break;
 	        case 0x01:

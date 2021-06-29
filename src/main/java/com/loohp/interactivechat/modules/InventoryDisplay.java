@@ -17,13 +17,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
@@ -148,7 +148,7 @@ public class InventoryDisplay {
 		int f1 = 0;
 		int f2 = 0;
 		int u = 45;
-		for (int j = 0; j < player.getInventory().getSize(); j++) {
+		for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
 			ItemStack item = player.getInventory().getItem(j);
 			if (item != null && !item.getType().equals(Material.AIR)) {
 				if ((j >= 9 && j < 18) || j >= 36) {
@@ -212,7 +212,7 @@ public class InventoryDisplay {
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);
 			skull.setItemMeta(meta);
-			Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> finalRef.setItem(0, skull));
+			finalRef.setItem(0, skull);
 		});
 		
 		InteractiveChatAPI.addInventoryToItemShareList(SharedType.INVENTORY, sha1, inv);
@@ -221,7 +221,7 @@ public class InventoryDisplay {
 			if (player.isLocal()) {
 				try {
 					Inventory toForward = Bukkit.createInventory(null, 45, title);
-					for (int j = 0; j < player.getInventory().getSize(); j++) {
+					for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
 						ItemStack item = player.getInventory().getItem(j);
 						if (item != null && !item.getType().equals(Material.AIR)) {
 							toForward.setItem(j, item.clone());
@@ -243,7 +243,7 @@ public class InventoryDisplay {
 		Inventory inv = Bukkit.createInventory(null, 54, title);
 		int f1 = 0;
 		int f2 = 0;
-		for (int j = 0; j < player.getInventory().getSize(); j++) {
+		for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
 			if (j == selectedSlot || j >= 36) {
 				ItemStack item = player.getInventory().getItem(j);
 				if (item != null && !item.getType().equals(Material.AIR)) {
@@ -290,7 +290,7 @@ public class InventoryDisplay {
 		inv.setItem(37, exp);
 		
 		Inventory inv2 = Bukkit.createInventory(null, 45, title);
-		for (int j = 0; j < player.getInventory().getSize(); j++) {
+		for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
 			ItemStack item = player.getInventory().getItem(j);
 			if (item != null && !item.getType().equals(Material.AIR)) {
 				inv2.setItem(j, item.clone());
@@ -312,7 +312,7 @@ public class InventoryDisplay {
 			String name = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invSkullName));
 			meta.setDisplayName(name);
 			skull.setItemMeta(meta);
-			Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> finalRef.setItem(10, skull));
+			finalRef.setItem(10, skull);
 		});
 		
 		InteractiveChatAPI.addInventoryToItemShareList(SharedType.INVENTORY1_UPPER, sha1, inv);

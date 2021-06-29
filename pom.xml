@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.0.0.14</version>
+	<version>4.0.1.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -63,6 +63,22 @@
 								<relocation>
 									<pattern>org.apache.commons.lang3</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.lang3</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.awaitility</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.awaitility</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.json.simple</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.json.simple</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.simpleyaml</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.simpleyaml</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.yaml</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.yaml</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
@@ -217,6 +233,12 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>me.carleslc.Simple-YAML</groupId>
+			<artifactId>Simple-Yaml</artifactId>
+			<version>1.7.2</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>

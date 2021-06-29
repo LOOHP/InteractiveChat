@@ -158,6 +158,7 @@ Chat:
   MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP
 
   #The title to show when mentioned
+  #Blank to disable
   MentionedTitle: "&c&lMentioned"
 
   #How long should the title be shown when mentioned
@@ -170,8 +171,42 @@ Chat:
   
   #The subtitle and actionbar  to show when mentioned
   #Note that actionbar might not work if your version of Minecraft does not support it
+  #Blank to disable
   KnownPlayerMentionSubtitle: "&3%player_name% &fmentioned you in the chat!"
   KnownPlayerMentionActionbar: ""
+
+  #Use Advancement Grant Toast to show a message
+  #Only works on versions 1.12 or above
+  #Blank to disable
+  MentionToast: "&3%player_name% &fmentioned you!"
+
+  #Use the bossbar to show a message (MC 1.9+)
+  MentionBossBar: 
+    #Blank to disable
+    Text: "&3%player_name% &fmentioned you!"
+    #Color of the bossbar if supported
+    #Accepted values:
+    #PURPLE
+    #PINK
+    #BLUE
+    #RED
+    #GREEN
+    #YELLOW
+    #WHITE
+    Color: "YELLOW"
+    #The style of the bossbar if supported
+    #PROGRESS
+    #NOTCHED_6
+    #NOTCHED_10
+    #NOTCHED_12
+    #NOTCHED_20
+    Overlay: "PROGRESS"
+    #How long should the bossbar be shown when mentioned
+    #Duration in seconds
+    Duration: 6.0
+    #The delay after the duration above before the bossbar is removed
+    #Delay in seconds
+    RemoveDelay: 0.5
 
   #Highlight the mentioned playername for the player mentioned
   #Use {MentionedPlayer} for the highlighted player name
@@ -205,6 +240,8 @@ ItemDisplay:
     #Use {Item} for item display name
     #Use {Amount} for the item amount
     Text: "&f[&f{Item} &bx{Amount}&f]"
+    #The text to replace the keyword when the player is only holding one item
+    SingularText: "&f[&f{Item}&f]"
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Item"
     #Cooldown of this placeholder
@@ -217,6 +254,11 @@ ItemDisplay:
       Secondary: WHITE_STAINED_GLASS_PANE
     #Whether to show shared maps or not
     PreviewMaps: true
+    EmptyItemSettings:
+      #Whether players are allowed to show an empty hand
+      AllowAir: true
+      #Message to send when AllowAir is false and a player tried to show nothing
+      DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
     #This text is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 

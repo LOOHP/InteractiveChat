@@ -1,23 +1,19 @@
-package com.loohp.interactivechat;
+package com.loohp.interactivechat.config;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.file.FileConfiguration;
 
+import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
@@ -37,32 +33,31 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ConfigManager {
 	
-	private static MCVersion version = InteractiveChat.version;
-	private static FileConfiguration storage = null;
+	private static final MCVersion VERSION = InteractiveChat.version;
+	private static final String MAIN_CONFIG = "config";
+	private static final String STORAGE_CONFIG = "storage";
 	
-	public static FileConfiguration getConfig() {
-		return InteractiveChat.plugin.getConfig();
-	}
-	
-	public static void saveConfig() {
-		InteractiveChat.plugin.saveConfig();
-	}
-	
-	public static void reloadConfig() {
-		InteractiveChat.plugin.reloadConfig();
-		storage = null;
+	public static void setup() {
+		Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true);
+		Config.loadConfig(STORAGE_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), true);
 		loadConfig();
 	}
 	
+	public static FileConfiguration getConfig() {
+		return Config.getConfig(MAIN_CONFIG).getConfiguration();
+	}
+	
 	public static FileConfiguration getStorageConfig() {
-		if (storage == null) {
-			try {
-				storage = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(new File(InteractiveChat.plugin.getDataFolder(), "storage.yml")), StandardCharsets.UTF_8));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		return storage;
+		return Config.getConfig(STORAGE_CONFIG).getConfiguration();
+	}
+	
+	public static void saveConfig() {
+		Config.saveConfigs();
+	}
+	
+	public static void reloadConfig() {
+		Config.reloadConfigs();
+		loadConfig();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -135,8 +130,12 @@ public class ConfigManager {
 		}
 		
 		InteractiveChat.itemReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
+		InteractiveChat.itemSingularReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.SingularText"));
 		InteractiveChat.invReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text"));
 		InteractiveChat.enderReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Text"));
+		
+		InteractiveChat.itemAirAllow = getConfig().getBoolean("ItemDisplay.Item.EmptyItemSettings.AllowAir");
+		InteractiveChat.itemAirErrorMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.EmptyItemSettings.DisallowMessage"));
 		
 		InteractiveChat.itemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.InventoryTitle"));
 		InteractiveChat.invTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
@@ -150,7 +149,7 @@ public class ConfigManager {
 		
 		try {
 			try {
-				if (version.isLegacy()) {
+				if (VERSION.isLegacy()) {
 					String str = getConfig().getString("ItemDisplay.Item.Frame.Primary");
 					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
@@ -169,7 +168,7 @@ public class ConfigManager {
 		
 		try {
 			try {
-				if (version.isLegacy()) {
+				if (VERSION.isLegacy()) {
 					String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
 					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
@@ -188,7 +187,7 @@ public class ConfigManager {
 		
 		try {
 			try {
-				if (version.isLegacy()) {
+				if (VERSION.isLegacy()) {
 					String str = getConfig().getString("ItemDisplay.Inventory.Frame.Primary");
 					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
@@ -207,7 +206,7 @@ public class ConfigManager {
 		
 		try {
 			try {
-				if (version.isLegacy()) {
+				if (VERSION.isLegacy()) {
 					String str = getConfig().getString("ItemDisplay.Inventory.Frame.Secondary");
 					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;
@@ -269,7 +268,7 @@ public class ConfigManager {
 			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest"));
 		}
 		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
-			ConfigurationSection s = ConfigManager.getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
+			ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
 			ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer"));
 			boolean casesensitive = s.getBoolean("CaseSensitive");			
 			String placeholder = s.getString("Text");
@@ -326,7 +325,7 @@ public class ConfigManager {
 		
 		try {			
 			try {
-				if (version.isLegacy()) {
+				if (VERSION.isLegacy()) {
 					String str = getConfig().getString("ItemDisplay.Item.Frame.Secondary");
 					Material material = str.contains(":") ? Material.valueOf(str.substring(0, str.lastIndexOf(":"))) : Material.valueOf(str);
 					short data = str.contains(":") ? Short.valueOf(str.substring(str.lastIndexOf(":") + 1)) : 0;

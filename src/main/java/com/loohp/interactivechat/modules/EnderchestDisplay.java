@@ -12,18 +12,19 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 
@@ -83,8 +84,9 @@ public class EnderchestDisplay {
 				String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 				
 				if (!InteractiveChat.enderDisplay.containsKey(sha1)) {
-					Inventory inv = Bukkit.createInventory(null, 27, title);
-					for (int j = 0; j < player.getEnderChest().getSize(); j = j + 1) {
+					int size = player.getEnderChest().getSize();
+					Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
+					for (int j = 0; j < size; j++) {
 						if (player.getEnderChest().getItem(j) != null) {
 							if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
 								inv.setItem(j, player.getEnderChest().getItem(j).clone());

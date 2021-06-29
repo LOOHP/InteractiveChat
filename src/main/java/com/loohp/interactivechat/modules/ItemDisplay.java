@@ -18,12 +18,12 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ColorUtils;
@@ -161,32 +161,10 @@ public class ItemDisplay {
 		return false;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent) throws Exception {
 		boolean trimmed = false;	
-		ItemStack item;							
-		boolean isAir = false;
-		if (InteractiveChat.version.isOld()) {
-			if (player.getEquipment().getItemInHand() == null) {
-				isAir = true;
-				item = new ItemStack(Material.AIR);
-			} else if (player.getEquipment().getItemInHand().getType().equals(Material.AIR)) {
-				isAir = true;
-				item = new ItemStack(Material.AIR);
-			} else {				            								
-				item = player.getEquipment().getItemInHand().clone();
-			}
-		} else {
-			if (player.getEquipment().getItemInMainHand() == null) {
-				isAir = true;
-				item = new ItemStack(Material.AIR);
-			} else if (player.getEquipment().getItemInMainHand().getType().equals(Material.AIR)) {
-				isAir = true;
-				item = new ItemStack(Material.AIR);
-			} else {									
-				item = player.getEquipment().getItemInMainHand().clone();
-			}
-		}
+		ItemStack item = PlayerUtils.getHeldItem(player);
+		boolean isAir = item.getType().equals(Material.AIR);
 		XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
 		
 		ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
@@ -321,7 +299,7 @@ public class ItemDisplay {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
 		}
 		
-		Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
+		Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, item.getAmount() == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
 		itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
 		itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);
 		if (!isAir) {

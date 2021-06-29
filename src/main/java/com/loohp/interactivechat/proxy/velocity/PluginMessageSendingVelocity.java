@@ -217,8 +217,6 @@ public class PluginMessageSendingVelocity {
 			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 		}
-		
-		InteractiveChatVelocity.requestedMessages.put(messageId, player.getUniqueId());
 	}
 	
 	@SuppressWarnings("deprecation")

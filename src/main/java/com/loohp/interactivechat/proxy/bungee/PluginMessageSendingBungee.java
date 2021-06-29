@@ -214,8 +214,6 @@ public class PluginMessageSendingBungee {
 			server.sendData("interchat:main", out.toByteArray());
 			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
 		}
-		
-		InteractiveChatBungee.requestedMessages.put(messageId, player.getUniqueId());
 	}
 	
 	@SuppressWarnings("deprecation")

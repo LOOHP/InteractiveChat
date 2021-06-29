@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,6 +43,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MessageUtils;
+import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -78,13 +80,21 @@ public class Events implements Listener {
 					int count = 0;
 					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 						String findStr = icplaceholder.getKeyword();
-						int lastIndex = 0;	
-						while (lastIndex != -1) {	
-						    lastIndex = icplaceholder.isCaseSensitive() ? command.indexOf(findStr, lastIndex) : command.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
-						    if (lastIndex != -1) {
-						        count++;
-						        lastIndex += findStr.length();
-						    }
+						if (command.contains(findStr)) {
+							if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+								event.setCancelled(true);
+								String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
+								event.getPlayer().sendMessage(cancelmessage);
+								return;
+							}
+							int lastIndex = 0;	
+							while (lastIndex != -1) {	
+							    lastIndex = icplaceholder.isCaseSensitive() ? command.indexOf(findStr, lastIndex) : command.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
+							    if (lastIndex != -1) {
+							        count++;
+							        lastIndex += findStr.length();
+							    }
+							}
 						}
 					}
 					if (count > InteractiveChat.maxPlaceholders) {
@@ -92,6 +102,22 @@ public class Events implements Listener {
 						String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
 						event.getPlayer().sendMessage(cancelmessage);
 						return;
+					}
+				} else if (event.getPlayer().hasPermission("interactivechat.module.item")) {
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+						String findStr = icplaceholder.getKeyword();
+						if (command.contains(findStr)) {
+							if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {
+								if (!InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+									event.setCancelled(true);
+									String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
+									event.getPlayer().sendMessage(cancelmessage);
+									return;
+								} else {
+									break;
+								}
+							}
+						}
 					}
 				}
 				
@@ -161,13 +187,21 @@ public class Events implements Listener {
 			int count = 0;
 			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 				String findStr = icplaceholder.getKeyword();
-				int lastIndex = 0;	
-				while (lastIndex != -1) {	
-				    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
-				    if (lastIndex != -1) {
-				        count++;
-				        lastIndex += findStr.length();
-				    }
+				if (message.contains(findStr)) {
+					if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+						event.setCancelled(true);
+						String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
+						event.getPlayer().sendMessage(cancelmessage);
+						return;
+					}
+					int lastIndex = 0;	
+					while (lastIndex != -1) {	
+					    lastIndex = icplaceholder.isCaseSensitive() ? message.indexOf(findStr, lastIndex) : message.toLowerCase().indexOf(findStr.toLowerCase(), lastIndex);	
+					    if (lastIndex != -1) {
+					        count++;
+					        lastIndex += findStr.length();
+					    }
+					}
 				}
 			}
 			if (count > InteractiveChat.maxPlaceholders) {
@@ -175,6 +209,22 @@ public class Events implements Listener {
 				String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.limitReachMessage));
 				player.sendMessage(cancelmessage);
 				return;
+			}
+		} else if (player.hasPermission("interactivechat.module.item")) {
+			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+				String findStr = icplaceholder.getKeyword();
+				if (message.contains(findStr)) {
+					if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {
+						if (!InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+							event.setCancelled(true);
+							String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
+							event.getPlayer().sendMessage(cancelmessage);
+							return;
+						} else {
+							break;
+						}
+					}
+				}
 			}
 		}
 		

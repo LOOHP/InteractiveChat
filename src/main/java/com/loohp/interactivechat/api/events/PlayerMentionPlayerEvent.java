@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.api.events;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Sound;
@@ -7,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+
+import net.kyori.adventure.bossbar.BossBar;
 
 /**
  * This event is called before the plugin plays the title and sound to the
@@ -24,16 +27,20 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 	private String title;
 	private String subtitle;
 	private String actionbar;
+	private String toast;
+	private Optional<BossBar> bossbar;
 	private Sound sound;
 	private boolean cancel;
 
-	public PlayerMentionPlayerEvent(boolean async, Player reciever, UUID sender, String title, String subtitle, String actionbar, Sound sound, boolean cancel) {
+	public PlayerMentionPlayerEvent(boolean async, Player reciever, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean cancel) {
 		super(async);
 		this.reciever = reciever;
 		this.sender = sender;
 		this.title = title;
 		this.subtitle = subtitle;
 		this.actionbar = actionbar;
+		this.toast = toast;
+		this.bossbar = bossbar;
 		this.sound = sound;
 		this.cancel = cancel;
 	}
@@ -67,6 +74,14 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 	public String getActionbar() {
 		return actionbar;
 	}
+	
+	public String getToast() {
+		return toast;
+	}
+	
+	public Optional<BossBar> getBossBar() {
+		return bossbar;
+	}
 
 	public Sound getMentionSound() {
 		return sound;
@@ -82,6 +97,14 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 
 	public void setActionbar(String actionbar) {
 		this.actionbar = actionbar;
+	}
+
+	public void setToast(String toast) {
+		this.toast = toast;
+	}
+	
+	public void setBossBar(Optional<BossBar> bossbar) {
+		this.bossbar = bossbar;
 	}
 
 	public void setMentionSound(Sound sound) {

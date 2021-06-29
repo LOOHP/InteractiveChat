@@ -1,7 +1,6 @@
 package com.loohp.interactivechat.utils;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +10,6 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
-import com.loohp.interactivechat.utils.NativeAdventureConverter.NativeLegacyHoverEventSerializerWrapper;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -40,24 +38,13 @@ public class InteractiveChatComponentSerializer {
 	
 	private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_([0-9]*)/damage_([0-9]*)$");
 	
-	private static LegacyHoverEventSerializer legacyHoverSerializer;
+	private static final LegacyHoverEventSerializer LEGACY_HOVER_SERIALIZER;
 
 	static {
-		try {
-			Class<?> paperNative = Class.forName("io.papermc.paper.adventure.NBTLegacyHoverEventSerializer");
-			Field field = paperNative.getField("INSTANCE");
-			field.setAccessible(true);
-			legacyHoverSerializer = new NativeLegacyHoverEventSerializerWrapper(field.get(null));
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
-		
-		if (legacyHoverSerializer == null) {
-			legacyHoverSerializer = new InteractiveChatLegacyHoverEventSerializer();
-		}
-		
-		BUNGEECORD_CHAT_LEGACY = new InteractiveChatBungeecordAPILegacyComponentSerializer();
-		
-		GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(legacyHoverSerializer).build();
-		GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(legacyHoverSerializer).build();
+		LEGACY_HOVER_SERIALIZER = new InteractiveChatLegacyHoverEventSerializer();		
+		BUNGEECORD_CHAT_LEGACY = new InteractiveChatBungeecordAPILegacyComponentSerializer();		
+		GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
+		GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
 		//LEGACY_SERIALIZER_SPECIAL_HEX = new InteractiveChatLegacyComponentSerializer();
 	}
 	
@@ -144,7 +131,12 @@ public class InteractiveChatComponentSerializer {
 		@Override
 		public HoverEvent.@NonNull ShowItem deserializeShowItem(@NonNull Component input) throws IOException {
 			String snbt = PlainTextComponentSerializer.plainText().serialize(input);
-			CompoundBinaryTag item = TagStringIO.get().asCompound(snbt);
+			CompoundBinaryTag item;
+			try {
+				item = TagStringIO.get().asCompound(snbt);
+			} catch (Exception e) {
+				return ShowItem.of(Key.key("minecraft:stone"), 1);
+			}
 			
 			boolean isTagEmpty = false;
 			CompoundBinaryTag tag = (CompoundBinaryTag) item.get("tag");
@@ -181,7 +173,7 @@ public class InteractiveChatComponentSerializer {
 				name = Component.text(item.getString("name"));
 			}
 
-			return ShowEntity.of(Key.key(item.getString("type")), UUID.fromString(item.getString("id")), name);
+			return ShowEntity.of(Key.key(item.getString("type").toLowerCase()), UUID.fromString(item.getString("id")), name);
 		}
 
 		@Override

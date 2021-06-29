@@ -2,30 +2,42 @@ package com.loohp.interactivechat.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import com.loohp.interactivechat.ConfigManager;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
+import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.SoundUtils;
 import com.loohp.interactivechat.utils.TitleUtils;
+import com.loohp.interactivechat.utils.ToastUtils;
+import com.loohp.interactivechat.utils.bossbar.BossBarUpdater;
+import com.loohp.interactivechat.utils.bossbar.BossBarUtils;
 
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.bossbar.BossBar.Color;
+import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class MentionDisplay {
+	
+	public static ToastUtils mentionToastManager = new ToastUtils();
 	
 	public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
@@ -36,6 +48,17 @@ public class MentionDisplay {
     			String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
 				String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
 				String actionbar = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionActionbar")));
+				String toast = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionToast")));
+				String bossBarText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionBossBar.Text")));
+				String bossBarColorName = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionBossBar.Color")));
+				String bossBarOverlayName = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionBossBar.Overlay")));
+				
+				Optional<BossBar> optBossBar;
+				if (bossBarText.isEmpty()) {
+					optBossBar = Optional.empty();
+				} else {
+					optBossBar = Optional.of(BossBar.bossBar(LegacyComponentSerializer.legacySection().deserialize(bossBarText), 1, Color.valueOf(bossBarColorName.toUpperCase()), Overlay.valueOf(bossBarOverlayName.toUpperCase())));
+				}
 				
 				String settings = ConfigManager.getConfig().getString("Chat.MentionedSound");
 				Sound sound = null;
@@ -64,7 +87,7 @@ public class MentionDisplay {
 				if (InteractiveChat.mentionCooldown.get(reciever) < unix) {
 					inCooldown = false;
 				}
-				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, sound, inCooldown);
+				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, toast, optBossBar, sound, inCooldown);
 				Bukkit.getPluginManager().callEvent(mentionEvent);
 				if (!mentionEvent.isCancelled()) {
 					title = mentionEvent.getTitle();
@@ -72,9 +95,19 @@ public class MentionDisplay {
 					actionbar = mentionEvent.getActionbar();
 					
 					int time = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
-					TitleUtils.sendTitle(reciever, title, subtitle, actionbar, 10, time, 20);
+					TitleUtils.sendTitle(reciever, title, subtitle, actionbar, 10, Math.max(time, 1), 20);
 					if (sound != null) {
 						reciever.playSound(reciever.getLocation(), sound, volume, pitch);
+					}
+					if (!mentionEvent.getToast().isEmpty() && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
+						ToastUtils.mention(sender, reciever, toast, new ItemStack(Material.WRITABLE_BOOK));
+					}
+					
+					int bossBarTime = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.Duration") * 20);
+					int bossBarRemoveDelay = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.RemoveDelay") * 20);
+					if (mentionEvent.getBossBar().isPresent() && !InteractiveChat.version.isOld()) {
+						BossBarUpdater updater = BossBarUpdater.update(mentionEvent.getBossBar().get(), reciever);
+						BossBarUtils.countdownBossBar(updater, Math.max(bossBarTime, 1), Math.max(bossBarRemoveDelay, 0));
 					}
 					
 					List<String> names = new ArrayList<>();
@@ -109,5 +142,5 @@ public class MentionDisplay {
 		replacement = replacement.hoverEvent(hoverEvent);
 		return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, replacement);
 	}
-
+	
 }

@@ -3,6 +3,7 @@ package com.loohp.interactivechat.objectholders;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +27,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private Supplier<Long> executionWaitTime;
 	private long killThreadAfter;
 	
-	private Map<UUID, Queue<UUID>> messagesOrder;
+	private Map<UUID, Queue<MessageOrderInfo>> messagesOrder;
 	private Queue<OutboundPacket> sendingQueue;
 	private ExecutorService executor;
 	private Map<Future<?>, ExecutingTaskData> executingTasks;
@@ -46,34 +47,35 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		monitor();
 	}
 
-	public void execute(Runnable runnable, Player player, UUID id) {
+	public synchronized void execute(Runnable runnable, Player player, UUID id) {
 		messagesOrder.putIfAbsent(player.getUniqueId(), new ConcurrentLinkedQueue<>());
-		Queue<UUID> queue = messagesOrder.get(player.getUniqueId());
-		queue.add(id);
+		Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
+		queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
 		Future<?> future = executor.submit(runnable);
 		executingTasks.put(future, new ExecutingTaskData(System.currentTimeMillis(), player.getUniqueId(), id));
 	}
 	
 	public void send(PacketContainer packet, Player player, UUID id) {
 		OutboundPacket outboundPacket = new OutboundPacket(player, packet);
-		Queue<UUID> queue = messagesOrder.get(player.getUniqueId());
+		Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
 		if (queue == null) {
 			sendingQueue.add(outboundPacket);
 		} else {
-			if (queue.contains(id)) {
+			Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
+			if (optInfo.isPresent()) {
 				try {
-					Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(id));
+					Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
 				} catch (ConditionTimeoutException e) {}
 			}
-			queue.remove(id);
 			sendingQueue.add(outboundPacket);
+			optInfo.ifPresent(each -> queue.remove(each));
 		}
 	}
 	
 	public void discard(UUID player, UUID id) {
-		Queue<UUID> queue = messagesOrder.get(player);
+		Queue<MessageOrderInfo> queue = messagesOrder.get(player);
 		if (queue != null) {
-			queue.remove(id);
+			queue.removeIf(each -> each.getId().equals(id));
 		}
 	}
 	
@@ -81,6 +83,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	public synchronized void close() throws Exception {
 		isValid.set(false);
 		executor.shutdown();
+		executor.awaitTermination(6000, TimeUnit.MILLISECONDS);
 	}
 	
 	public boolean isValid() {
@@ -115,16 +118,17 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 				} else if (data.getStartTime() + killThreadAfter < time) {
 					future.cancel(true);
 					itr.remove();
-					Queue<UUID> queue = messagesOrder.get(data.getPlayer());
+					Queue<MessageOrderInfo> queue = messagesOrder.get(data.getPlayer());
 					if (queue != null) {
-						queue.remove(data.getId());
+						queue.removeIf(each -> each.getId().equals(data.getId()));
 					}
 				}
 			}
 			
-			Iterator<Entry<UUID, Queue<UUID>>> itr1 = messagesOrder.entrySet().iterator();
+			Iterator<Entry<UUID, Queue<MessageOrderInfo>>> itr1 = messagesOrder.entrySet().iterator();
 			while (itr1.hasNext()) {
-				Entry<UUID, Queue<UUID>> entry = itr1.next();
+				Entry<UUID, Queue<MessageOrderInfo>> entry = itr1.next();
+				entry.getValue().removeIf(each -> each.getTime() + executionWaitTime.get() < time);
 				if (Bukkit.getPlayer(entry.getKey()) == null && entry.getValue().isEmpty()) {
 					itr1.remove();
 				}
@@ -155,6 +159,25 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		public UUID getId() {
 			return id;
 		}
+	}
+	
+	private static class MessageOrderInfo {
+		
+		private UUID id;
+		private long time;
+		
+		public MessageOrderInfo(UUID id, long time) {
+			this.id = id;
+			this.time = time;
+		}
+		
+		public UUID getId() {
+			return id;
+		}
+		public long getTime() {
+			return time;
+		}
+		
 	}
 
 }

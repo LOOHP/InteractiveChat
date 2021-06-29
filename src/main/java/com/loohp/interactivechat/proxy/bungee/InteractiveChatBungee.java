@@ -2,18 +2,16 @@ package com.loohp.interactivechat.proxy.bungee;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,9 +21,10 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Filter;
 import java.util.logging.LogRecord;
@@ -34,6 +33,8 @@ import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -44,6 +45,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.proxy.bungee.metrics.Charts;
 import com.loohp.interactivechat.proxy.bungee.metrics.Metrics;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.MessageForwardingHandler;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
@@ -74,9 +76,6 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.config.Configuration;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -86,12 +85,9 @@ import us.myles.ViaVersion.api.Via;
 public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	public static final int BSTATS_PLUGIN_ID = 8839;
+	public static final String CONFIG_ID = "config";
 	
 	public static boolean viaVersionHook = false;
-	
-	public static Configuration config = null;
-	public static ConfigurationProvider yamlConfigProvider = null;
-	public static File configFile;
 
 	public static InteractiveChatBungee plugin;
 	public static Metrics metrics;
@@ -101,11 +97,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	private static Map<Integer, byte[]> incomming = new HashMap<>();
 	
-	protected static Map<UUID, List<String>> forwardedMessages = new ConcurrentHashMap<>(); 
-	protected static Map<UUID, UUID> requestedMessages = new ConcurrentHashMap<>(); 
-	
-	private static Map<UUID, List<UUID>> requestedMessageProcesses = new ConcurrentHashMap<>();
-	private static Map<UUID, Byte> messagePositions = new ConcurrentHashMap<>();
+	protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
+
 	private static Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
 	
 	public static List<String> parseCommands = new ArrayList<>();
@@ -117,39 +110,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	
 	public static int delay = 200;
 	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
+	
+	private static MessageForwardingHandler messageForwardingHandler;
 
 	@Override
 	public void onEnable() {
 		plugin = this;
-		
-		yamlConfigProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
+        
 		if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
 		}
-        configFile = new File(getDataFolder(), "bungeeconfig.yml");
-
-        if (!configFile.exists()) {
-            try (InputStream in = getResourceAsStream("config_proxy.yml")) {
-                Files.copy(in, configFile.toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        
-        try {
-			config = yamlConfigProvider.load(configFile);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-        if (!config.contains("Settings.UseAccurateSenderParser")) {
-        	config.set("Settings.UseAccurateSenderParser", true);
-        	try {
-				yamlConfigProvider.save(config, configFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-        }
-        
+        Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getResourceAsStream("config_proxy.yml"), getResourceAsStream("config_proxy.yml"), true);
         loadConfig();
 
 		getProxy().registerChannel("interchat:main");
@@ -168,6 +139,49 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		Charts.setup(metrics);
 
 		run();
+		
+		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy ChatMessage Processing Thread #%d").build();
+		ExecutorService threadPool = Executors.newCachedThreadPool(factory);
+		messageForwardingHandler = new MessageForwardingHandler(threadPool, (info, component) -> {
+			ProxiedPlayer player = ProxyServer.getInstance().getPlayer(info.getPlayer());
+			Server server = player.getServer();
+			new Timer().schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						if (player != null && server != null) {
+							PluginMessageSendingBungee.requestMessageProcess(player, server.getInfo(), component, info.getId());
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}, delay + 50);
+		}, (info, component) -> {
+			Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
+    		UserConnection userConnection = (UserConnection) ProxyServer.getInstance().getPlayer(info.getPlayer());
+    		ChannelWrapper channelWrapper;
+    		Field channelField = null;
+    		if (userConnection == null) {
+    			return;
+    		}
+    		try {
+    			channelField = userConnection.getClass().getDeclaredField("ch");
+    			channelField.setAccessible(true);
+    			channelWrapper = (ChannelWrapper) channelField.get(userConnection);
+    		} catch (NoSuchFieldException | IllegalAccessException e) {
+    			throw new RuntimeException(e);
+    		} finally {
+    			if (channelField != null) {
+    				channelField.setAccessible(false);
+    			}
+    		}    		
+    		channelWrapper.write(chatPacket);
+		}, uuid -> {
+			return ProxyServer.getInstance().getPlayer(uuid) != null;
+		}, uuid -> {
+			return hasInteractiveChat(ProxyServer.getInstance().getPlayer(uuid).getServer());
+		}, () -> (long) delay + 2000);
 
 		ProxyServer.getInstance().getLogger().info(ChatColor.GREEN + "[InteractiveChat] InteractiveChatBungee has been enabled!");
     	
@@ -176,6 +190,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 	@Override
 	public void onDisable() {
+		try {
+			messageForwardingHandler.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] InteractiveChatBungee has been disabled!");
 	}
 	
@@ -250,13 +269,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	}
 	
 	public static void loadConfig() {
-		try {
-			config = yamlConfigProvider.load(configFile);
-			parseCommands = config.getStringList("Settings.CommandsToParse");
-			useAccurateSenderFinder = config.getBoolean("Settings.UseAccurateSenderParser");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Config config = Config.getConfig(CONFIG_ID);
+		config.reload();
+		
+		parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
+		useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
 	}
 
 	private void run() {
@@ -268,6 +285,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 					PluginMessageSendingBungee.sendDelayAndScheme();
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
+				
+				long now = System.currentTimeMillis();
+				for (Map<String, Long> list : forwardedMessages.values()) {
+					Iterator<Long> itr = list.values().iterator();
+					while (itr.hasNext()) {
+						long time = itr.next();
+						if (time - 5000 > now) {
+							itr.remove();
+						}
+					}
 				}
 			}
 		}, 0, 5000);
@@ -312,70 +340,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        case 0x08:
 		        	UUID messageId = DataTypeIO.readUUID(input);
 		        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        	UUID playerUUID = requestedMessages.get(messageId);
-		        	List<UUID> messageQueue = requestedMessageProcesses.get(playerUUID);
-		        	
-		        	//ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(messageId.toString() + " <- " + component));
-		        	
-		        	if (playerUUID != null && messageQueue != null) {
-		        		new Thread(new Runnable() {
-		        			@Override
-		        			public void run() {
-				        		CompletableFuture<Void> future = new CompletableFuture<Void>();
-				        		new Thread(new Runnable() {
-				        			@Override
-				        			public void run() {
-				        				while (true) {
-				        					if (messageQueue.indexOf(messageId) == 0) {
-				        						future.complete(null);
-				        						break;
-				        					}
-				        					if (future.isDone()) {
-				        						break;
-				        					}
-				        					try {
-												TimeUnit.MILLISECONDS.sleep(10);
-											} catch (InterruptedException e) {
-												e.printStackTrace();
-											}
-				        				}
-				        			}
-				        		}).start();
-				        		
-				        		try {
-									future.get(delay + 2000, TimeUnit.MILLISECONDS);
-								} catch (InterruptedException | ExecutionException | TimeoutException e) {}
-				        		if (!future.isDone()) {
-				        			future.complete(null);
-	        					}			     
-				        		
-				        		Byte position = messagePositions.remove(messageId);
-				        		Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", position == null ? 0 : position);
-				        		UserConnection userConnection = (UserConnection) getProxy().getPlayer(playerUUID);
-				        		ChannelWrapper channelWrapper;
-				        		Field channelField = null;
-				        		
-				        		if (userConnection == null) {
-				        			return;
-				        		}
-
-				        		try {
-				        			channelField = userConnection.getClass().getDeclaredField("ch");
-				        			channelField.setAccessible(true);
-				        			channelWrapper = (ChannelWrapper) channelField.get(userConnection);
-				        		} catch (NoSuchFieldException | IllegalAccessException e) {
-				        			throw new RuntimeException(e);
-				        		} finally {
-				        			if (channelField != null) {
-				        				channelField.setAccessible(false);
-				        			}
-				        		}
-				        		
-				        		channelWrapper.write(chatPacket);
-				        		messageQueue.remove(messageId);
-		        			}
-		        		}).start();
-		        	}
+		        	messageForwardingHandler.recievedProcessedMessage(messageId, component);
 		        	break;
 		        case 0x09:
 		        	loadConfig();
@@ -506,8 +471,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			new Timer().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					List<String> messages = forwardedMessages.get(uuid);
-					if (messages != null && !messages.remove(newMessage)) {
+					Map<String, Long> messages = forwardedMessages.get(uuid);
+					if (messages != null && messages.remove(newMessage) != null) {
 						try {
 							PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
 						} catch (IOException e) {
@@ -551,9 +516,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 						String message = packet.getMessage();
 						byte position = packet.getPosition();
 						if ((position == 0 || position == 1) && uuid != null && message != null) {
-							List<String> list = forwardedMessages.get(uuid);
+							Map<String, Long> list = forwardedMessages.get(uuid);
 							if (list != null) {
-								list.add(message);
+								list.put(message, System.currentTimeMillis());
 							}
 						}
 					}
@@ -573,9 +538,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		
 		ProxiedPlayer player = event.getPlayer();
 
-		forwardedMessages.put(player.getUniqueId(), new ArrayList<>());
-		List<UUID> messageQueue = Collections.synchronizedList(new LinkedList<>());
-		requestedMessageProcesses.put(player.getUniqueId(), messageQueue);
+		forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
 		
 		if (player.hasPermission("interactivechat.backendinfo")) {
 			String proxyVersion = plugin.getDescription().getVersion();
@@ -623,22 +586,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 									packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
 								}
 							} else if (hasInteractiveChat(player.getServer())) {
-								ServerInfo server = player.getServer().getInfo();
-								UUID messageId = UUID.randomUUID();
-								messageQueue.add(messageId);
-								messagePositions.put(messageId, position);
-								new Timer().schedule(new TimerTask() {
-									@Override
-									public void run() {
-										try {
-											if (player != null && server != null) {
-												PluginMessageSendingBungee.requestMessageProcess(player, server, message, messageId);
-											}
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-								}, delay + 50);
+								messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
 								return;
 							}
 						}
@@ -696,7 +644,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onLeave(PlayerDisconnectEvent event) {
 		forwardedMessages.remove(event.getPlayer().getUniqueId());
-		requestedMessageProcesses.remove(event.getPlayer().getUniqueId());
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {

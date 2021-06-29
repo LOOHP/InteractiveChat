@@ -24,6 +24,10 @@ public class InventoryUtils {
 	
 	private static final ItemStack ITEMSTACK_AIR = new ItemStack(Material.AIR);
 	
+	public static int toMultipleOf9(int num) {
+		return num % 9 == 0 ? num : (num / 9 + 1) * 9;
+	}
+	
 	public static void restorePlayerInventory(Player player) {
 		sendFakePlayerInventory(player, player.getInventory(), true, true);
 	}

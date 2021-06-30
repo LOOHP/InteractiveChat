@@ -37,8 +37,6 @@ import net.md_5.bungee.api.ChatColor;
 
 public class MentionDisplay {
 	
-	public static ToastUtils mentionToastManager = new ToastUtils();
-	
 	public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
 			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());

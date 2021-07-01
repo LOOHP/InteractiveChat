@@ -52,8 +52,10 @@ public class MessageForwardingHandler implements AutoCloseable {
 		UUID messageId = UUID.randomUUID();
 		if (hasInteractiveChatOnConnectedServer.test(player)) {
 			messageOrder.putIfAbsent(player, new ConcurrentLinkedQueue<>());
+			Queue<ForwardMessageInfo> queue = messageOrder.get(player);
 			ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
 			messageData.put(messageId, forwardMessageInfo);
+			queue.add(forwardMessageInfo);
 			forwardForProcessing.accept(forwardMessageInfo, message);
 		} else {
 			ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
@@ -67,10 +69,18 @@ public class MessageForwardingHandler implements AutoCloseable {
 			if (info != null) {
 				Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
 				if (queue != null) {
-					if (queue.contains(info)) {
-						try {
-							Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(info));
-						} catch (ConditionTimeoutException e) {}
+					while (true) {
+						ForwardMessageInfo head = queue.peek();
+						if (queue.contains(info)) {
+							try {
+								Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(info));
+								break;
+							} catch (ConditionTimeoutException e) {
+								queue.remove(head);
+							}
+						} else {
+							break;
+						}
 					}
 					sendingQueue.add(new OutboundMessage(info, message));
 					queue.remove(info);

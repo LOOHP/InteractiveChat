@@ -61,11 +61,20 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		if (queue == null) {
 			sendingQueue.add(outboundPacket);
 		} else {
-			Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
-			if (optInfo.isPresent()) {
-				try {
-					Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
-				} catch (ConditionTimeoutException e) {}
+			Optional<MessageOrderInfo> optInfo = Optional.empty();
+			while (true) {
+				optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
+				MessageOrderInfo head = queue.peek();
+				if (optInfo.isPresent()) {
+					try {
+						Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
+						break;
+					} catch (ConditionTimeoutException e) {
+						queue.remove(head);
+					}
+				} else {
+					break;
+				}
 			}
 			sendingQueue.add(outboundPacket);
 			optInfo.ifPresent(each -> queue.remove(each));

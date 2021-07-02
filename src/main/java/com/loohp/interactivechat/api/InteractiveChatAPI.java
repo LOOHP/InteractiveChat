@@ -28,7 +28,9 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.modules.ItemDisplay;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -94,6 +96,17 @@ public class InteractiveChatAPI {
 		} else {
 			sender.spigot().sendMessage(ComponentSerializer.parse(json));
 		}
+	}
+	
+	/**
+	 * Create a {@link Component} for use containing the item display
+	 * @param player
+	 * @param item
+	 * @return The item display component
+	 * @throws Exception
+	 */
+	public static Component createItemDisplayComponent(Player player, ItemStack item) throws Exception {
+		return ItemDisplay.createItemDisplay(new ICPlayer(player), item);
 	}
 	
 	/**

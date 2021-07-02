@@ -140,7 +140,7 @@ public class ItemDisplay {
 		return component;
 	}
 	
-	protected static boolean useInventoryView(ItemStack item) {
+	public static boolean useInventoryView(ItemStack item) {
 		try {
 			if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
 				BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
@@ -161,17 +161,22 @@ public class ItemDisplay {
 		return false;
 	}
 	
-	private static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent) throws Exception {
-		boolean trimmed = false;	
+	public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent) throws Exception {	
 		ItemStack item = PlayerUtils.getHeldItem(player);
-		boolean isAir = item.getType().equals(Material.AIR);
-		XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
 		
 		ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
 		Bukkit.getPluginManager().callEvent(event);
 		item = event.getItemStack();
 		
-	    String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
+		return createItemDisplay(player, item);
+	}
+	
+	public static Component createItemDisplay(ICPlayer player, ItemStack item) throws Exception {
+		boolean trimmed = false;
+		boolean isAir = item.getType().equals(Material.AIR);
+		XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
+		
+		String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
 	    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
 	    if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > 32767) {
 	    	ItemStack trimedItem = new ItemStack(item.getType());

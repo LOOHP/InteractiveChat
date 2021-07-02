@@ -99,6 +99,15 @@ public class InteractiveChatAPI {
 	}
 	
 	/**
+	 * Send an adventure component message
+	 * @param receiver
+	 * @param component
+	 */
+	public static void sendMessage(CommandSender receiver, Component component) {
+		InteractiveChat.sendMessage(receiver, component);
+	}
+	
+	/**
 	 * Create a {@link Component} for use containing the item display
 	 * @param player
 	 * @param item

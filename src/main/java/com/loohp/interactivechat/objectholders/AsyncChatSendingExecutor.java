@@ -24,6 +24,8 @@ import com.loohp.interactivechat.InteractiveChat;
 
 public class AsyncChatSendingExecutor implements AutoCloseable {
 	
+	public static final long RE_WAIT_TIME = 200;
+	
 	private Supplier<Long> executionWaitTime;
 	private long killThreadAfter;
 	
@@ -62,15 +64,17 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 			sendingQueue.add(outboundPacket);
 		} else {
 			Optional<MessageOrderInfo> optInfo = Optional.empty();
+			long timeout = executionWaitTime.get();
 			while (true) {
 				optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
 				MessageOrderInfo head = queue.peek();
 				if (optInfo.isPresent()) {
 					try {
-						Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
+						Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(timeout, TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
 						break;
 					} catch (ConditionTimeoutException e) {
 						queue.remove(head);
+						timeout = RE_WAIT_TIME;
 					}
 				} else {
 					break;

@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
 
 public class CustomStringUtils {
 	
+	private static final String[] META_CHARACTERS = new String[] {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
+	private static final String[] REPLACE_ALL_META_CHARACTERS = new String[] {"$"};
+	
 	public static Set<Character> getCharacterSet(String str) {
 		Set<Character> unique = new HashSet<>();
 		for (char c : str.toCharArray()) {
@@ -121,12 +124,19 @@ public class CustomStringUtils {
 	    return costs[s2.length()];
     }
 	
+	public static String escapeReplaceAllMetaCharacters(String inputString) {
+		for (int i = 0; i < REPLACE_ALL_META_CHARACTERS.length; i++){
+	        if (inputString.contains(REPLACE_ALL_META_CHARACTERS[i])) {
+	            inputString = inputString.replace(REPLACE_ALL_META_CHARACTERS[i], "\\" + REPLACE_ALL_META_CHARACTERS[i]);
+	        }
+	    }
+	    return inputString;
+	}
+	
 	public static String escapeMetaCharacters(String inputString) {
-	    final String[] metaCharacters = {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
-
-	    for (int i = 0; i < metaCharacters.length; i++){
-	        if (inputString.contains(metaCharacters[i])) {
-	            inputString = inputString.replace(metaCharacters[i], "\\" + metaCharacters[i]);
+	    for (int i = 0; i < META_CHARACTERS.length; i++){
+	        if (inputString.contains(META_CHARACTERS[i])) {
+	            inputString = inputString.replace(META_CHARACTERS[i], "\\" + META_CHARACTERS[i]);
 	        }
 	    }
 	    return inputString;

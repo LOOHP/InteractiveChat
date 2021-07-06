@@ -20,6 +20,8 @@ import org.awaitility.core.ConditionTimeoutException;
 
 public class MessageForwardingHandler implements AutoCloseable {
 	
+	public static final long RE_WAIT_TIME = 200;
+	
 	private Map<UUID, Queue<ForwardMessageInfo>> messageOrder;
 	private Map<UUID, ForwardMessageInfo> messageData;
 	private ExecutorService executor;
@@ -69,14 +71,16 @@ public class MessageForwardingHandler implements AutoCloseable {
 			if (info != null) {
 				Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
 				if (queue != null) {
+					long timeout = executionWaitTime.get();
 					while (true) {
 						ForwardMessageInfo head = queue.peek();
 						if (queue.contains(info)) {
 							try {
-								Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(executionWaitTime.get(), TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(info));
+								Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(timeout, TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(info));
 								break;
 							} catch (ConditionTimeoutException e) {
 								queue.remove(head);
+								timeout = RE_WAIT_TIME;
 							}
 						} else {
 							break;

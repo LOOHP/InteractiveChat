@@ -13,16 +13,16 @@ public class MessageUtils {
 			if ((icplaceholder.isCaseSensitive() && ChatColorUtils.stripColor(message).contains(placeholder)) || (!icplaceholder.isCaseSensitive() && ChatColorUtils.stripColor(message.toLowerCase()).contains(placeholder.toLowerCase()))) {
 				String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
 				regex = regex.replaceAll("\\\\?.", "(?:\u00a7.)?(?:$0)");
-				message = message.replaceAll(regex, placeholder);
+				message = message.replaceAll(regex, CustomStringUtils.escapeReplaceAllMetaCharacters(placeholder));
 			}
 		}
 		for (String placeholder : aliasesMapping.keySet()) {
 			if (ChatColorUtils.stripColor(message).matches(".*" + placeholder + ".*")) {
 				String regex = CustomStringUtils.escapeMetaCharacters(placeholder);
 				regex = regex.replaceAll("\\\\?.", "(?:\u00a7.)?(?:$0)");
-				message = message.replaceAll(regex, placeholder);
+				message = message.replaceAll(regex, CustomStringUtils.escapeReplaceAllMetaCharacters(placeholder));
 			}
-			message = message.replaceAll(placeholder, aliasesMapping.get(placeholder));
+			message = message.replaceAll(placeholder, CustomStringUtils.escapeReplaceAllMetaCharacters(aliasesMapping.get(placeholder)));
 		}
 		return message;
 	}

@@ -30,7 +30,7 @@ public class EssentialsNicknames implements Listener {
 	private static final List<String> EMPTY_LIST = Collections.emptyList();
 	private static final Map<UUID, List<String>> ESSENTIALS_NICK = new ConcurrentHashMap<>();
 	
-	public static void setup() {
+	public static void _init_() {
 		essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 		prefix = essen.getConfig().getString("nickname-prefix");
 		
@@ -70,6 +70,7 @@ public class EssentialsNicknames implements Listener {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEssentialsNickChange(NickChangeEvent event) {
 		try {

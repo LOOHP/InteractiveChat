@@ -1,21 +1,24 @@
-package com.loohp.interactivechat.hooks.discordsrv;
+package com.loohp.interactivechat.hooks.essentials;
+
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
 
-import github.scarsz.discordsrv.api.ListenerPriority;
-import github.scarsz.discordsrv.api.Subscribe;
-import github.scarsz.discordsrv.api.events.GameChatMessagePreProcessEvent;
-import github.scarsz.discordsrv.dependencies.kyori.adventure.text.Component;
-import github.scarsz.discordsrv.dependencies.kyori.adventure.text.TextReplacementConfig;
+import net.essentialsx.api.v2.events.discord.DiscordChatMessageEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public class DiscordSRVEvents {
+public class EssentialsDiscord implements Listener {
 
-	@Subscribe(priority = ListenerPriority.LOWEST)
-	public void onGameToDiscord(GameChatMessagePreProcessEvent event) {
-		Component component = event.getMessageComponent();
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onDiscordChatMessage(DiscordChatMessageEvent event) {
+		Component component = LegacyComponentSerializer.legacySection().deserialize(event.getMessage());
 		component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build()).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
 			String escape = result.group(1);
 			String replacement = escape == null ? "" : escape;
@@ -28,7 +31,7 @@ public class DiscordSRVEvents {
 				return builder.content(replacement);
 			}).build());
 		}
-		event.setMessageComponent(component);
+		event.setMessage(LegacyComponentSerializer.legacySection().serialize(component));
 	}
 
 }

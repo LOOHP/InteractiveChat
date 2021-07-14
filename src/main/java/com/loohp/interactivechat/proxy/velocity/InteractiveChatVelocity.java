@@ -56,6 +56,7 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.MessageUtils;
+import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -546,8 +547,8 @@ public class InteractiveChatVelocity {
 					String msg = TextColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running a version of InteractiveChat which has the same plugin messaging protocol version as the proxy!";
 					HoverEvent<Component> hoverComponent = Component.text(TextColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + TextColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")").asHoverEvent();
 					TextComponent text = Component.text(msg).hoverEvent(hoverComponent);
-					player.sendMessage(text);
-					getServer().getConsoleCommandSource().sendMessage(text);
+					sendMessage(player, text);
+					sendMessage(getServer().getConsoleCommandSource(), text);
 				}
 			}
 		}
@@ -619,7 +620,7 @@ public class InteractiveChatVelocity {
 			@Override
 			public void run() {
 				if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
-					event.getPlayer().sendMessage(Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
+					sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
 				}
 			}
 		}, 100);
@@ -649,6 +650,10 @@ public class InteractiveChatVelocity {
 			return false;
 		}
 		return data.hasInteractiveChat();
+	}
+	
+	public static void sendMessage(Object sender, Component component) {
+		NativeAdventureConverter.sendNativeAudienceMessage(sender, component, false);
 	}
 
 }

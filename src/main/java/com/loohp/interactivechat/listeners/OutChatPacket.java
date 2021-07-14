@@ -46,6 +46,7 @@ import com.loohp.interactivechat.utils.ChatComponentType;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentModernizing;
 import com.loohp.interactivechat.utils.ComponentStyling;
+import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -137,7 +138,7 @@ public class OutChatPacket implements Listener {
 	        
 	        search: for (ChatComponentType t : ChatComponentType.byPriority()) {
 	        	for (int i = 0; i < packet.getModifier().size(); i++) {
-	        		if (packet.getModifier().read(i) != null && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+	        		if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
 	        			try {
 	        				component = t.convertFrom(packet.getModifier().read(i));
 	        			} catch (Throwable e) {

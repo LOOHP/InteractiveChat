@@ -51,6 +51,7 @@ import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
 import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
 import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
+import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
@@ -112,6 +113,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static String language = "en_us";
 	
 	public static Boolean essentialsHook = false;
+	public static Boolean essentialsDiscordHook = false;
 	public static Boolean chatManagerHook = false;
 	public static Boolean vanishHook = false;
 	public static Boolean cmiHook = false;
@@ -363,7 +365,13 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
 			essentialsHook = true;
 			getServer().getPluginManager().registerEvents(new EssentialsNicknames(), this);
-			EssentialsNicknames.setup();
+			EssentialsNicknames._init_();
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("EssentialsDiscord") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EssentialsDiscord!");
+			essentialsDiscordHook = true;
+			getServer().getPluginManager().registerEvents(new EssentialsDiscord(), this);
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {

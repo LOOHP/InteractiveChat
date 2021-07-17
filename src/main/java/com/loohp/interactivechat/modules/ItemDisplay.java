@@ -98,46 +98,52 @@ public class ItemDisplay {
 	
 	@SuppressWarnings("deprecation")
 	public static Component processWithoutCooldown(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder);
-		if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
-			ICPlayer player = optplayer.get();
-			ItemStack[] equipment;
-			if (InteractiveChat.version.isOld()) {
-				equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInHand()};
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		boolean contain = (InteractiveChat.itemCaseSensitive) ? (plain.contains(InteractiveChat.itemPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
+		if (contain) {
+			String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder);
+			if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
+				ICPlayer player = optplayer.get();
+				ItemStack[] equipment;
+				if (InteractiveChat.version.isOld()) {
+					equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInHand()};
+				} else {
+					equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInMainHand(), player.getEquipment().getItemInOffHand()};
+				}
+				try {
+					BungeeMessageSender.forwardEquipment(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), equipment);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (optplayer.isPresent()) {
+				ICPlayer player = optplayer.get();
+				if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
+					Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix));
+					component = ComponentReplacing.replace(component, regex, true, itemComponent);
+				}
 			} else {
-				equipment = new ItemStack[] {player.getEquipment().getHelmet(), player.getEquipment().getChestplate(), player.getEquipment().getLeggings(), player.getEquipment().getBoots(), player.getEquipment().getItemInMainHand(), player.getEquipment().getItemInOffHand()};
+				Component message;
+				if (InteractiveChat.playerNotFoundReplaceEnable) {
+					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
+				} else {
+					message = Component.text(InteractiveChat.itemPlaceholder);
+				}
+				if (InteractiveChat.playerNotFoundHoverEnable) {
+					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.itemPlaceholder))));
+				}
+				if (InteractiveChat.playerNotFoundClickEnable) {
+					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
+					message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+				}
+				component = ComponentReplacing.replace(component, regex, true, message);
 			}
-			try {
-				BungeeMessageSender.forwardEquipment(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), equipment);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if (optplayer.isPresent()) {
-			ICPlayer player = optplayer.get();
-			if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
-				Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix));
-				component = ComponentReplacing.replace(component, regex, true, itemComponent);
-			}
+			
+			return component;
 		} else {
-			Component message;
-			if (InteractiveChat.playerNotFoundReplaceEnable) {
-				message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
-			} else {
-				message = Component.text(InteractiveChat.itemPlaceholder);
-			}
-			if (InteractiveChat.playerNotFoundHoverEnable) {
-				message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.itemPlaceholder))));
-			}
-			if (InteractiveChat.playerNotFoundClickEnable) {
-				String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.itemPlaceholder));
-				message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
-			}
-			component = ComponentReplacing.replace(component, regex, true, message);
+			return component;
 		}
-		
-		return component;
 	}
 	
 	public static boolean useInventoryView(ItemStack item) {

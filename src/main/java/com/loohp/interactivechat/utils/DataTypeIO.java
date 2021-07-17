@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 
 public class DataTypeIO {
@@ -124,36 +125,45 @@ public class DataTypeIO {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void writeItemStack(ByteArrayDataOutput out, int encodingScheme, ItemStack itemStack, Charset charset) throws IOException {
-		out.writeByte(encodingScheme);
+	public static void writeItemStack(ByteArrayDataOutput out, int defaultEncodingScheme, ItemStack itemStack, Charset charset) throws IOException {
+		int encodingScheme = defaultEncodingScheme;
+		ByteArrayDataOutput itemByte = ByteStreams.newDataOutput();
 		switch (encodingScheme) {
 		case 0:
-			YamlConfiguration config = new YamlConfiguration();
-			config.set("i", itemStack);
-			writeString(out, config.saveToString(), charset);
-			break;
+			try {
+				YamlConfiguration config = new YamlConfiguration();
+				config.set("i", itemStack);
+				writeString(itemByte, config.saveToString(), charset);
+				break;
+			} catch (Throwable e) {
+				//Fallback to encodingScheme 1
+				encodingScheme = 1;
+				itemByte = ByteStreams.newDataOutput();
+			}
 		case 1:
 			if (itemStack == null) {
-				out.writeBoolean(false);
+				itemByte.writeBoolean(false);
 			} else {
-				out.writeBoolean(true);
+				itemByte.writeBoolean(true);
 				XMaterial material = FilledMapUtils.isFilledMap(itemStack) ? XMaterial.FILLED_MAP : XMaterialUtils.matchXMaterial(itemStack);
-				writeString(out, material.name(), charset);
-				out.writeInt(itemStack.getAmount());
+				writeString(itemByte, material.name(), charset);
+				itemByte.writeInt(itemStack.getAmount());
 				boolean isDamagable = itemStack.getType().getMaxDurability() > 0;
 				if (isDamagable) {
-					out.writeBoolean(true);
-					out.writeInt(InteractiveChat.version.isLegacy() ? itemStack.getDurability() : ((Damageable) itemStack.getItemMeta()).getDamage());
+					itemByte.writeBoolean(true);
+					itemByte.writeInt(InteractiveChat.version.isLegacy() ? itemStack.getDurability() : ((Damageable) itemStack.getItemMeta()).getDamage());
 				} else {
-					out.writeBoolean(false);
+					itemByte.writeBoolean(false);
 				}
 				String nbt = ItemNBTUtils.getNMSItemStackJson(itemStack);
-				writeString(out, nbt, charset);
+				writeString(itemByte, nbt, charset);
 			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown encodingScheme version!");
 		}
+		out.writeByte(encodingScheme);
+		out.write(itemByte.toByteArray());
 	}
 
 	public static UUID readUUID(ByteArrayDataInput in) throws IOException {

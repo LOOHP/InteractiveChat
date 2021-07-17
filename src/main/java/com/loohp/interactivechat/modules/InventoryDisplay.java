@@ -89,50 +89,56 @@ public class InventoryDisplay {
 	}
 	
 	public static Component processWithoutCooldown(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String regex = InteractiveChat.invCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder);
-		if (optplayer.isPresent()) {
-			ICPlayer player = optplayer.get();
-			if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
-				
-				String replaceText = InteractiveChat.invReplaceText;
-				String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
-				String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
-				
-				if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
-					layout0(player, sha1, title, reciever, component, unix);
-					layout1(player, sha1, title, reciever, component, unix);
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		boolean contain = (InteractiveChat.invCaseSensitive) ? (plain.contains(InteractiveChat.invPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
+		if (contain) {
+			String regex = InteractiveChat.invCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder);
+			if (optplayer.isPresent()) {
+				ICPlayer player = optplayer.get();
+				if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
+					
+					String replaceText = InteractiveChat.invReplaceText;
+					String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
+					String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
+					
+					if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
+						layout0(player, sha1, title, reciever, component, unix);
+						layout1(player, sha1, title, reciever, component, unix);
+					}
+					
+					String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
+					
+					List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
+					String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
+					
+					String command = "/interactivechat viewinv " + sha1;
+					
+					Component invComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+					invComponent = invComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
+					invComponent = invComponent.clickEvent(ClickEvent.runCommand(command));
+					component = ComponentReplacing.replace(component, regex, true, invComponent);
 				}
-				
-				String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
-				
-				List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
-				String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
-				
-				String command = "/interactivechat viewinv " + sha1;
-				
-				Component invComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
-				invComponent = invComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
-				invComponent = invComponent.clickEvent(ClickEvent.runCommand(command));
-				component = ComponentReplacing.replace(component, regex, true, invComponent);
-			}
-		} else {
-			Component message;
-			if (InteractiveChat.playerNotFoundReplaceEnable) {
-				message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
 			} else {
-				message = Component.text(InteractiveChat.invPlaceholder);
+				Component message;
+				if (InteractiveChat.playerNotFoundReplaceEnable) {
+					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+				} else {
+					message = Component.text(InteractiveChat.invPlaceholder);
+				}
+				if (InteractiveChat.playerNotFoundHoverEnable) {
+					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder))));
+				}
+				if (InteractiveChat.playerNotFoundClickEnable) {
+					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
+					message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+				}
+				component = ComponentReplacing.replace(component, regex, true, message);
 			}
-			if (InteractiveChat.playerNotFoundHoverEnable) {
-				message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.invPlaceholder))));
-			}
-			if (InteractiveChat.playerNotFoundClickEnable) {
-				String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.invPlaceholder));
-				message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
-			}
-			component = ComponentReplacing.replace(component, regex, true, message);
+			
+			return component;
+		} else {
+			return component;
 		}
-		
-		return component;
 	}
 	
 	public static String getLevelTranslation(int level) {

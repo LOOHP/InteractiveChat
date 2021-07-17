@@ -13,6 +13,7 @@ import com.loohp.interactivechat.objectholders.LegacyIdKey;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.StringBinaryTag;
 import net.kyori.adventure.nbt.TagStringIO;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
@@ -189,11 +190,26 @@ public class InteractiveChatComponentSerializer {
 			}
 
 			BinaryTagHolder nbt = input.nbt();
-			if (nbt != null) {
-				builder.put("tag", TagStringIO.get().asCompound(nbt.string()));
-			}
+			try {
+				if (nbt != null) {
+					builder.put("tag", TagStringIO.get().asCompound(nbt.string()));
+				}
 
-			return Component.text(TagStringIO.get().asString(builder.build()));
+				return Component.text(TagStringIO.get().asString(builder.build()));
+			} catch (Throwable e) {
+				try {
+					String nbtAsString = "";
+					if (nbt != null) {
+						nbtAsString = nbt.string();
+						builder.put("tag", StringBinaryTag.of("{Tag}"));
+					}
+	
+					return Component.text(TagStringIO.get().asString(builder.build()).replace("\"{Tag}\"", nbtAsString));
+				} catch (Throwable e1) {
+					e.printStackTrace();
+					return Component.empty();
+				}
+			}
 		}
 
 		@Override

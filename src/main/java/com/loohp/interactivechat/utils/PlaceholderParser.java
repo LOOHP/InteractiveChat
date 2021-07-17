@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,10 +45,16 @@ public class PlaceholderParser {
 			try {
 				CompletableFuture<String> future = new CompletableFuture<>();
 				Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> future.complete(parse0(player, str)));
-				return future.get();
+				return future.get(1500, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 				return "";
+			} catch (TimeoutException e) {
+				if (player.isLocal()) {
+					return PlaceholderAPI.setPlaceholders(player.getLocalPlayer(), str);
+				} else {
+					return "";
+				}
 			}
 		} else {
 			return parse0(player, str);

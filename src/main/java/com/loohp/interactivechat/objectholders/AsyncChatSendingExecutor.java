@@ -1,6 +1,8 @@
 package com.loohp.interactivechat.objectholders;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -35,6 +37,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private Map<Future<?>, ExecutingTaskData> executingTasks;
 	
 	private AtomicBoolean isValid;
+	private List<Integer> taskIds;
 	
 	public AsyncChatSendingExecutor(ExecutorService executor, Supplier<Long> executionWaitTime, long killThreadAfter) {
 		this.executor = executor;
@@ -44,9 +47,10 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		this.sendingQueue = new ConcurrentLinkedQueue<>();
 		this.messagesOrder = new ConcurrentHashMap<>();
 		this.isValid = new AtomicBoolean(true);
+		this.taskIds = new ArrayList<>(2);
 		
-		packetSender();
-		monitor();
+		taskIds.add(packetSender());
+		taskIds.add(monitor());
 	}
 
 	public synchronized void execute(Runnable runnable, Player player, UUID id) {
@@ -95,16 +99,20 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	@Override
 	public synchronized void close() throws Exception {
 		isValid.set(false);
+		for (int id : taskIds) {
+			if (id >= 0) {
+				Bukkit.getScheduler().cancelTask(id);
+			}
+		}
 		executor.shutdown();
-		executor.awaitTermination(6000, TimeUnit.MILLISECONDS);
 	}
 	
 	public boolean isValid() {
 		return isValid.get();
 	}
 	
-	private void packetSender() {
-		Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+	private int packetSender() {
+		return Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
 			while (!sendingQueue.isEmpty()) {
 				OutboundPacket out = sendingQueue.poll();
 				try {
@@ -115,11 +123,11 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 					e.printStackTrace();
 				}
 			}
-		}, 0, 1);
+		}, 0, 1).getTaskId();
 	}
 	
-	private void monitor() {
-		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+	private int monitor() {
+		return Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
 			long time = System.currentTimeMillis();
 			Iterator<Entry<Future<?>, ExecutingTaskData>> itr = executingTasks.entrySet().iterator();
 			while (itr.hasNext()) {
@@ -146,7 +154,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 					itr1.remove();
 				}
 			}
-		}, 0, 20);
+		}, 0, 20).getTaskId();
 	}
 	
 	public static class ExecutingTaskData {
@@ -187,6 +195,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		public UUID getId() {
 			return id;
 		}
+		
 		public long getTime() {
 			return time;
 		}

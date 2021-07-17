@@ -74,72 +74,78 @@ public class EnderchestDisplay {
 	}
 	
 	public static Component processWithoutCooldown(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String regex = InteractiveChat.enderCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder);
-		if (optplayer.isPresent()) {
-			ICPlayer player = optplayer.get();
-			if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 5)) {
-				
-				String replaceText = InteractiveChat.enderReplaceText;
-				String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.enderTitle));
-				String sha1 = HashUtils.createSha1(title, player.getEnderChest());
-				
-				if (!InteractiveChat.enderDisplay.containsKey(sha1)) {
-					int size = player.getEnderChest().getSize();
-					Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
-					for (int j = 0; j < size; j++) {
-						if (player.getEnderChest().getItem(j) != null) {
-							if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
-								inv.setItem(j, player.getEnderChest().getItem(j).clone());
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		boolean contain = (InteractiveChat.enderCaseSensitive) ? (plain.contains(InteractiveChat.enderPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase()));
+		if (contain) {
+			String regex = InteractiveChat.enderCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder);
+			if (optplayer.isPresent()) {
+				ICPlayer player = optplayer.get();
+				if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 5)) {
+					
+					String replaceText = InteractiveChat.enderReplaceText;
+					String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.enderTitle));
+					String sha1 = HashUtils.createSha1(title, player.getEnderChest());
+					
+					if (!InteractiveChat.enderDisplay.containsKey(sha1)) {
+						int size = player.getEnderChest().getSize();
+						Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
+						for (int j = 0; j < size; j++) {
+							if (player.getEnderChest().getItem(j) != null) {
+								if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
+									inv.setItem(j, player.getEnderChest().getItem(j).clone());
+								}
+							}
+						}
+						InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
+						Bukkit.getPluginManager().callEvent(event);
+						inv = event.getInventory();
+						
+						InteractiveChatAPI.addInventoryToItemShareList(SharedType.ENDERCHEST, sha1, inv);
+						
+						if (InteractiveChat.bungeecordMode) {
+							if (player.isLocal()) {
+								try {
+									BungeeMessageSender.forwardEnderchest(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 							}
 						}
 					}
-					InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
-					Bukkit.getPluginManager().callEvent(event);
-					inv = event.getInventory();
 					
-					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ENDERCHEST, sha1, inv);
+					String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
 					
-					if (InteractiveChat.bungeecordMode) {
-						if (player.isLocal()) {
-							try {
-								BungeeMessageSender.forwardEnderchest(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-					}
+					List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
+					String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
+					
+					String command = "/interactivechat viewender " + sha1;
+					
+					Component enderComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+					enderComponent = enderComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
+					enderComponent = enderComponent.clickEvent(ClickEvent.runCommand(command));
+					component = ComponentReplacing.replace(component, regex, true, enderComponent);
 				}
-				
-				String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
-				
-				List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
-				String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
-				
-				String command = "/interactivechat viewender " + sha1;
-				
-				Component enderComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
-				enderComponent = enderComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
-				enderComponent = enderComponent.clickEvent(ClickEvent.runCommand(command));
-				component = ComponentReplacing.replace(component, regex, true, enderComponent);
-			}
-		} else {
-			Component message;
-			if (InteractiveChat.playerNotFoundReplaceEnable) {
-				message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
 			} else {
-				message = Component.text(InteractiveChat.enderPlaceholder);
+				Component message;
+				if (InteractiveChat.playerNotFoundReplaceEnable) {
+					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+				} else {
+					message = Component.text(InteractiveChat.enderPlaceholder);
+				}
+				if (InteractiveChat.playerNotFoundHoverEnable) {
+					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder))));
+				}
+				if (InteractiveChat.playerNotFoundClickEnable) {
+					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+					message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+				}
+				component = ComponentReplacing.replace(component, regex, true, message);
 			}
-			if (InteractiveChat.playerNotFoundHoverEnable) {
-				message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder))));
-			}
-			if (InteractiveChat.playerNotFoundClickEnable) {
-				String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
-				message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
-			}
-			component = ComponentReplacing.replace(component, regex, true, message);
+			
+			return component;
+		} else {
+			return component;
 		}
-		
-		return component;
 	}
 
 }

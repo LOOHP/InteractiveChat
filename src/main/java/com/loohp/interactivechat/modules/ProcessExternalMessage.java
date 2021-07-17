@@ -26,6 +26,7 @@ import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ComponentFont;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
@@ -38,14 +39,12 @@ import com.loohp.interactivechat.utils.RarityUtils;
 import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ProcessExternalMessage {
 	
-	private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 	private static InteractiveChat initPlugin = InteractiveChat.plugin;
 	
 	private static Plugin plugin;
@@ -107,7 +106,7 @@ public class ProcessExternalMessage {
         	}
 		}
 		
-		message = message.replaceAll("<cmd=" + UUID_REGEX + ">", "").replaceAll("<chat=" + UUID_REGEX + ">", "");
+		message = message.replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_0.pattern(), "").replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_1.pattern(), "").replaceAll(ProcessAccurateSender.COLOR_IGNORE_PATTERN.pattern(), "");
 		
 		if (sender == null) {
 			return message;
@@ -159,7 +158,12 @@ public class ProcessExternalMessage {
 					
 					itemStr = RarityUtils.getRarityColor(item) + itemStr;
 				
-					String replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
+					String replaceText;
+					if (amount == 1) {
+						replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replace("{Item}", itemStr));
+					} else {
+						replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
+					}
 					if (InteractiveChat.itemCaseSensitive) {
 						message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.itemPlaceholder, replaceText);
 					} else {
@@ -323,7 +327,7 @@ public class ProcessExternalMessage {
         	server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
         
-        component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
+        component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Component.empty());
         
         if (InteractiveChat.usePlayerName) {
         	component = PlayernameDisplay.process(component, sender, reciever, unix);

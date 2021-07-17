@@ -12,6 +12,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 public class HashUtils {
 
 	public static byte[] createSha1(File file) throws Exception {
@@ -64,7 +67,9 @@ public class HashUtils {
         }
         dataOutput.writeInt(inventory.getSize());
         for (int i = 0; i < inventory.getSize(); i++) {
-            dataOutput.writeObject(inventory.getItem(i));
+        	ByteArrayDataOutput itemByte = ByteStreams.newDataOutput();
+        	DataTypeIO.writeItemStack(itemByte, 0, inventory.getItem(i), StandardCharsets.UTF_8);
+            dataOutput.write(itemByte.toByteArray());
         }
         dataOutput.close();
         byte[] bytes = outputStream.toByteArray();
@@ -89,7 +94,9 @@ public class HashUtils {
         }
         dataOutput.writeInt(inventory.getSize());
         for (int i = 0; i < inventory.getSize(); i++) {
-            dataOutput.writeObject(inventory.getItem(i));
+        	ByteArrayDataOutput itemByte = ByteStreams.newDataOutput();
+        	DataTypeIO.writeItemStack(itemByte, 0, inventory.getItem(i), StandardCharsets.UTF_8);
+            dataOutput.write(itemByte.toByteArray());
         }
         dataOutput.close();
         byte[] bytes = outputStream.toByteArray();
@@ -112,7 +119,9 @@ public class HashUtils {
         	dataOutput.writeBoolean(true);
         	dataOutput.write(title.getBytes(StandardCharsets.UTF_8));
         }
-        dataOutput.writeObject(item);
+        ByteArrayDataOutput itemByte = ByteStreams.newDataOutput();
+    	DataTypeIO.writeItemStack(itemByte, 0, item, StandardCharsets.UTF_8);
+        dataOutput.write(itemByte.toByteArray());
         dataOutput.close();
         byte[] bytes = outputStream.toByteArray();
         MessageDigest md = MessageDigest.getInstance("SHA-1");

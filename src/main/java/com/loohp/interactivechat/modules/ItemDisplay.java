@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
@@ -26,33 +25,24 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
-import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
-import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
-import com.loohp.interactivechat.utils.JsonUtils;
-import com.loohp.interactivechat.utils.LanguageUtils;
-import com.loohp.interactivechat.utils.NBTUtils;
+import com.loohp.interactivechat.utils.ItemStackUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import com.loohp.interactivechat.utils.RarityUtils;
-import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
@@ -180,11 +170,10 @@ public class ItemDisplay {
 	public static Component createItemDisplay(ICPlayer player, ItemStack item) throws Exception {
 		boolean trimmed = false;
 		boolean isAir = item.getType().equals(Material.AIR);
-		XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
 		
 		String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
 	    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
-	    if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > 32767) {
+	    if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > InteractiveChat.itemTagMaxLength) {
 	    	ItemStack trimedItem = new ItemStack(item.getType());
 	    	trimedItem.addUnsafeEnchantments(item.getEnchantments());
 	    	if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
@@ -205,36 +194,7 @@ public class ItemDisplay {
 	    //ystem.out.println(itemJson);
 	    
 	    String amountString = "";
-	    Component itemDisplayNameComponent = null;
-	    ChatColor rarityChatColor = RarityUtils.getRarityColor(item);
-	    NamedTextColor rarityColor = ColorUtils.toNamedTextColor(rarityChatColor);
-	    
-	    String rawDisplayName = item.hasItemMeta() && item.getItemMeta() != null ? NBTUtils.getString(item, "display", "Name") : null;
-	    if (rawDisplayName != null && JsonUtils.isValid(rawDisplayName)) {
-	    	try {
-	    		itemDisplayNameComponent = InteractiveChatComponentSerializer.gson().deserialize(rawDisplayName);
-	    		if (ComponentStyling.getFirstColor(itemDisplayNameComponent) == null) {
-	    			itemDisplayNameComponent = itemDisplayNameComponent.color(rarityColor);
-	    		}
-	    	} catch (Throwable e) {
-	    		itemDisplayNameComponent = null;
-	    	}
-	    }
-	    
-	    if (itemDisplayNameComponent == null) {
-		    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-		    	itemDisplayNameComponent = LegacyComponentSerializer.legacySection().deserialize(rarityChatColor + item.getItemMeta().getDisplayName());
-		    } else {
-		    	itemDisplayNameComponent = Component.translatable(LanguageUtils.getTranslationKey(item));
-		    	itemDisplayNameComponent = itemDisplayNameComponent.color(rarityColor);
-		    	if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-					String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-					if (owner != null) {
-						itemDisplayNameComponent = ((TranslatableComponent) itemDisplayNameComponent).args(Component.text(owner));
-					}
-				}
-		    }
-	    }
+	    Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item);
 	    
 	    amountString = String.valueOf(item.getAmount());
 	    Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);

@@ -16,13 +16,13 @@ import org.simpleyaml.configuration.file.FileConfiguration;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
-import com.loohp.interactivechat.objectholders.ICPlaceholder;
-import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -63,6 +63,9 @@ public class ConfigManager {
 	@SuppressWarnings("deprecation")
 	public static void loadConfig() {		
 		InteractiveChat.aliasesMapping.clear();
+		
+		InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
+		InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
 		
 		InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
 		InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");

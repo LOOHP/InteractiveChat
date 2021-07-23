@@ -15,12 +15,18 @@ import com.loohp.interactivechat.registry.Registry;
 public class LogFilter implements Filter {
 
     public Filter.Result checkMessage(String message, Level level) {
-        if (!Registry.ID_PATTERN.matcher(message).find()) {
+    	try {
+	    	if (message == null || message.isEmpty()) {
+	    		return Filter.Result.NEUTRAL;
+	    	} else if (!Registry.ID_PATTERN.matcher(message).find()) {
+	    		return Filter.Result.NEUTRAL;
+	    	} else {
+	    		String processed = ProcessExternalMessage.processWithoutReviever(message);
+	    		LogManager.getRootLogger().log(level, processed);
+	    		return Filter.Result.DENY;
+	    	}
+    	} catch (Throwable e) {
     		return Filter.Result.NEUTRAL;
-    	} else {
-    		String processed = ProcessExternalMessage.processWithoutReviever(message);
-    		LogManager.getRootLogger().log(level, processed);
-    		return Filter.Result.DENY;
     	}
     }
 

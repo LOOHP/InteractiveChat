@@ -73,6 +73,7 @@ import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
@@ -287,6 +288,9 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean rgbTags = true;
 	public static boolean fontTags = true;
 	
+	public static int itemTagMaxLength = 32767;
+	public static int packetStringMaxLength = 32767;
+	
 	public static PlayerDataManager playerDataManager;
 	public static Database database;
 	
@@ -457,6 +461,15 @@ public class InteractiveChat extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			Inventory topInventory = player.getOpenInventory().getTopInventory();
+			if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.itemDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay1Upper.inverse().containsKey(topInventory) || InteractiveChat.enderDisplay.inverse().containsKey(topInventory)) {
+				player.closeInventory();
+				if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
+					InventoryUtils.restorePlayerInventory(player);
+				}
+			}
+		}
 		restoreIsolatedChatListeners();
 		try {
 			OutChatPacket.getAsyncChatSendingExecutor().close();

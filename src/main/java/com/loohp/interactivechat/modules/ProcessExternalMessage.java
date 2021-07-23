@@ -374,9 +374,9 @@ public class ProcessExternalMessage {
         }, 5);
         
         String newJson = InteractiveChatComponentSerializer.gson().serialize(component);
-        if (InteractiveChat.sendOriginalIfTooLong && newJson.length() > 32767) {
+        if (InteractiveChat.sendOriginalIfTooLong && newJson.length() > InteractiveChat.packetStringMaxLength) {
         	String originalJson = InteractiveChatComponentSerializer.gson().serialize(originalComponent);
-        	if (originalJson.length() > 32767) {
+        	if (originalJson.length() > InteractiveChat.packetStringMaxLength) {
         		return "{\"text\":\"\"}";
         	} else {
         		return originalJson;

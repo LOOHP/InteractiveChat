@@ -77,13 +77,11 @@ public class InventoryUtils {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-			try {
-				InteractiveChat.protocolManager.sendServerPacket(player, packet2);
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		});
+		try {
+			InteractiveChat.protocolManager.sendServerPacket(player, packet2);
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static String toBase64(Inventory inventory) throws IllegalStateException {

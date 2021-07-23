@@ -3,11 +3,21 @@ package com.loohp.interactivechat.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
+
 public class ItemStackUtils {
+	
+	private static final ItemStack AIR = new ItemStack(Material.AIR);
 	
 	private static Class<?> craftItemStackClass;
 	private static Class<?> nmsItemStackClass;
@@ -23,6 +33,38 @@ public class ItemStackUtils {
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static Component getDisplayName(ItemStack itemstack) {
+		if (itemstack == null) {
+			itemstack = AIR.clone();
+		}
+		XMaterial xMaterial = XMaterial.matchXMaterial(itemstack);
+		ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
+		Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
+		if (NBTUtils.contains(itemstack, "display", "Name")) {
+			String name = NBTUtils.getString(itemstack, "display", "Name");
+			component = component.decorate(TextDecoration.ITALIC);
+			try {
+				if (JsonUtils.isValid(name)) {
+					component = component.append(InteractiveChatComponentSerializer.gson().deserialize(name));
+				} else {
+					component = component.append(LegacyComponentSerializer.legacySection().deserialize(name));
+				}
+			} catch (Throwable e) {
+				component = component.append(LegacyComponentSerializer.legacySection().deserialize(name));
+			}
+		} else {
+			TranslatableComponent translatableComponent = Component.translatable(LanguageUtils.getTranslationKey(itemstack));
+			if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+				String owner = NBTUtils.getString(itemstack, "SkullOwner", "Name");
+				if (owner != null) {
+					translatableComponent = translatableComponent.args(Component.text(owner));
+				}
+			}
+			component = component.append(translatableComponent);
+		}
+		return component;
 	}
 
 	public static boolean isArmor(ItemStack itemStack) {

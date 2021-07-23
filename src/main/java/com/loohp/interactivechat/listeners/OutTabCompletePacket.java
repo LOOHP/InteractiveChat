@@ -84,7 +84,13 @@ public class OutTabCompletePacket {
 								if (entry.getKey().equalsIgnoreCase(text)) {
 									icplayer = InteractiveChat.remotePlayers.get(entry.getValue());
 									if (icplayer == null) {
-										icplayer = new ICPlayer(Bukkit.getPlayer(entry.getValue()));
+										Player bukkitPlayer = Bukkit.getPlayer(entry.getValue());
+										if (bukkitPlayer == null) {
+											newMatches.add(suggestion);
+											continue;
+										} else {
+											icplayer = new ICPlayer(bukkitPlayer);
+										}
 									}
 									break;
 								}

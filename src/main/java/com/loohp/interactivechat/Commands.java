@@ -317,7 +317,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					        
 					        String json = InteractiveChatComponentSerializer.gson().serialize(component);
 					        
-					        if (json.length() > 32767) {
+					        if (json.length() > InteractiveChat.packetStringMaxLength) {
 					        	InteractiveChatAPI.sendMessageUnprocessed(sender, Component.text(text));
 					        } else {
 					        	InteractiveChatAPI.sendMessageUnprocessed(sender, component);

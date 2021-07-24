@@ -1,9 +1,11 @@
 package com.loohp.interactivechat.utils;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -19,15 +21,32 @@ import org.bukkit.inventory.ItemStack;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.PermissionCache;
 
 public class PlayerUtils implements Listener {
 	
-	private static final Map<UUID, Map<String, Boolean>> CACHE = new HashMap<>();
+	private static final Map<UUID, Map<String, PermissionCache>> CACHE = new ConcurrentHashMap<>();
 	private static final ItemStack AIR = new ItemStack(Material.AIR);
 	
 	static {
-		Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
-			CACHE.clear();
+		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+			long now = System.currentTimeMillis();
+			Iterator<Entry<UUID, Map<String, PermissionCache>>> itr0 = CACHE.entrySet().iterator();
+			while (itr0.hasNext()) {
+				Entry<UUID, Map<String, PermissionCache>> entry = itr0.next();
+				Map<String, PermissionCache> map = entry.getValue();
+				if (map == null || map.isEmpty()) {
+					itr0.remove();
+				} else {
+					Iterator<PermissionCache> itr1 = map.values().iterator();
+					while (itr1.hasNext()) {
+						PermissionCache permissionCache = itr1.next();
+						if (permissionCache.getTime() + 180000 < now) {
+							itr1.remove();
+						}
+					}
+				}
+			}
 		}, 0, 600);
 	}
 	
@@ -39,19 +58,35 @@ public class PlayerUtils implements Listener {
 	public static boolean hasPermission(UUID uuid, String permission, boolean def, int timeout) {
 		Player player = Bukkit.getPlayer(uuid);
 		if (player != null) {
-			return player.hasPermission(permission);
+			Map<String, PermissionCache> map = CACHE.get(uuid);
+			if (map == null) {
+				CACHE.putIfAbsent(uuid, new ConcurrentHashMap<>());
+				map = CACHE.get(uuid);
+			}
+			PermissionCache cachedResult = map.get(permission);
+			boolean result = cachedResult != null ? cachedResult.getValue() : player.hasPermission(permission);
+			if (cachedResult == null) {
+				map.put(permission, new PermissionCache(result, System.currentTimeMillis()));
+			} else {
+				cachedResult.setValue(result);
+			}
+			return result;
 		} else {
 			CompletableFuture<Boolean> future = new CompletableFuture<>();
 			Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-				Map<String, Boolean> map = CACHE.get(uuid);
+				Map<String, PermissionCache> map = CACHE.get(uuid);
 				if (map == null) {
-					map = new HashMap<>();
-					CACHE.put(uuid, map);
+					CACHE.putIfAbsent(uuid, new ConcurrentHashMap<>());
+					map = CACHE.get(uuid);
 				}
-				Boolean cachedResult = map.get(permission);
-				boolean result = cachedResult != null ? cachedResult : InteractiveChat.perms.playerHas(Bukkit.getWorlds().get(0).getName(), Bukkit.getOfflinePlayer(uuid), permission);
+				PermissionCache cachedResult = map.get(permission);
+				boolean result = cachedResult != null ? cachedResult.getValue() : InteractiveChat.perms.playerHas(Bukkit.getWorlds().get(0).getName(), Bukkit.getOfflinePlayer(uuid), permission);
 				future.complete(result);
-				map.put(permission, result);
+				if (cachedResult == null) {
+					map.put(permission, new PermissionCache(result, System.currentTimeMillis()));
+				} else {
+					cachedResult.setValue(result);
+				}
 			});
 			try {
 				return future.get(timeout, TimeUnit.MILLISECONDS);
@@ -60,7 +95,7 @@ public class PlayerUtils implements Listener {
 			}
 		}
 	}
-
+	
 	public static ItemStack getHeldItem(Player player) {
 		return getHeldItem(new ICPlayer(player));
 	}

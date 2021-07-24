@@ -103,7 +103,7 @@ public class Events implements Listener {
 						event.getPlayer().sendMessage(cancelmessage);
 						return;
 					}
-				} else if (event.getPlayer().hasPermission("interactivechat.module.item")) {
+				} else if (PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
 					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 						String findStr = icplaceholder.getKeyword();
 						if (command.contains(findStr)) {
@@ -210,7 +210,7 @@ public class Events implements Listener {
 				player.sendMessage(cancelmessage);
 				return;
 			}
-		} else if (player.hasPermission("interactivechat.module.item")) {
+		} else if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", false, 200)) {
 			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
 				String findStr = icplaceholder.getKeyword();
 				if (message.contains(findStr)) {
@@ -267,7 +267,7 @@ public class Events implements Listener {
 	}
     
     private boolean checkMentionPlayers(String message, Player sender) {
-    	if (sender.hasPermission("interactivechat.mention.player")) {
+    	if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.player", false, 200)) {
 			Map<String, UUID> playernames = new HashMap<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
     			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
@@ -307,7 +307,7 @@ public class Events implements Listener {
     }
     
     private boolean checkMentionHere(String message, Player sender) {
-    	if (sender.hasPermission("interactivechat.mention.here")) {
+    	if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.here", false, 200)) {
 			String name = InteractiveChat.mentionPrefix + "here";
 			int index = message.toLowerCase().indexOf(name.toLowerCase());
 			if (index >= 0) {
@@ -331,7 +331,7 @@ public class Events implements Listener {
     }
     
     private boolean checkMentionEveryone(String message, Player sender) {
-    	if (sender.hasPermission("interactivechat.mention.everyone")) {
+    	if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.everyone", false, 200)) {
 			String name = InteractiveChat.mentionPrefix + "everyone";
 			int index = message.toLowerCase().indexOf(name.toLowerCase());
 			if (index >= 0) {
@@ -363,7 +363,7 @@ public class Events implements Listener {
 			return;
 		}
 		Player player = event.getPlayer();
-		if (player.hasPermission("interactivechat.chatcolor.translate")) {
+		if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.chatcolor.translate", false, 200)) {
 			if (InteractiveChat.chatAltColorCode.isPresent()) {
 				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
 			}
@@ -377,7 +377,7 @@ public class Events implements Listener {
 			return;
 		}
 		Player player = event.getPlayer();
-		if (player.hasPermission("interactivechat.chatcolor.translate")) {
+		if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.chatcolor.translate", false, 200)) {
 			if (InteractiveChat.chatAltColorCode.isPresent()) {
 				String translated = ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage());
 				event.setMessage(translated.substring(translated.indexOf("/")));

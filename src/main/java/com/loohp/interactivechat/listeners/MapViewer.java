@@ -48,6 +48,12 @@ public class MapViewer implements Listener {
 	private static Method bukkitBukkitClassGetMapShortMethod;
 	private static Method bukkitMapViewClassGetIdMethod;
 	
+	private static Class<?> craftMapViewClass;
+	private static Class<?> craftPlayerClass;
+	private static Method craftMapViewClassRenderMethod;
+	private static Class<?> craftRenderDataClass;
+	private static Field craftRenderDataClassBufferField;
+	
 	private static Class<?> nmsItemWorldMapClass;
 	private static Constructor<?> nmsItemWorldMapClassContructor;
 	private static Class<?> nmsWorldClass;
@@ -58,7 +64,6 @@ public class MapViewer implements Listener {
 	private static Class<?> craftWorldClass;
 	private static Method craftWorldClassGetHandleMethod;
 	private static Class<?> nmsWorldMapClass;
-	private static Field nmsWorldMapClassColorsField;
 	private static Field nmsWorldMapClassDecorationsField;
 	private static Method nmsMapIconClassGetTypeMethod;
 	private static boolean nmsMapIconClassGetTypeMethodReturnsByte;
@@ -96,6 +101,12 @@ public class MapViewer implements Listener {
 				nmsItemWorldMapInstance = null;
 			}
 			
+			craftMapViewClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.CraftMapView");
+			craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+			craftMapViewClassRenderMethod = craftMapViewClass.getMethod("render", craftPlayerClass);
+			craftRenderDataClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.RenderData");
+			craftRenderDataClassBufferField = craftRenderDataClass.getField("buffer");
+			
 			nmsWorldClass = NMSUtils.getNMSClass("net.minecraft.server.%s.World", "net.minecraft.world.level.World");
 			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
 			nmsItemWorldMapClassGetSavedMapMethod = nmsItemWorldMapClass.getMethod("getSavedMap", nmsItemStackClass, nmsWorldClass);
@@ -104,11 +115,6 @@ public class MapViewer implements Listener {
 			craftWorldClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftWorld");
 			craftWorldClassGetHandleMethod = craftWorldClass.getMethod("getHandle");
 			nmsWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.%s.WorldMap", "net.minecraft.world.level.saveddata.maps.WorldMap");
-			try {
-				nmsWorldMapClassColorsField = nmsWorldMapClass.getField("g");
-			} catch (NoSuchFieldException e) {
-				nmsWorldMapClassColorsField = nmsWorldMapClass.getField("colors");
-			}
 			nmsMapIconClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MapIcon", "net.minecraft.world.level.saveddata.maps.MapIcon");
 			try {
 				nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("q");
@@ -211,8 +217,7 @@ public class MapViewer implements Listener {
 					if (itemStack != null && itemStack.equals(item)) {
 						if (!player.getInventory().containsAtLeast(itemStack, 1)) {
 							try {
-								byte[] colors = (byte[]) nmsWorldMapClassColorsField.get(worldMapObject);
-								
+								byte[] colors = (byte[]) craftRenderDataClassBufferField.get(craftMapViewClassRenderMethod.invoke(craftMapViewClass.cast(mapView), craftPlayerClass.cast(player)));
 								List<?> nmsMapIconsList = new ArrayList<>(((Map<?, ?>) nmsWorldMapClassDecorationsField.get(worldMapObject)).values());
 								Iterator<?> itr = nmsMapIconsList.iterator();
 								while (itr.hasNext()) {
@@ -239,8 +244,8 @@ public class MapViewer implements Listener {
 									
 									packet2.getByteArrays().write(0, colors);
 									packet2.getModifier().write(mapIconFieldPos0, nmsMapIconsArray);
-									InteractiveChat.protocolManager.sendServerPacket(player, packet2);
 								}
+								InteractiveChat.protocolManager.sendServerPacket(player, packet2);
 							} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException | FieldAccessException | InstantiationException e) {
 								e.printStackTrace();
 							}

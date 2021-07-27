@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
@@ -36,6 +36,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class MentionDisplay {
+	
+	private static final ItemStack WRITABLE_BOOK = XMaterial.WRITABLE_BOOK.parseItem();
 	
 	public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
 		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
@@ -98,7 +100,7 @@ public class MentionDisplay {
 						reciever.playSound(reciever.getLocation(), sound, volume, pitch);
 					}
 					if (!mentionEvent.getToast().isEmpty() && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
-						ToastUtils.mention(sender, reciever, toast, new ItemStack(Material.WRITABLE_BOOK));
+						ToastUtils.mention(sender, reciever, toast, WRITABLE_BOOK.clone());
 					}
 					
 					int bossBarTime = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.Duration") * 20);

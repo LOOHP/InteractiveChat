@@ -1,16 +1,12 @@
 package com.loohp.interactivechat.listeners;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -27,7 +23,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -39,103 +35,8 @@ import com.comphenix.protocol.wrappers.Pair;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.NMSUtils;
 
 public class MapViewer implements Listener {
-	
-	private static Class<?> nmsMapIconClass;
-	
-	private static Method bukkitBukkitClassGetMapShortMethod;
-	private static Method bukkitMapViewClassGetIdMethod;
-	
-	private static Class<?> craftMapViewClass;
-	private static Class<?> craftPlayerClass;
-	private static Method craftMapViewClassRenderMethod;
-	private static Class<?> craftRenderDataClass;
-	private static Field craftRenderDataClassBufferField;
-	
-	private static Class<?> nmsItemWorldMapClass;
-	private static Constructor<?> nmsItemWorldMapClassContructor;
-	private static Class<?> nmsWorldClass;
-	private static Class<?> nmsItemStackClass;
-	private static Method nmsItemWorldMapClassGetSavedMapMethod;
-	private static Class<?> craftItemStackClass;
-	private static Method craftItemStackClassAsNMSCopyMethod;
-	private static Class<?> craftWorldClass;
-	private static Method craftWorldClassGetHandleMethod;
-	private static Class<?> nmsWorldMapClass;
-	private static Field nmsWorldMapClassDecorationsField;
-	private static Method nmsMapIconClassGetTypeMethod;
-	private static boolean nmsMapIconClassGetTypeMethodReturnsByte;
-	private static Class<?> nmsWorldMapBClass;
-	private static Constructor<?> nmsWorldMapBClassConstructor;
-	
-	private static Object nmsItemWorldMapInstance;
-	
-	static {
-		try {
-			try {
-				bukkitBukkitClassGetMapShortMethod = Bukkit.class.getMethod("getMap", short.class);
-			} catch (NoSuchMethodException e1) {
-				bukkitBukkitClassGetMapShortMethod = null;
-			}
-			try {
-				bukkitMapViewClassGetIdMethod = MapView.class.getMethod("getId");
-			} catch (NoSuchMethodException e1) {
-				bukkitMapViewClassGetIdMethod = null;
-			}
-			
-			nmsItemWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemWorldMap", "net.minecraft.world.item.ItemWorldMap");
-			try {
-				if (InteractiveChat.version.isLegacy()) {
-					nmsItemWorldMapClassContructor = nmsItemWorldMapClass.getDeclaredConstructor();
-					nmsItemWorldMapClassContructor.setAccessible(true);
-					nmsItemWorldMapInstance = nmsItemWorldMapClassContructor.newInstance();
-					nmsItemWorldMapClassContructor.setAccessible(false);
-				} else {
-					nmsItemWorldMapClassContructor = null;
-					nmsItemWorldMapInstance = null;
-				}
-			} catch (NoSuchMethodException e1) {
-				nmsItemWorldMapClassContructor = null;
-				nmsItemWorldMapInstance = null;
-			}
-			
-			craftMapViewClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.CraftMapView");
-			craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
-			craftMapViewClassRenderMethod = craftMapViewClass.getMethod("render", craftPlayerClass);
-			craftRenderDataClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.RenderData");
-			craftRenderDataClassBufferField = craftRenderDataClass.getField("buffer");
-			
-			nmsWorldClass = NMSUtils.getNMSClass("net.minecraft.server.%s.World", "net.minecraft.world.level.World");
-			nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
-			nmsItemWorldMapClassGetSavedMapMethod = nmsItemWorldMapClass.getMethod("getSavedMap", nmsItemStackClass, nmsWorldClass);
-			craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
-			craftItemStackClassAsNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-			craftWorldClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftWorld");
-			craftWorldClassGetHandleMethod = craftWorldClass.getMethod("getHandle");
-			nmsWorldMapClass = NMSUtils.getNMSClass("net.minecraft.server.%s.WorldMap", "net.minecraft.world.level.saveddata.maps.WorldMap");
-			nmsMapIconClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MapIcon", "net.minecraft.world.level.saveddata.maps.MapIcon");
-			try {
-				nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("q");
-			} catch (NoSuchFieldException e) {
-				nmsWorldMapClassDecorationsField = nmsWorldMapClass.getField("decorations");
-			}
-			try {
-				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("getType");
-			} catch (NoSuchMethodException e) {
-				nmsMapIconClassGetTypeMethod = nmsMapIconClass.getMethod("b");
-			}
-			nmsMapIconClassGetTypeMethodReturnsByte = nmsMapIconClassGetTypeMethod.getReturnType().equals(byte.class);
-			
-			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
-				nmsWorldMapBClass = Stream.of(nmsWorldMapClass.getClasses()).filter(each -> each.getName().endsWith("$b")).findFirst().get();
-				nmsWorldMapBClassConstructor = nmsWorldMapBClass.getConstructor(int.class, int.class, int.class, int.class, byte[].class);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public static final Map<Player, ItemStack> MAP_VIEWERS = new ConcurrentHashMap<>();
 	
@@ -146,22 +47,8 @@ public class MapViewer implements Listener {
 		}
 		
 		try {
-			MapMeta map = (MapMeta) item.getItemMeta();
-			int mapId;
-			MapView mapView;
-			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_13_1)) {
-				mapView = map.getMapView();
-				mapId = mapView.getId();
-			} else if (InteractiveChat.version.equals(MCVersion.V1_13)) {
-				mapId = (short) bukkitMapViewClassGetIdMethod.invoke(map);
-				mapView = (MapView) bukkitBukkitClassGetMapShortMethod.invoke(null, bukkitMapViewClassGetIdMethod.invoke(map));
-			} else {
-				mapId = item.getDurability();
-				mapView = (MapView) bukkitBukkitClassGetMapShortMethod.invoke(null, mapId);
-			}
-			Object nmsItemStackObject = craftItemStackClassAsNMSCopyMethod.invoke(null, item);
-			Object nmsWorldServerObject = craftWorldClassGetHandleMethod.invoke(craftWorldClass.cast(mapView.getWorld()));
-			Object worldMapObject = nmsItemWorldMapClassGetSavedMapMethod.invoke(nmsItemWorldMapInstance, nmsItemStackObject, nmsWorldServerObject);
+			int mapId = FilledMapUtils.getMapId(item);
+			MapView mapView = FilledMapUtils.getMapView(item);
 			
 			PacketContainer packet1;
 			if (InteractiveChat.version.isOld()) {
@@ -217,26 +104,22 @@ public class MapViewer implements Listener {
 					if (itemStack != null && itemStack.equals(item)) {
 						if (!player.getInventory().containsAtLeast(itemStack, 1)) {
 							try {
-								byte[] colors = (byte[]) craftRenderDataClassBufferField.get(craftMapViewClassRenderMethod.invoke(craftMapViewClass.cast(mapView), craftPlayerClass.cast(player)));
-								List<?> nmsMapIconsList = new ArrayList<>(((Map<?, ?>) nmsWorldMapClassDecorationsField.get(worldMapObject)).values());
-								Iterator<?> itr = nmsMapIconsList.iterator();
+								byte[] colors = FilledMapUtils.getColors(mapView, player);
+								List<MapCursor> mapCursors = FilledMapUtils.getCursors(mapView, player);
+								Iterator<MapCursor> itr = mapCursors.iterator();
 								while (itr.hasNext()) {
-									Object nmsMapIconObject = itr.next();
-									int type;
-									if (nmsMapIconClassGetTypeMethodReturnsByte) {
-										type = (byte) nmsMapIconClassGetTypeMethod.invoke(nmsMapIconObject);
-									} else {
-										type = ((Enum<?>) nmsMapIconClassGetTypeMethod.invoke(nmsMapIconObject)).ordinal();
-									}
+									MapCursor mapCursor = itr.next();
+									int type = mapCursor.getRawType();
 									if (type == 0 || type == 6 || type == 7) {
 										itr.remove();
 									}
 								}
 								if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
-									packet2.getModifier().write(3, nmsMapIconsList);
-									packet2.getModifier().write(4, nmsWorldMapBClassConstructor.newInstance(0, 0, 128, 128, colors));
+									packet2.getModifier().write(3, FilledMapUtils.toNMSMapIconList(mapCursors));
+									packet2.getModifier().write(4, FilledMapUtils.getNMSWorldMapBClassConstructor().newInstance(0, 0, 128, 128, colors));
 								} else {
-									Object nmsMapIconsArray = Array.newInstance(nmsMapIconClass, nmsMapIconsList.size());
+									List<?> nmsMapIconsList = FilledMapUtils.toNMSMapIconList(mapCursors);
+									Object nmsMapIconsArray = Array.newInstance(FilledMapUtils.getNMSMapIconClass(), nmsMapIconsList.size());
 									for (int i = 0; i < nmsMapIconsList.size(); i++) {
 										Object nmsMapIconObject = nmsMapIconsList.get(i);
 										Array.set(nmsMapIconsArray, i, nmsMapIconObject);

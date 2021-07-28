@@ -52,10 +52,16 @@ public enum ChatComponentType {
 	}
 
 	public Component convertFrom(Object object) {
+		if (object == null) {
+			return null;
+		}
 		return converterFrom.apply(object);
 	}
 
 	public Object convertTo(Component component, boolean legacyRGB) {
+		if (component == null) {
+			return null;
+		}
 		return converterTo.apply(component, legacyRGB);
 	}
 

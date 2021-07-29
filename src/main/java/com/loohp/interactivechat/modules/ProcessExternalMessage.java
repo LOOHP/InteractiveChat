@@ -263,18 +263,18 @@ public class ProcessExternalMessage {
         	return json;
         }
         
-        String rawMessageKey = PlainTextComponentSerializer.plainText().serialize(component);
-        if (!InteractiveChat.keyTime.containsKey(rawMessageKey)) {
-        	InteractiveChat.keyTime.put(rawMessageKey, System.currentTimeMillis());
-        }
-        
-        long unix = InteractiveChat.keyTime.get(rawMessageKey);
+        Optional<ICPlayer> sender = Optional.empty();
+		String rawMessageKey = PlainTextComponentSerializer.plainText().serializeOr(component, "");
+        	   
+        InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
+
+        Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
+        long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
         if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
-        	InteractiveChat.cooldownbypass.put(unix, new HashSet<String>());
+        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
         }
         
         ProcessSenderResult commandSender = ProcessCommands.process(component);
-        Optional<ICPlayer> sender = Optional.empty();
         if (commandSender.getSender() != null) {
         	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
         	if (bukkitplayer != null) {

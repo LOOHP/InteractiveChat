@@ -279,6 +279,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static List<CompatibilityListener> compatibilityListeners = new ArrayList<>();
 	public static Map<EventPriority, Set<RegisteredListener>> isolatedAsyncListeners = new EnumMap<>(EventPriority.class);
 	public static Map<EventPriority, Set<RegisteredListener>> isolatedSyncListeners = new EnumMap<>(EventPriority.class);
+	public static Map<EventPriority, Set<RegisteredListener>> superVanishPremiumVanishListeners = new EnumMap<>(EventPriority.class);
 	
 	public static boolean useAccurateSenderFinder = true;
 	
@@ -538,8 +539,15 @@ public class InteractiveChat extends JavaPlugin {
 					handlerList.register(registration);
 				}
 			}
+			Set<RegisteredListener> vanishListeners = InteractiveChat.superVanishPremiumVanishListeners.get(priority);
+			if (vanishListeners != null) {
+				for (RegisteredListener registration : vanishListeners) {
+					handlerList.register(registration);
+				}
+			}
 		}
 		InteractiveChat.isolatedAsyncListeners.clear();
+		InteractiveChat.superVanishPremiumVanishListeners.clear();
 		
 		HandlerList syncHandlerList = PlayerChatEvent.getHandlerList();
 		for (EventPriority priority : EventPriority.values()) {

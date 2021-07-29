@@ -38,6 +38,9 @@ public class InChatPacket {
 	
 	public static void chatMessageListener() {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+			if (InteractiveChat.vanishHook) {
+				checkSuperVanishAndPremiumVanish();
+			}
 			checkAsync();
 			checkSync();
 		}, 0, 200);
@@ -258,6 +261,38 @@ public class InChatPacket {
 	            toRemove.add(registration);
 	        }
 		
+			for (RegisteredListener registration : toRemove) {
+				handlerList.unregister(registration);
+			}
+		});
+	}
+	
+	private static void checkSuperVanishAndPremiumVanish() {
+		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
+		List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
+		List<RegisteredListener> toRemove = new ArrayList<>();
+		
+		for (RegisteredListener registration : listeners) {
+            if (!registration.getPlugin().isEnabled()) {
+                continue;
+            }
+            String pluginName = registration.getPlugin().getName();
+            if (!pluginName.equals("PremiumVanish")) {
+            	continue;
+            }
+            
+            Set<RegisteredListener> list = InteractiveChat.superVanishPremiumVanishListeners.get(registration.getPriority());
+            if (list == null) {
+            	list = new LinkedHashSet<>();
+            	InteractiveChat.superVanishPremiumVanishListeners.put(registration.getPriority(), list);
+            }
+            
+            list.add(registration);
+            
+            toRemove.add(registration);
+        }
+		
+		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
 			for (RegisteredListener registration : toRemove) {
 				handlerList.unregister(registration);
 			}

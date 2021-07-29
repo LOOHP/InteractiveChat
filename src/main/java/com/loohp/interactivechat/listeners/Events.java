@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,6 +36,8 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.modules.ProcessAccurateSender;
+import com.loohp.interactivechat.modules.ProcessCommands;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
@@ -44,6 +47,7 @@ import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MessageUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.VanishUtils;
 import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -180,6 +184,17 @@ public class Events implements Listener {
 	private void checkChatMessage(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();
 		Player player = event.getPlayer();
+		
+		if (InteractiveChat.vanishHook) {
+			String tagRemovedMessage = message.replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_0.pattern(), "").replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_1.pattern(), "").replaceAll(ProcessAccurateSender.COLOR_IGNORE_PATTERN.pattern(), "").trim();
+			Optional<String> result = VanishUtils.checkChatIsCancelled(player, tagRemovedMessage);
+			if (result.isPresent()) {
+				message = message.replace(tagRemovedMessage, result.get());
+			} else {
+				event.setCancelled(true);
+				return;
+			}
+		}
 		
 		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
 		

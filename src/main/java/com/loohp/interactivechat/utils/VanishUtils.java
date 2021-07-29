@@ -1,12 +1,19 @@
 package com.loohp.interactivechat.utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.plugin.Plugin;
 
 import com.Zrips.CMI.CMI;
 import com.Zrips.CMI.Containers.CMIUser;
@@ -18,8 +25,37 @@ import de.myzelyam.api.vanish.VanishAPI;
 
 public class VanishUtils {
 	
+	private static Object premiumVanishChatListener;
+	private static Method premiumVanishChatListenerExecuteMethod;
 	private static Set<UUID> offlineVanish = new HashSet<>();
 	private static long cacheTimeout = 0;
+	
+	static {
+		try {
+			Plugin premiumVanish = Bukkit.getPluginManager().getPlugin("PremiumVanish");
+			Class<?> premiumVanishChatListenerClass = Class.forName("de.myzelyam.premiumvanish.bukkit.listeners.ChatListener");
+			premiumVanishChatListener = premiumVanishChatListenerClass.getConstructors()[0].newInstance(premiumVanish);
+			premiumVanishChatListenerExecuteMethod = premiumVanishChatListenerClass.getMethod("execute", Listener.class, Event.class);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
+			premiumVanishChatListener = null;
+			premiumVanishChatListenerExecuteMethod = null;
+		}
+	}
+	
+	public static Optional<String> checkChatIsCancelled(Player player, String message) {
+		if (premiumVanishChatListener == null) {
+			return Optional.empty();
+		} else {
+			AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(!Bukkit.isPrimaryThread(), player, message, new HashSet<>());
+			try {
+				premiumVanishChatListenerExecuteMethod.invoke(premiumVanishChatListener, null, event);
+				return event.isCancelled() ? Optional.empty() : Optional.of(event.getMessage());
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+				return Optional.empty();
+			}
+		}
+	}
 	
 	public static boolean isVanished(UUID uuid) {
 		Player player = Bukkit.getPlayer(uuid);

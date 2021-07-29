@@ -18,6 +18,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
+import com.loohp.interactivechat.hooks.ecoenchants.EcoEnchantsHook;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
@@ -89,6 +90,10 @@ public class HoverableItemDisplay {
 	
 	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {
 		boolean isAir = item.getType().equals(Material.AIR);
+		ItemStack originalItem = item.clone();
+		if (!isAir && InteractiveChat.ecoEnchantsHook) {
+			item = EcoEnchantsHook.setEcoEnchantLores(item);
+		}
 		String title = InteractiveChat.hoverableItemTitle;
 		String sha1 = HashUtils.createSha1(title, item);
 		boolean isMapView = false;
@@ -111,7 +116,7 @@ public class HoverableItemDisplay {
 				for (int j = 0; j < 9; j++) {
 					inv.setItem(j, empty);
 				}
-				inv.setItem(4, isAir ? null : item);
+				inv.setItem(4, isAir ? null : originalItem);
 				for (int j = 0; j < container.getSize(); j++) {
 					ItemStack shulkerItem = container.getItem(j);
 					if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
@@ -132,7 +137,7 @@ public class HoverableItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(13, isAir ? null : item);				            							
+					inv.setItem(13, isAir ? null : originalItem);				            							
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				} else {
 					Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
@@ -146,7 +151,7 @@ public class HoverableItemDisplay {
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}
-					inv.setItem(4, isAir ? null : item);
+					inv.setItem(4, isAir ? null : originalItem);
 					InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
 				}
 			}

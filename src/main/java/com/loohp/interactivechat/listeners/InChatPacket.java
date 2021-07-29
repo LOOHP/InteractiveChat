@@ -208,6 +208,9 @@ public class InChatPacket {
             toRemove.add(registration);
         }
 		
+		if (!InteractiveChat.plugin.isEnabled()) {
+			return;
+		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
 			for (RegisteredListener registration : toRemove) {
 				handlerList.unregister(registration);
@@ -221,6 +224,9 @@ public class InChatPacket {
 			return;
 		}
 		
+		if (!InteractiveChat.plugin.isEnabled()) {
+			return;
+		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
 			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
 			List<RegisteredListener> toRemove = new ArrayList<>();
@@ -292,6 +298,9 @@ public class InChatPacket {
             toRemove.add(registration);
         }
 		
+		if (!InteractiveChat.plugin.isEnabled()) {
+			return;
+		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
 			for (RegisteredListener registration : toRemove) {
 				handlerList.unregister(registration);

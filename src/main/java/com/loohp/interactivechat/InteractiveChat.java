@@ -123,6 +123,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean dynmapHook = false;
 	public static Boolean viaVersionHook = false;
 	public static Boolean procotcolSupportHook = false;
+	public static Boolean ecoEnchantsHook = false;
 	
 	public static Permission perms = null;
 	
@@ -398,6 +399,11 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolSupport") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ProtocolSupport!");
 			procotcolSupportHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EcoEnchants!");
+			ecoEnchantsHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {

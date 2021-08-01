@@ -36,7 +36,7 @@ public class VanishUtils {
 			Class<?> premiumVanishChatListenerClass = Class.forName("de.myzelyam.premiumvanish.bukkit.listeners.ChatListener");
 			premiumVanishChatListener = premiumVanishChatListenerClass.getConstructors()[0].newInstance(premiumVanish);
 			premiumVanishChatListenerExecuteMethod = premiumVanishChatListenerClass.getMethod("execute", Listener.class, Event.class);
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
+		} catch (Exception e) {
 			premiumVanishChatListener = null;
 			premiumVanishChatListenerExecuteMethod = null;
 		}
@@ -44,7 +44,7 @@ public class VanishUtils {
 	
 	public static Optional<String> checkChatIsCancelled(Player player, String message) {
 		if (premiumVanishChatListener == null) {
-			return Optional.empty();
+			return Optional.of(message);
 		} else {
 			AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(!Bukkit.isPrimaryThread(), player, message, new HashSet<>());
 			try {
@@ -52,7 +52,7 @@ public class VanishUtils {
 				return event.isCancelled() ? Optional.empty() : Optional.of(event.getMessage());
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
-				return Optional.empty();
+				return Optional.of(message);
 			}
 		}
 	}

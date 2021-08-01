@@ -93,12 +93,8 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Optional<Character> chatAltColorCode = Optional.empty();
 	
-	public static final Function<String, String> COLOR_CHAR_ESCAPE = str -> {
-		return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", InteractiveChat.chatAltColorCode.orElse(' ') + "");
-	};
-	public static final Function<String, String> COLOR_CHAR_UNESCAPE = str -> {
-		return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
-	};
+	public static final Function<String, String> COLOR_CHAR_ESCAPE = str -> str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", InteractiveChat.chatAltColorCode.orElse(' ') + "");
+	public static final Function<String, String> COLOR_CHAR_UNESCAPE = str -> str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
 	
 	public static InteractiveChat plugin = null;
 	
@@ -106,10 +102,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static MCVersion version;
 	
 	public static ProtocolManager protocolManager;
-	
-	public static String space0 = "\u200B";
-	public static String space1 = "\u200A";
-	public static String nullString = null;
 	
 	public static String language = "en_us";
 	

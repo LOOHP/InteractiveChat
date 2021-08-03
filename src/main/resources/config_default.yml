@@ -123,8 +123,8 @@ Settings:
       #Whether the keyword should be replaced with another text
       Enable: true
       #The text to replace the keyword
-      #Use {Placeholer} for the name of the placeholder that was unable to be parsed
-      ReplaceText: '&c{Placeholer}&r'
+      #Use {Placeholder} for the name of the placeholder that was unable to be parsed
+      ReplaceText: '&c{Placeholder}&r'
 
 Commands:
   #Whether or not to make commands displayed in chat clickable

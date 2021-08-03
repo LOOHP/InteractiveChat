@@ -128,15 +128,15 @@ public class EnderchestDisplay {
 			} else {
 				Component message;
 				if (InteractiveChat.playerNotFoundReplaceEnable) {
-					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.enderPlaceholder));
 				} else {
 					message = Component.text(InteractiveChat.enderPlaceholder);
 				}
 				if (InteractiveChat.playerNotFoundHoverEnable) {
-					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholer}", InteractiveChat.enderPlaceholder))));
+					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.enderPlaceholder))));
 				}
 				if (InteractiveChat.playerNotFoundClickEnable) {
-					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholer}", InteractiveChat.enderPlaceholder));
+					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.enderPlaceholder));
 					message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
 				}
 				component = ComponentReplacing.replace(component, regex, true, message);

@@ -45,6 +45,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InventoryUtils;
+import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.MessageUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.TimeUtils;
@@ -495,23 +496,25 @@ public class Events implements Listener {
 	private void inventoryAction(ItemStack item, Player player, Inventory topInventory) {
 		if (item != null) {
 			XMaterial xmaterial = XMaterialUtils.matchXMaterial(item);
-			if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
-				player.openBook(item.clone());
-			} else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {
-				ItemStack book = XMaterial.WRITTEN_BOOK.parseItem();
-				if (book != null && book.getItemMeta() instanceof BookMeta) { 
-					BookMeta ori = (BookMeta) item.getItemMeta();
-					BookMeta dis = (BookMeta) book.getItemMeta();
-					List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
-					if (pages.isEmpty()) {
-						dis.setPages(" ");
-					} else {
-						dis.spigot().setPages(pages);
+			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_14)) {
+				if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
+					player.openBook(item.clone());
+				} else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {
+					ItemStack book = XMaterial.WRITTEN_BOOK.parseItem();
+					if (book != null && book.getItemMeta() instanceof BookMeta) { 
+						BookMeta ori = (BookMeta) item.getItemMeta();
+						BookMeta dis = (BookMeta) book.getItemMeta();
+						List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
+						if (pages.isEmpty()) {
+							dis.setPages(" ");
+						} else {
+							dis.spigot().setPages(pages);
+						}
+						dis.setTitle("Temp Book");
+						dis.setAuthor("InteractiveChat");
+						book.setItemMeta(dis);
+						player.openBook(book);
 					}
-					dis.setTitle("Temp Book");
-					dis.setAuthor("InteractiveChat");
-					book.setItemMeta(dis);
-					player.openBook(book);
 				}
 			}
 			if (!InteractiveChat.containerDisplay.contains(topInventory) && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {

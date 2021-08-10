@@ -13,8 +13,7 @@ import net.kyori.adventure.bossbar.BossBar;
 
 /**
  * This event is called before the plugin plays the title and sound to the
- * player who is mentioned. If the player is on mention cooldown (3 seconds
- * after each mention), the event will fire as cancelled. The sound will be
+ * player who is mentioned. The sound will be
  * null if you did't set a sound in the config. Set the Sound to null if you do
  * not want to play any sound.
  * @author LOOHP

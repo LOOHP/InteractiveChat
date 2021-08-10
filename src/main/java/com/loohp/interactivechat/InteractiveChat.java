@@ -69,6 +69,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
@@ -198,6 +199,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String notEnoughArgs = "";
 	public static String setInvDisplayLayout = "";
 	public static String invalidArgs = "";
+	public static String placeholderCooldownMessage = "";
+	public static String universalCooldownMessage = "";
 	
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
@@ -222,16 +225,12 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static Map<Long, Set<String>> cooldownbypass = new ConcurrentHashMap<>();
 	
-	public static long universalCooldown = -1;
-	
-	public static Map<UUID, Map<String, Long>> placeholderCooldowns = new HashMap<>();
-	public static Map<UUID, Long> universalCooldowns = new ConcurrentHashMap<>();
+	public static long universalCooldown = 0;
 	
 	public static List<ICPlaceholder> placeholderList = new ArrayList<>();
 	public static int maxPlaceholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
-	public static Map<Player, Long> mentionCooldown = new ConcurrentHashMap<>();
 	public static Map<UUID, MentionPair> mentionPair = new ConcurrentHashMap<>();
 	public static String mentionPrefix = "@";
 	public static String mentionHightlight = "&e{MentionedPlayer}";
@@ -240,7 +239,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static String mentionEnable = "";
 	public static String mentionDisable = "";
 	
-	public static List<String> commandList = new ArrayList<String>();
+	public static List<String> commandList = new ArrayList<>();
 	
 	public static Set<String> messageToIgnore = new HashSet<>();
 	
@@ -286,6 +285,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static int packetStringMaxLength = 32767;
 	
 	public static PlayerDataManager playerDataManager;
+	public static PlaceholderCooldownManager placeholderCooldownManager;
 	public static Database database;
 	
 	public ProcessExternalMessage externalProcessor;
@@ -336,6 +336,8 @@ public class InteractiveChat extends JavaPlugin {
 	    FileConfiguration storage = ConfigManager.getStorageConfig();
 		database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));
 		database.setup();
+		
+		placeholderCooldownManager = new PlaceholderCooldownManager();
 	    
 	    getServer().getPluginManager().registerEvents(new Events(), this);
 	    getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
@@ -429,10 +431,6 @@ public class InteractiveChat extends JavaPlugin {
 		}
 	    
 	    getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
-	    
-	    for (Player player : Bukkit.getOnlinePlayers()) {
-			InteractiveChat.mentionCooldown.put(player, (System.currentTimeMillis() - 3000));
-		}
 	    
 	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
 	    	if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {

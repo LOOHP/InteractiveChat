@@ -187,6 +187,65 @@ public class PluginMessageSendingBungee {
 		}
 	}
 	
+	public static void sendPlayerUniversalCooldown(ServerInfo server, UUID player, long time) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+		
+		output.writeByte(0);
+    	DataTypeIO.writeUUID(output, player);
+    	output.writeLong(time);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x07;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendData("interchat:main", out.toByteArray());
+			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+		}
+	}
+	
+	public static void sendPlayerPlaceholderCooldown(ServerInfo server, UUID player, ICPlaceholder placeholder, long time) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+		
+		output.writeByte(1);
+    	DataTypeIO.writeUUID(output, player);
+    	DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
+    	output.writeLong(time);
+
+		int packetNumber = InteractiveChatBungee.random.nextInt();
+		int packetId = 0x07;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendData("interchat:main", out.toByteArray());
+			InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+		}
+	}
+	
 	public static void requestMessageProcess(ProxiedPlayer player, ServerInfo server, String component, UUID messageId) throws IOException {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 		
@@ -230,6 +289,7 @@ public class PluginMessageSendingBungee {
     			output.writeBoolean(placeholder.isCaseSensitive());
     			DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(output, placeholder.getPermission(), StandardCharsets.UTF_8);
+    			output.writeLong(placeholder.getCooldown());
     		} else {
     			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
     			output.writeInt(customPlaceholder.getPosition());

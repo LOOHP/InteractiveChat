@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -198,7 +199,23 @@ public class BungeeMessageListener implements PluginMessageListener {
 	    		Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(message), 60);
 	        	break;
 	        case 0x07:
-	        	
+	        	int cooldownType = input.readByte();
+	        	switch (cooldownType) {
+	        	case 0:
+	        		UUID uuid4 = DataTypeIO.readUUID(input);
+	        		long time = input.readLong();
+	        		InteractiveChat.placeholderCooldownManager.setPlayerUniversalLastTimestampRaw(uuid4, time);
+	        		break;
+	        	case 1:
+	        		uuid4 = DataTypeIO.readUUID(input);
+	        		String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        		time = input.readLong();
+	        		Optional<ICPlaceholder> optPlaceholder = InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(keyword)).findFirst();
+	        		if (optPlaceholder.isPresent()) {
+	        			InteractiveChat.placeholderCooldownManager.setPlayerPlaceholderLastTimestampRaw(uuid4, optPlaceholder.get(), time);
+	        		}
+	        		break;
+	        	}
 	        	break;
 	        case 0x08:
 	        	UUID messageId = DataTypeIO.readUUID(input);
@@ -228,7 +245,8 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			boolean casesensitive = input.readBoolean();
 	        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission));
+	        			long cooldown = input.readLong();
+	        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission, cooldown));
 	        		} else {
 	        			int customNo = input.readInt();
 	        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	

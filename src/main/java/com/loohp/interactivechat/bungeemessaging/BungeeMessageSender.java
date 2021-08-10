@@ -165,6 +165,23 @@ public class BungeeMessageSender {
     	return forwardData(time, 0x06, out.toByteArray());
     }
     
+    public static boolean sendPlayerUniversalCooldown(UUID player, long time) throws Exception {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeByte(0);
+    	DataTypeIO.writeUUID(out, player);
+    	out.writeLong(time);
+    	return forwardData(time, 0x07, out.toByteArray());
+    }
+    
+    public static boolean sendPlayerPlaceholderCooldown(UUID player, ICPlaceholder placeholder, long time) throws Exception {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeByte(1);
+    	DataTypeIO.writeUUID(out, player);
+    	DataTypeIO.writeString(out, placeholder.getKeyword(), StandardCharsets.UTF_8);
+    	out.writeLong(time);
+    	return forwardData(time, 0x07, out.toByteArray());
+    }
+    
     public static boolean respondProcessedMessage(long time, String component, UUID messageId) throws Exception {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	DataTypeIO.writeUUID(out, messageId);
@@ -206,6 +223,7 @@ public class BungeeMessageSender {
     			out.writeBoolean(placeholder.isCaseSensitive());
     			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(out, placeholder.getPermission(), StandardCharsets.UTF_8);
+    			out.writeLong(placeholder.getCooldown());
     		} else {
     			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
     			out.writeInt(customPlaceholder.getPosition());

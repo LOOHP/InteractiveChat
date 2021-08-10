@@ -62,6 +62,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload")) {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
+				InteractiveChat.placeholderCooldownManager.reloadPlaceholders();
 				InteractiveChat.itemDisplay.clear();
 				InteractiveChat.inventoryDisplay.clear();
 				InteractiveChat.inventoryDisplay1Lower.clear();
@@ -297,15 +298,15 @@ public class Commands implements CommandExecutor, TabCompleter {
 								component = PlayernameDisplay.process(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useItem) {
-					        	component = ItemDisplay.processWithoutCooldown(component, icplayer, player, unix);
+					        	component = ItemDisplay.process(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useInventory) {
-					        	component = InventoryDisplay.processWithoutCooldown(component, icplayer, player, unix);
+					        	component = InventoryDisplay.process(component, icplayer, player, unix);
 					        }
 					        if (InteractiveChat.useEnder) {
-					        	component = EnderchestDisplay.processWithoutCooldown(component, icplayer, player, unix);
+					        	component = EnderchestDisplay.process(component, icplayer, player, unix);
 					        }
-					        component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList, unix, true);
+					        component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList, unix);
 					        if (InteractiveChat.clickableCommands) {
 					        	component = CommandsDisplay.process(component);
 					        }

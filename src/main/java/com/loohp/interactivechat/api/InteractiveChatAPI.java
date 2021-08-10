@@ -3,13 +3,11 @@ package com.loohp.interactivechat.api;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,6 +29,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.modules.ItemDisplay;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -135,41 +134,12 @@ public class InteractiveChatAPI {
 	}
 	
 	/**
-	 * Get the mention cooldown for the provided player
-	 * @param player
-	 * @return A unix timestamp
-	 */
-	public static long getPlayerMentionCooldown(Player player) {
-		if (InteractiveChat.mentionCooldown.containsKey(player)) {
-			return InteractiveChat.mentionCooldown.get(player);
-		}
-		return -1;
-	}
-	
-	/**
-	 * Set the mention cooldown for the provided player
-	 * @param player
-	 * @param time
-	 */
-	public static void setPlayerMentionCooldown(Player player, long time) {
-		InteractiveChat.mentionCooldown.put(player, time);
-	}
-	
-	/**
-	 * Get all mention cooldowns
-	 * @return A map of mention cooldowns
-	 */
-	public static Map<Player, Long> getMentionCooldownMap() {
-		return new HashMap<>(InteractiveChat.mentionCooldown);
-	}
-	
-	/**
 	 * Get the cooldown of a specific placeholder for a player
 	 * @param player
 	 * @param placeholder
 	 * @return A unix timestamp
 	 */
-	public static long getPlayerPlaceholderCooldown(Player player, String placeholder) {
+	public static long getPlayerPlaceholderCooldown(Player player, ICPlaceholder placeholder) {
 		return getPlayerPlaceholderCooldown(player.getUniqueId(), placeholder);
 	}
 	
@@ -179,13 +149,8 @@ public class InteractiveChatAPI {
 	 * @param placeholder
 	 * @return A unix timestamp
 	 */
-	public static long getPlayerPlaceholderCooldown(UUID uuid, String placeholder) {
-		if (InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
-			if (InteractiveChat.placeholderCooldowns.get(uuid).containsKey(placeholder)) {
-				return InteractiveChat.placeholderCooldowns.get(uuid).get(placeholder);
-			}
-		}
-		return -1;
+	public static long getPlayerPlaceholderCooldown(UUID uuid, ICPlaceholder placeholder) {
+		return InteractiveChat.placeholderCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder);
 	}
 	
 	/**
@@ -194,7 +159,7 @@ public class InteractiveChatAPI {
 	 * @param placeholder
 	 * @param time
 	 */
-	public static void setPlayerPlaceholderCooldown(Player player, String placeholder, long time) {
+	public static void setPlayerPlaceholderCooldown(Player player, ICPlaceholder placeholder, long time) {
 		setPlayerPlaceholderCooldown(player.getUniqueId(), placeholder, time);
 	}
 	
@@ -204,11 +169,8 @@ public class InteractiveChatAPI {
 	 * @param placeholder
 	 * @param time
 	 */
-	public static void setPlayerPlaceholderCooldown(UUID uuid, String placeholder, long time) {
-		if (!InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
-			InteractiveChat.placeholderCooldowns.put(uuid, new ConcurrentHashMap<String, Long>());
-		}
-		InteractiveChat.placeholderCooldowns.get(uuid).put(placeholder, time);
+	public static void setPlayerPlaceholderCooldown(UUID uuid, ICPlaceholder placeholder, long time) {
+		InteractiveChat.placeholderCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, placeholder, time);
 	}
 	
 	/**
@@ -226,10 +188,7 @@ public class InteractiveChatAPI {
 	 * @return A unix timestamp
 	 */
 	public static long getPlayerUniversalCooldown(UUID uuid) {
-		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
-			return InteractiveChat.universalCooldowns.get(uuid);
-		}
-		return -1;
+		return InteractiveChat.placeholderCooldownManager.getPlayerUniversalLastTimestamp(uuid);
 	}
 	
 	/**
@@ -247,7 +206,7 @@ public class InteractiveChatAPI {
 	 * @param time
 	 */
 	public static void setPlayerUniversalCooldown(UUID uuid, long time) {
-		InteractiveChat.universalCooldowns.put(uuid, time);
+		InteractiveChat.placeholderCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
 	}
 	
 	/**
@@ -256,9 +215,8 @@ public class InteractiveChatAPI {
 	 * @param placeholder
 	 * @return True/False
 	 */
-	public static boolean isPlaceholderOnCooldown(Player player, String placeholder) {
-		long unix = System.currentTimeMillis();
-		return isPlaceholderOnCooldown(player, placeholder, unix);
+	public static boolean isPlaceholderOnCooldown(Player player, ICPlaceholder placeholder) {
+		return isPlaceholderOnCooldown(player, placeholder, System.currentTimeMillis());
 	}
 	
 	/**
@@ -267,9 +225,8 @@ public class InteractiveChatAPI {
 	 * @param placeholder
 	 * @return True/False
 	 */
-	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder) {
-		long unix = System.currentTimeMillis();
-		return isPlaceholderOnCooldown(uuid, placeholder, unix);
+	public static boolean isPlaceholderOnCooldown(UUID uuid, ICPlaceholder placeholder) {
+		return isPlaceholderOnCooldown(uuid, placeholder, System.currentTimeMillis());
 	}
 	
 	/**
@@ -279,7 +236,7 @@ public class InteractiveChatAPI {
 	 * @param time
 	 * @return True/False
 	 */
-	public static boolean isPlaceholderOnCooldown(Player player, String placeholder, long time) {
+	public static boolean isPlaceholderOnCooldown(Player player, ICPlaceholder placeholder, long time) {
 		return isPlaceholderOnCooldown(player.getUniqueId(), placeholder, time);
 	}
 	
@@ -290,20 +247,16 @@ public class InteractiveChatAPI {
 	 * @param time
 	 * @return True/False
 	 */
-	public static boolean isPlaceholderOnCooldown(UUID uuid, String placeholder, long time) {
-		if (InteractiveChat.universalCooldowns.containsKey(uuid)) {
-			if (InteractiveChat.universalCooldowns.get(uuid) > time) {
-				return true;
-			}
-		}
-		if (InteractiveChat.placeholderCooldowns.containsKey(uuid)) {
-			if (InteractiveChat.placeholderCooldowns.get(uuid).containsKey(placeholder)) {
-				if (InteractiveChat.placeholderCooldowns.get(uuid).get(placeholder) > time) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static boolean isPlaceholderOnCooldown(UUID uuid, ICPlaceholder placeholder, long time) {
+		return InteractiveChat.placeholderCooldownManager.isPlaceholderOnCooldownAt(uuid, placeholder, time);
+	}
+	
+	/**
+	 * Get the placeholder cooldown manager
+	 * @return PlaceholderCooldownManager
+	 */
+	public static PlaceholderCooldownManager getPlaceholderCooldownManager() {
+		return InteractiveChat.placeholderCooldownManager;
 	}
 	
 	public static enum SharedType {

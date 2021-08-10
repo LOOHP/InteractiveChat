@@ -104,6 +104,8 @@ public class ConfigManager {
 		InteractiveChat.notEnoughArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoEnoughArgs"));
 		InteractiveChat.invalidArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidArgs"));
 		InteractiveChat.setInvDisplayLayout = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.SetInventoryDisplayLayout"));
+		InteractiveChat.placeholderCooldownMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlaceholderCooldown"));
+		InteractiveChat.universalCooldownMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.UniversalCooldown"));
 		
 		InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
 		InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");
@@ -260,15 +262,15 @@ public class ConfigManager {
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000));
 		}
 		if (InteractiveChat.useInventory) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000));
 		}
 		if (InteractiveChat.useEnder) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest"));
+			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000));
 		}
 		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
 			ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));

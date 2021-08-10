@@ -17,7 +17,6 @@ import org.bukkit.plugin.Plugin;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
-import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
@@ -127,8 +126,7 @@ public class ProcessExternalMessage {
 		}
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
-			long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), InteractiveChat.itemPlaceholder) - now;
-			if (cooldown < 0 || cooldown + 100 > ConfigManager.getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000) {
+			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.itemPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.itemPlaceholder;
 				int index = InteractiveChat.itemCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -174,8 +172,7 @@ public class ProcessExternalMessage {
 		}
 		
 		if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
-			long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), InteractiveChat.invPlaceholder) - now;
-			if (cooldown < 0 || cooldown + 100 > ConfigManager.getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000) {
+			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.invPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.invPlaceholder;
 				int index = InteractiveChat.invCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -190,8 +187,7 @@ public class ProcessExternalMessage {
 		}
 		
 		if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
-			long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), InteractiveChat.enderPlaceholder) - now;
-			if (cooldown < 0 || cooldown + 100 > ConfigManager.getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000) {
+			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.enderPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.enderPlaceholder;
 				int index = InteractiveChat.enderCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -209,9 +205,9 @@ public class ProcessExternalMessage {
 			if (!placeholder.isBuildIn()) {
 				CustomPlaceholder customP = placeholder.getCustomPlaceholder().get();
 				if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
-					long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), customP.getKeyword()) - now;
+					boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 					int index = placeholder.isCaseSensitive() ? message.indexOf(placeholder.getKeyword()) : message.toLowerCase().indexOf(placeholder.getKeyword().toLowerCase());
-					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && (cooldown < 0 || cooldown + 100 > customP.getCooldown())) {
+					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && onCooldown) {
 						String replaceText = customP.getKeyword();
 						if (customP.getReplace().isEnabled()) {
 							replaceText = ChatColor.WHITE + PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
@@ -228,9 +224,9 @@ public class ProcessExternalMessage {
 		
 		if (InteractiveChat.t && WebData.getInstance() != null) {
 			for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
-				long cooldown = InteractiveChatAPI.getPlayerPlaceholderCooldown(sender.getUniqueId(), customP.getKeyword()) - now;
+				boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 				int index = customP.isCaseSensitive() ? message.indexOf(customP.getKeyword()) : message.toLowerCase().indexOf(customP.getKeyword().toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && (cooldown < 0 || cooldown + 100 > customP.getCooldown())) {
+				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && onCooldown) {
 					String replaceText = customP.getKeyword();
 					if (customP.getReplace().isEnabled()) {
 						replaceText = PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());

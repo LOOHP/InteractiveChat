@@ -83,11 +83,7 @@ public class MentionDisplay {
 					Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + settings);
 				}
 				
-				boolean inCooldown = true;
-				if (InteractiveChat.mentionCooldown.get(reciever) < unix) {
-					inCooldown = false;
-				}
-				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, toast, optBossBar, sound, inCooldown);
+				PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, toast, optBossBar, sound, false);
 				Bukkit.getPluginManager().callEvent(mentionEvent);
 				if (!mentionEvent.isCancelled()) {
 					title = mentionEvent.getTitle();
@@ -126,7 +122,6 @@ public class MentionDisplay {
 						component = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, component, unix);
 					}
 					
-					InteractiveChat.mentionCooldown.put(reciever, unix + 3000);
 					pair.remove();
 				}
     		}

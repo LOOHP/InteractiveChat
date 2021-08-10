@@ -1,10 +1,7 @@
 package com.loohp.interactivechat.modules;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +19,6 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
-import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.hooks.ecoenchants.EcoEnchantsHook;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
@@ -50,45 +46,8 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ItemDisplay {
 	
-	private static Map<UUID, Map<String, Long>> placeholderCooldowns = InteractiveChat.placeholderCooldowns;
-	private static Map<UUID, Long> universalCooldowns = InteractiveChat.universalCooldowns;
-	
-	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
-		boolean contain = (InteractiveChat.itemCaseSensitive) ? (plain.contains(InteractiveChat.itemPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
-		if (!InteractiveChat.cooldownbypass.get(unix).contains(InteractiveChat.itemPlaceholder) && contain) {
-			if (optplayer.isPresent()) {
-				ICPlayer player = optplayer.get();
-				Long uc = universalCooldowns.get(player.getUniqueId());
-				if (uc != null) {
-					if (uc > unix) {
-						return component;
-					}
-				}
-				
-				if (!placeholderCooldowns.containsKey(player.getUniqueId())) {
-					placeholderCooldowns.put(player.getUniqueId(), new ConcurrentHashMap<String, Long>());
-				}
-				Map<String, Long> spmap = placeholderCooldowns.get(player.getUniqueId());
-				if (spmap.containsKey(InteractiveChat.itemPlaceholder)) {
-					if (spmap.get(InteractiveChat.itemPlaceholder) > unix) {
-						if (!PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.cooldown.bypass", false, 5)) {
-							return component;
-						}
-					}
-				}
-				spmap.put(InteractiveChat.itemPlaceholder, unix + ConfigManager.getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
-				InteractiveChat.universalCooldowns.put(player.getUniqueId(), unix + InteractiveChat.universalCooldown);
-			}
-			InteractiveChat.cooldownbypass.get(unix).add(InteractiveChat.itemPlaceholder);
-			InteractiveChat.cooldownbypass.put(unix, InteractiveChat.cooldownbypass.get(unix));
-		}
-		
-		return processWithoutCooldown(component, optplayer, reciever, unix);
-	}
-	
 	@SuppressWarnings("deprecation")
-	public static Component processWithoutCooldown(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		String plain = PlainTextComponentSerializer.plainText().serialize(component);
 		boolean contain = (InteractiveChat.itemCaseSensitive) ? (plain.contains(InteractiveChat.itemPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
 		if (contain) {

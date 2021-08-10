@@ -22,8 +22,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -38,35 +36,31 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessAccurateSender;
 import com.loohp.interactivechat.modules.ProcessCommands;
+import com.loohp.interactivechat.objectholders.CooldownResult;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MessageUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.TimeUtils;
 import com.loohp.interactivechat.utils.VanishUtils;
 import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 public class Events implements Listener {
 	
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event) {
-		InteractiveChat.mentionCooldown.put(event.getPlayer(), (System.currentTimeMillis() - 3000));
-	}
-	
-	@EventHandler
-	public void onLeave(PlayerQuitEvent event) {
-		InteractiveChat.mentionCooldown.remove(event.getPlayer());
-	}
-	
-	@EventHandler(priority=EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		
 		boolean flag = true;
@@ -79,6 +73,26 @@ public class Events implements Listener {
 					flag = false;
 				}
 				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+				
+				CooldownResult cooldownResult = InteractiveChat.placeholderCooldownManager.checkMessage(event.getPlayer().getUniqueId(), command);
+				if (!cooldownResult.getOutcome().isAllowed()) {
+					event.setCancelled(true);
+					Component cancelmessage;
+					switch (cooldownResult.getOutcome()) {
+					case DENY_PLACEHOLDER:
+						cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+						cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getKeyword()).hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(cooldownResult.getPlaceholder().getDescription()))));
+						break;
+					case DENY_UNIVERSAL:
+						cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+						break;
+					default:
+						cancelmessage = Component.empty();
+						break;
+					}
+					InteractiveChatAPI.sendMessageUnprocessed(event.getPlayer(), cancelmessage);
+					return;
+				}
 				
 				if (InteractiveChat.maxPlaceholders >= 0) {
 					int count = 0;
@@ -142,7 +156,7 @@ public class Events implements Listener {
 		}
 	}
 	
-	@EventHandler(priority=EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void eventCancelledCheck(AsyncPlayerChatEvent event) {
 		String message = event.getMessage();
 		if (message.contains(Registry.CANCELLED_IDENTIFIER)) {
@@ -151,7 +165,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority=EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void checkChat(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) {
 			return;
@@ -163,7 +177,7 @@ public class Events implements Listener {
 		checkChatMessage(event);
 	}
 	
-	@EventHandler(priority=EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOW)
 	public void checkChatforChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
 		
 		translateAltColorCode(event);
@@ -197,6 +211,26 @@ public class Events implements Listener {
 		}
 		
 		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+		
+		CooldownResult cooldownResult = InteractiveChat.placeholderCooldownManager.checkMessage(event.getPlayer().getUniqueId(), message);
+		if (!cooldownResult.getOutcome().isAllowed()) {
+			event.setCancelled(true);
+			Component cancelmessage;
+			switch (cooldownResult.getOutcome()) {
+			case DENY_PLACEHOLDER:
+				cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+				cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getKeyword()).hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(cooldownResult.getPlaceholder().getDescription()))));
+				break;
+			case DENY_UNIVERSAL:
+				cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+				break;
+			default:
+				cancelmessage = Component.empty();
+				break;
+			}
+			InteractiveChatAPI.sendMessageUnprocessed(player, cancelmessage);
+			return;
+		}
 		
 		if (InteractiveChat.maxPlaceholders >= 0) {
 			int count = 0;
@@ -404,7 +438,7 @@ public class Events implements Listener {
 	
 	private Set<InventoryClickEvent> cancelledInventory = new HashSet<>();
 	
-	@EventHandler(priority=EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getClickedInventory() == null) {
 			return;
@@ -510,14 +544,14 @@ public class Events implements Listener {
 		}
 	}
 	
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInventoryClickHighest(InventoryClickEvent event) {
 		if (cancelledInventory.remove(event)) {
 			event.setCancelled(true);
 		}
  	}
 	
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Inventory topInventory = event.getView().getTopInventory();
 		if (topInventory != null) {

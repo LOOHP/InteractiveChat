@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import org.apache.logging.log4j.LogManager;
@@ -50,6 +51,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.MessageForwardingHandler;
+import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
@@ -115,6 +117,7 @@ public class InteractiveChatVelocity {
 	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
 	
 	private static MessageForwardingHandler messageForwardingHandler;
+	public static ProxyPlayerCooldownManager playerCooldownManager;
 	
 	private ProxyServer server;
 	private VelocityPluginDescription description;
@@ -155,6 +158,8 @@ public class InteractiveChatVelocity {
         
         Metrics metrics = metricsFactory.make(this, BSTATS_PLUGIN_ID);
         Charts.setup(metrics);
+        
+        playerCooldownManager = new ProxyPlayerCooldownManager(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().map(each -> each.getKeyword()).collect(Collectors.toList()));
         
         ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy ChatMessage Processing Thread #%d").build();
 		ExecutorService threadPool = Executors.newCachedThreadPool(factory);
@@ -329,7 +334,7 @@ public class InteractiveChatVelocity {
 		int packetNumber = in.readInt();
 		int packetId = in.readShort();
 		
-		if (packetId >= 0x08) {
+		if (packetId >= 0x07) {
 			boolean isEnding = in.readBoolean();
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
@@ -350,6 +355,28 @@ public class InteractiveChatVelocity {
 	        try {
 	        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));	        	
 		        switch (packetId) {
+		        case 0x07:
+		        	int cooldownType = input.readByte();
+		        	switch (cooldownType) {
+		        	case 0:
+		        		UUID uuid = DataTypeIO.readUUID(input);
+		        		long time = input.readLong();
+		        		playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
+		        		break;
+		        	case 1:
+		        		uuid = DataTypeIO.readUUID(input);
+		        		String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        		time = input.readLong();
+		        		playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, keyword, time);
+		        		break;
+		        	}
+		        	for (RegisteredServer eachServer : getServer().getAllServers()) {
+						if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
+							eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
+							pluginMessagesCounter.incrementAndGet();
+						}
+					}
+		        	break;
 		        case 0x08:
 		        	UUID messageId = DataTypeIO.readUUID(input);
 		        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
@@ -383,7 +410,8 @@ public class InteractiveChatVelocity {
 		        			boolean casesensitive = input.readBoolean();
 		        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission));
+		        			long cooldown = input.readLong();
+		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission, cooldown));
 		        		} else {
 		        			int customNo = input.readInt();
 		        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
@@ -409,6 +437,7 @@ public class InteractiveChatVelocity {
 		        		}
 		        	}
 		        	placeholderList.put(server.getServerInfo().getName(), list);
+		        	playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().map(each -> each.getKeyword()).collect(Collectors.toList()));
 		        	PluginMessageSendingVelocity.forwardPlaceholderList(list, server);
 		        	break;
 		        case 0x0D:
@@ -587,6 +616,8 @@ public class InteractiveChatVelocity {
 	@Subscribe
 	public void onSwitch(ServerConnectedEvent event) {
 		RegisteredServer to = event.getServer();
+		Player player = event.getPlayer();
+		UUID uuid = player.getUniqueId();
 		if (!placeholderList.containsKey(to.getServerInfo().getName())) {
 			try {
 				PluginMessageSendingVelocity.requestPlaceholderList(to);
@@ -605,6 +636,27 @@ public class InteractiveChatVelocity {
 			PluginMessageSendingVelocity.sendPlayerListData();
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		}
+		long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
+		if (universalTime >= 0) {
+			try {
+				PluginMessageSendingVelocity.sendPlayerUniversalCooldown(to, uuid, universalTime);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		List<ICPlaceholder> placeholders = placeholderList.get(to.getServerInfo().getName());
+		if (placeholders != null) {
+			for (ICPlaceholder placeholder : placeholders) {
+				long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getKeyword());
+				if (placeholderTime >= 0) {
+					try {
+						PluginMessageSendingVelocity.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		new Thread(new Runnable() {
 			@Override

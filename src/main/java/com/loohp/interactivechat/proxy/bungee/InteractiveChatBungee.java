@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -46,6 +47,7 @@ import com.loohp.interactivechat.proxy.bungee.metrics.Charts;
 import com.loohp.interactivechat.proxy.bungee.metrics.Metrics;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.MessageForwardingHandler;
+import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
@@ -112,6 +114,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
 	
 	private static MessageForwardingHandler messageForwardingHandler;
+	public static ProxyPlayerCooldownManager playerCooldownManager;
 
 	@Override
 	public void onEnable() {
@@ -137,6 +140,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		metrics = new Metrics(plugin, BSTATS_PLUGIN_ID);
 		Charts.setup(metrics);
+		
+		playerCooldownManager = new ProxyPlayerCooldownManager(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().map(each -> each.getKeyword()).collect(Collectors.toList()));
 
 		run();
 		
@@ -316,7 +321,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		int packetNumber = in.readInt();
 		int packetId = in.readShort();
 		
-		if (packetId >= 0x08) {
+		if (packetId >= 0x07) {
 			boolean isEnding = in.readBoolean();
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
@@ -337,6 +342,28 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        try {
 	        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));	        	
 		        switch (packetId) {
+		        case 0x07:
+		        	int cooldownType = input.readByte();
+		        	switch (cooldownType) {
+		        	case 0:
+		        		UUID uuid = DataTypeIO.readUUID(input);
+		        		long time = input.readLong();
+		        		playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
+		        		break;
+		        	case 1:
+		        		uuid = DataTypeIO.readUUID(input);
+		        		String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+		        		time = input.readLong();
+		        		playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, keyword, time);
+		        		break;
+		        	}
+		        	for (ServerInfo server : getProxy().getServers().values()) {
+						if (!server.getSocketAddress().equals(senderServer) && server.getPlayers().size() > 0) {
+							server.sendData("interchat:main", event.getData());
+							pluginMessagesCounter.incrementAndGet();
+						}
+					}
+		        	break;
 		        case 0x08:
 		        	UUID messageId = DataTypeIO.readUUID(input);
 		        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
@@ -370,7 +397,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        			boolean casesensitive = input.readBoolean();
 		        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission));
+		        			long cooldown = input.readLong();
+		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission, cooldown));
 		        		} else {
 		        			int customNo = input.readInt();
 		        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
@@ -396,6 +424,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        		}
 		        	}
 		        	placeholderList.put(((Server) event.getSender()).getInfo().getName(), list);
+		        	playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().map(each -> each.getKeyword()).collect(Collectors.toList()));
 		        	PluginMessageSendingBungee.forwardPlaceholderList(list, ((Server) event.getSender()).getInfo());
 		        	break;
 		        case 0x0D:
@@ -602,6 +631,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	@EventHandler
 	public void onSwitch(ServerSwitchEvent event) {
 		ServerInfo to = event.getPlayer().getServer().getInfo();
+		ProxiedPlayer player = event.getPlayer();
+		UUID uuid = player.getUniqueId();
 		if (!placeholderList.containsKey(to.getName())) {
 			try {
 				PluginMessageSendingBungee.requestPlaceholderList(to);
@@ -620,6 +651,27 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			PluginMessageSendingBungee.sendPlayerListData();
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		}
+		long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
+		if (universalTime >= 0) {
+			try {
+				PluginMessageSendingBungee.sendPlayerUniversalCooldown(to, uuid, universalTime);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		List<ICPlaceholder> placeholders = placeholderList.get(to.getName());
+		if (placeholders != null) {
+			for (ICPlaceholder placeholder : placeholders) {
+				long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getKeyword());
+				if (placeholderTime >= 0) {
+					try {
+						PluginMessageSendingBungee.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		new Thread(new Runnable() {
 			@Override

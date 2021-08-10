@@ -11,18 +11,16 @@ public class CustomPlaceholder extends ICPlaceholder {
 	private ParsePlayer parsePlayer;
 	private List<String> aliases;
 	private boolean parseKeyword;
-	private long cooldown;
 	private CustomPlaceholderHoverEvent hover;
 	private CustomPlaceholderClickEvent click;
 	private CustomPlaceholderReplaceText replace;
 	
 	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String description) {
-		super(keyword, caseSensitive, description);
+		super(keyword, caseSensitive, description, cooldown);
 		this.position = position;
 		this.parsePlayer = parsePlayer;
 		this.aliases = aliases;
 		this.parseKeyword = parseKeyword;
-		this.cooldown = cooldown;
 		this.hover = hover;
 		this.click = click;
 		this.replace = replace;
@@ -50,10 +48,6 @@ public class CustomPlaceholder extends ICPlaceholder {
 		return parseKeyword;
 	}
 	
-	public long getCooldown() {
-		return cooldown;
-	}
-	
 	public CustomPlaceholderHoverEvent getHover() {
 		return hover;
 	}
@@ -65,7 +59,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 	public CustomPlaceholderReplaceText getReplace() {
 		return replace;
 	}
-	
+
 	public static enum ParsePlayer {
 		
 		VIEWER("viewer", 0),
@@ -126,6 +120,41 @@ public class CustomPlaceholder extends ICPlaceholder {
 		public String getText() {
 			return text;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (enabled ? 1231 : 1237);
+			result = prime * result + ((text == null) ? 0 : text.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			CustomPlaceholderHoverEvent other = (CustomPlaceholderHoverEvent) obj;
+			if (enabled != other.enabled) {
+				return false;
+			}
+			if (text == null) {
+				if (other.text != null) {
+					return false;
+				}
+			} else if (!text.equals(other.text)) {
+				return false;
+			}
+			return true;
+		}
+		
 	}
 	
 	public static class CustomPlaceholderClickEvent {
@@ -151,6 +180,45 @@ public class CustomPlaceholder extends ICPlaceholder {
 		public String getValue() {
 			return value;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((action == null) ? 0 : action.hashCode());
+			result = prime * result + (enabled ? 1231 : 1237);
+			result = prime * result + ((value == null) ? 0 : value.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			CustomPlaceholderClickEvent other = (CustomPlaceholderClickEvent) obj;
+			if (action != other.action) {
+				return false;
+			}
+			if (enabled != other.enabled) {
+				return false;
+			}
+			if (value == null) {
+				if (other.value != null) {
+					return false;
+				}
+			} else if (!value.equals(other.value)) {
+				return false;
+			}
+			return true;
+		}
+		
 	}
 	
 	public static class CustomPlaceholderReplaceText {
@@ -170,6 +238,41 @@ public class CustomPlaceholder extends ICPlaceholder {
 		public String getReplaceText() {
 			return replaceText;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (enabled ? 1231 : 1237);
+			result = prime * result + ((replaceText == null) ? 0 : replaceText.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			CustomPlaceholderReplaceText other = (CustomPlaceholderReplaceText) obj;
+			if (enabled != other.enabled) {
+				return false;
+			}
+			if (replaceText == null) {
+				if (other.replaceText != null) {
+					return false;
+				}
+			} else if (!replaceText.equals(other.replaceText)) {
+				return false;
+			}
+			return true;
+		}
+		
 	}
 	
 	public static enum ClickEventAction {

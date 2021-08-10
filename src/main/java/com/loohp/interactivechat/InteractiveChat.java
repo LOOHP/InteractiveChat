@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -222,8 +221,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	
 	public static Map<UUID, String> viewingInv1 = new ConcurrentHashMap<>();
-	
-	public static Map<Long, Set<String>> cooldownbypass = new ConcurrentHashMap<>();
 	
 	public static long universalCooldown = 0;
 	
@@ -510,14 +507,6 @@ public class InteractiveChat extends JavaPlugin {
 						}
 					}
 				});
-			}
-			
-			Iterator<Long> itr = cooldownbypass.keySet().iterator();
-			while (itr.hasNext()) {
-				Long time = itr.next();
-				if (time == null || time + 10000 < now) {
-					itr.remove();
-				}
 			}
 		}, 0, 1200);
 	}

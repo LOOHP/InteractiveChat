@@ -2,7 +2,6 @@ package com.loohp.interactivechat.modules;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -266,9 +265,6 @@ public class ProcessExternalMessage {
 
         Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
         long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
-        if (!InteractiveChat.cooldownbypass.containsKey(unix)) {
-        	InteractiveChat.cooldownbypass.put(unix, new HashSet<>());
-        }
         
         ProcessSenderResult commandSender = ProcessCommands.process(component);
         if (commandSender.getSender() != null) {

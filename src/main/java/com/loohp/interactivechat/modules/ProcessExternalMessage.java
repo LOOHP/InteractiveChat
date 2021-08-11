@@ -125,7 +125,7 @@ public class ProcessExternalMessage {
 		}
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
-			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.itemPlaceholder)).findFirst().get())) {
+			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.itemPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.itemPlaceholder;
 				int index = InteractiveChat.itemCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -171,7 +171,7 @@ public class ProcessExternalMessage {
 		}
 		
 		if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
-			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.invPlaceholder)).findFirst().get())) {
+			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.invPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.invPlaceholder;
 				int index = InteractiveChat.invCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -186,7 +186,7 @@ public class ProcessExternalMessage {
 		}
 		
 		if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
-			if (InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.enderPlaceholder)).findFirst().get())) {
+			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.enderPlaceholder)).findFirst().get())) {
 				String placeholder = InteractiveChat.enderPlaceholder;
 				int index = InteractiveChat.enderCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
 				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
@@ -206,7 +206,7 @@ public class ProcessExternalMessage {
 				if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
 					boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 					int index = placeholder.isCaseSensitive() ? message.indexOf(placeholder.getKeyword()) : message.toLowerCase().indexOf(placeholder.getKeyword().toLowerCase());
-					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && onCooldown) {
+					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && !onCooldown) {
 						String replaceText = customP.getKeyword();
 						if (customP.getReplace().isEnabled()) {
 							replaceText = ChatColor.WHITE + PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
@@ -225,7 +225,7 @@ public class ProcessExternalMessage {
 			for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
 				boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 				int index = customP.isCaseSensitive() ? message.indexOf(customP.getKeyword()) : message.toLowerCase().indexOf(customP.getKeyword().toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && onCooldown) {
+				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && !onCooldown) {
 					String replaceText = customP.getKeyword();
 					if (customP.getReplace().isEnabled()) {
 						replaceText = PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());

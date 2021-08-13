@@ -50,8 +50,7 @@ public class InventoryDisplay {
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		String plain = PlainTextComponentSerializer.plainText().serialize(component);
-		boolean contain = (InteractiveChat.invCaseSensitive) ? (plain.contains(InteractiveChat.invPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase()));
-		if (contain) {
+		if (InteractiveChat.invCaseSensitive ? plain.contains(InteractiveChat.invPlaceholder) : plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.invCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder);
 			if (optplayer.isPresent()) {
 				ICPlayer player = optplayer.get();

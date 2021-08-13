@@ -1,44 +1,22 @@
 package com.loohp.interactivechat.objectholders;
 
-import java.util.Optional;
-
-public class ICPlaceholder {
+public abstract class ICPlaceholder {
 	
-	private boolean isCustomPlaceholder;
-	private String keyword;
-	private boolean caseSensitive;
-	private String description;
-	private String permission;
-	private long cooldown;
-	
-	/**
-	 * This constructor is used by {@link CustomPlaceholder}
-	 */
-	protected ICPlaceholder(String keyword, boolean caseSensitive, String description, long cooldown) {
-		this.keyword = keyword;
-		this.caseSensitive = caseSensitive;
-		this.description = description;
-		this.cooldown = cooldown;
-		this.isCustomPlaceholder = true;
-		this.permission = null;
-	}
+	protected String keyword;
+	protected boolean caseSensitive;
+	protected String description;
+	protected String permission;
+	protected long cooldown;
 	
 	public ICPlaceholder(String keyword, boolean caseSensitive, String description, String permission, long cooldown) {
 		this.keyword = keyword;
 		this.caseSensitive = caseSensitive;
 		this.description = description;
-		this.isCustomPlaceholder = false;
 		this.permission = permission;
 		this.cooldown = cooldown;
 	}
 	
-	public boolean isBuildIn() {
-		return !isCustomPlaceholder;
-	}
-	
-	public Optional<CustomPlaceholder> getCustomPlaceholder() {
-		return isCustomPlaceholder ? Optional.of((CustomPlaceholder) this) : Optional.empty();
-	}
+	public abstract boolean isBuildIn();
 	
 	public String getPermission() {
 		return permission;

@@ -14,16 +14,21 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
+import com.loohp.interactivechat.api.events.ProxyCustomDataRecievedEvent;
 import com.loohp.interactivechat.api.events.RemotePlayerAddedEvent;
 import com.loohp.interactivechat.api.events.RemotePlayerRemovedEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
+import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -32,8 +37,8 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.MentionPair;
-import com.loohp.interactivechat.objectholders.RemoteEquipment;
 import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 
@@ -95,7 +100,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			}
 	        		}
 	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			ICPlayer newPlayer = new ICPlayer(server, name, uuid, true, 0, 0, new RemoteEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
+	        			ICPlayer newPlayer = new ICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
 	        			InteractiveChat.remotePlayers.put(uuid, newPlayer);
 	        			Bukkit.getPluginManager().callEvent(new RemotePlayerAddedEvent(newPlayer));
 	        		}
@@ -246,7 +251,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        			long cooldown = input.readLong();
-	        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission, cooldown));
+	        			list.add(new BuiltInPlaceholder(keyword, casesensitive, description, permission, cooldown));
 	        		} else {
 	        			int customNo = input.readInt();
 	        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
@@ -278,20 +283,50 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x0B:
 	        	int id = input.readInt();
-	        	UUID playerUUID1 = DataTypeIO.readUUID(input);
+	        	UUID playerUUID = DataTypeIO.readUUID(input);
 	        	String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        	Player player5 = Bukkit.getPlayer(playerUUID1);
+	        	Player player5 = Bukkit.getPlayer(playerUUID);
 	        	BungeeMessageSender.permissionCheckResponse(System.currentTimeMillis(), id, player5 == null ? false : player5.hasPermission(permission));
 	        	break;
 	        case 0x0C:
 	        	BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping);
 	        	break;
 	        case 0x0D:
-	        	UUID playerUUID = DataTypeIO.readUUID(input);
-	        	PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(playerUUID);
+	        	UUID playerUUID1 = DataTypeIO.readUUID(input);
+	        	PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(playerUUID1);
 	        	if (pd != null) {
 	        		pd.reload();
 	        	}
+	        	break;
+	        case 0x0E:
+	        	SharedType sharedType = SharedType.fromValue(input.readByte());
+	        	String sha1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	Inventory inventory = DataTypeIO.readInventory(input, StandardCharsets.UTF_8);
+	        	InteractiveChatAPI.addInventoryToItemShareList(sharedType, sha1, inventory);
+	        	break;
+	        case 0x0F:
+	        	int requestType = input.readByte();
+	        	UUID playerUUID2 = DataTypeIO.readUUID(input);
+	        	Player player6 = Bukkit.getPlayer(playerUUID2);
+	        	if (player6 != null) {
+	        		ICPlayer player7 = new ICPlayer(player6);
+	        		switch (requestType) {
+		        	case 0:
+		        		BungeeMessageSender.forwardInventory(System.currentTimeMillis(), player7.getUniqueId(), player7.isRightHanded(), player7.getSelectedSlot(), player7.getExperienceLevel(), null, player7.getInventory());
+		        		break;
+		        	case 1:
+		        		BungeeMessageSender.forwardEnderchest(System.currentTimeMillis(), player7.getUniqueId(), player7.isRightHanded(), player7.getSelectedSlot(), player7.getExperienceLevel(), null, player7.getEnderChest());
+		        		break;
+		        	}
+	        	}
+	        	break;
+	        case 0xFF:
+	        	String customChannel = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+	        	int dataLength = input.readInt();
+	        	byte[] customData = new byte[dataLength];
+	        	input.readFully(customData);
+	        	ProxyCustomDataRecievedEvent dataEvent = new ProxyCustomDataRecievedEvent(customChannel, customData);
+	        	Bukkit.getPluginManager().callEvent(dataEvent);
 	        	break;
 	        }
 	        //for (Player player : Bukkit.getOnlinePlayers()) {

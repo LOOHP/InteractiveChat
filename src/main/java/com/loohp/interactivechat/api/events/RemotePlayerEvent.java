@@ -11,11 +11,11 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
  * @author LOOHP
  *
  */
-public class RemovePlayerEvent extends Event {
+public class RemotePlayerEvent extends Event {
 	
 	protected final ICPlayer player;
 	
-	public RemovePlayerEvent(ICPlayer player) {
+	public RemotePlayerEvent(ICPlayer player) {
 		super(!Bukkit.isPrimaryThread());
 		this.player = player;
 	}

@@ -291,7 +291,7 @@ public class PluginMessageSendingBungee {
     			DataTypeIO.writeString(output, placeholder.getPermission(), StandardCharsets.UTF_8);
     			output.writeLong(placeholder.getCooldown());
     		} else {
-    			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
+    			CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
     			output.writeInt(customPlaceholder.getPosition());
     			output.writeByte(customPlaceholder.getParsePlayer().getOrder());
     			DataTypeIO.writeString(output, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);

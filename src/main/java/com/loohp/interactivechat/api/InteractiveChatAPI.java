@@ -3,6 +3,7 @@ package com.loohp.interactivechat.api;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -260,11 +261,35 @@ public class InteractiveChatAPI {
 	}
 	
 	public static enum SharedType {
-		ITEM,
-		INVENTORY,
-		INVENTORY1_UPPER,
-		INVENTORY1_LOWER,
-		ENDERCHEST;
+		
+		ITEM(0),
+		INVENTORY(1),
+		INVENTORY1_UPPER(2),
+		INVENTORY1_LOWER(3),
+		ENDERCHEST(4);
+		
+		private static final Map<Integer, SharedType> MAPPINGS = new HashMap<>();
+		
+		static {
+			for (SharedType type : values()) {
+				MAPPINGS.put(type.getValue(), type);
+			}
+		}
+		
+		private int value;
+		
+		SharedType(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+		
+		public static SharedType fromValue(int value) {
+			return MAPPINGS.get(value);
+		}
+		
 	}
 	
 	/**

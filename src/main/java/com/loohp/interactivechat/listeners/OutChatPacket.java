@@ -23,6 +23,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
+import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
 import com.loohp.interactivechat.api.events.PrePacketComponentProcessEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
@@ -298,6 +299,10 @@ public class OutChatPacket implements Listener {
 				component = ComponentStyling.stripColor(component);
 			}
 	        
+	        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, component, preEventSenderUUID);
+			Bukkit.getPluginManager().callEvent(postEvent);
+			component = postEvent.getComponent();
+	        
 	        boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 	        String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
 	        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
@@ -317,17 +322,17 @@ public class OutChatPacket implements Listener {
 	        if (packet.getUUIDs().size() > 0) {
 	        	packet.getUUIDs().write(0, postEventSenderUUID);
 	        }
-	        PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
-	        Bukkit.getPluginManager().callEvent(postEvent);
+	        PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, reciever, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
+	        Bukkit.getPluginManager().callEvent(sendEvent);
 
 	        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
 	        	InteractiveChat.keyTime.remove(rawMessageKey);
 	        	InteractiveChat.keyPlayer.remove(rawMessageKey);
 	        }, 10);
 
-	        if (postEvent.isCancelled()) {
-        		if (postEvent.sendOriginalIfCancelled()) {
-        			PacketContainer originalPacketModified = postEvent.getOriginal();
+	        if (sendEvent.isCancelled()) {
+        		if (sendEvent.sendOriginalIfCancelled()) {
+        			PacketContainer originalPacketModified = sendEvent.getOriginal();
         			service.send(originalPacketModified, reciever, messageUUID);
 		        	return;
         		} else {

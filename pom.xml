@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.0.3.2</version>
+	<version>4.0.3.4</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -79,6 +79,10 @@
 								<relocation>
 									<pattern>org.yaml</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.org.yaml</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>net.querz</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.net.querz</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
@@ -434,6 +438,12 @@
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.26</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.Querz</groupId>
+			<artifactId>NBT</artifactId>
+			<version>5.5</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>

@@ -14,6 +14,7 @@ import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.FileConfiguration;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
@@ -21,7 +22,6 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
-import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
@@ -262,15 +262,15 @@ public class ConfigManager {
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000));
+			InteractiveChat.placeholderList.add(new BuiltInPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000));
 		}
 		if (InteractiveChat.useInventory) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000));
+			InteractiveChat.placeholderList.add(new BuiltInPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000));
 		}
 		if (InteractiveChat.useEnder) {
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
-			InteractiveChat.placeholderList.add(new ICPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000));
+			InteractiveChat.placeholderList.add(new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000));
 		}
 		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
 			ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));

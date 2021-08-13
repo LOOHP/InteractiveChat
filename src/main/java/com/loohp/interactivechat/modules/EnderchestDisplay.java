@@ -35,8 +35,7 @@ public class EnderchestDisplay {
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		String plain = PlainTextComponentSerializer.plainText().serialize(component);
-		boolean contain = (InteractiveChat.enderCaseSensitive) ? (plain.contains(InteractiveChat.enderPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase()));
-		if (contain) {
+		if (InteractiveChat.enderCaseSensitive ? plain.contains(InteractiveChat.enderPlaceholder) : plain.toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.enderCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder);
 			if (optplayer.isPresent()) {
 				ICPlayer player = optplayer.get();

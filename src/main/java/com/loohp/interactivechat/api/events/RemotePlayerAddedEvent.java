@@ -7,7 +7,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
  * @author LOOHP
  *
  */
-public class RemotePlayerAddedEvent extends RemovePlayerEvent {
+public class RemotePlayerAddedEvent extends RemotePlayerEvent {
 
 	public RemotePlayerAddedEvent(ICPlayer player) {
 		super(player);

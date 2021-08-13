@@ -12,48 +12,32 @@ import org.bukkit.inventory.MainHand;
 
 import com.loohp.interactivechat.InteractiveChat;
 
-public class ICPlayer {
+public class ICPlayer extends OfflineICPlayer {
 	
 	public static final String LOCAL_SERVER_REPRESENTATION = "*local_server";
 	public static final String EMPTY_SERVER_REPRESENTATION = "*invalid";
 	private static final Inventory EMPTY_INVENTORY = Bukkit.createInventory(null, 54);
 	private static final Inventory EMPTY_ENDERCHEST = Bukkit.createInventory(null, 18);
-	private static final RemoteEquipment EMPTY_EQUIPMENT = new RemoteEquipment();
+	private static final ICPlayerEquipment EMPTY_EQUIPMENT = new ICPlayerEquipment();
 
-	private UUID uuid;
 	private String remoteServer;
 	private String remoteName;
 	private boolean rightHanded;
-	private int selectedSlot;
-	private int experienceLevel;
-	private EntityEquipment remoteEquipment;
-	private Inventory remoteInventory;
-	private Inventory remoteEnderchest;
-	private final Map<String, String> remotePlaceholders;
+	private Map<String, String> remotePlaceholders;
 
-	public ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, RemoteEquipment equipment, Inventory inventory, Inventory enderchest) {
+	public ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+		super(uuid, selectedSlot, experienceLevel, equipment, inventory, enderchest);
 		this.remoteServer = server;
 		this.remoteName = name;
-		this.uuid = uuid;
 		this.rightHanded = rightHanded;
-		this.selectedSlot = selectedSlot;
-		this.experienceLevel = experienceLevel;
-		this.remoteEquipment = equipment;
-		this.remoteInventory = inventory;
-		this.remoteEnderchest = enderchest;
 		this.remotePlaceholders = new HashMap<>();
 	}
 	
 	public ICPlayer(Player player) {
+		super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
 		this.remoteServer = EMPTY_SERVER_REPRESENTATION;
 		this.remoteName = player.getName();
-		this.uuid = player.getUniqueId();
 		this.rightHanded = InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT);
-		this.selectedSlot = player.getInventory().getHeldItemSlot();
-		this.experienceLevel = player.getLevel();
-		this.remoteEquipment = EMPTY_EQUIPMENT;
-		this.remoteInventory = EMPTY_INVENTORY;
-		this.remoteEnderchest = EMPTY_ENDERCHEST;
 		this.remotePlaceholders = new HashMap<>();
 	}
 
@@ -81,6 +65,7 @@ public class ICPlayer {
 		return isLocal() ? LOCAL_SERVER_REPRESENTATION : remoteServer;
 	}
 
+	@Override
 	public String getName() {
 		return isLocal() ? getLocalPlayer().getName() : remoteName;
 	}
@@ -89,6 +74,7 @@ public class ICPlayer {
 		return isLocal() ? getLocalPlayer().getDisplayName() : remoteName;
 	}
 
+	@Override
 	public UUID getUniqueId() {
 		return uuid;
 	}
@@ -105,6 +91,7 @@ public class ICPlayer {
 		this.rightHanded = rightHanded;
 	}
 	
+	@Override
 	public int getSelectedSlot() {
 		return isLocal() ? getLocalPlayer().getInventory().getHeldItemSlot() : selectedSlot;
 	}
@@ -113,6 +100,7 @@ public class ICPlayer {
 		this.selectedSlot = selectedSlot;
 	}
 
+	@Override
 	public int getExperienceLevel() {
 		return isLocal() ? getLocalPlayer().getLevel() : experienceLevel;
 	}
@@ -121,10 +109,12 @@ public class ICPlayer {
 		this.experienceLevel = experienceLevel;
 	}
 
+	@Override
 	public EntityEquipment getEquipment() {
 		return isLocal() ? getLocalPlayer().getEquipment() : remoteEquipment;
 	}
 
+	@Override
 	public Inventory getInventory() {
 		return isLocal() ? getLocalPlayer().getInventory() : remoteInventory;
 	}
@@ -133,6 +123,7 @@ public class ICPlayer {
 		remoteInventory = inventory;
 	}
 	
+	@Override
 	public Inventory getEnderChest() {
 		return isLocal() ? getLocalPlayer().getEnderChest() : remoteEnderchest;
 	}

@@ -41,6 +41,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.loohp.interactivechat.config.Config;
+import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -334,7 +335,7 @@ public class InteractiveChatVelocity {
 		int packetNumber = in.readInt();
 		int packetId = in.readShort();
 		
-		if (packetId >= 0x07) {
+		if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
 			boolean isEnding = in.readBoolean();
 	        byte[] data = new byte[packet.length - 7];
 	        in.readFully(data);
@@ -411,7 +412,7 @@ public class InteractiveChatVelocity {
 		        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 		        			long cooldown = input.readLong();
-		        			list.add(new ICPlaceholder(keyword, casesensitive, description, permission, cooldown));
+		        			list.add(new BuiltInPlaceholder(keyword, casesensitive, description, permission, cooldown));
 		        		} else {
 		        			int customNo = input.readInt();
 		        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	

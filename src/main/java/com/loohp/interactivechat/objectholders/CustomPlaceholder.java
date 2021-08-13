@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CustomPlaceholder extends ICPlaceholder {
 	
-	private static final String CUSTOM_PLACEHOLDER_PERMISSION = "interactivechat.module.custom.";
+	public static final String CUSTOM_PLACEHOLDER_PERMISSION = "interactivechat.module.custom.";
 	
 	private int position;
 	private ParsePlayer parsePlayer;
@@ -16,7 +16,7 @@ public class CustomPlaceholder extends ICPlaceholder {
 	private CustomPlaceholderReplaceText replace;
 	
 	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String description) {
-		super(keyword, caseSensitive, description, cooldown);
+		super(keyword, caseSensitive, description, CUSTOM_PLACEHOLDER_PERMISSION + position, cooldown);
 		this.position = position;
 		this.parsePlayer = parsePlayer;
 		this.aliases = aliases;
@@ -26,14 +26,14 @@ public class CustomPlaceholder extends ICPlaceholder {
 		this.replace = replace;
 	}
 	
+	@Override
+	public boolean isBuildIn() {
+		return false;
+	}
+	
 	@Deprecated
 	public int getPosition() {
 		return position;
-	}
-	
-	@Override
-	public String getPermission() {
-		return CUSTOM_PLACEHOLDER_PERMISSION + position;
 	}
 	
 	public ParsePlayer getParsePlayer() {

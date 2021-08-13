@@ -49,8 +49,7 @@ public class ItemDisplay {
 	@SuppressWarnings("deprecation")
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		String plain = PlainTextComponentSerializer.plainText().serialize(component);
-		boolean contain = (InteractiveChat.itemCaseSensitive) ? (plain.contains(InteractiveChat.itemPlaceholder)) : (plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase()));
-		if (contain) {
+		if (InteractiveChat.itemCaseSensitive ? plain.contains(InteractiveChat.itemPlaceholder) : plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder);
 			if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
 				ICPlayer player = optplayer.get();
@@ -238,7 +237,7 @@ public class ItemDisplay {
 		Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, item.getAmount() == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
 		itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
 		itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);
-		if (!isAir) {
+		if (!isAir && (isMapView || (!isMapView && InteractiveChat.itemGUI))) {
 			itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
 		}
 		

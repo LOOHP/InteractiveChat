@@ -8,12 +8,12 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-public class RemoteEquipment implements EntityEquipment {
+public class ICPlayerEquipment implements EntityEquipment {
 
 	private final Map<EquipmentSlot, Float> dropchance;
 	private final Map<EquipmentSlot, ItemStack> equipment;
 
-	public RemoteEquipment() {
+	public ICPlayerEquipment() {
 		dropchance = new HashMap<>();
 		equipment = new HashMap<>();
 		resetEquipments();

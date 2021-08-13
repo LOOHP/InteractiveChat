@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
@@ -32,6 +34,8 @@ import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.HashUtils;
 
 public class BungeeMessageSender {
+	
+	public static final Pattern VALID_CUSTOM_CHANNEL = Pattern.compile("[a-z]+:[a-z0-9_]+");
 	
 	private static Random random = new Random();
 	protected static short itemStackScheme = 0;
@@ -104,6 +108,17 @@ public class BungeeMessageSender {
 		}
         return true;
 	}
+	
+	public static boolean forwardCustomData(long time, String channel, byte[] data) throws Exception {
+		if (!VALID_CUSTOM_CHANNEL.matcher(channel).matches()) {
+			throw new IllegalArgumentException("Channel name must satisfy this pattern " + VALID_CUSTOM_CHANNEL.pattern());
+		}
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	DataTypeIO.writeString(out, channel, StandardCharsets.UTF_8);
+    	out.writeInt(data.length);
+    	out.write(data);
+    	return forwardData(time, 0xFF, out.toByteArray());
+    }
 	
     public static boolean forwardMentionPair(long time, UUID sender, UUID receiver) throws Exception {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -225,7 +240,7 @@ public class BungeeMessageSender {
     			DataTypeIO.writeString(out, placeholder.getPermission(), StandardCharsets.UTF_8);
     			out.writeLong(placeholder.getCooldown());
     		} else {
-    			CustomPlaceholder customPlaceholder = placeholder.getCustomPlaceholder().get();
+    			CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
     			out.writeInt(customPlaceholder.getPosition());
     			out.writeByte(customPlaceholder.getParsePlayer().getOrder());
     			DataTypeIO.writeString(out, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
@@ -261,4 +276,27 @@ public class BungeeMessageSender {
     	DataTypeIO.writeUUID(out, uuid);
     	return forwardData(time, 0x0D, out.toByteArray());
     }
+    
+    public static boolean addInventory(long time, SharedType type, String sha1, String title, Inventory inventory) throws Exception {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeByte(type.getValue());
+    	DataTypeIO.writeString(out, sha1, StandardCharsets.UTF_8);
+    	DataTypeIO.writeInventory(out, inventoryScheme, title, inventory, StandardCharsets.UTF_8);
+    	return forwardData(time, 0x0E, out.toByteArray());
+    }
+    
+    public static boolean requestPlayerInventory(long time, UUID uuid) throws Exception {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeByte(0);
+    	DataTypeIO.writeUUID(out, uuid);
+    	return forwardData(time, 0x0F, out.toByteArray());
+    }
+    
+    public static boolean requestPlayerEnderChest(long time, UUID uuid) throws Exception {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeByte(1);
+    	DataTypeIO.writeUUID(out, uuid);
+    	return forwardData(time, 0x0F, out.toByteArray());
+    }
+    
 }

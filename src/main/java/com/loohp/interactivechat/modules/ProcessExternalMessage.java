@@ -202,7 +202,7 @@ public class ProcessExternalMessage {
 		
 		for (ICPlaceholder placeholder : InteractiveChatAPI.getICPlaceholderList()) {
 			if (!placeholder.isBuildIn()) {
-				CustomPlaceholder customP = placeholder.getCustomPlaceholder().get();
+				CustomPlaceholder customP = (CustomPlaceholder) placeholder;
 				if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
 					boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 					int index = placeholder.isCaseSensitive() ? message.indexOf(placeholder.getKeyword()) : message.toLowerCase().indexOf(placeholder.getKeyword().toLowerCase());

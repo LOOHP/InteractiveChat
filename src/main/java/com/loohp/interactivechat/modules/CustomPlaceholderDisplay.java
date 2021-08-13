@@ -22,6 +22,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class CustomPlaceholderDisplay {
 	
@@ -32,7 +33,7 @@ public class CustomPlaceholderDisplay {
 			if (icplaceholder.isBuildIn()) {
 				continue;
 			}
-			CustomPlaceholder cp = icplaceholder.getCustomPlaceholder().get();
+			CustomPlaceholder cp = (CustomPlaceholder) icplaceholder;
 			
 			ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
 			boolean casesensitive = cp.isCaseSensitive();
@@ -81,22 +82,27 @@ public class CustomPlaceholderDisplay {
 	}
 	
 	public static Component processCustomPlaceholder(ICPlayer player, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, Component component, Optional<ICPlayer> optplayer, long unix) {
-		String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
-		String componentText = placeholder;
-		if (replaceEnabled) {
-			componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
+		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		if (casesensitive ? plain.contains(placeholder) : plain.toLowerCase().contains(placeholder.toLowerCase())) {
+			String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
+			String componentText = placeholder;
+			if (replaceEnabled) {
+				componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
+			}
+			
+			Component placeholderComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+			if (hoverEnabled) {
+				placeholderComponent = placeholderComponent.hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, hoverText)))));
+			}
+			if (clickEnabled) {
+				String clicktext = PlaceholderParser.parse(player, clickValue);
+				placeholderComponent = placeholderComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(clickAction.name()), clicktext));
+			}
+			
+			return ComponentReplacing.replace(component, regex, true, placeholderComponent);
+		} else {
+			return component;
 		}
-		
-		Component placeholderComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
-		if (hoverEnabled) {
-			placeholderComponent = placeholderComponent.hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, hoverText)))));
-		}
-		if (clickEnabled) {
-			String clicktext = PlaceholderParser.parse(player, clickValue);
-			placeholderComponent = placeholderComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(clickAction.name()), clicktext));
-		}
-		
-		return ComponentReplacing.replace(component, regex, true, placeholderComponent);
 	}
 
 }

@@ -12,6 +12,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.CooldownResult.CooldownOutcome;
+import com.loohp.interactivechat.utils.PlayerUtils;
 
 public class PlaceholderCooldownManager {
 	
@@ -39,6 +40,9 @@ public class PlaceholderCooldownManager {
 	}
 	
 	public CooldownResult checkMessage(UUID uuid, String message) {
+		if (PlayerUtils.hasPermission(uuid, "interactivechat.cooldown.bypass", false, 200)) {
+			return new CooldownResult(CooldownOutcome.ALLOW_BYPASS, -1, null);
+		}
 		long now = System.currentTimeMillis();
 		List<Runnable> tasksIfSucessful = new LinkedList<>();
 		if (InteractiveChat.universalCooldown > 0) {
@@ -116,6 +120,9 @@ public class PlaceholderCooldownManager {
 	}
 	
 	public boolean isPlaceholderOnCooldownAt(UUID uuid, ICPlaceholder placeholder, long time) {
+		if (PlayerUtils.hasPermission(uuid, "interactivechat.cooldown.bypass", false, 200)) {
+			return false;
+		}
 		long universalLastTimestamp = getPlayerUniversalLastTimestamp(uuid);
 		if (universalLastTimestamp >= 0 && InteractiveChat.universalCooldown > 0 && time - universalLastTimestamp < InteractiveChat.universalCooldown) {
 			return true;

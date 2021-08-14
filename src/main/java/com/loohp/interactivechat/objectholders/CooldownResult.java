@@ -27,6 +27,7 @@ public class CooldownResult {
 	public static enum CooldownOutcome {
 		
 		ALLOW(true), 
+		ALLOW_BYPASS(true),
 		DENY_PLACEHOLDER(false), 
 		DENY_UNIVERSAL(false);
 		

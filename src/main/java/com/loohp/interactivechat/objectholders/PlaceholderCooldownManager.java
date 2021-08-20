@@ -45,16 +45,20 @@ public class PlaceholderCooldownManager {
 		}
 		long now = System.currentTimeMillis();
 		List<Runnable> tasksIfSucessful = new LinkedList<>();
-		if (InteractiveChat.universalCooldown > 0) {
-			Long lastUniversal = universalTimestamps.get(uuid);
-			if (lastUniversal != null && now - lastUniversal < InteractiveChat.universalCooldown) {
-				return new CooldownResult(CooldownOutcome.DENY_UNIVERSAL, lastUniversal + InteractiveChat.universalCooldown, null);
-			}
-		}
-		tasksIfSucessful.add(() -> setPlayerUniversalLastTimestamp(uuid, now));
+		boolean first = true;
 		for (Entry<ICPlaceholder, Map<UUID, Long>> entry : placeholderTimestamps.entrySet()) {
 			ICPlaceholder placeholder = entry.getKey();
 			if ((placeholder.isCaseSensitive() && message.contains(placeholder.getKeyword())) || (!placeholder.isCaseSensitive() && message.toLowerCase().contains(placeholder.getKeyword().toLowerCase()))) {
+				if (first) {
+					first = false;
+					if (InteractiveChat.universalCooldown > 0) {
+						Long lastUniversal = universalTimestamps.get(uuid);
+						if (lastUniversal != null && now - lastUniversal < InteractiveChat.universalCooldown) {
+							return new CooldownResult(CooldownOutcome.DENY_UNIVERSAL, lastUniversal + InteractiveChat.universalCooldown, null);
+						}
+					}
+					tasksIfSucessful.add(() -> setPlayerUniversalLastTimestamp(uuid, now));
+				}
 				Map<UUID, Long> mapping = entry.getValue();
 				if (placeholder.getCooldown() > 0) {
 					Long lastUsed = mapping.get(uuid);

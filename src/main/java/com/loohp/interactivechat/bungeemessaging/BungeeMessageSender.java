@@ -28,7 +28,6 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ValuePairs;
-import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.HashUtils;
@@ -89,7 +88,7 @@ public class BungeeMessageSender {
 		
 		int packetNumber = random.nextInt();
 		try {
-			byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+			byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 			
 			for (int i = 0; i < dataArray.length; i++) {
 				byte[] chunk = dataArray[i];

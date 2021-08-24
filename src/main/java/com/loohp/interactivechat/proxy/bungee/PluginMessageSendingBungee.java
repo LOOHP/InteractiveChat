@@ -17,7 +17,6 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
-import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 
@@ -49,7 +48,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x00;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -133,7 +132,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x01;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -165,7 +164,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x06;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -198,7 +197,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x07;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -228,7 +227,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x07;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -257,7 +256,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x08;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -324,7 +323,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x09;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -353,7 +352,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x0A;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -382,7 +381,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x0B;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -409,7 +408,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x0C;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];
@@ -436,7 +435,7 @@ public class PluginMessageSendingBungee {
 		int packetId = 0x0D;
 		byte[] data = output.toByteArray();
 
-		byte[][] dataArray = CustomArrayUtils.divideArray(CompressionUtils.compress(data), 32700);
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
 
 		for (int i = 0; i < dataArray.length; i++) {
 			byte[] chunk = dataArray[i];

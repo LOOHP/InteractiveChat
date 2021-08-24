@@ -28,16 +28,28 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public class PlaceholderParser {
 	
+	private static volatile Pattern expansionRegex = getExpansionPattern();
+	
 	static {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
 			if (InteractiveChat.bungeecordMode) {
+				if (InteractiveChat.parsePAPIOnMainThread) {
+					Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> expansionRegex = getExpansionPattern());
+				} else {
+					expansionRegex = getExpansionPattern();
+				}
 				if (InteractiveChat.useTooltipOnTab) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
 						parse(new ICPlayer(player), InteractiveChat.tabTooltip);
 					}
 				}
 			}
-		}, 0, 200);
+		}, 200, 200);
+	}
+	
+	private static Pattern getExpansionPattern() {
+		Collection<PlaceholderExpansion> expansions = PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().getExpansions();
+		return Pattern.compile("(?i)%(" + expansions.stream().map(each -> each.getIdentifier()).collect(Collectors.joining("|")) + ")_.*%");
 	}
 	
 	public static String parse(ICPlayer player, String str) {
@@ -85,8 +97,7 @@ public class PlaceholderParser {
 	
 	public static Map<String, String> getAllPlaceholdersContained(Player player, String str) {
 		Map<String, String> matchingPlaceholders = new HashMap<>();
-		Collection<PlaceholderExpansion> expansions = PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().getExpansions();
-		Pattern regex = Pattern.compile("(?i)%(" + expansions.parallelStream().map(each -> each.getIdentifier()).collect(Collectors.joining("|")) + ")_.*%");
+		Pattern regex = expansionRegex;
 		Matcher matcher = regex.matcher(str);
 		while (matcher.find()) {
 			String matching = matcher.group();

@@ -322,10 +322,19 @@ public class InteractiveChat extends JavaPlugin {
 		    getServer().getPluginManager().registerEvents(new ServerPingListener(), this);
 		    ServerPingListener.listen();
 		    
-		    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-		    	for (Player player : Bukkit.getOnlinePlayers()) {
-		    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
-		    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
+		    Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+		    	if (parsePAPIOnMainThread) {
+		    		Bukkit.getScheduler().runTask(plugin, () -> {
+		    			for (Player player : Bukkit.getOnlinePlayers()) {
+				    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
+				    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
+				    	}
+		    		});
+		    	} else {
+		    		for (Player player : Bukkit.getOnlinePlayers()) {
+			    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
+			    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
+			    	}
 		    	}
 		    }, 0, 100);
 		}

@@ -27,7 +27,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
@@ -56,7 +55,6 @@ import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.MessageUtils;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
@@ -354,7 +352,7 @@ public class InteractiveChatVelocity {
 	        }
 	        
 	        try {
-	        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));	        	
+	        	ByteArrayDataInput input = ByteStreams.newDataInput(data);	        	
 		        switch (packetId) {
 		        case 0x07:
 		        	int cooldownType = input.readByte();
@@ -446,7 +444,7 @@ public class InteractiveChatVelocity {
 		        	PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
 		        	break;
 	        	}
-	        } catch (IOException | DataFormatException e) {
+	        } catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {

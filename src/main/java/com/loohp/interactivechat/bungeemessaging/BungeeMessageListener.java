@@ -39,7 +39,6 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.MentionPair;
-import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 
 public class BungeeMessageListener implements PluginMessageListener {
@@ -81,7 +80,7 @@ public class BungeeMessageListener implements PluginMessageListener {
         }
         
         try {
-        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));
+        	ByteArrayDataInput input = ByteStreams.newDataInput(data);
         	
 	        switch (packetId) {
 	        case 0x00:

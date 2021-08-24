@@ -42,9 +42,11 @@ public class ItemStackUtils {
 		XMaterial xMaterial = XMaterial.matchXMaterial(itemstack);
 		ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
 		Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
-		if (NBTUtils.contains(itemstack, "display", "Name")) {
+		if (!itemstack.getType().equals(Material.AIR) && NBTUtils.contains(itemstack, "display", "Name")) {
 			String name = NBTUtils.getString(itemstack, "display", "Name");
-			component = component.decorate(TextDecoration.ITALIC);
+			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_9)) {
+				component = component.decorate(TextDecoration.ITALIC);
+			}
 			try {
 				if (JsonUtils.isValid(name)) {
 					component = component.append(InteractiveChatComponentSerializer.gson().deserialize(name));

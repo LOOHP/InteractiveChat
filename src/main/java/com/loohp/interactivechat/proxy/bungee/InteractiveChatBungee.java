@@ -30,7 +30,6 @@ import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -50,7 +49,6 @@ import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.MessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.CompressionUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MessageUtils;
@@ -341,7 +339,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	        }
 	        
 	        try {
-	        	ByteArrayDataInput input = ByteStreams.newDataInput(CompressionUtils.decompress(data));	        	
+	        	ByteArrayDataInput input = ByteStreams.newDataInput(data);	        	
 		        switch (packetId) {
 		        case 0x07:
 		        	int cooldownType = input.readByte();
@@ -433,7 +431,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	PluginMessageSendingBungee.reloadPlayerData(uuid2, ((Server) event.getSender()).getInfo());
 		        	break;
 	        	}
-	        } catch (IOException | DataFormatException e) {
+	        } catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {

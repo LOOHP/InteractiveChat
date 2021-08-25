@@ -35,7 +35,7 @@ permissions:
     default: op
   interactivechat.cooldown.bypass:
     description: Allows you to bypass cooldown
-    default: op
+    default: false
   interactivechat.module.item:
     description: Allows you to use the item placeholder
     default: true

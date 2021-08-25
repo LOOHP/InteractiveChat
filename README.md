@@ -51,6 +51,7 @@ Replace `VERSION` with the version number.
 - [VentureChat](https://www.spigotmc.org/resources/venturechat.771/)
 - [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/)
 - [Dynmap](https://www.spigotmc.org/resources/dynmap.274/)
+- [LuckPerms](https://luckperms.net/)
 
 ## Addons
 

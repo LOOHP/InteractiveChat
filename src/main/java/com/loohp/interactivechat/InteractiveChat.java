@@ -52,6 +52,7 @@ import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
 import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
+import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.Events;
@@ -116,6 +117,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean viaVersionHook = false;
 	public static Boolean procotcolSupportHook = false;
 	public static Boolean ecoEnchantsHook = false;
+	public static Boolean luckPermsHook = false;
 	
 	public static Permission perms = null;
 	
@@ -404,6 +406,12 @@ public class InteractiveChat extends JavaPlugin {
 	    if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null) {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EcoEnchants!");
 			ecoEnchantsHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into LuckPerms!");
+	    	new LuckPermsEvents(this);
+			luckPermsHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {

@@ -69,6 +69,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				InteractiveChat.enderDisplay.clear();
 				InteractiveChat.mapDisplay.clear();
 				InteractiveChat.itemDisplayTimeouts.clear();
+				PlayerUtils.resetAllPermissionCache();
 				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
 				if (InteractiveChat.bungeecordMode) {
 					try {

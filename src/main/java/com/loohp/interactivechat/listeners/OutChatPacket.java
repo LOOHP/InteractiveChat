@@ -283,7 +283,7 @@ public class OutChatPacket implements Listener {
 	        	component = EnderchestDisplay.process(component, sender, reciever, unix);
 	        }
 
-	        component = CustomPlaceholderDisplay.process(component, sender, reciever, InteractiveChat.placeholderList, unix);
+	        component = CustomPlaceholderDisplay.process(component, sender, reciever, InteractiveChat.placeholderList.values(), unix);
 
 	        if (InteractiveChat.clickableCommands) {
 	        	component = CommandsDisplay.process(component);

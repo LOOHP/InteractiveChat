@@ -123,7 +123,7 @@ public class InteractiveChatAPI {
 	 * @return The placeholder keyword list
 	 */
 	public static List<String> getPlaceholderList() {
-		return InteractiveChat.placeholderList.stream().map(each -> each.getKeyword()).collect(Collectors.toList());
+		return InteractiveChat.placeholderList.values().stream().map(each -> each.getKeyword()).collect(Collectors.toList());
 	}
 	
 	/**
@@ -131,7 +131,7 @@ public class InteractiveChatAPI {
 	 * @return The placeholder list
 	 */
 	public static List<ICPlaceholder> getICPlaceholderList() {
-		return new ArrayList<>(InteractiveChat.placeholderList);
+		return new ArrayList<>(InteractiveChat.placeholderList.values());
 	}
 	
 	/**

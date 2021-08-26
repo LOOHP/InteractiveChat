@@ -251,14 +251,14 @@ public class Commands implements CommandExecutor, TabCompleter {
 					List<Component> items = new ArrayList<>();
 					if (sender.hasPermission("interactivechat.list.all")) {
 						int i = 0;
-						for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+						for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 							i++;
 							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
 							items.add(LegacyComponentSerializer.legacySection().deserialize(text));
 						}
 					} else {
 						int i = 0;
-						for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+						for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 							if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
 								i++;
 								String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
@@ -307,7 +307,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					        if (InteractiveChat.useEnder) {
 					        	component = EnderchestDisplay.process(component, icplayer, player, unix);
 					        }
-					        component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList, unix);
+					        component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList.values(), unix);
 					        if (InteractiveChat.clickableCommands) {
 					        	component = CommandsDisplay.process(component);
 					        }
@@ -438,7 +438,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		
 		if (sender instanceof Player && args.length > 1 && (("chat".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.chat")) || ("parse".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.parse")))) {
 			if (InteractiveChat.version.isLegacy()) {
-				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+				for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
 						String text = placeholder.getKeyword();
 						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
@@ -447,7 +447,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 					}
 				}
 			} else {
-				for (ICPlaceholder placeholder : InteractiveChat.placeholderList) {
+				for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
 						String text = placeholder.getKeyword();
 						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {

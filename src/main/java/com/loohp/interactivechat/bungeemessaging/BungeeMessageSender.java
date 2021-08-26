@@ -226,7 +226,7 @@ public class BungeeMessageSender {
     }
     
     @SuppressWarnings("deprecation")
-	public static boolean resetAndForwardPlaceholderList(long time, List<ICPlaceholder> placeholderList) throws Exception {
+	public static boolean resetAndForwardPlaceholderList(long time, Collection<ICPlaceholder> placeholderList) throws Exception {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	out.writeInt(placeholderList.size());
     	for (ICPlaceholder placeholder : placeholderList) {

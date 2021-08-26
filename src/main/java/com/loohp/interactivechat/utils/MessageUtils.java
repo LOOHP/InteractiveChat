@@ -1,13 +1,13 @@
 package com.loohp.interactivechat.utils;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 
 public class MessageUtils {
 
-	public static String preprocessMessage(String message, List<ICPlaceholder> placeholderList, Map<String, String> aliasesMapping) {
+	public static String preprocessMessage(String message, Collection<ICPlaceholder> placeholderList, Map<String, String> aliasesMapping) {
 		for (ICPlaceholder icplaceholder : placeholderList) {
 			String placeholder = icplaceholder.getKeyword();
 			if ((icplaceholder.isCaseSensitive() && ChatColorUtils.stripColor(message).contains(placeholder)) || (!icplaceholder.isCaseSensitive() && ChatColorUtils.stripColor(message.toLowerCase()).contains(placeholder.toLowerCase()))) {

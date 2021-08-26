@@ -1,6 +1,6 @@
 package com.loohp.interactivechat.modules;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.bukkit.entity.Player;
@@ -26,10 +26,8 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class CustomPlaceholderDisplay {
 	
-	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, List<ICPlaceholder> placeholderList, long unix) {
-		for (int i = 0; i < placeholderList.size(); i++) {
-			
-			ICPlaceholder icplaceholder = placeholderList.get(i);
+	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, Collection<ICPlaceholder> placeholderList, long unix) {
+		for (ICPlaceholder icplaceholder : placeholderList) {
 			if (icplaceholder.isBuildIn()) {
 				continue;
 			}

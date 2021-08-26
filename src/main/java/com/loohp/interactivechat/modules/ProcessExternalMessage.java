@@ -2,7 +2,7 @@ package com.loohp.interactivechat.modules;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -125,77 +125,71 @@ public class ProcessExternalMessage {
 		}
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
-			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.itemPlaceholder)).findFirst().get())) {
-				String placeholder = InteractiveChat.itemPlaceholder;
-				int index = InteractiveChat.itemCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
-					ItemStack item = sender.getEquipment().getItemInHand();
-					if (item == null) {
-						item = new ItemStack(Material.AIR);
-					}
-					XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
-					String itemStr;
-					if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-						itemStr = item.getItemMeta().getDisplayName();
-					} else {
-						String itemKey = LanguageUtils.getTranslationKey(item);
-						itemStr = LanguageUtils.getTranslation(itemKey, InteractiveChat.language);
-						if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-							String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-							if (owner != null) {
-								itemStr = itemStr.replaceFirst("%s", owner);
-							}
+			String placeholder = InteractiveChat.itemPlaceholder;
+			int index = InteractiveChat.itemCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
+			if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
+				ItemStack item = sender.getEquipment().getItemInHand();
+				if (item == null) {
+					item = new ItemStack(Material.AIR);
+				}
+				XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
+				String itemStr;
+				if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
+					itemStr = item.getItemMeta().getDisplayName();
+				} else {
+					String itemKey = LanguageUtils.getTranslationKey(item);
+					itemStr = LanguageUtils.getTranslation(itemKey, InteractiveChat.language);
+					if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+						String owner = NBTUtils.getString(item, "SkullOwner", "Name");
+						if (owner != null) {
+							itemStr = itemStr.replaceFirst("%s", owner);
 						}
 					}
-					
-					int amount = item.getAmount();
-					if (item == null || item.getType().equals(Material.AIR)) {
-						amount = 1;
-					}
-					
-					itemStr = RarityUtils.getRarityColor(item) + itemStr;
+				}
 				
-					String replaceText;
-					if (amount == 1) {
-						replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replace("{Item}", itemStr));
-					} else {
-						replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
-					}
-					if (InteractiveChat.itemCaseSensitive) {
-						message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.itemPlaceholder, replaceText);
-					} else {
-						message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.itemPlaceholder, replaceText);
-					}
+				int amount = item.getAmount();
+				if (item == null || item.getType().equals(Material.AIR)) {
+					amount = 1;
+				}
+				
+				itemStr = RarityUtils.getRarityColor(item) + itemStr;
+			
+				String replaceText;
+				if (amount == 1) {
+					replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replace("{Item}", itemStr));
+				} else {
+					replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
+				}
+				if (InteractiveChat.itemCaseSensitive) {
+					message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.itemPlaceholder, replaceText);
+				} else {
+					message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.itemPlaceholder, replaceText);
 				}
 			}
 		}
 		
 		if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
-			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.invPlaceholder)).findFirst().get())) {
-				String placeholder = InteractiveChat.invPlaceholder;
-				int index = InteractiveChat.invCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
-					String replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
-					if (InteractiveChat.invCaseSensitive) {
-						message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.invPlaceholder, replaceText);
-					} else {
-						message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.invPlaceholder, replaceText);
-					}
+			String placeholder = InteractiveChat.invPlaceholder;
+			int index = InteractiveChat.invCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
+			if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
+				String replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
+				if (InteractiveChat.invCaseSensitive) {
+					message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.invPlaceholder, replaceText);
+				} else {
+					message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.invPlaceholder, replaceText);
 				}
 			}
 		}
 		
 		if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
-			if (!InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(InteractiveChat.enderPlaceholder)).findFirst().get())) {
-				String placeholder = InteractiveChat.enderPlaceholder;
-				int index = InteractiveChat.enderCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
-					String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
-					if (InteractiveChat.enderCaseSensitive) {
-						message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.enderPlaceholder, replaceText);
-					} else {
-						message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.enderPlaceholder, replaceText);
-					}
+			String placeholder = InteractiveChat.enderPlaceholder;
+			int index = InteractiveChat.enderCaseSensitive ? message.indexOf(placeholder) : message.toLowerCase().indexOf(placeholder.toLowerCase());
+			if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
+				String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
+				if (InteractiveChat.enderCaseSensitive) {
+					message = CustomStringUtils.replaceRespectColor(message, InteractiveChat.enderPlaceholder, replaceText);
+				} else {
+					message = CustomStringUtils.replaceRespectColorCaseInsensitive(message, InteractiveChat.enderPlaceholder, replaceText);
 				}
 			}
 		}
@@ -204,9 +198,8 @@ public class ProcessExternalMessage {
 			if (!placeholder.isBuildIn()) {
 				CustomPlaceholder customP = (CustomPlaceholder) placeholder;
 				if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
-					boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 					int index = placeholder.isCaseSensitive() ? message.indexOf(placeholder.getKeyword()) : message.toLowerCase().indexOf(placeholder.getKeyword().toLowerCase());
-					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && !onCooldown) {
+					if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
 						String replaceText = customP.getKeyword();
 						if (customP.getReplace().isEnabled()) {
 							replaceText = ChatColor.WHITE + PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
@@ -223,9 +216,8 @@ public class ProcessExternalMessage {
 		
 		if (InteractiveChat.t && WebData.getInstance() != null) {
 			for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
-				boolean onCooldown = InteractiveChatAPI.isPlaceholderOnCooldown(senderUUID, customP);
 				int index = customP.isCaseSensitive() ? message.indexOf(customP.getKeyword()) : message.toLowerCase().indexOf(customP.getKeyword().toLowerCase());
-				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\')) && !onCooldown) {
+				if (index >= 0 && !((index > 0 && message.charAt(index - 1) == '\\') && (index < 2 || message.charAt(index - 2) != '\\'))) {
 					String replaceText = customP.getKeyword();
 					if (customP.getReplace().isEnabled()) {
 						replaceText = PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
@@ -344,9 +336,9 @@ public class ProcessExternalMessage {
         	component = EnderchestDisplay.process(component, sender, reciever, unix);
         }
         
-        List<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
+        Collection<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
         if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
-        	serverPlaceholderList = InteractiveChat.placeholderList;
+        	serverPlaceholderList = InteractiveChat.placeholderList.values();
         }
         component = CustomPlaceholderDisplay.process(component, sender, reciever, serverPlaceholderList, unix);
         

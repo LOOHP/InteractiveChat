@@ -17,7 +17,7 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 public class PlaceholderCooldownManager {
 	
 	private Map<UUID, Long> universalTimestamps;
-	private Map<ICPlaceholder, Map<UUID, Long>> placeholderTimestamps;
+	private Map<UUID, Map<UUID, Long>> placeholderTimestamps;
 	
 	public PlaceholderCooldownManager() {
 		this.universalTimestamps = new ConcurrentHashMap<>();
@@ -27,50 +27,53 @@ public class PlaceholderCooldownManager {
 	
 	public void reloadPlaceholders() {
 		List<ICPlaceholder> placeholderList = InteractiveChatAPI.getICPlaceholderList();
-		Iterator<ICPlaceholder> itr = placeholderTimestamps.keySet().iterator();
+		Iterator<UUID> itr = placeholderTimestamps.keySet().iterator();
 		while (itr.hasNext()) {
-			ICPlaceholder placeholder = itr.next();
-			if (!placeholderList.contains(placeholder)) {
+			UUID internalId = itr.next();
+			if (!placeholderList.stream().anyMatch(each -> each.getInternalId().equals(internalId))) {
 				itr.remove();
 			}
 		}
 		for (ICPlaceholder placeholder : placeholderList) {
-			placeholderTimestamps.putIfAbsent(placeholder, new ConcurrentHashMap<>());
+			placeholderTimestamps.putIfAbsent(placeholder.getInternalId(), new ConcurrentHashMap<>());
 		}
 	}
 	
 	public CooldownResult checkMessage(UUID uuid, String message) {
-		if (PlayerUtils.hasPermission(uuid, "interactivechat.cooldown.bypass", false, 200)) {
-			return new CooldownResult(CooldownOutcome.ALLOW_BYPASS, -1, null);
-		}
 		long now = System.currentTimeMillis();
+		if (PlayerUtils.hasPermission(uuid, "interactivechat.cooldown.bypass", false, 200)) {
+			return new CooldownResult(CooldownOutcome.ALLOW_BYPASS, now, -1, null);
+		}
 		List<Runnable> tasksIfSucessful = new LinkedList<>();
 		boolean first = true;
-		for (Entry<ICPlaceholder, Map<UUID, Long>> entry : placeholderTimestamps.entrySet()) {
-			ICPlaceholder placeholder = entry.getKey();
-			if ((placeholder.isCaseSensitive() && message.contains(placeholder.getKeyword())) || (!placeholder.isCaseSensitive() && message.toLowerCase().contains(placeholder.getKeyword().toLowerCase()))) {
-				if (first) {
-					first = false;
-					if (InteractiveChat.universalCooldown > 0) {
-						Long lastUniversal = universalTimestamps.get(uuid);
-						if (lastUniversal != null && now - lastUniversal < InteractiveChat.universalCooldown) {
-							return new CooldownResult(CooldownOutcome.DENY_UNIVERSAL, lastUniversal + InteractiveChat.universalCooldown, null);
+		for (Entry<UUID, Map<UUID, Long>> entry : placeholderTimestamps.entrySet()) {
+			UUID internalId = entry.getKey();
+			ICPlaceholder placeholder = InteractiveChat.placeholderList.get(internalId);
+			if (placeholder != null) {
+				if ((placeholder.isCaseSensitive() && message.contains(placeholder.getKeyword())) || (!placeholder.isCaseSensitive() && message.toLowerCase().contains(placeholder.getKeyword().toLowerCase()))) {
+					if (first) {
+						first = false;
+						if (InteractiveChat.universalCooldown > 0) {
+							Long lastUniversal = universalTimestamps.get(uuid);
+							if (lastUniversal != null && now - lastUniversal < InteractiveChat.universalCooldown) {
+								return new CooldownResult(CooldownOutcome.DENY_UNIVERSAL, now, lastUniversal + InteractiveChat.universalCooldown, null);
+							}
+						}
+						tasksIfSucessful.add(() -> setPlayerUniversalLastTimestamp(uuid, now));
+					}
+					Map<UUID, Long> mapping = entry.getValue();
+					if (placeholder.getCooldown() > 0) {
+						Long lastUsed = mapping.get(uuid);
+						if (lastUsed != null && now - lastUsed < placeholder.getCooldown()) {
+							return new CooldownResult(CooldownOutcome.DENY_PLACEHOLDER, now, lastUsed + placeholder.getCooldown(), placeholder);
 						}
 					}
-					tasksIfSucessful.add(() -> setPlayerUniversalLastTimestamp(uuid, now));
+					tasksIfSucessful.add(() -> setPlayerPlaceholderLastTimestamp(uuid, placeholder, now));
 				}
-				Map<UUID, Long> mapping = entry.getValue();
-				if (placeholder.getCooldown() > 0) {
-					Long lastUsed = mapping.get(uuid);
-					if (lastUsed != null && now - lastUsed < placeholder.getCooldown()) {
-						return new CooldownResult(CooldownOutcome.DENY_PLACEHOLDER, lastUsed + placeholder.getCooldown(), placeholder);
-					}
-				}
-				tasksIfSucessful.add(() -> setPlayerPlaceholderLastTimestamp(uuid, placeholder, now));
 			}
 		}
 		tasksIfSucessful.forEach(each -> each.run());
-		return new CooldownResult(CooldownOutcome.ALLOW, -1, null);
+		return new CooldownResult(CooldownOutcome.ALLOW, now, -1, null);
 	}
 	
 	public long getPlayerUniversalLastTimestamp(UUID uuid) {
@@ -95,7 +98,7 @@ public class PlaceholderCooldownManager {
 	}
 	
 	public long getPlayerPlaceholderLastTimestamp(UUID uuid, ICPlaceholder placeholder) {
-		Map<UUID, Long> mapping = placeholderTimestamps.get(placeholder);
+		Map<UUID, Long> mapping = placeholderTimestamps.get(placeholder.getInternalId());
 		if (mapping == null) {
 			return -1;
 		}
@@ -116,7 +119,7 @@ public class PlaceholderCooldownManager {
 	
 	@Deprecated
 	public void setPlayerPlaceholderLastTimestampRaw(UUID uuid, ICPlaceholder placeholder, long time) {
-		Map<UUID, Long> mapping = placeholderTimestamps.get(placeholder);
+		Map<UUID, Long> mapping = placeholderTimestamps.get(placeholder.getInternalId());
 		if (mapping == null) {
 			return;
 		}
@@ -128,11 +131,11 @@ public class PlaceholderCooldownManager {
 			return false;
 		}
 		long universalLastTimestamp = getPlayerUniversalLastTimestamp(uuid);
-		if (universalLastTimestamp >= 0 && InteractiveChat.universalCooldown > 0 && time - universalLastTimestamp < InteractiveChat.universalCooldown) {
+		if (universalLastTimestamp >= 0 && InteractiveChat.universalCooldown > 0 && time - universalLastTimestamp < InteractiveChat.universalCooldown && universalLastTimestamp < time) {
 			return true;
 		}
 		long placeholderLastTimestamp = getPlayerPlaceholderLastTimestamp(uuid, placeholder);
-		if (placeholderLastTimestamp >= 0 && placeholder.getCooldown() > 0 && time - placeholderLastTimestamp < placeholder.getCooldown()) {
+		if (placeholderLastTimestamp >= 0 && placeholder.getCooldown() > 0 && time - placeholderLastTimestamp < placeholder.getCooldown() && placeholderLastTimestamp < time) {
 			return true;
 		}
 		return false;

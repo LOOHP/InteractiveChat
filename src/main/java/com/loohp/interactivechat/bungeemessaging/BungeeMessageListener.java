@@ -214,7 +214,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        		uuid4 = DataTypeIO.readUUID(input);
 	        		String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        		time = input.readLong();
-	        		Optional<ICPlaceholder> optPlaceholder = InteractiveChat.placeholderList.stream().filter(each -> each.getKeyword().equals(keyword)).findFirst();
+	        		Optional<ICPlaceholder> optPlaceholder = InteractiveChat.placeholderList.values().stream().filter(each -> each.getKeyword().equals(keyword)).findFirst();
 	        		if (optPlaceholder.isPresent()) {
 	        			InteractiveChat.placeholderCooldownManager.setPlayerPlaceholderLastTimestampRaw(uuid4, optPlaceholder.get(), time);
 	        		}
@@ -278,7 +278,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	InteractiveChat.remotePlaceholderList.put(server, list);
 	        	break;
 	        case 0x0A:
-	        	BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList);
+	        	BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values());
 	        	break;
 	        case 0x0B:
 	        	int id = input.readInt();

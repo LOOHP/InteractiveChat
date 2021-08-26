@@ -73,7 +73,7 @@ public class Events implements Listener {
 					command = event.getMessage();
 					flag = false;
 				}
-				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+				command = MessageUtils.preprocessMessage(command, InteractiveChat.placeholderList.values(), InteractiveChat.aliasesMapping);
 				
 				CooldownResult cooldownResult = InteractiveChat.placeholderCooldownManager.checkMessage(event.getPlayer().getUniqueId(), command);
 				if (!cooldownResult.getOutcome().isAllowed()) {
@@ -97,7 +97,7 @@ public class Events implements Listener {
 				
 				if (InteractiveChat.maxPlaceholders >= 0) {
 					int count = 0;
-					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
 						String findStr = icplaceholder.getKeyword();
 						if (command.contains(findStr)) {
 							if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
@@ -123,7 +123,7 @@ public class Events implements Listener {
 						return;
 					}
 				} else if (PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
-					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
 						String findStr = icplaceholder.getKeyword();
 						if (command.contains(findStr)) {
 							if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {
@@ -141,7 +141,7 @@ public class Events implements Listener {
 				}
 				
 				if (!Registry.ID_PATTERN.matcher(command).find()) {
-					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+					for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
 						String placeholder = icplaceholder.getKeyword();
 						if ((icplaceholder.isCaseSensitive() && command.contains(placeholder)) || (!icplaceholder.isCaseSensitive() && command.toLowerCase().contains(placeholder.toLowerCase()))) {
 							String regexPlaceholder = (icplaceholder.isCaseSensitive() ? "" : "(?i)") + CustomStringUtils.escapeMetaCharacters(placeholder);
@@ -211,7 +211,7 @@ public class Events implements Listener {
 			}
 		}
 		
-		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList, InteractiveChat.aliasesMapping);
+		message = MessageUtils.preprocessMessage(message, InteractiveChat.placeholderList.values(), InteractiveChat.aliasesMapping);
 		
 		CooldownResult cooldownResult = InteractiveChat.placeholderCooldownManager.checkMessage(event.getPlayer().getUniqueId(), message);
 		if (!cooldownResult.getOutcome().isAllowed()) {
@@ -235,7 +235,7 @@ public class Events implements Listener {
 		
 		if (InteractiveChat.maxPlaceholders >= 0) {
 			int count = 0;
-			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
 				String findStr = icplaceholder.getKeyword();
 				if (message.contains(findStr)) {
 					if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
@@ -261,7 +261,7 @@ public class Events implements Listener {
 				return;
 			}
 		} else if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", false, 200)) {
-			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList) {
+			for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
 				String findStr = icplaceholder.getKeyword();
 				if (message.contains(findStr)) {
 					if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {

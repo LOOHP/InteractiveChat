@@ -1,5 +1,8 @@
 package com.loohp.interactivechat.objectholders;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 public abstract class ICPlaceholder {
 	
 	protected String keyword;
@@ -7,6 +10,7 @@ public abstract class ICPlaceholder {
 	protected String description;
 	protected String permission;
 	protected long cooldown;
+	protected UUID internalId;
 	
 	public ICPlaceholder(String keyword, boolean caseSensitive, String description, String permission, long cooldown) {
 		this.keyword = keyword;
@@ -14,6 +18,7 @@ public abstract class ICPlaceholder {
 		this.description = description;
 		this.permission = permission;
 		this.cooldown = cooldown;
+		this.internalId = UUID.nameUUIDFromBytes(keyword.toLowerCase().getBytes(StandardCharsets.UTF_8));
 	}
 	
 	public abstract boolean isBuildIn();
@@ -37,12 +42,16 @@ public abstract class ICPlaceholder {
 	public String getDescription() {
 		return description;
 	}
+	
+	public UUID getInternalId() {
+		return internalId;
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((keyword == null) ? 0 : keyword.hashCode());
+		result = prime * result + ((internalId == null) ? 0 : internalId.hashCode());
 		return result;
 	}
 
@@ -58,11 +67,11 @@ public abstract class ICPlaceholder {
 			return false;
 		}
 		ICPlaceholder other = (ICPlaceholder) obj;
-		if (keyword == null) {
-			if (other.keyword != null) {
+		if (internalId == null) {
+			if (other.internalId != null) {
 				return false;
 			}
-		} else if (!keyword.equals(other.keyword)) {
+		} else if (!internalId.equals(other.internalId)) {
 			return false;
 		}
 		return true;

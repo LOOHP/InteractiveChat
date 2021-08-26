@@ -3,17 +3,23 @@ package com.loohp.interactivechat.objectholders;
 public class CooldownResult {
 	
 	private CooldownOutcome outcome;
+	private long now;
 	private long cooldownExpireTime;
 	private ICPlaceholder placeholder;
 	
-	public CooldownResult(CooldownOutcome outcome, long cooldownExpireTime, ICPlaceholder placeholder) {
+	public CooldownResult(CooldownOutcome outcome, long now, long cooldownExpireTime, ICPlaceholder placeholder) {
 		this.outcome = outcome;
+		this.now = now;
 		this.cooldownExpireTime = cooldownExpireTime;
 		this.placeholder = placeholder;
 	}
 
 	public CooldownOutcome getOutcome() {
 		return outcome;
+	}
+	
+	public long getTimeNow() {
+		return now;
 	}
 
 	public long getCooldownExpireTime() {

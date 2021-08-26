@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -226,7 +227,7 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static long universalCooldown = 0;
 	
-	public static List<ICPlaceholder> placeholderList = new ArrayList<>();
+	public static Map<UUID, ICPlaceholder> placeholderList = new LinkedHashMap<>();
 	public static int maxPlaceholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
@@ -449,7 +450,7 @@ public class InteractiveChat extends JavaPlugin {
 	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
 	    	if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {
 	    		try {
-					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList) && BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping)) {
+					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values()) && BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping)) {
 						queueRemoteUpdate = false;
 					}
 				} catch (Exception e) {

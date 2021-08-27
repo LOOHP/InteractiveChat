@@ -2,6 +2,7 @@ package com.loohp.interactivechat.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,11 +24,16 @@ import org.bukkit.inventory.ItemStack;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
+import com.loohp.interactivechat.objectholders.DummyPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PermissionCache;
 
+import net.craftersland.data.bridge.PD;
+import net.craftersland.data.bridge.objects.DatabaseEnderchestData;
+import net.craftersland.data.bridge.objects.DatabaseExperienceData;
+import net.craftersland.data.bridge.objects.DatabaseInventoryData;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.io.SNBTUtil;
@@ -176,6 +182,28 @@ public class PlayerUtils implements Listener {
 		if (!dat.exists()) {
 			return null;
 		}
+		boolean mysqlPDBInventorySync = false;
+		boolean mysqlPDBArmorSync = false;
+		boolean mysqlPDBEnderChestSync = false;
+		boolean mysqlPDBExpSync = false;
+		String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+		Player dummyPlayer = new DummyPlayer(playerName, uuid);
+		if (InteractiveChat.mysqlPDBHook) {
+			mysqlPDBInventorySync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareInventory");
+			mysqlPDBArmorSync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareArmor");
+			if (!PD.instance.getInventoryStorageHandler().hasAccount(playerName)) {
+				mysqlPDBInventorySync = false;
+				mysqlPDBArmorSync = false;
+			}
+			mysqlPDBEnderChestSync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareEnderchest");
+			if (!PD.instance.getEnderchestStorageHandler().hasAccount(playerName)) {
+				mysqlPDBEnderChestSync = false;
+			}
+			mysqlPDBExpSync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareExperience");
+			if (!PD.instance.getExperienceStorageHandler().hasAccount(playerName)) {
+				mysqlPDBExpSync = false;
+			}
+		}
 		try {
 			NamedTag nbtData = NBTUtil.read(dat);
 			CompoundTag rootTag = (CompoundTag) nbtData.getTag();
@@ -211,8 +239,37 @@ public class PlayerUtils implements Listener {
 				ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
 				enderchest.setItem(slot, item);
 			}
-			return new OfflineICPlayer(uuid, selectedSlot, xpLevel, equipment, inventory, enderchest);
-		} catch (IOException e) {
+			if (mysqlPDBInventorySync || mysqlPDBArmorSync) {
+				DatabaseInventoryData invData = PD.instance.getInventoryStorageHandler().getData(dummyPlayer);
+				if (mysqlPDBInventorySync) {
+					ItemStack[] items = PD.instance.getItemStackSerializer().fromBase64(invData.getRawInventory());
+					for (int i = 0; i < items.length && i < inventory.getSize(); i++) {
+						inventory.setItem(i, items[i]);
+					}
+					selectedSlot = invData.getHotBarSlot();
+				}
+				if (mysqlPDBArmorSync) {
+					ItemStack[] items = PD.instance.getItemStackSerializer().fromBase64(invData.getRawArmor());
+					for (int i = 0; i < items.length && i < 4; i++) {
+						inventory.setItem(i + 36, items[i]);
+					}
+				}
+			}
+			if (mysqlPDBEnderChestSync) {
+				DatabaseEnderchestData enderData = PD.instance.getEnderchestStorageHandler().getData(dummyPlayer);
+				ItemStack[] items = PD.instance.getItemStackSerializer().fromBase64(enderData.getRawEnderchest());
+				for (int i = 0; i < items.length && i < enderchest.getSize(); i++) {
+					enderchest.setItem(i, items[i]);
+				}
+			}
+			if (mysqlPDBExpSync) {
+				DatabaseExperienceData expData = PD.instance.getExperienceStorageHandler().getData(dummyPlayer);
+				if (expData.getLevel() != null) {
+					xpLevel = expData.getLevel();
+				}
+			}
+			return new OfflineICPlayer(uuid, playerName, selectedSlot, xpLevel, equipment, inventory, enderchest);
+		} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 			return null;
 		}

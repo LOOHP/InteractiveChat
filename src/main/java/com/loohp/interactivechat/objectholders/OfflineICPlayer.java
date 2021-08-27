@@ -16,14 +16,18 @@ public class OfflineICPlayer {
 	protected Inventory remoteInventory;
 	protected Inventory remoteEnderchest;
 	
-	public OfflineICPlayer(UUID uuid, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+	public OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
 		this.uuid = uuid;
-		this.offlineName = Bukkit.getOfflinePlayer(uuid).getName();
+		this.offlineName = offlineName;
 		this.selectedSlot = selectedSlot;
 		this.experienceLevel = experienceLevel;
 		this.remoteEquipment = equipment;
 		this.remoteInventory = inventory;
 		this.remoteEnderchest = enderchest;
+	}
+	
+	public OfflineICPlayer(UUID uuid, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+		this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, experienceLevel, equipment, inventory, enderchest);
 	}
 
 	public UUID getUniqueId() {

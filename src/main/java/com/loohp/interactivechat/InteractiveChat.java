@@ -119,6 +119,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean procotcolSupportHook = false;
 	public static Boolean ecoEnchantsHook = false;
 	public static Boolean luckPermsHook = false;
+	public static Boolean mysqlPDBHook = false;
 	
 	public static Permission perms = null;
 	
@@ -413,6 +414,11 @@ public class InteractiveChat extends JavaPlugin {
 	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into LuckPerms!");
 	    	new LuckPermsEvents(this);
 			luckPermsHook = true;
+		}
+	    
+	    if (Bukkit.getServer().getPluginManager().getPlugin("MysqlPlayerDataBridge") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MysqlPlayerDataBridge!");
+			mysqlPDBHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {

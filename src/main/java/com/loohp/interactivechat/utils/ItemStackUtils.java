@@ -44,7 +44,7 @@ public class ItemStackUtils {
 		Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
 		if (!itemstack.getType().equals(Material.AIR) && NBTUtils.contains(itemstack, "display", "Name")) {
 			String name = NBTUtils.getString(itemstack, "display", "Name");
-			if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_9)) {
+			if (!InteractiveChat.version.isLegacy()) {
 				component = component.decorate(TextDecoration.ITALIC);
 			}
 			try {

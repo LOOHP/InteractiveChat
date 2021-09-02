@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
@@ -27,14 +26,12 @@ import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.loohp.interactivechat.utils.ItemStackUtils;
 import com.loohp.interactivechat.utils.JsonUtils;
-import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.NBTUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
-import com.loohp.interactivechat.utils.XMaterialUtils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -132,20 +129,7 @@ public class ProcessExternalMessage {
 				if (item == null) {
 					item = new ItemStack(Material.AIR);
 				}
-				XMaterial xMaterial = XMaterialUtils.matchXMaterial(item);
-				String itemStr;
-				if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().equals("")) {
-					itemStr = item.getItemMeta().getDisplayName();
-				} else {
-					String itemKey = LanguageUtils.getTranslationKey(item);
-					itemStr = LanguageUtils.getTranslation(itemKey, InteractiveChat.language);
-					if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-						String owner = NBTUtils.getString(item, "SkullOwner", "Name");
-						if (owner != null) {
-							itemStr = itemStr.replaceFirst("%s", owner);
-						}
-					}
-				}
+				String itemStr = InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(ItemStackUtils.getDisplayName(item), InteractiveChat.language);
 				
 				int amount = item.getAmount();
 				if (item == null || item.getType().equals(Material.AIR)) {

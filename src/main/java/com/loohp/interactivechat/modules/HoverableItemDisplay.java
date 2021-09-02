@@ -18,7 +18,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
-import com.loohp.interactivechat.hooks.ecoenchants.EcoEnchantsHook;
+import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
@@ -91,8 +91,8 @@ public class HoverableItemDisplay {
 	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {
 		boolean isAir = item.getType().equals(Material.AIR);
 		ItemStack originalItem = item.clone();
-		if (!isAir && InteractiveChat.ecoEnchantsHook) {
-			item = EcoEnchantsHook.setEcoEnchantLores(item);
+		if (!isAir && InteractiveChat.ecoHook) {
+			item = EcoHook.setEcoLores(item);
 		}
 		String title = InteractiveChat.hoverableItemTitle;
 		String sha1 = HashUtils.createSha1(title, item);

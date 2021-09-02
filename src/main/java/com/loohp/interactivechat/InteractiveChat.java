@@ -117,7 +117,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static Boolean dynmapHook = false;
 	public static Boolean viaVersionHook = false;
 	public static Boolean procotcolSupportHook = false;
-	public static Boolean ecoEnchantsHook = false;
+	public static Boolean ecoHook = false;
 	public static Boolean luckPermsHook = false;
 	public static Boolean mysqlPDBHook = false;
 	
@@ -405,9 +405,9 @@ public class InteractiveChat extends JavaPlugin {
 			procotcolSupportHook = true;
 		}
 	    
-	    if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null) {
-	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EcoEnchants!");
-			ecoEnchantsHook = true;
+	    if (Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
+	    	getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into eco (core)!");
+			ecoHook = true;
 		}
 	    
 	    if (Bukkit.getServer().getPluginManager().getPlugin("LuckPerms") != null) {

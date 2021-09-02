@@ -19,7 +19,7 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
-import com.loohp.interactivechat.hooks.ecoenchants.EcoEnchantsHook;
+import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
@@ -131,8 +131,8 @@ public class ItemDisplay {
 		boolean isAir = item.getType().equals(Material.AIR);
 		
 		ItemStack originalItem = item.clone();
-		if (!isAir && InteractiveChat.ecoEnchantsHook) {
-			item = EcoEnchantsHook.setEcoEnchantLores(item);
+		if (!isAir && InteractiveChat.ecoHook) {
+			item = EcoHook.setEcoLores(item);
 		}
 		
 		String itemJson = ItemNBTUtils.getNMSItemStackJson(item);

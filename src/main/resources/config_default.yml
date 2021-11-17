@@ -58,7 +58,7 @@ Settings:
   ItemTagMaxLength: 32767
   PacketStringMaxLength: 32767
   SendOriginalMessageIfExceedLengthLimit: true
-  ForamttingTags:
+  FormattingTags:
     #Allow the use of "[color=#123456]" RGB tags (1.16+)
     AllowRGBTags: true
     #Allow the use of "[font=uniform]" Font tags (1.16+)

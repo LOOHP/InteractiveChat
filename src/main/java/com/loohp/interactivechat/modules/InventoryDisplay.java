@@ -41,7 +41,6 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class InventoryDisplay {
@@ -49,7 +48,7 @@ public class InventoryDisplay {
 	public static final List<Integer> LAYOUTS = Stream.of(0, 1).collect(Collectors.toList());
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
 		if (InteractiveChat.invCaseSensitive ? plain.contains(InteractiveChat.invPlaceholder) : plain.toLowerCase().contains(InteractiveChat.invPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.invCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.invPlaceholder);
 			if (optplayer.isPresent()) {

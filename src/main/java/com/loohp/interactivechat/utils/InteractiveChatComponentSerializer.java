@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 
@@ -35,6 +37,7 @@ public class InteractiveChatComponentSerializer {
 	private static final InteractiveChatBungeecordAPILegacyComponentSerializer BUNGEECORD_CHAT_LEGACY;
 	private static final GsonComponentSerializer GSON_SERIALIZER;
 	private static final GsonComponentSerializer GSON_SERIALIZER_LEGACY;
+	private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER;
 	//private static final LegacyComponentSerializer LEGACY_SERIALIZER_SPECIAL_HEX;
 	
 	private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_([0-9]*)/damage_([0-9]*)$");
@@ -46,6 +49,7 @@ public class InteractiveChatComponentSerializer {
 		BUNGEECORD_CHAT_LEGACY = new InteractiveChatBungeecordAPILegacyComponentSerializer();		
 		GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
 		GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
+		PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
 		//LEGACY_SERIALIZER_SPECIAL_HEX = new InteractiveChatLegacyComponentSerializer();
 	}
 	
@@ -59,6 +63,10 @@ public class InteractiveChatComponentSerializer {
 	
 	public static GsonComponentSerializer legacyGson() {
 		return GSON_SERIALIZER_LEGACY;
+	}
+	
+	public static PlainTextComponentSerializer plainText() {
+		return PLAIN_TEXT_SERIALIZER;
 	}
 	/*
 	public static LegacyComponentSerializer legacySpecialHex() {
@@ -221,6 +229,35 @@ public class InteractiveChatComponentSerializer {
 			}
 			return Component.text(TagStringIO.get().asString(tag.build()));
 		}
+	}
+	
+	public static class InteractiveChatPlainTextComponentSerializer implements PlainTextComponentSerializer {
+
+		@Override
+		public @NotNull Builder toBuilder() {
+			throw new UnsupportedOperationException("The InteractiveChatLegacyComponentSerializer cannot be turned into a builder");
+		}
+
+		@Override
+		public void serialize(@NotNull StringBuilder sb, @NotNull Component component) {
+			component = ComponentFlattening.flatten(component);
+			for (Component children : component.children()) {
+				if (children instanceof TranslatableComponent) {
+					TranslatableComponent translatable = (TranslatableComponent) children;
+					sb.append(translatable.key());
+					if (!translatable.args().isEmpty()) {
+						sb.append("(" + translatable.args().stream().map(each -> {
+							StringBuilder csb = new StringBuilder();
+							serialize(csb, each);
+							return csb.toString();
+						}).collect(Collectors.joining(";")) + ")");
+					}
+				} else {
+					sb.append(PlainTextComponentSerializer.plainText().serialize(children));
+				}
+			}
+		}
+		
 	}
 	/*
 	public static class InteractiveChatLegacyComponentSerializer implements LegacyComponentSerializer {

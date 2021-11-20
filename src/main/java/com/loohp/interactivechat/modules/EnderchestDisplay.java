@@ -21,6 +21,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
@@ -29,12 +30,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class EnderchestDisplay {
 	
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
 		if (InteractiveChat.enderCaseSensitive ? plain.contains(InteractiveChat.enderPlaceholder) : plain.toLowerCase().contains(InteractiveChat.enderPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.enderCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.enderPlaceholder);
 			if (optplayer.isPresent()) {

@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ProcessAccurateSender {
 	
@@ -17,7 +17,7 @@ public class ProcessAccurateSender {
 	public static final Pattern COLOR_IGNORE_PATTERN = Pattern.compile("(?:(?:§.)*<(?:§.)*c(?:§.)*h(?:§.)*a(?:§.)*t(?:§.)*=((?:(?:§.)*[0-9a-f]){8}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){12})(?:§.)*>)");
 	
 	public static ProcessSenderResult process(Component component) {
-		String text = PlainTextComponentSerializer.plainText().serialize(component);
+		String text = InteractiveChatComponentSerializer.plainText().serialize(component);
 		UUID uuid = find(text);
 		component = ComponentReplacing.replace(component, PATTERN.pattern(), Component.empty());
 		return new ProcessSenderResult(component, uuid);

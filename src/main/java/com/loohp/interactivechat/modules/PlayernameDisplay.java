@@ -24,6 +24,7 @@ import com.loohp.interactivechat.utils.CollectionUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.VanishUtils;
 
@@ -32,7 +33,6 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class PlayernameDisplay implements Listener {
 	
@@ -80,7 +80,7 @@ public class PlayernameDisplay implements Listener {
 	}
 	
 	private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, Component component, long unix) {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
 		if (InteractiveChat.usePlayerNameCaseSensitive) {
 			if (!plain.contains(placeholder)) {
 				return component;

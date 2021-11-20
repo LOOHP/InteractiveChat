@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.Style.Merge;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -66,8 +67,22 @@ public class ComponentReplacing {
 			regex = ESCAPE_PREPEND_PATTERN + regex;
 		}
 		component = ComponentFlattening.flatten(component);
-		List<ComponentReplacingData> sections = getData(component);
 		List<Component> children = new ArrayList<>(component.children());
+		for (int i = 0; i < children.size(); i++) {
+			Component child = children.get(i);
+			if (child instanceof TranslatableComponent) {
+				TranslatableComponent translatable = (TranslatableComponent) child;
+				List<Component> args = new ArrayList<>(translatable.args());
+				for (int u = 0; u < args.size(); u++) {
+					args.set(u, replace(args.get(u), regexOriginal, escaping, replaceFunction));
+				}
+				translatable = translatable.args(args);
+				children.set(i, translatable);
+			}
+		}
+		component = component.children(children);
+		List<ComponentReplacingData> sections = getData(component);
+		children = new ArrayList<>(component.children());
 		int offset = 0;
 		Pattern pattern = Pattern.compile(regex);
 		for (int i = 0; i < sections.size(); i++) {

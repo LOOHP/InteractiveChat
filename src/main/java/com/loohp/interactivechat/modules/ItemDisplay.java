@@ -28,6 +28,7 @@ import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.ItemStackUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
@@ -41,14 +42,13 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ItemDisplay {
 	
 	@SuppressWarnings("deprecation")
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
 		if (InteractiveChat.itemCaseSensitive ? plain.contains(InteractiveChat.itemPlaceholder) : plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase())) {
 			String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder);
 			if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {

@@ -15,6 +15,7 @@ import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 
@@ -22,7 +23,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class CustomPlaceholderDisplay {
 	
@@ -80,7 +80,7 @@ public class CustomPlaceholderDisplay {
 	}
 	
 	public static Component processCustomPlaceholder(ICPlayer player, boolean casesensitive, String placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, Component component, Optional<ICPlayer> optplayer, long unix) {
-		String plain = PlainTextComponentSerializer.plainText().serialize(component);
+		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
 		if (casesensitive ? plain.contains(placeholder) : plain.toLowerCase().contains(placeholder.toLowerCase())) {
 			String regex = casesensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
 			String componentText = placeholder;

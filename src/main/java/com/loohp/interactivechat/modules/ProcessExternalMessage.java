@@ -35,7 +35,6 @@ import com.loohp.interactivechat.utils.RarityUtils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class ProcessExternalMessage {
@@ -235,7 +234,7 @@ public class ProcessExternalMessage {
         }
         
         Optional<ICPlayer> sender = Optional.empty();
-		String rawMessageKey = PlainTextComponentSerializer.plainText().serializeOr(component, "");
+		String rawMessageKey = InteractiveChatComponentSerializer.plainText().serializeOr(component, "");
         	   
         InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
 

@@ -246,7 +246,6 @@ public class ConfigManager {
 		InteractiveChat.usePlayerNameClickAction = getConfig().getString("Player.Click.Action");
 		InteractiveChat.usePlayerNameClickValue = getConfig().getString("Player.Click.Value");
 		InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
-		InteractiveChat.usePlayerNameOnTranslatables = getConfig().getBoolean("Player.UseOnTranslatableComponents");
 		
 		InteractiveChat.useTooltipOnTab = getConfig().getBoolean("TabCompletion.PlayerNameToolTip.Enabled");
 		InteractiveChat.tabTooltip = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("TabCompletion.PlayerNameToolTip.ToolTip"));
@@ -370,8 +369,8 @@ public class ConfigManager {
 		InteractiveChat.useBukkitDisplayName = getConfig().getBoolean("Chat.UseBukkitDisplayName");
 		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
 		
-		InteractiveChat.rgbTags = getConfig().getBoolean("Settings.ForamttingTags.AllowRGBTags");
-		InteractiveChat.fontTags = getConfig().getBoolean("Settings.ForamttingTags.AllowFontTags");
+		InteractiveChat.rgbTags = getConfig().contains("Settings.FormattingTags.AllowRGBTags") ? getConfig().getBoolean("Settings.FormattingTags.AllowRGBTags") : getConfig().getBoolean("Settings.ForamttingTags.AllowRGBTags");
+		InteractiveChat.fontTags = getConfig().contains("Settings.FormattingTags.AllowFontTags") ? getConfig().getBoolean("Settings.FormattingTags.AllowFontTags") : getConfig().getBoolean("Settings.ForamttingTags.AllowFontTags");
 		
 		InteractiveChat.language = getConfig().getString("Settings.Language");
 		

@@ -7,9 +7,9 @@ import java.util.regex.Pattern;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ProcessCommands {
 	
@@ -22,7 +22,7 @@ public class ProcessCommands {
 	public static ProcessSenderResult process(Component component) {
 		UUID uuid = null;
 		String replacement = "";
-		String text = PlainTextComponentSerializer.plainText().serialize(component);
+		String text = InteractiveChatComponentSerializer.plainText().serialize(component);
 		Matcher matcher0 = PATTERN_0.matcher(text);
 		if (matcher0.find()) {
 			uuid = UUID.fromString(matcher0.group(1));

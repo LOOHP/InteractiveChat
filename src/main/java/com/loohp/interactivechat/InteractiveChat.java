@@ -164,7 +164,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static String usePlayerNameClickAction = "SUGGEST_COMMAND";
 	public static String usePlayerNameClickValue = "";
 	public static boolean usePlayerNameCaseSensitive = true;
-	public static boolean usePlayerNameOnTranslatables = true;
 	
 	public static boolean useTooltipOnTab = true;
 	public static String tabTooltip = "";

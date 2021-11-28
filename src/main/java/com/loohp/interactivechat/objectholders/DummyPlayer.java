@@ -37,6 +37,7 @@ import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityCategory;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.Projectile;
@@ -45,6 +46,7 @@ import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
@@ -1567,7 +1569,6 @@ public class DummyPlayer implements Player {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean sendChunkChange(Location loc, int sx, int sy, int sz, byte[] data) {
 		throw new UnsupportedOperationException();
 	}
@@ -1918,6 +1919,26 @@ public class DummyPlayer implements Player {
 	@Override
 	public Spigot spigot() {
 		throw new UnsupportedOperationException();
+	}
+
+	public void stopAllSounds() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void sendEquipmentChange(LivingEntity entity, EquipmentSlot slot, ItemStack item) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void sendSignChange(Location loc, String[] lines, DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException {
+		throw new UnsupportedOperationException();
+	}
+
+	public void showDemoScreen() {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean isAllowingServerListings() {
+		return false;
 	}
 
 }

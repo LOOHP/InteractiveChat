@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -39,15 +42,27 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
 
 public class BungeeMessageListener implements PluginMessageListener {
 
-    InteractiveChat plugin;
+	private InteractiveChat plugin;
     private Map<Integer, byte[]> incomming = new HashMap<>();
+    private Map<UUID, CompletableFuture<?>> toComplete = new ConcurrentHashMap<>();
 
     public BungeeMessageListener(InteractiveChat instance) {
         plugin = instance;
+    }
+    
+    public void addToComplete(UUID uuid, CompletableFuture<?> future) {
+    	toComplete.put(uuid, future);
+    	Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+    		CompletableFuture<?> f = toComplete.remove(uuid);
+    		if (f != null && !f.isDone() && !f.isCompletedExceptionally() && !f.isCancelled()) {
+    			f.completeExceptionally(new TimeoutException("The proxy did not respond in time"));
+    		}
+    	}, 400);
     }
 
 	@SuppressWarnings("deprecation")
@@ -318,6 +333,26 @@ public class BungeeMessageListener implements PluginMessageListener {
 		        		break;
 		        	}
 	        	}
+	        	break;
+	        case 0x10:
+	        	UUID requestUUID = DataTypeIO.readUUID(input);
+	        	int requestType2 = input.readByte();
+	        	switch (requestType2) {
+				case 0:
+					List<ValueTrios<UUID, String, Integer>> playerlist = new ArrayList<>();
+					int playerListSize = input.readInt();
+					for (int i = 0; i < playerListSize; i++) {
+						playerlist.add(new ValueTrios<UUID, String, Integer>(DataTypeIO.readUUID(input), DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readInt()));
+					}
+					@SuppressWarnings("unchecked")
+					CompletableFuture<List<ValueTrios<UUID, String, Integer>>> future = (CompletableFuture<List<ValueTrios<UUID, String, Integer>>>) toComplete.remove(requestUUID);
+					if (future != null) {
+						future.complete(playerlist);
+					}
+					break;
+				default:
+					break;
+				}
 	        	break;
 	        case 0xFF:
 	        	String customChannel = DataTypeIO.readString(input, StandardCharsets.UTF_8);

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Pattern;
 
@@ -28,6 +29,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.HashUtils;
@@ -296,6 +298,15 @@ public class BungeeMessageSender {
     	out.writeByte(1);
     	DataTypeIO.writeUUID(out, uuid);
     	return forwardData(time, 0x0F, out.toByteArray());
+    }
+    
+    public static boolean requestBungeePlayerlist(long time, CompletableFuture<List<ValueTrios<UUID, String, Integer>>> future) throws Exception {
+    	UUID uuid = UUID.randomUUID();
+    	InteractiveChat.bungeeMessageListener.addToComplete(uuid, future);
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	DataTypeIO.writeUUID(out, uuid);
+    	out.writeByte(0);
+    	return forwardData(time, 0x10, out.toByteArray());
     }
     
 }

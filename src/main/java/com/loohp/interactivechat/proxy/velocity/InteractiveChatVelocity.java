@@ -443,6 +443,16 @@ public class InteractiveChatVelocity {
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
 		        	PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
 		        	break;
+		        case 0x10:
+		        	UUID requestUUID = DataTypeIO.readUUID(input);
+		        	int requestType = input.readByte();
+		        	switch (requestType) {
+		        	case 0:
+		        		PluginMessageSendingVelocity.respondPlayerListRequest(requestUUID, server);
+		        		break;
+	        		default:
+	        			break;
+		        	}
 	        	}
 	        } catch (IOException e) {
 				e.printStackTrace();

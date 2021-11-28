@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -27,11 +28,13 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.modules.ItemDisplay;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
+import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 
@@ -447,5 +450,19 @@ public class InteractiveChatAPI {
 			}
 		}
 		return nicks;
+	}
+	
+	/**
+	 * Get player uuid, name, ping list from the proxy server
+	 * @return A CompletableFuture<ValueTrios<UUID, String, Integer>> object
+	 */
+	public static CompletableFuture<List<ValueTrios<UUID, String, Integer>>> getBungeecordPlayerList() {
+		CompletableFuture<List<ValueTrios<UUID, String, Integer>>> future = new CompletableFuture<>();
+		try {
+			BungeeMessageSender.requestBungeePlayerlist(System.currentTimeMillis(), future);
+		} catch (Exception e) {
+			future.completeExceptionally(e);
+		}
+		return future;
 	}
 }

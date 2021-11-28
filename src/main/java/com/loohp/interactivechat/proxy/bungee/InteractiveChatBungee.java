@@ -430,6 +430,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		        	UUID uuid2 = DataTypeIO.readUUID(input);
 		        	PluginMessageSendingBungee.reloadPlayerData(uuid2, ((Server) event.getSender()).getInfo());
 		        	break;
+		        case 0x10:
+		        	UUID requestUUID = DataTypeIO.readUUID(input);
+		        	int requestType = input.readByte();
+		        	switch (requestType) {
+		        	case 0:
+		        		PluginMessageSendingBungee.respondPlayerListRequest(requestUUID, ((Server) event.getSender()).getInfo());
+		        		break;
+	        		default:
+	        			break;
+		        	}
 	        	}
 	        } catch (IOException e) {
 				e.printStackTrace();

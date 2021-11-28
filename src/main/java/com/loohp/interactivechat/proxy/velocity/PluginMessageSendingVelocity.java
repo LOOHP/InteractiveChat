@@ -459,5 +459,40 @@ public class PluginMessageSendingVelocity {
 			}
 		}
 	}
+	
+	public static void respondPlayerListRequest(UUID requestId, RegisteredServer server) throws IOException {
+		ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+		DataTypeIO.writeUUID(output, requestId);
+		output.writeByte(0);
+		Collection<Player> players = getServer().getAllPlayers();
+		output.writeInt(players.size());
+		for (Player player : players) {
+			DataTypeIO.writeUUID(output, player.getUniqueId());
+	    	DataTypeIO.writeString(output, player.getUsername(), StandardCharsets.UTF_8);
+	    	output.writeInt((int) player.getPing());
+		}
+		
+		int packetNumber = InteractiveChatVelocity.random.nextInt();
+		int packetId = 0x10;
+		byte[] data = output.toByteArray();
+
+		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
+
+		for (int i = 0; i < dataArray.length; i++) {
+			byte[] chunk = dataArray[i];
+
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeInt(packetNumber);
+
+			out.writeShort(packetId);
+			out.writeBoolean(i == (dataArray.length - 1));
+
+			out.write(chunk);
+
+			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
+			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
+		}
+	}
 
 }

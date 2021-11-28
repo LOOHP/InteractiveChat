@@ -284,6 +284,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static int itemTagMaxLength = 32767;
 	public static int packetStringMaxLength = 32767;
 	
+	public static BungeeMessageListener bungeeMessageListener;
 	public static PlayerDataManager playerDataManager;
 	public static PlaceholderCooldownManager placeholderCooldownManager;
 	public static Database database;
@@ -321,7 +322,7 @@ public class InteractiveChat extends JavaPlugin {
 		if (bungeecordMode) {
 			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
 			getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
-		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", new BungeeMessageListener(this));
+		    getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", bungeeMessageListener = new BungeeMessageListener(this));
 		    getServer().getPluginManager().registerEvents(new ServerPingListener(), this);
 		    ServerPingListener.listen();
 		    

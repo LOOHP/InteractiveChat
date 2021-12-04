@@ -1069,7 +1069,7 @@ public class DummyPlayer implements Player {
 	}
 
 	@Override
-	public void sendMessage(String[] messages) {
+	public void sendMessage(String... messages) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -1079,7 +1079,7 @@ public class DummyPlayer implements Player {
 	}
 
 	@Override
-	public void sendMessage(UUID sender, String[] messages) {
+	public void sendMessage(UUID sender, String... messages) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -1939,6 +1939,21 @@ public class DummyPlayer implements Player {
 
 	public boolean isAllowingServerListings() {
 		return false;
+	}
+
+	@Override
+	public boolean canSee(Entity arg0) {
+		return false;
+	}
+
+	@Override
+	public void hideEntity(Plugin arg0, Entity arg1) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void showEntity(Plugin arg0, Entity arg1) {
+		throw new UnsupportedOperationException();
 	}
 
 }

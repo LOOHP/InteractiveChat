@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
+import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -42,8 +43,8 @@ public class ItemStackUtils {
 		XMaterial xMaterial = XMaterial.matchXMaterial(itemstack);
 		ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
 		Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
-		if (!itemstack.getType().equals(Material.AIR) && NBTUtils.contains(itemstack, "display", "Name")) {
-			String name = NBTUtils.getString(itemstack, "display", "Name");
+		if (!itemstack.getType().equals(Material.AIR) && NBTEditor.contains(itemstack, "display", "Name")) {
+			String name = NBTEditor.getString(itemstack, "display", "Name");
 			if (!InteractiveChat.version.isLegacy()) {
 				component = component.decorate(TextDecoration.ITALIC);
 			}
@@ -59,7 +60,7 @@ public class ItemStackUtils {
 		} else {
 			TranslatableComponent translatableComponent = Component.translatable(LanguageUtils.getTranslationKey(itemstack));
 			if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-				String owner = NBTUtils.getString(itemstack, "SkullOwner", "Name");
+				String owner = NBTEditor.getString(itemstack, "SkullOwner", "Name");
 				if (owner != null) {
 					translatableComponent = translatableComponent.args(Component.text(owner));
 				}

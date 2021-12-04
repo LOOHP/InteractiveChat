@@ -75,7 +75,11 @@ public class ToastUtils {
 			nmsAdvancementProgressClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementProgress", "net.minecraft.advancements.AdvancementProgress");
 			nmsAdvancementProgressConstructor = nmsAdvancementProgressClass.getConstructor();
 			nmsAdvancementProgressAMethod = nmsAdvancementProgressClass.getMethod("a", Map.class, String[][].class);
-			nmsAdvancementProgressGetCriterionProgressMethod = nmsAdvancementProgressClass.getMethod("getCriterionProgress", String.class);
+			try {
+				nmsAdvancementProgressGetCriterionProgressMethod = nmsAdvancementProgressClass.getMethod("getCriterionProgress", String.class);
+			} catch (Exception e) {
+				nmsAdvancementProgressGetCriterionProgressMethod = nmsAdvancementProgressClass.getMethod("c", String.class);
+			}
 			nmsAdvancementProgressGetCriterionProgressBMethod = nmsAdvancementProgressGetCriterionProgressMethod.getReturnType().getMethod("b");		
 			nmsPacketPlayOutAdvancementsClass = NMSUtils.getNMSClass("net.minecraft.server.%s.PacketPlayOutAdvancements", "net.minecraft.network.protocol.game.PacketPlayOutAdvancements");
 			nmsPacketPlayOutAdvancementsConstuctor = nmsPacketPlayOutAdvancementsClass.getConstructor(boolean.class, Collection.class, Set.class, Map.class);

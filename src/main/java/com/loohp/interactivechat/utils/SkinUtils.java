@@ -31,12 +31,16 @@ public class SkinUtils {
 			craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
 			nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EntityPlayer", "net.minecraft.server.level.EntityPlayer");
 			craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
-			nmsEntityPlayerGetProfileMethod = nmsEntityPlayerClass.getMethod("getProfile");
+			try {
+				nmsEntityPlayerGetProfileMethod = nmsEntityPlayerClass.getMethod("getProfile");
+			} catch (Exception e) {
+				nmsEntityPlayerGetProfileMethod = nmsEntityPlayerClass.getMethod("fp");
+			}	
 			craftSkullMetaClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftMetaSkull");
 			craftSkullMetaProfileField = craftSkullMetaClass.getDeclaredField("profile");
 		} catch (Exception e) {
 			e.printStackTrace();
-		}	
+		}
 	}
 	
 	public static String getSkinJsonFromProfile(Player player) throws Exception {

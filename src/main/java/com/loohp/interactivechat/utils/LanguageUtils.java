@@ -34,6 +34,7 @@ import org.json.simple.parser.JSONParser;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
+import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.md_5.bungee.api.ChatColor;
 
 public class LanguageUtils {
@@ -265,14 +266,14 @@ public class LanguageUtils {
 		}
 		
 		if (itemStack.getType().equals(Material.PLAYER_HEAD)) {
-			String owner = NBTUtils.getString(itemStack, "SkullOwner", "Name");
+			String owner = NBTEditor.getString(itemStack, "SkullOwner", "Name");
 			if (owner != null) {
 				path += ".named";
 			}
 		}
 		
 		if (itemStack.getType().equals(Material.SHIELD)) {
-			if (NBTUtils.contains(itemStack, "BlockEntityTag")) {
+			if (NBTEditor.contains(itemStack, "BlockEntityTag")) {
 				DyeColor color = DyeColor.WHITE;
 				if (!(itemStack.getItemMeta() instanceof BannerMeta)) {
 					if (itemStack.getItemMeta() instanceof BlockStateMeta) {
@@ -305,7 +306,7 @@ public class LanguageUtils {
 		Object nmsItemStackObject = asNMSCopyMethod.invoke(null, itemStack);
 		String path = getRawItemTypeNameMethod.invoke(nmsItemStackObject).toString() + ".name";
 		if (XMaterialUtils.matchXMaterial(itemStack).equals(XMaterial.PLAYER_HEAD)) {
-			String owner = NBTUtils.getString(itemStack, "SkullOwner", "Name");
+			String owner = NBTEditor.getString(itemStack, "SkullOwner", "Name");
 			if (owner != null) {
 				path = "item.skull.player.name";
 			}
@@ -320,7 +321,11 @@ public class LanguageUtils {
 	public static String getTranslation(String translationKey, String language) {
 		try {
 			Map<String, String> mapping = translations.get(language);
-			return mapping == null ? new net.md_5.bungee.api.chat.TranslatableComponent(translationKey).toLegacyText() : mapping.getOrDefault(translationKey, translationKey);
+			if (language.equals("en_us")) {
+				return mapping.getOrDefault(translationKey, translationKey);
+			} else {
+				return mapping == null ? getTranslation(translationKey, "en_us") : mapping.getOrDefault(translationKey, getTranslation(translationKey, "en_us"));
+			}
 		} catch (Exception e) {
 			return translationKey;
 		}

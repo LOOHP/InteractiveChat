@@ -24,6 +24,8 @@ public class ChatColorUtils {
 	public static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[color=(#[0-9a-fA-F]{6})\\]");
 	public static final Pattern COLOR_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[color=#[0-9a-fA-F]{6}\\])");
 	
+	public static final String POPULAR_HEX_FORMAT = "%s#([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])";
+	
 	static {
 		COLORS.add('0');
 		COLORS.add('1');
@@ -240,6 +242,21 @@ public class ChatColorUtils {
         }
 
         return text;
+    }
+    
+    public static String translatePopularHexFormats(char code, String str) {
+    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", String.valueOf(code)));
+    	Matcher matcher = pattern.matcher(str);
+    	StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			String replacement = "\u00a7x";
+			for (int i = 1; i < 7; i++) {
+				replacement += "\u00a7" + matcher.group(i).toUpperCase();
+			}
+			matcher.appendReplacement(sb, replacement);
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
     }
   
 }

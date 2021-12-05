@@ -69,7 +69,11 @@ public class ItemDisplay {
 			if (optplayer.isPresent()) {
 				ICPlayer player = optplayer.get();
 				if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
-					Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix, InteractiveChat.itemHover));
+					Component alternativeHover = null;
+					if (!InteractiveChat.itemHover && !InteractiveChat.itemAlternativeHoverMessage.isEmpty()) {
+						alternativeHover = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.itemAlternativeHoverMessage);
+					}
+					Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix, InteractiveChat.itemHover, alternativeHover));
 					component = ComponentReplacing.replace(component, regex, true, itemComponent);
 				}
 			} else {
@@ -117,24 +121,24 @@ public class ItemDisplay {
 	}
 	
 	public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent) throws Exception {	
-		return createItemDisplay(player, receiver, component, timeSent, true);
+		return createItemDisplay(player, receiver, component, timeSent, true, null);
 	}
 	
-	public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover) throws Exception {	
+	public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover, Component alternativeHover) throws Exception {	
 		ItemStack item = PlayerUtils.getHeldItem(player);
 		
 		ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
 		Bukkit.getPluginManager().callEvent(event);
 		item = event.getItemStack();
 		
-		return createItemDisplay(player, item, showHover);
+		return createItemDisplay(player, item, showHover, alternativeHover);
 	}
 	
 	public static Component createItemDisplay(ICPlayer player, ItemStack item) throws Exception {
-		return createItemDisplay(player, item, true);
+		return createItemDisplay(player, item, true, null);
 	}
 	
-	public static Component createItemDisplay(ICPlayer player, ItemStack item, boolean showHover) throws Exception {
+	public static Component createItemDisplay(ICPlayer player, ItemStack item, boolean showHover, Component alternativeHover) throws Exception {
 		boolean trimmed = false;
 		boolean isAir = item.getType().equals(Material.AIR);
 		
@@ -246,6 +250,8 @@ public class ItemDisplay {
 		itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
 		if (showHover) {
 			itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);
+		} else if (alternativeHover != null) {
+			itemDisplayComponent = itemDisplayComponent.hoverEvent(HoverEvent.showText(alternativeHover));
 		}
 		if (!isAir && (isMapView || (!isMapView && InteractiveChat.itemGUI))) {
 			itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));

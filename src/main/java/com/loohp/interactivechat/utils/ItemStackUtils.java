@@ -40,7 +40,7 @@ public class ItemStackUtils {
 		if (itemstack == null) {
 			itemstack = AIR.clone();
 		}
-		XMaterial xMaterial = XMaterial.matchXMaterial(itemstack);
+		XMaterial xMaterial = XMaterialUtils.matchXMaterial(itemstack);
 		ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
 		Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
 		if (!itemstack.getType().equals(Material.AIR) && NBTEditor.contains(itemstack, "display", "Name")) {

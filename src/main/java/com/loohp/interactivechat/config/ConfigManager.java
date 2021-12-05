@@ -148,6 +148,7 @@ public class ConfigManager {
 		InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 		
 		InteractiveChat.itemHover = getConfig().getBoolean("ItemDisplay.Item.HoverEnabled");
+		InteractiveChat.itemAlternativeHoverMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getStringList("ItemDisplay.Item.AlternativeHoverMessage").stream().collect(Collectors.joining("\n")));
 		InteractiveChat.itemGUI = getConfig().getBoolean("ItemDisplay.Item.GUIEnabled");
 		InteractiveChat.translateHoverableItems = getConfig().getBoolean("ItemDisplay.Item.HoverableItemsTranslation.Enabled");
 		InteractiveChat.hoverableItemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.HoverableItemsTranslation.InventoryTitle"));

@@ -257,6 +257,10 @@ ItemDisplay:
     GUIEnabled: true
     #Enable the chat hover tooltip
     HoverEnabled: true
+    #Alternative hover message to show if HoverEnabled is false
+    #Leave blank to disable
+    AlternativeHoverMessage: 
+      - ""
     #The item used for the frame of the Item GUI
     Frame:
       Primary: BLACK_STAINED_GLASS_PANE

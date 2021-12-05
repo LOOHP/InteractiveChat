@@ -31,6 +31,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
@@ -1953,6 +1954,11 @@ public class DummyPlayer implements Player {
 
 	@Override
 	public void showEntity(Plugin arg0, Entity arg1) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void openSign(Sign arg0) {
 		throw new UnsupportedOperationException();
 	}
 

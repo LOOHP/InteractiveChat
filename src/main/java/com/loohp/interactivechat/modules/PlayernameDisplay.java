@@ -53,6 +53,8 @@ public class PlayernameDisplay implements Listener {
 		}, 0, 100);
 	}
 	
+	private PlayernameDisplay() {}
+	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onJoin(PlayerLoginEvent event) {
 		if (event.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
@@ -109,10 +111,10 @@ public class PlayernameDisplay implements Listener {
 			List<Component> children = new ArrayList<>();
 			for (Component c : replaced) {
 				Component edited = c;
-				if (hoverEvent != null) {
+				if (hoverEvent != null && (InteractiveChat.usePlayerNameOverrideHover || edited.hoverEvent() == null)) {
 					edited = edited.hoverEvent(hoverEvent);
 				}
-				if (clickEvent != null) {
+				if (clickEvent != null && (InteractiveChat.usePlayerNameOverrideClick || edited.clickEvent() == null)) {
 					edited = edited.clickEvent(clickEvent);
 				}
 				children.add(edited);

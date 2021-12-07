@@ -336,6 +336,12 @@ ItemDisplay:
 Player:
   #Let InteractiveChat handle all player names that appears in chat (literally ALL)
   UsePlayerNameInteraction: true
+  #Let InteractiveChat override original hover/click events with its own hover/click events
+  #If it is set to false, the original hover/click event will take priority
+  #Meaning InteractiveChat player name interaction won't be applied
+  OverrideOriginal:
+    HoverEvent: true
+    ClickEvent: true
   #Whether or not names have to be capitalized correctly to be replaced
   CaseSensitive: true
   Hover:

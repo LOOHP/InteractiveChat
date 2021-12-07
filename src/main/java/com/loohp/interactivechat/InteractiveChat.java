@@ -160,6 +160,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static String containerViewTitle = "Container Contents";
 	
 	public static boolean usePlayerName = true;
+	public static boolean usePlayerNameOverrideHover = true;
+	public static boolean usePlayerNameOverrideClick = true;
 	public static boolean usePlayerNameHoverEnable = true;
 	public static String usePlayerNameHoverText = "";
 	public static boolean usePlayerNameClickEnable = true;

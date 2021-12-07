@@ -241,6 +241,8 @@ public class ConfigManager {
 		}
 		
 		InteractiveChat.usePlayerName = getConfig().getBoolean("Player.UsePlayerNameInteraction");
+		InteractiveChat.usePlayerNameOverrideHover = getConfig().getBoolean("Player.OverrideOriginal.HoverEvent");
+		InteractiveChat.usePlayerNameOverrideClick = getConfig().getBoolean("Player.OverrideOriginal.ClickEvent");
 		InteractiveChat.usePlayerNameHoverEnable = getConfig().getBoolean("Player.Hover.Enable");
 		List<String> stringList = getConfig().getStringList("Player.Hover.Text");
 		InteractiveChat.usePlayerNameHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList));

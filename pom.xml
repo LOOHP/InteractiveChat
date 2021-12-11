@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.0.4.8</version>
+	<version>4.0.4.9</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -57,12 +57,8 @@
 									<shadedPattern>com.loohp.interactivechat.libs.com.cryptomorin.xseries</shadedPattern>
 								</relocation>
 								<relocation>
-									<pattern>org.apache.commons.text</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.text</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>org.apache.commons.lang3</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.lang3</shadedPattern>
+									<pattern>org.apache.commons</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>org.awaitility</pattern>
@@ -252,7 +248,7 @@
 		<dependency>
 			<groupId>com.github.LOOHP</groupId>
 			<artifactId>Simple-YAML</artifactId>
-			<version>630efb0</version>
+			<version>3ecbba1307</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -265,6 +261,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.9</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.21</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -331,13 +333,13 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.18-R0.1-SNAPSHOT</version>
+			<version>1.18.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
-			<version>1.18-R0.1-SNAPSHOT</version>
+			<version>1.18.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -377,14 +379,14 @@
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.17-R0.1-SNAPSHOT</version>
+			<version>1.18-R0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.17-R0.1-SNAPSHOT</version>
+			<version>1.18-R0.1-SNAPSHOT</version>
 			<type>javadoc</type>
 			<scope>provided</scope>
 		</dependency>

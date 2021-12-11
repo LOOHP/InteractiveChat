@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -103,14 +103,12 @@ public class LanguageUtils {
 								Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to fetch version data from " + urlObj.toString());
 							} else {
 								String clientUrl = ((JSONObject) ((JSONObject) versionData.get("downloads")).get("client")).get("url").toString();
-								
-								try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(HTTPRequestUtils.download(clientUrl)))) {
+								try (ZipArchiveInputStream zip = new ZipArchiveInputStream(new ByteArrayInputStream(HTTPRequestUtils.download(clientUrl)), StandardCharsets.UTF_8.toString(), false, true, true)) {
 									while (true) {
-										ZipEntry entry = zip.getNextEntry();
+										ZipArchiveEntry entry = zip.getNextZipEntry();
 										if (entry == null) {
 											break;
 										}
-										
 										ByteArrayOutputStream baos = new ByteArrayOutputStream();
 										byte[] byteChunk = new byte[4096];
 										int n;
@@ -119,7 +117,7 @@ public class LanguageUtils {
 										}
 										byte[] currentEntry = baos.toByteArray();
 	
-										String name = entry.getName();
+										String name = entry.getName().toLowerCase();
 										if (name.matches("^.*assets/minecraft/lang/en_us.(json|lang)$")) {
 											String enUsFileHash = HashUtils.createSha1String(new ByteArrayInputStream(currentEntry));
 											String enUsExtension = name.substring(name.indexOf(".") + 1);
@@ -158,9 +156,10 @@ public class LanguageUtils {
 								} else {
 									JSONObject objects = (JSONObject) assets.get("objects");
 									for (Object obj : objects.keySet()) {
-										if (obj.toString().matches("^minecraft\\/lang\\/" + language + ".(json|lang)$")) {
-											String lang = obj.toString().substring(obj.toString().lastIndexOf("/") + 1, obj.toString().indexOf("."));
-											String extension = obj.toString().substring(obj.toString().indexOf(".") + 1);
+										String key = obj.toString().toLowerCase();
+										if (key.matches("^minecraft\\/lang\\/" + language + ".(json|lang)$")) {
+											String lang = key.substring(key.lastIndexOf("/") + 1, key.indexOf("."));
+											String extension = key.substring(key.indexOf(".") + 1);
 											String hash = ((JSONObject) objects.get(obj.toString())).get("hash").toString();
 											String fileUrl = RESOURCES_URL + hash.substring(0, 2) + "/" + hash;
 											if (data.containsKey(lang)) {
@@ -172,7 +171,7 @@ public class LanguageUtils {
 														fileToSave.delete();
 													}
 													if (!HTTPRequestUtils.download(fileToSave, fileUrl)) {
-														Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to download " + obj.toString() + " from " + fileUrl);
+														Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to download " + key + " from " + fileUrl);
 													}
 												}
 											} else {
@@ -183,7 +182,7 @@ public class LanguageUtils {
 													fileToSave.delete();
 												}
 												if (!HTTPRequestUtils.download(fileToSave, fileUrl)) {
-													Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to download " + obj.toString() + " from " + fileUrl);
+													Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to download " + key + " from " + fileUrl);
 												}
 												data.put(lang, values);											
 											}

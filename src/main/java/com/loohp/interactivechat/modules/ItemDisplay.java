@@ -127,6 +127,10 @@ public class ItemDisplay {
 	public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover, Component alternativeHover) throws Exception {	
 		ItemStack item = PlayerUtils.getHeldItem(player);
 		
+		if (!item.getType().equals(Material.AIR) && InteractiveChat.ecoHook) {
+			item = EcoHook.setEcoLores(item, receiver);
+		}
+		
 		ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
 		Bukkit.getPluginManager().callEvent(event);
 		item = event.getItemStack();
@@ -143,9 +147,6 @@ public class ItemDisplay {
 		boolean isAir = item.getType().equals(Material.AIR);
 		
 		ItemStack originalItem = item.clone();
-		if (!isAir && InteractiveChat.ecoHook) {
-			item = EcoHook.setEcoLores(item);
-		}
 		
 		String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
 	    //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");

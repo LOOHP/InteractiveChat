@@ -68,7 +68,7 @@ public class HoverableItemDisplay {
 					} catch (Throwable e) {}
 				}
 				if (itemstack != null) {
-					ClickEvent clickEvent = createItemDisplay(itemstack.clone());
+					ClickEvent clickEvent = createItemDisplay(itemstack.clone(), reciever);
 					child = child.clickEvent(clickEvent);
 					children.set(i, child);
 				}
@@ -88,11 +88,11 @@ public class HoverableItemDisplay {
 		return ComponentCompacting.optimize(component.children(children));
 	}
 	
-	private static ClickEvent createItemDisplay(ItemStack item) throws Exception {
+	private static ClickEvent createItemDisplay(ItemStack item, Player player) throws Exception {
 		boolean isAir = item.getType().equals(Material.AIR);
 		ItemStack originalItem = item.clone();
 		if (!isAir && InteractiveChat.ecoHook) {
-			item = EcoHook.setEcoLores(item);
+			item = EcoHook.setEcoLores(item, player);
 		}
 		String title = InteractiveChat.hoverableItemTitle;
 		String sha1 = HashUtils.createSha1(title, item);

@@ -19,6 +19,16 @@ public class DiscordSRVEvents {
 	@Subscribe(priority = ListenerPriority.LOWEST)
 	public void onGameToDiscord(GameChatMessagePreProcessEvent event) {
 		Component component = event.getMessageComponent();
+		event.setMessageComponent(process(component));
+	}
+	/*
+	@Subscribe(priority = ListenerPriority.LOWEST)
+	public void onVentureChatBungeeToDiscord(VentureChatMessagePreProcessEvent event) {
+		Component component = event.getMessageComponent();
+		event.setMessageComponent(process(component));
+	}
+	*/
+	public static Component process(Component component) {
 		component = convert(ComponentReplacing.replace(convert(component), Registry.ID_PATTERN.pattern(), net.kyori.adventure.text.Component.empty())).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
 			String escape = result.group(1);
 			String replacement = escape == null ? "" : escape;
@@ -31,14 +41,14 @@ public class DiscordSRVEvents {
 				return builder.content(replacement);
 			}).build());
 		}
-		event.setMessageComponent(component);
+		return component;
 	}
 	
-	private Component convert(net.kyori.adventure.text.Component component) {
+	public static Component convert(net.kyori.adventure.text.Component component) {
 		return GsonComponentSerializer.gson().deserialize(InteractiveChatComponentSerializer.gson().serialize(component));
 	}
 	
-	private net.kyori.adventure.text.Component convert(Component component) {
+	public static net.kyori.adventure.text.Component convert(Component component) {
 		return InteractiveChatComponentSerializer.gson().deserialize(GsonComponentSerializer.gson().serialize(component));
 	}
 

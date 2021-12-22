@@ -1962,4 +1962,19 @@ public class DummyPlayer implements Player {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public void setResourcePack(String arg0, byte[] arg1, String arg2) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setResourcePack(String arg0, byte[] arg1, boolean arg2) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setResourcePack(String arg0, byte[] arg1, String arg2, boolean arg3) {
+		throw new UnsupportedOperationException();
+	}
+
 }

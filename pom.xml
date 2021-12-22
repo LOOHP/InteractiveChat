@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.0.4.11</version>
+	<version>4.1.0.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -248,7 +248,7 @@
 		<dependency>
 			<groupId>com.github.LOOHP</groupId>
 			<artifactId>Simple-YAML</artifactId>
-			<version>3ecbba1307</version>
+			<version>a7e6d4aa10</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -282,6 +282,12 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
@@ -309,7 +315,7 @@
 		<dependency>
 			<groupId>me.clip</groupId>
 			<artifactId>placeholderapi</artifactId>
-			<version>2.10.10</version>
+			<version>2.10.11</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -363,12 +369,11 @@
 			<systemPath>${basedir}/lib/Dynmap-3.3-beta-1-spigot.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>VentureChat</groupId>
-			<artifactId>VentureChat</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/VentureChat.jar</systemPath>
-		</dependency>
+            <groupId>mineverse.aust1n46</groupId>
+            <artifactId>venturechat</artifactId>
+            <version>2.20.1</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>MPDB</groupId>
 			<artifactId>MPDB</artifactId>

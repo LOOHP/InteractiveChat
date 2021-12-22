@@ -3,9 +3,6 @@ package com.loohp.interactivechat.listeners;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +17,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
@@ -76,9 +72,7 @@ public class OutChatPacket implements Listener {
 			}
 		}
 		
-		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
-		ExecutorService threadPool = Executors.newCachedThreadPool(factory);
-		service = new AsyncChatSendingExecutor(threadPool, () -> (long) (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 2000, 5000);
+		service = new AsyncChatSendingExecutor(() -> (long) (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 2000, 5000);
 	}
 	
 	public static AsyncChatSendingExecutor getAsyncChatSendingExecutor() {

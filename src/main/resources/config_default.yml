@@ -51,6 +51,7 @@ Settings:
     - "Plugin:JetsMinions, Class:.*, EventPriority:NORMAL"
     - "Plugin:Slimefun, Class:.*, EventPriority:LOWEST"
     - "Plugin:ChatBubbles, Class:.*, EventPriority:NORMAL"
+    - "Plugin:BankPlus, Class:.*, EventPriority:MONITOR"
   #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   UseAccurateSenderParser: true
   #Whether to parse PlaceholderAPI placeholders on the main thread

@@ -16,6 +16,7 @@ softdepend:
   - VentureChat
   - DiscordSRV
   - Dynmap
+  - dynmap
   - EcoEnchants
 depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat

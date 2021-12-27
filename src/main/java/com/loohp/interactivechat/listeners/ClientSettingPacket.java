@@ -35,7 +35,12 @@ public class ClientSettingPacket implements Listener {
 	
 	public static void clientSettingsListener() {
 		Bukkit.getPluginManager().registerEvents(new ClientSettingPacket(), InteractiveChat.plugin);
-		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(InteractiveChat.plugin, ListenerPriority.MONITOR, PacketType.Play.Client.SETTINGS) {
+		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.SETTINGS)) {
+			@Override
+		    public void onPacketSending(PacketEvent event) {
+				//do nothing
+			}
+			
 		    @Override
 		    public void onPacketReceiving(PacketEvent event) {
 		        if (!event.getPacketType().equals(PacketType.Play.Client.SETTINGS)) {

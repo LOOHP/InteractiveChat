@@ -1,5 +1,6 @@
 package com.loohp.interactivechat;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.simpleyaml.configuration.file.FileConfiguration;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -315,7 +317,13 @@ public class InteractiveChat extends JavaPlugin {
         if (!getDataFolder().exists()) {
         	getDataFolder().mkdirs();
         }
-        ConfigManager.setup();
+        try {
+			ConfigManager.setup();
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		
 		protocolManager = ProtocolLibrary.getProtocolManager();
 

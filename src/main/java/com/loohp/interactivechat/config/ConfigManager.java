@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.config;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.FileConfiguration;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
@@ -38,7 +40,7 @@ public class ConfigManager {
 	private static final String MAIN_CONFIG = "config";
 	private static final String STORAGE_CONFIG = "storage";
 	
-	public static void setup() {
+	public static void setup() throws IOException, InvalidConfigurationException {
 		Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true);
 		Config.loadConfig(STORAGE_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), true);
 		loadConfig();

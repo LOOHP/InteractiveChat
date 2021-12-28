@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.loohp.interactivechat.utils.FileUtils;
 
@@ -33,23 +34,18 @@ public class Config {
 		}
 	}
 	
-	public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) {
-		try {
-			if (CONFIGS.containsKey(id)) {
-				throw new IllegalArgumentException("Duplicate config id");
-			}
-			
-			if (!file.exists()) {
-				FileUtils.copy(ifNotFound, file);
-			}
-			
-			Config config = new Config(file, def, refreshComments);
-			CONFIGS.put(id, config);
-			return config;
-		} catch (IOException e) {
-			e.printStackTrace();
+	public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
+		if (CONFIGS.containsKey(id)) {
+			throw new IllegalArgumentException("Duplicate config id");
 		}
-		return null;
+		
+		if (!file.exists()) {
+			FileUtils.copy(ifNotFound, file);
+		}
+		
+		Config config = new Config(file, def, refreshComments);
+		CONFIGS.put(id, config);
+		return config;
 	}
 	
 	public static Config loadConfig(String id, File file) {
@@ -85,11 +81,12 @@ public class Config {
 	private YamlFile defConfig;
 	private YamlFile config;
 	
-	private Config(File file, InputStream def, boolean refreshComments) {
+	private Config(File file, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
 		this.file = file;
 		
 		defConfig = YamlFile.loadConfiguration(def, true);
-		config = YamlFile.loadConfiguration(file, true);
+		config = new YamlFile(file);
+		config.loadWithComments();
 		
 		for (String path : defConfig.getValues(true).keySet()) {
 			if (config.contains(path)) {

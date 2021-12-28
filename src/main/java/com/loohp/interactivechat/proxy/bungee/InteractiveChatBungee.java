@@ -31,6 +31,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.simpleyaml.exceptions.InvalidConfigurationException;
+
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -122,7 +124,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 		if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
 		}
-        Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getResourceAsStream("config_proxy.yml"), getResourceAsStream("config_proxy.yml"), true);
+        try {
+			Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getResourceAsStream("config_proxy.yml"), getResourceAsStream("config_proxy.yml"), true);
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
         loadConfig();
 
 		getProxy().registerChannel("interchat:main");

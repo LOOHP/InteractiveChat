@@ -33,6 +33,7 @@ import org.apache.logging.log4j.core.Filter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
 import org.slf4j.Logger;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -146,7 +147,12 @@ public class InteractiveChatVelocity {
     	if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
 		}
-        Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
+        try {
+			Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
         loadConfig();
         
         CommandsVelocity.createBrigadierCommand();

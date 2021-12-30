@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.objectholders;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		this.executingTasks = new ConcurrentHashMap<>();
 		this.sendingQueue = new ConcurrentLinkedQueue<>();
 		this.messagesOrder = new ConcurrentHashMap<>();
+		this.taskIds = new ArrayList<>();
 		this.isValid = new AtomicBoolean(true);
 		
 		taskIds.add(packetSender());

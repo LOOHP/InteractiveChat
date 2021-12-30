@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.objectholders;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private ExecutorService executor;
 	private Map<Future<?>, ExecutingTaskData> executingTasks;
 	
+	private List<Integer> taskIds;
 	private AtomicBoolean isValid;
 	
 	public AsyncChatSendingExecutor(Supplier<Long> executionWaitTime, long killThreadAfter) {
@@ -50,7 +52,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		this.messagesOrder = new ConcurrentHashMap<>();
 		this.isValid = new AtomicBoolean(true);
 		
-		packetSender();
+		taskIds.add(packetSender());
 		monitor();
 	}
 
@@ -100,6 +102,11 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	@Override
 	public synchronized void close() throws Exception {
 		isValid.set(false);
+		for (int id : taskIds) {
+			if (id >= 0) {
+				Bukkit.getScheduler().cancelTask(id);
+			}
+		}
 		executor.shutdown();
 	}
 	
@@ -107,30 +114,19 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		return isValid.get();
 	}
 	
-	private void packetSender() {
-		new Thread(() -> {
-			while (true) {
-				while (!sendingQueue.isEmpty()) {
-					OutboundPacket out = sendingQueue.poll();
-					try {
-						if (out.getReciever().isOnline()) {
-							InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				if (!isValid()) {
-					break;
-				}
+	private int packetSender() {
+		return Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+			while (!sendingQueue.isEmpty()) {
+				OutboundPacket out = sendingQueue.poll();
 				try {
-					TimeUnit.MILLISECONDS.sleep(50);
-				} catch (InterruptedException e) {
+					if (out.getReciever().isOnline()) {
+						InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
-					break;
 				}
 			}
-		}, "InteractiveChat Async ChatPacket Sending Thread").start();
+		}, 0, 1).getTaskId();
 	}
 	
 	private void monitor() {

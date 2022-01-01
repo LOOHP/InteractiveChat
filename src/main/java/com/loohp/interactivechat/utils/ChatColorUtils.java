@@ -24,7 +24,7 @@ public class ChatColorUtils {
 	public static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[color=(#[0-9a-fA-F]{6})\\]");
 	public static final Pattern COLOR_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[color=#[0-9a-fA-F]{6}\\])");
 	
-	public static final String POPULAR_HEX_FORMAT = "%s#([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])";
+	public static final String POPULAR_HEX_FORMAT = "%s#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])";
 	
 	static {
 		COLORS.add('0');

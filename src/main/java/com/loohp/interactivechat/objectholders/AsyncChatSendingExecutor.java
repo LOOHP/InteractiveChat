@@ -125,26 +125,34 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 					Queue<MessageOrderInfo> orderingQueue = messagesOrder.get(playerUUID);
 					Map<UUID, OutboundPacket> playerWaitingPackets = entry.getValue();
 					MessageOrderInfo messageOrderInfo;
-					if (orderingQueue != null && (messageOrderInfo = orderingQueue.peek()) != null) {
-						UUID id = messageOrderInfo.getId();
-						OutboundPacket outboundPacket = playerWaitingPackets.get(id);
-						if (outboundPacket != null) {
-							sendingQueue.add(outboundPacket);
-							playerWaitingPackets.remove(id);
-							orderingQueue.remove(messageOrderInfo);
-							lastSuccessfulCheck.put(playerUUID, time);
+					if (orderingQueue != null) {
+						if ((messageOrderInfo = orderingQueue.peek()) == null) {
+							Iterator<Entry<UUID, OutboundPacket>> itr = playerWaitingPackets.entrySet().iterator();
+							while (itr.hasNext()) {
+								sendingQueue.add(itr.next().getValue());
+								itr.remove();
+							}
 						} else {
-							if (playerWaitingPackets.isEmpty()) {
+							UUID id = messageOrderInfo.getId();
+							OutboundPacket outboundPacket = playerWaitingPackets.get(id);
+							if (outboundPacket != null) {
+								sendingQueue.add(outboundPacket);
+								playerWaitingPackets.remove(id);
+								orderingQueue.remove(messageOrderInfo);
 								lastSuccessfulCheck.put(playerUUID, time);
 							} else {
-								Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
-								if (lastSuccessful == null) {
+								if (playerWaitingPackets.isEmpty()) {
 									lastSuccessfulCheck.put(playerUUID, time);
-								} else if ((lastSuccessful + executionWaitTime.get()) < time) {
-									orderingQueue.poll();
-									lastSuccessfulCheck.put(playerUUID, time);
-								}
-							}						
+								} else {
+									Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
+									if (lastSuccessful == null) {
+										lastSuccessfulCheck.put(playerUUID, time);
+									} else if ((lastSuccessful + executionWaitTime.get()) < time) {
+										orderingQueue.poll();
+										lastSuccessfulCheck.put(playerUUID, time);
+									}
+								}						
+							}
 						}
 					}
 				}

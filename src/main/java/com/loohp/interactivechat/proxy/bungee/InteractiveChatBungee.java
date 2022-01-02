@@ -16,14 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Filter;
@@ -35,7 +30,6 @@ import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -151,23 +145,18 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
 		run();
 		
-		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy ChatMessage Processing Thread #%d").build();
-		ExecutorService threadPool = Executors.newCachedThreadPool(factory);
-		messageForwardingHandler = new MessageForwardingHandler(threadPool, (info, component) -> {
+		messageForwardingHandler = new MessageForwardingHandler((info, component) -> {
 			ProxiedPlayer player = ProxyServer.getInstance().getPlayer(info.getPlayer());
 			Server server = player.getServer();
-			new Timer().schedule(new TimerTask() {
-				@Override
-				public void run() {
-					try {
-						if (player != null && server != null) {
-							PluginMessageSendingBungee.requestMessageProcess(player, server.getInfo(), component, info.getId());
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
+			ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+				try {
+					if (player != null && server != null) {
+						PluginMessageSendingBungee.requestMessageProcess(player, server.getInfo(), component, info.getId());
 					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			}, delay + 50);
+			}, delay + 50, TimeUnit.MILLISECONDS);
 		}, (info, component) -> {
 			Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
     		UserConnection userConnection = (UserConnection) ProxyServer.getInstance().getPlayer(info.getPlayer());
@@ -252,28 +241,25 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 			if (player.getServer() == null) {
 				future.complete(false);
 			} else {
-				new Thread(new Runnable() {
-        			@Override
-        			public void run() {
-        				try {
-        					int id = random.nextInt();
-							PluginMessageSendingBungee.checkPermission(player, permission, id);
-							long start = System.currentTimeMillis() + delay + 500;
-							while (System.currentTimeMillis() < start) {
-								Boolean value = permissionChecks.remove(id);
-								if (value != null) {
-									future.complete(value);
-									return;
-								} else {
-									TimeUnit.NANOSECONDS.sleep(500000);
-								}
+				ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> {
+					try {
+    					int id = random.nextInt();
+						PluginMessageSendingBungee.checkPermission(player, permission, id);
+						long start = System.currentTimeMillis() + delay + 500;
+						while (System.currentTimeMillis() < start) {
+							Boolean value = permissionChecks.remove(id);
+							if (value != null) {
+								future.complete(value);
+								return;
+							} else {
+								TimeUnit.NANOSECONDS.sleep(500000);
 							}
-							future.complete(false);
-						} catch (IOException | InterruptedException e) {
-							e.printStackTrace();
 						}
-        			}
-        		}).start();
+						future.complete(false);
+					} catch (IOException | InterruptedException e) {
+						e.printStackTrace();
+					}
+				});
 			}
 		}
 		return future;
@@ -288,28 +274,25 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 	}
 
 	private void run() {
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					PluginMessageSendingBungee.sendPlayerListData();
-					PluginMessageSendingBungee.sendDelayAndScheme();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				long now = System.currentTimeMillis();
-				for (Map<String, Long> list : forwardedMessages.values()) {
-					Iterator<Long> itr = list.values().iterator();
-					while (itr.hasNext()) {
-						long time = itr.next();
-						if (time - 5000 > now) {
-							itr.remove();
-						}
+		ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+			try {
+				PluginMessageSendingBungee.sendPlayerListData();
+				PluginMessageSendingBungee.sendDelayAndScheme();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			long now = System.currentTimeMillis();
+			for (Map<String, Long> list : forwardedMessages.values()) {
+				Iterator<Long> itr = list.values().iterator();
+				while (itr.hasNext()) {
+					long time = itr.next();
+					if (time - 5000 > now) {
+						itr.remove();
 					}
 				}
 			}
-		}, 0, 5000);
+		}, 0, 5000, TimeUnit.MILLISECONDS);
 	}
 
 	@EventHandler
@@ -513,19 +496,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				event.setMessage(message);
 			}
 
-			new Timer().schedule(new TimerTask() {
-				@Override
-				public void run() {
-					Map<String, Long> messages = forwardedMessages.get(uuid);
-					if (messages != null && messages.remove(newMessage) != null) {
-						try {
-							PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+			ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+				Map<String, Long> messages = forwardedMessages.get(uuid);
+				if (messages != null && messages.remove(newMessage) != null) {
+					try {
+						PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
-			}, 100);
+			}, 100, TimeUnit.MILLISECONDS);
 		}
 	}
 	
@@ -689,39 +669,30 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 				}
 			}
 		}
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					PluginMessageSendingBungee.sendDelayAndScheme();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> {
+			try {
+				PluginMessageSendingBungee.sendDelayAndScheme();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		}).start();
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEskakE")) {
-					sendMessage(event.getPlayer(), LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
-				}
+		});
+		ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+			if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEskakE")) {
+				sendMessage(event.getPlayer(), LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
 			}
-		}, 100);
+		}, 100, TimeUnit.MILLISECONDS);
 	}
 
 	@EventHandler
 	public void onLeave(PlayerDisconnectEvent event) {
 		forwardedMessages.remove(event.getPlayer().getUniqueId());
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					PluginMessageSendingBungee.sendPlayerListData();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+			try {
+				PluginMessageSendingBungee.sendPlayerListData();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		}, 1000);
+		}, 1000, TimeUnit.MILLISECONDS);
 	}
 	
 	private boolean hasInteractiveChat(Server server) {

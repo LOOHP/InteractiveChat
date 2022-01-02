@@ -2,21 +2,18 @@ package com.loohp.interactivechat.proxy.objectholders;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionTimeoutException;
 
 public class MessageForwardingHandler implements AutoCloseable {
 	
@@ -24,29 +21,32 @@ public class MessageForwardingHandler implements AutoCloseable {
 	
 	private Map<UUID, Queue<ForwardMessageInfo>> messageOrder;
 	private Map<UUID, ForwardMessageInfo> messageData;
-	private ExecutorService executor;
 	private Queue<OutboundMessage> sendingQueue;
 	private BiConsumer<ForwardMessageInfo, String> forwardForProcessing;
 	private BiConsumer<ForwardMessageInfo, String> sendToPlayer;
 	private Predicate<UUID> isPlayerOnline;
 	private Predicate<UUID> hasInteractiveChatOnConnectedServer;
 	private Supplier<Long> executionWaitTime;
+	private Map<UUID, Map<UUID, OutboundMessage>> waitingPackets;
+	private Map<UUID, Long> lastSuccessfulCheck;
 	
 	private AtomicBoolean isValid;
 	
-	public MessageForwardingHandler(ExecutorService executor, BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
+	public MessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
 		this.isValid = new AtomicBoolean(true);
 		this.messageOrder = new ConcurrentHashMap<>();
 		this.messageData = new ConcurrentHashMap<>();
-		this.executor = executor;
 		this.sendingQueue = new ConcurrentLinkedQueue<>();
 		this.forwardForProcessing = forwardForProcessing;
 		this.sendToPlayer = sendToPlayer;
 		this.isPlayerOnline = isPlayerOnline;
 		this.hasInteractiveChatOnConnectedServer = hasInteractiveChatOnConnectedServer;
 		this.executionWaitTime = executionWaitTime;
+		this.waitingPackets = new ConcurrentHashMap<>();
+		this.lastSuccessfulCheck = new ConcurrentHashMap<>();
 		
 		packetSender();
+		packetOrderSender();
 		monitor();
 	}
 	
@@ -66,31 +66,21 @@ public class MessageForwardingHandler implements AutoCloseable {
 	}
 	
 	public void recievedProcessedMessage(UUID messageId, String message) {
-		executor.execute(() -> {
-			ForwardMessageInfo info = messageData.remove(messageId);
-			if (info != null) {
-				Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
-				if (queue != null) {
-					long timeout = executionWaitTime.get();
-					while (true) {
-						ForwardMessageInfo head = queue.peek();
-						if (queue.contains(info)) {
-							try {
-								Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(timeout, TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().equals(info));
-								break;
-							} catch (ConditionTimeoutException e) {
-								queue.remove(head);
-								timeout = RE_WAIT_TIME;
-							}
-						} else {
-							break;
-						}
-					}
-					sendingQueue.add(new OutboundMessage(info, message));
+		ForwardMessageInfo info = messageData.remove(messageId);
+		if (info != null) {
+			Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
+			OutboundMessage outboundMessage = new OutboundMessage(info, message);
+			if (queue != null) {
+				if (queue.contains(info)) {
+					waitingPackets.putIfAbsent(info.getPlayer(), new ConcurrentHashMap<>());
+					Map<UUID, OutboundMessage> waitingMap = waitingPackets.get(info.getPlayer());
+					waitingMap.put(messageId, outboundMessage);
+				} else {
+					sendingQueue.add(outboundMessage);
 					queue.remove(info);
 				}
 			}
-		});
+		}
 	}
 	
 	public void clearPlayer(UUID player) {
@@ -141,11 +131,63 @@ public class MessageForwardingHandler implements AutoCloseable {
 		}, 0, 1000);
 	}
 	
+	private void packetOrderSender() {
+		new Thread(() -> {
+			while (true) {
+				for (Entry<UUID, Map<UUID, OutboundMessage>> entry : waitingPackets.entrySet()) {
+					long time = System.currentTimeMillis();
+					UUID playerUUID = entry.getKey();
+					Queue<ForwardMessageInfo> orderingQueue = messageOrder.get(playerUUID);
+					Map<UUID, OutboundMessage> playerWaitingPackets = entry.getValue();
+					ForwardMessageInfo forwardMessageInfo;
+					if (orderingQueue != null) {
+						if ((forwardMessageInfo = orderingQueue.peek()) == null) {
+							Iterator<Entry<UUID, OutboundMessage>> itr = playerWaitingPackets.entrySet().iterator();
+							while (itr.hasNext()) {
+								sendingQueue.add(itr.next().getValue());
+								itr.remove();
+							}
+						} else {
+							UUID id = forwardMessageInfo.getId();
+							OutboundMessage outboundPacket = playerWaitingPackets.get(id);
+							if (outboundPacket != null) {
+								sendingQueue.add(outboundPacket);
+								playerWaitingPackets.remove(id);
+								orderingQueue.remove(forwardMessageInfo);
+								lastSuccessfulCheck.put(playerUUID, time);
+							} else {
+								if (playerWaitingPackets.isEmpty()) {
+									lastSuccessfulCheck.put(playerUUID, time);
+								} else {
+									Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
+									if (lastSuccessful == null) {
+										lastSuccessfulCheck.put(playerUUID, time);
+									} else if ((lastSuccessful + executionWaitTime.get()) < time) {
+										orderingQueue.poll();
+										lastSuccessfulCheck.put(playerUUID, time);
+									}
+								}						
+							}
+						}
+					}
+				}
+				
+				if (!isValid()) {
+					break;
+				}
+				try {
+					TimeUnit.NANOSECONDS.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					break;
+				}
+			}
+		}).start();
+	}
+	
 	@Override
 	public synchronized void close() throws Exception {
 		isValid.set(false);
-		executor.shutdown();
-		executor.awaitTermination(6000, TimeUnit.MILLISECONDS);
 	}
 	
 	public boolean isValid() {

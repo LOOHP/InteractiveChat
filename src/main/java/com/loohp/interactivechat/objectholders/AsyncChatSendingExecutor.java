@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionTimeoutException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -39,8 +37,9 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private Map<UUID, Queue<MessageOrderInfo>> messagesOrder;
 	private Queue<OutboundPacket> sendingQueue;
 	private ThreadPoolExecutor executor;
-	private ThreadPoolExecutor forceExecutor;
 	private Map<Future<?>, ExecutingTaskData> executingTasks;
+	private Map<UUID, Map<UUID, OutboundPacket>> waitingPackets;
+	private Map<UUID, Long> lastSuccessfulCheck;
 	
 	private List<Integer> taskIds;
 	private AtomicBoolean isValid;
@@ -48,8 +47,6 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	public AsyncChatSendingExecutor(Supplier<Long> executionWaitTime, long killThreadAfter) {
 		ThreadFactory factory0 = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
 		this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory0);
-		ThreadFactory factory1 = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async Forced ChatMessage Processing Thread #%d").build();
-		this.forceExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory1);
 		this.executeLock = new ReentrantLock(true);
 		this.executionWaitTime = executionWaitTime;
 		this.killThreadAfter = killThreadAfter;
@@ -58,16 +55,15 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		this.messagesOrder = new ConcurrentHashMap<>();
 		this.taskIds = new ArrayList<>();
 		this.isValid = new AtomicBoolean(true);
+		this.waitingPackets = new ConcurrentHashMap<>();
+		this.lastSuccessfulCheck = new ConcurrentHashMap<>();
 		
 		taskIds.add(packetSender());
+		packetOrderSender();
 		monitor();
 	}
-	
-	public void execute(Runnable runnable, Player player, UUID id) {
-		execute(runnable, player, id, false);
-	}
 
-	public void execute(Runnable runnable, Player player, UUID id, boolean forceCreateThread) {
+	public void execute(Runnable runnable, Player player, UUID id) {
 		executeLock.lock();
 		messagesOrder.putIfAbsent(player.getUniqueId(), new ConcurrentLinkedQueue<>());
 		Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
@@ -77,7 +73,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		} else {
 			queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
 		}
-		Future<?> future = forceCreateThread ? forceExecutor.submit(runnable) : executor.submit(runnable);
+		Future<?> future = executor.submit(runnable);
 		executingTasks.put(future, new ExecutingTaskData(System.currentTimeMillis(), player.getUniqueId(), id));
 		executeLock.unlock();
 	}
@@ -88,25 +84,13 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		if (queue == null) {
 			sendingQueue.add(outboundPacket);
 		} else {
-			Optional<MessageOrderInfo> optInfo = Optional.empty();
-			long timeout = executionWaitTime.get();
-			while (true) {
-				optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
-				MessageOrderInfo head = queue.peek();
-				if (optInfo.isPresent()) {
-					try {
-						Awaitility.await().pollDelay(0, TimeUnit.NANOSECONDS).pollInterval(10000, TimeUnit.NANOSECONDS).atMost(timeout, TimeUnit.MILLISECONDS).until(() -> queue.peek() == null || queue.peek().getId().equals(id));
-						break;
-					} catch (ConditionTimeoutException e) {
-						queue.remove(head);
-						timeout = RE_WAIT_TIME;
-					}
-				} else {
-					break;
-				}
+			if (queue.stream().anyMatch(each -> each.getId().equals(id))) {
+				waitingPackets.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
+				Map<UUID, OutboundPacket> waitingMap = waitingPackets.get(player.getUniqueId());
+				waitingMap.put(id, outboundPacket);
+			} else {
+				sendingQueue.add(outboundPacket);
 			}
-			sendingQueue.add(outboundPacket);
-			optInfo.ifPresent(each -> queue.remove(each));
 		}
 	}
 	
@@ -126,11 +110,56 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 			}
 		}
 		executor.shutdown();
-		forceExecutor.shutdown();
 	}
 	
 	public boolean isValid() {
 		return isValid.get();
+	}
+	
+	private void packetOrderSender() {
+		new Thread(() -> {
+			while (true) {
+				for (Entry<UUID, Map<UUID, OutboundPacket>> entry : waitingPackets.entrySet()) {
+					long time = System.currentTimeMillis();
+					UUID playerUUID = entry.getKey();
+					Queue<MessageOrderInfo> orderingQueue = messagesOrder.get(playerUUID);
+					Map<UUID, OutboundPacket> playerWaitingPackets = entry.getValue();
+					MessageOrderInfo messageOrderInfo;
+					if (orderingQueue != null && (messageOrderInfo = orderingQueue.peek()) != null) {
+						UUID id = messageOrderInfo.getId();
+						OutboundPacket outboundPacket = playerWaitingPackets.get(id);
+						if (outboundPacket != null) {
+							sendingQueue.add(outboundPacket);
+							playerWaitingPackets.remove(id);
+							orderingQueue.remove(messageOrderInfo);
+							lastSuccessfulCheck.put(playerUUID, time);
+						} else {
+							if (playerWaitingPackets.isEmpty()) {
+								lastSuccessfulCheck.put(playerUUID, time);
+							} else {
+								Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
+								if (lastSuccessful == null) {
+									lastSuccessfulCheck.put(playerUUID, time);
+								} else if ((lastSuccessful + executionWaitTime.get()) < time) {
+									orderingQueue.poll();
+									lastSuccessfulCheck.put(playerUUID, time);
+								}
+							}						
+						}
+					}
+				}
+				
+				if (!isValid()) {
+					break;
+				}
+				try {
+					TimeUnit.NANOSECONDS.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					break;
+				}
+			}
+		}, "InteractiveChat Async ChatPacket Ordered Sending Thread").start();
 	}
 	
 	private int packetSender() {
@@ -176,6 +205,22 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 						itr1.remove();
 					} else {
 						entry.getValue().removeIf(each -> (each.getTime() + executionWaitTime.get()) < time);
+					}
+				}
+				
+				Iterator<Entry<UUID, Map<UUID, OutboundPacket>>> itr2 = waitingPackets.entrySet().iterator();
+				while (itr2.hasNext()) {
+					Entry<UUID, Map<UUID, OutboundPacket>> entry = itr2.next();
+					if (Bukkit.getPlayer(entry.getKey()) == null) {
+						itr2.remove();
+					}
+				}
+				
+				Iterator<Entry<UUID, Long>> itr3 = lastSuccessfulCheck.entrySet().iterator();
+				while (itr3.hasNext()) {
+					Entry<UUID, Long> entry = itr3.next();
+					if (Bukkit.getPlayer(entry.getKey()) == null) {
+						itr3.remove();
 					}
 				}
 				if (!isValid()) {

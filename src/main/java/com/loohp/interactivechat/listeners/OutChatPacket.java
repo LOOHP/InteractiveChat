@@ -222,7 +222,7 @@ public class OutChatPacket implements Listener {
 	        		Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
 	        			service.execute(() -> {
 	    		    		processPacket(reciever, packet, messageUUID, false);
-	    		    	}, reciever, messageUUID, true);
+	    		    	}, reciever, messageUUID);
 					}, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
 	        		return;
 	        	}

@@ -10,13 +10,13 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import org.awaitility.Awaitility;
@@ -35,17 +35,22 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private Supplier<Long> executionWaitTime;
 	private long killThreadAfter;
 	
+	private ReentrantLock executeLock;
 	private Map<UUID, Queue<MessageOrderInfo>> messagesOrder;
 	private Queue<OutboundPacket> sendingQueue;
-	private ExecutorService executor;
+	private ThreadPoolExecutor executor;
+	private ThreadPoolExecutor forceExecutor;
 	private Map<Future<?>, ExecutingTaskData> executingTasks;
 	
 	private List<Integer> taskIds;
 	private AtomicBoolean isValid;
 	
 	public AsyncChatSendingExecutor(Supplier<Long> executionWaitTime, long killThreadAfter) {
-		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
-		this.executor = new ThreadPoolExecutor(0, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
+		ThreadFactory factory0 = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
+		this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory0);
+		ThreadFactory factory1 = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async Forced ChatMessage Processing Thread #%d").build();
+		this.forceExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory1);
+		this.executeLock = new ReentrantLock(true);
 		this.executionWaitTime = executionWaitTime;
 		this.killThreadAfter = killThreadAfter;
 		this.executingTasks = new ConcurrentHashMap<>();
@@ -57,13 +62,24 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		taskIds.add(packetSender());
 		monitor();
 	}
+	
+	public void execute(Runnable runnable, Player player, UUID id) {
+		execute(runnable, player, id, false);
+	}
 
-	public synchronized void execute(Runnable runnable, Player player, UUID id) {
+	public void execute(Runnable runnable, Player player, UUID id, boolean forceCreateThread) {
+		executeLock.lock();
 		messagesOrder.putIfAbsent(player.getUniqueId(), new ConcurrentLinkedQueue<>());
 		Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
-		queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
-		Future<?> future = executor.submit(runnable);
+		Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
+		if (optInfo.isPresent()) {
+			optInfo.get().setTime(System.currentTimeMillis());
+		} else {
+			queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
+		}
+		Future<?> future = forceCreateThread ? forceExecutor.submit(runnable) : executor.submit(runnable);
 		executingTasks.put(future, new ExecutingTaskData(System.currentTimeMillis(), player.getUniqueId(), id));
+		executeLock.unlock();
 	}
 	
 	public void send(PacketContainer packet, Player player, UUID id) {
@@ -110,6 +126,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 			}
 		}
 		executor.shutdown();
+		forceExecutor.shutdown();
 	}
 	
 	public boolean isValid() {
@@ -155,9 +172,10 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 				Iterator<Entry<UUID, Queue<MessageOrderInfo>>> itr1 = messagesOrder.entrySet().iterator();
 				while (itr1.hasNext()) {
 					Entry<UUID, Queue<MessageOrderInfo>> entry = itr1.next();
-					entry.getValue().removeIf(each -> each.getTime() + executionWaitTime.get() < time);
-					if (Bukkit.getPlayer(entry.getKey()) == null && entry.getValue().isEmpty()) {
+					if (Bukkit.getPlayer(entry.getKey()) == null) {
 						itr1.remove();
+					} else {
+						entry.getValue().removeIf(each -> (each.getTime() + executionWaitTime.get()) < time);
 					}
 				}
 				if (!isValid()) {
@@ -214,6 +232,14 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 		
 		public long getTime() {
 			return time;
+		}
+		
+		public void setTime(long time) {
+			this.time = time;
+		}
+		
+		public String toString() {
+			return id.toString();
 		}
 		
 	}

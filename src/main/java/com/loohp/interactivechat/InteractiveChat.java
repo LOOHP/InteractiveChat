@@ -237,7 +237,7 @@ public class InteractiveChat extends JavaPlugin {
 	public static int maxPlaceholders = -1;
 	public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 	
-	public static Map<UUID, MentionPair> mentionPair = new ConcurrentHashMap<>();
+	public static List<MentionPair> mentionPair = Collections.synchronizedList(new ArrayList<>());
 	public static String mentionPrefix = "@";
 	public static String mentionHightlight = "&e{MentionedPlayer}";
 	public static String mentionHover = "&e{MentionedPlayer}";

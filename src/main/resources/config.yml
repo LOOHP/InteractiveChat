@@ -62,6 +62,8 @@ Settings:
       - "&7Unable to parse item"
       - "&7This is likely to be an item that"
       - "&7does not exist in this version of Minecraft"
+  #Visit this page for all the languages that Minecraft offers:
+  #https://minecraft.fandom.com/wiki/Language
   Language: en_us
   #Use indiviual permissions for custom placeholders
   #For example the first custom placeholder will have the permission

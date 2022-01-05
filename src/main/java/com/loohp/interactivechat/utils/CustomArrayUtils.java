@@ -6,7 +6,11 @@ import java.util.Arrays;
 public class CustomArrayUtils {
 
 	public static byte[][] divideArray(byte[] source, int chunksize) {
-		byte[][] ret = new byte[(int) Math.ceil(source.length / (double) chunksize)][];
+		int length = (int) Math.ceil(source.length / (double) chunksize);
+		if (length <= 1) {
+			return new byte[][] {source};
+		}
+		byte[][] ret = new byte[length][];
 		int start = 0;
 		for (int i = 0; i < ret.length; i++) {
 			int end = start + chunksize;

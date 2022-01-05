@@ -40,8 +40,12 @@ public class MentionDisplay {
 	private static final ItemStack WRITABLE_BOOK = XMaterial.WRITABLE_BOOK.parseItem();
 	
 	public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
-		if (InteractiveChat.mentionPair.containsKey(beenpinged.getUniqueId())) {
-			MentionPair pair = InteractiveChat.mentionPair.get(beenpinged.getUniqueId());
+		Optional<MentionPair> optPair;
+		synchronized (InteractiveChat.mentionPair) {
+			optPair = InteractiveChat.mentionPair.stream().filter(each -> each.getReciever().equals(beenpinged.getUniqueId())).findFirst();
+		}
+		if (optPair.isPresent()) {
+			MentionPair pair = optPair.get();
     		if (pair.getSender().equals(sender.getUniqueId())) {
     			Player reciever = beenpinged;
     			

@@ -43,7 +43,7 @@ public class InChatPacket {
 			}
 			checkAsync();
 			checkSync();
-		}, 0, 200);
+		}, 100, 200);
 		
 		InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.CHAT)) {
 			@Override
@@ -168,50 +168,53 @@ public class InChatPacket {
 	}
 	
 	private static void checkAsync() {
-		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
-		List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
-		List<RegisteredListener> toRemove = new ArrayList<>();
-		
-		for (RegisteredListener registration : listeners) {
-            if (!registration.getPlugin().isEnabled()) {
-                continue;
-            }
-            String pluginName = registration.getPlugin().getName();
-            if (pluginName.equalsIgnoreCase("InteractiveChat")) {
-            	continue;
-            }
-            CompatibilityListener compatibilityListener = null;
-            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
-            	if (pluginName.matches(listener.getPluginRegex())) {
-            		compatibilityListener = listener;
-            		break;
-            	}
-            }
-            if (compatibilityListener == null) {
-            	continue;
-            }
-            if (!registration.getPriority().equals(compatibilityListener.getPriority())) {
-            	continue;
-            }
-            if (!registration.getListener().getClass().getName().matches(compatibilityListener.getClassName())) {
-            	continue;
-            }
-            
-            Set<RegisteredListener> list = InteractiveChat.isolatedAsyncListeners.get(registration.getPriority());
-            if (list == null) {
-            	list = new LinkedHashSet<>();
-            	InteractiveChat.isolatedAsyncListeners.put(registration.getPriority(), list);
-            }
-            
-            list.add(registration);
-            
-            toRemove.add(registration);
-        }
-		
 		if (!InteractiveChat.plugin.isEnabled()) {
 			return;
 		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
+			if (handlerList.getRegisteredListeners().length <= 0) {
+				return;
+			}
+			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
+			List<RegisteredListener> toRemove = new ArrayList<>();
+			
+			for (RegisteredListener registration : listeners) {
+	            if (!registration.getPlugin().isEnabled()) {
+	                continue;
+	            }
+	            String pluginName = registration.getPlugin().getName();
+	            if (pluginName.equalsIgnoreCase("InteractiveChat")) {
+	            	continue;
+	            }
+	            CompatibilityListener compatibilityListener = null;
+	            for (CompatibilityListener listener : InteractiveChat.compatibilityListeners) {
+	            	if (pluginName.matches(listener.getPluginRegex())) {
+	            		compatibilityListener = listener;
+	            		break;
+	            	}
+	            }
+	            if (compatibilityListener == null) {
+	            	continue;
+	            }
+	            if (!registration.getPriority().equals(compatibilityListener.getPriority())) {
+	            	continue;
+	            }
+	            if (!registration.getListener().getClass().getName().matches(compatibilityListener.getClassName())) {
+	            	continue;
+	            }
+	            
+	            Set<RegisteredListener> list = InteractiveChat.isolatedAsyncListeners.get(registration.getPriority());
+	            if (list == null) {
+	            	list = new LinkedHashSet<>();
+	            	InteractiveChat.isolatedAsyncListeners.put(registration.getPriority(), list);
+	            }
+	            
+	            list.add(registration);
+	            
+	            toRemove.add(registration);
+	        }
+			
 			for (RegisteredListener registration : toRemove) {
 				handlerList.unregister(registration);
 			}
@@ -219,15 +222,14 @@ public class InChatPacket {
 	}
 	
 	private static void checkSync() {
-		HandlerList handlerList = PlayerChatEvent.getHandlerList();
-		if (handlerList.getRegisteredListeners().length == 0) {
-			return;
-		}
-		
 		if (!InteractiveChat.plugin.isEnabled()) {
 			return;
 		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			HandlerList handlerList = PlayerChatEvent.getHandlerList();
+			if (handlerList.getRegisteredListeners().length <= 0) {
+				return;
+			}
 			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
 			List<RegisteredListener> toRemove = new ArrayList<>();
 			
@@ -274,34 +276,37 @@ public class InChatPacket {
 	}
 	
 	private static void checkSuperVanishAndPremiumVanish() {
-		HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
-		List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
-		List<RegisteredListener> toRemove = new ArrayList<>();
-		
-		for (RegisteredListener registration : listeners) {
-            if (!registration.getPlugin().isEnabled()) {
-                continue;
-            }
-            String pluginName = registration.getPlugin().getName();
-            if (!pluginName.equals("PremiumVanish")) {
-            	continue;
-            }
-            
-            Set<RegisteredListener> list = InteractiveChat.superVanishPremiumVanishListeners.get(registration.getPriority());
-            if (list == null) {
-            	list = new LinkedHashSet<>();
-            	InteractiveChat.superVanishPremiumVanishListeners.put(registration.getPriority(), list);
-            }
-            
-            list.add(registration);
-            
-            toRemove.add(registration);
-        }
-		
 		if (!InteractiveChat.plugin.isEnabled()) {
 			return;
 		}
 		Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+			HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
+			if (handlerList.getRegisteredListeners().length <= 0) {
+				return;
+			}
+			List<RegisteredListener> listeners = new ArrayList<>(Arrays.asList(handlerList.getRegisteredListeners()));
+			List<RegisteredListener> toRemove = new ArrayList<>();
+			
+			for (RegisteredListener registration : listeners) {
+	            if (!registration.getPlugin().isEnabled()) {
+	                continue;
+	            }
+	            String pluginName = registration.getPlugin().getName();
+	            if (!pluginName.equals("PremiumVanish")) {
+	            	continue;
+	            }
+	            
+	            Set<RegisteredListener> list = InteractiveChat.superVanishPremiumVanishListeners.get(registration.getPriority());
+	            if (list == null) {
+	            	list = new LinkedHashSet<>();
+	            	InteractiveChat.superVanishPremiumVanishListeners.put(registration.getPriority(), list);
+	            }
+	            
+	            list.add(registration);
+	            
+	            toRemove.add(registration);
+	        }
+
 			for (RegisteredListener registration : toRemove) {
 				handlerList.unregister(registration);
 			}

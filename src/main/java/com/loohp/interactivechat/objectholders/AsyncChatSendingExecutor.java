@@ -28,8 +28,6 @@ import com.loohp.interactivechat.InteractiveChat;
 
 public class AsyncChatSendingExecutor implements AutoCloseable {
 	
-	public static final long RE_WAIT_TIME = 200;
-	
 	private Supplier<Long> executionWaitTime;
 	private long killThreadAfter;
 	
@@ -45,8 +43,8 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 	private AtomicBoolean isValid;
 	
 	public AsyncChatSendingExecutor(Supplier<Long> executionWaitTime, long killThreadAfter) {
-		ThreadFactory factory0 = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
-		this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory0);
+		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
+		this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
 		this.executeLock = new ReentrantLock(true);
 		this.executionWaitTime = executionWaitTime;
 		this.killThreadAfter = killThreadAfter;

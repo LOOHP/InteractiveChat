@@ -15,9 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class MessageForwardingHandler implements AutoCloseable {
-	
-	public static final long RE_WAIT_TIME = 200;
+public class ProxyMessageForwardingHandler implements AutoCloseable {
 	
 	private Map<UUID, Queue<ForwardMessageInfo>> messageOrder;
 	private Map<UUID, ForwardMessageInfo> messageData;
@@ -32,7 +30,7 @@ public class MessageForwardingHandler implements AutoCloseable {
 	
 	private AtomicBoolean isValid;
 	
-	public MessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
+	public ProxyMessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
 		this.isValid = new AtomicBoolean(true);
 		this.messageOrder = new ConcurrentHashMap<>();
 		this.messageData = new ConcurrentHashMap<>();

@@ -340,7 +340,7 @@ public class Events implements Listener {
    				int index = message.toLowerCase().indexOf(name.toLowerCase());
    				if (index >= 0) {
 					if (!uuid.equals(sender.getUniqueId())) {
-						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
@@ -364,7 +364,7 @@ public class Events implements Listener {
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					UUID uuid = player.getUniqueId();
 					if (!uuid.equals(sender.getUniqueId())) {
-						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);
@@ -392,7 +392,7 @@ public class Events implements Listener {
 				}				
 				for (UUID uuid : players) {
 					if (!uuid.equals(sender.getUniqueId())) {
-						InteractiveChat.mentionPair.put(uuid, new MentionPair(sender.getUniqueId(), uuid));
+						InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));
 						if (InteractiveChat.bungeecordMode) {
 							try {
 								BungeeMessageSender.forwardMentionPair(System.currentTimeMillis(), sender.getUniqueId(), uuid);

@@ -11,6 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
@@ -18,6 +21,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 public class SkinUtils {
+	
+	private static final String PLAYER_INFO_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
 	
 	private static Class<?> craftPlayerClass;
 	private static Class<?> nmsEntityPlayerClass;
@@ -85,6 +90,23 @@ public class SkinUtils {
         head.setItemMeta(meta);
         return head;
     }
+	
+	public static String getSkinURLFromUUID(UUID uuid) throws Exception {
+		JSONObject jsonResponse = HTTPRequestUtils.getJSONResponse(PLAYER_INFO_URL.replaceFirst("%s", uuid.toString()));
+		if (jsonResponse.containsKey("error")) {
+			throw new RuntimeException("Unable to retrieve skin url from Mojang servers for the player " + uuid);
+		}
+		JSONArray propertiesArray = (JSONArray) jsonResponse.get("properties");
+		for (Object obj : propertiesArray) {
+			JSONObject property = (JSONObject) obj;
+			if (property.get("name").toString().equals("textures")) {
+				String base64 = property.get("value").toString();
+				JSONObject textureJson = (JSONObject) new JSONParser().parse(new String(Base64.getDecoder().decode(base64)));
+				return ((JSONObject) ((JSONObject) textureJson.get("textures")).get("SKIN")).get("url").toString();
+			}
+		}
+		throw new RuntimeException("Unable to retrieve skin url from Mojang servers for the player " + uuid);
+	}
 
 
 }

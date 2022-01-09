@@ -145,12 +145,12 @@ public class InventoryDisplay {
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
 			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
 			if (level != 1) {
-				expText = expText.args(Component.text(level + ""));
+				expText = expText.args(Component.text(level));
 			}
 			exp = NBTEditor.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
-			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));
+			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
 			exp.setItemMeta(expMeta);
 		}
 		inv.setItem(1, exp);
@@ -243,12 +243,12 @@ public class InventoryDisplay {
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
 			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
 			if (level != 1) {
-				expText = expText.args(Component.text(level + ""));
+				expText = expText.args(Component.text(level));
 			}
 			exp = NBTEditor.set(exp, InteractiveChatComponentSerializer.gson().serialize(expText), "display", "Name");
 		} else {
 			ItemMeta expMeta = exp.getItemMeta();
-			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s", level + ""));
+			expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
 			exp.setItemMeta(expMeta);
 		}
 		inv.setItem(37, exp);

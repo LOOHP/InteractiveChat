@@ -13,7 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -61,6 +64,7 @@ public class LanguageUtils {
 	public static final String RESOURCES_URL = "http://resources.download.minecraft.net/";
 	
 	private static Map<String, Map<String, String>> translations = new HashMap<>();
+	private static Map<Plugin, Map<String, Map<String, String>>> pluginTranslations = new ConcurrentHashMap<>();
 	private static AtomicBoolean lock = new AtomicBoolean(false);
 	
 	@SuppressWarnings("unchecked")
@@ -233,6 +237,18 @@ public class LanguageUtils {
 				if (translations.isEmpty()) {
 					throw new RuntimeException();
 				}
+				for (Map<String, Map<String, String>> pluginLanguageMapping : pluginTranslations.values()) {
+					for (Entry<String, Map<String, String>> entry : pluginLanguageMapping.entrySet()) {
+						String lang = entry.getKey();
+						Map<String, String> mapping = entry.getValue();
+						Map<String, String> existingMapping = translations.get(lang);
+						if (existingMapping == null) {
+							translations.put(lang, new HashMap<>(mapping));
+						} else {
+							existingMapping.putAll(mapping);
+						}
+					}
+				}
 				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Loaded all " + translations.size() + " languages!");
 			} catch (Exception e) {
 				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] Unable to setup languages");
@@ -240,6 +256,27 @@ public class LanguageUtils {
 			}
 			lock.set(false);
 		});
+	}
+	
+	public synchronized static void clearPluginTranslations(Plugin plugin) {
+		pluginTranslations.remove(plugin);
+	}
+	
+	public synchronized static void loadPluginTranslations(Plugin plugin, String language, Map<String, String> mapping) {
+		Map<String, String> existingMapping = translations.get(language);
+		if (existingMapping == null) {
+			translations.put(language, new HashMap<>(mapping));
+		} else {
+			existingMapping.putAll(mapping);
+		}
+		Map<String, Map<String, String>> existingPluginMapping = pluginTranslations.get(plugin);
+		if (existingPluginMapping == null) {
+			existingPluginMapping = new ConcurrentHashMap<>();
+			existingPluginMapping.put(language, new HashMap<>(mapping));
+			pluginTranslations.put(plugin, existingPluginMapping);
+		} else {
+			existingPluginMapping.put(language, new HashMap<>(mapping));
+		}
 	}
 	
 	public static String getTranslationKey(ItemStack itemStack) {

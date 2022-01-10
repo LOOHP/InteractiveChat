@@ -5,6 +5,8 @@ import org.bukkit.inventory.ItemStack;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 
+import io.github.bananapuncher714.nbteditor.NBTEditor;
+
 public class XMaterialUtils {
 
 	@SuppressWarnings("deprecation")
@@ -18,14 +20,18 @@ public class XMaterialUtils {
 			} catch (Throwable e) {
 				ItemStack dataResetItemStack = itemstack.clone();
 				dataResetItemStack.setDurability((short) 0);
-				try {
-					return XMaterial.matchXMaterial(dataResetItemStack);
-				} catch (Throwable e1) {
-					return null;
-				}
+				return XMaterial.matchXMaterial(dataResetItemStack);
 			}
 		} else {
-			return XMaterial.matchXMaterial(itemstack);
+			try {
+				return XMaterial.matchXMaterial(itemstack);
+			} catch (Throwable e) {
+				ItemStack dataResetItemStack = itemstack.clone();
+				if (NBTEditor.getInt(dataResetItemStack, "Damage") != 0) {
+					dataResetItemStack = NBTEditor.set(dataResetItemStack, 0, "Damage");
+				}
+				return XMaterial.matchXMaterial(dataResetItemStack);
+			}
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
@@ -58,14 +59,25 @@ public class ItemStackUtils {
 				component = component.append(LegacyComponentSerializer.legacySection().deserialize(name));
 			}
 		} else {
-			TranslatableComponent translatableComponent = Component.translatable(LanguageUtils.getTranslationKey(itemstack));
-			if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
-				String owner = NBTEditor.getString(itemstack, "SkullOwner", "Name");
-				if (owner != null) {
-					translatableComponent = translatableComponent.args(Component.text(owner));
+			boolean displayNameCompleted = false;
+			if (itemstack.hasItemMeta() && itemstack.getItemMeta() instanceof BookMeta) {
+				BookMeta meta = (BookMeta) itemstack.getItemMeta();
+				String rawTitle = meta.getTitle();
+				if (rawTitle != null) {
+					displayNameCompleted = true;
+					component = component.append(LegacyComponentSerializer.legacySection().deserialize(rawTitle));
 				}
 			}
-			component = component.append(translatableComponent);
+			if (!displayNameCompleted) {
+				TranslatableComponent translatableComponent = Component.translatable(LanguageUtils.getTranslationKey(itemstack));
+				if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+					String owner = NBTEditor.getString(itemstack, "SkullOwner", "Name");
+					if (owner != null) {
+						translatableComponent = translatableComponent.args(Component.text(owner));
+					}
+				}
+				component = component.append(translatableComponent);
+			}
 		}
 		return component;
 	}

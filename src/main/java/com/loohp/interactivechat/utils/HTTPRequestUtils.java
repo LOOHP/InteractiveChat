@@ -55,7 +55,14 @@ public class HTTPRequestUtils {
 
 	public static boolean download(File file, String link) {
 		try {
-			ReadableByteChannel rbc = Channels.newChannel(new URL(link).openStream());
+			URL url = new URL(link);
+			URLConnection connection = url.openConnection();
+			connection.setUseCaches(false);
+			connection.setDefaultUseCaches(false);
+			connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+			connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+			connection.addRequestProperty("Pragma", "no-cache");
+			ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 			fos.close();

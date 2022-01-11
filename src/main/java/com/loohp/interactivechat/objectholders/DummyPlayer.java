@@ -1977,4 +1977,14 @@ public class DummyPlayer implements Player {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public void playSound(Entity arg0, Sound arg1, float arg2, float arg3) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void playSound(Entity arg0, Sound arg1, SoundCategory arg2, float arg3, float arg4) {
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -41,6 +41,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
@@ -101,34 +102,33 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x00:
 	        	int playerAmount = input.readInt();
 	        	Set<UUID> localUUID = Bukkit.getOnlinePlayers().stream().map(each -> each.getUniqueId()).collect(Collectors.toSet());
-	        	Set<UUID> current = new HashSet<>(InteractiveChat.remotePlayers.keySet());
+	        	Set<UUID> current = new HashSet<>(ICPlayerFactory.getRemoteUUIDs());
 	        	Set<UUID> newSet = new HashSet<>();
 	        	for (int i = 0; i < playerAmount; i++) {
 	        		String server = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        		UUID uuid = DataTypeIO.readUUID(input);
 	        		String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-	        		if (InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			ICPlayer player = InteractiveChat.remotePlayers.get(uuid);
+	        		ICPlayer player = ICPlayerFactory.getICPlayer(uuid);
+	        		if (player != null) {
 	        			if (!player.getRemoteServer().equals(server)) {
 	        				player.setRemoteServer(server);
 	        			}
 	        		}
-	        		if (!localUUID.contains(uuid) && !InteractiveChat.remotePlayers.containsKey(uuid)) {
-	        			ICPlayer newPlayer = new ICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
-	        			InteractiveChat.remotePlayers.put(uuid, newPlayer);
+	        		if (!localUUID.contains(uuid) && !ICPlayerFactory.getRemoteUUIDs().contains(uuid)) {
+	        			ICPlayer newPlayer = ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
 	        			Bukkit.getPluginManager().callEvent(new RemotePlayerAddedEvent(newPlayer));
 	        		}
 	        		newSet.add(uuid);
 	        	}
 	        	current.removeAll(newSet);
 	        	for (UUID uuid : current) {
-	        		ICPlayer removedPlayer = InteractiveChat.remotePlayers.remove(uuid);
+	        		ICPlayer removedPlayer = ICPlayerFactory.remoteRemoteICPlayer(uuid);
 	        		if (removedPlayer != null) {
 	        			Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
 	        		}
 	        	}
 	        	for (UUID uuid : localUUID) {
-	        		ICPlayer removedPlayer = InteractiveChat.remotePlayers.remove(uuid);
+	        		ICPlayer removedPlayer = ICPlayerFactory.remoteRemoteICPlayer(uuid);
 	        		if (removedPlayer != null) {
 	        			Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
 	        		}
@@ -149,7 +149,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x03:
 	        	UUID uuid = DataTypeIO.readUUID(input);
-	        	ICPlayer player = InteractiveChat.remotePlayers.get(uuid);
+	        	ICPlayer player = ICPlayerFactory.getICPlayer(uuid);
 	        	if (player == null) {
 	        		break;
 	        	}
@@ -177,7 +177,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x04:
 	        	UUID uuid1 = DataTypeIO.readUUID(input);
-	        	ICPlayer player1 = InteractiveChat.remotePlayers.get(uuid1);
+	        	ICPlayer player1 = ICPlayerFactory.getICPlayer(uuid1);
 	        	if (player1 == null) {
 	        		break;
 	        	}
@@ -196,7 +196,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	break;
 	        case 0x05:
 	        	UUID uuid2 = DataTypeIO.readUUID(input);
-	        	ICPlayer player2 = InteractiveChat.remotePlayers.get(uuid2);
+	        	ICPlayer player2 = ICPlayerFactory.getICPlayer(uuid2);
 	        	if (player2 == null) {
 	        		break;
 	        	}
@@ -210,7 +210,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        case 0x06:
 	        	String message = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 	        	UUID uuid3 = DataTypeIO.readUUID(input);
-	        	ICPlayer player3 = InteractiveChat.remotePlayers.get(uuid3);
+	        	ICPlayer player3 = ICPlayerFactory.getICPlayer(uuid3);
 	        	if (player3 == null) {
 	        		break;
 	        	}
@@ -323,7 +323,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 	        	UUID playerUUID2 = DataTypeIO.readUUID(input);
 	        	Player player6 = Bukkit.getPlayer(playerUUID2);
 	        	if (player6 != null) {
-	        		ICPlayer player7 = new ICPlayer(player6);
+	        		ICPlayer player7 = ICPlayerFactory.getICPlayer(player6);
 	        		switch (requestType) {
 		        	case 0:
 		        		BungeeMessageSender.forwardInventory(System.currentTimeMillis(), player7.getUniqueId(), player7.isRightHanded(), player7.getSelectedSlot(), player7.getExperienceLevel(), null, player7.getInventory());

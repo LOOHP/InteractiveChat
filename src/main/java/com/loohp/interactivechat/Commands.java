@@ -31,6 +31,7 @@ import com.loohp.interactivechat.modules.ItemDisplay;
 import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.updater.Updater.UpdaterResponse;
 import com.loohp.interactivechat.utils.ChatColorUtils;
@@ -284,7 +285,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				if (sender instanceof Player) {
 					String str = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 					Player player = (Player) sender;
-					Optional<ICPlayer> icplayer = Optional.of(new ICPlayer(player));
+					Optional<ICPlayer> icplayer = Optional.of(ICPlayerFactory.getICPlayer(player));
 					Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
 						String text = str;
 						try {

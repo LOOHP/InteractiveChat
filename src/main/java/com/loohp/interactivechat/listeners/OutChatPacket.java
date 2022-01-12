@@ -36,6 +36,7 @@ import com.loohp.interactivechat.modules.ProcessCommands;
 import com.loohp.interactivechat.modules.SenderFinder;
 import com.loohp.interactivechat.objectholders.AsyncChatSendingExecutor;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatComponentType;
@@ -182,16 +183,10 @@ public class OutChatPacket implements Listener {
 	        
 	        ProcessSenderResult commandSender = ProcessCommands.process(component);		    
 	        if (commandSender.getSender() != null) {
-	        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
-	        	if (bukkitplayer != null) {
-	        		sender = Optional.of(new ICPlayer(bukkitplayer));
+	        	ICPlayer icplayer = ICPlayerFactory.getICPlayer(commandSender.getSender());
+	        	if (icplayer != null) {
+	        		sender = Optional.of(icplayer);
 	        		isCommand = true;
-	        	} else {
-	        		ICPlayer remote = InteractiveChat.remotePlayers.get(commandSender.getSender());
-	        		if (remote != null) {
-	        			sender = Optional.of(remote);
-	        			isCommand = true;
-	        		}
 	        	}
 	        }
 	        ProcessSenderResult chatSender = null;
@@ -199,16 +194,10 @@ public class OutChatPacket implements Listener {
 	        	if (InteractiveChat.useAccurateSenderFinder) {
 	        		chatSender = ProcessAccurateSender.process(component);
 	        		if (chatSender.getSender() != null) {
-	    	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
-	    	        	if (bukkitplayer != null) {
-	    	        		sender = Optional.of(new ICPlayer(bukkitplayer));
+	    	        	ICPlayer icplayer = ICPlayerFactory.getICPlayer(chatSender.getSender());
+	    	        	if (icplayer != null) {
+	    	        		sender = Optional.of(icplayer);
 	    	        		isChat = true;
-	    	        	} else {
-	    	        		ICPlayer remote = InteractiveChat.remotePlayers.get(chatSender.getSender());
-	    	        		if (remote != null) {
-	    	        			sender = Optional.of(remote);
-	    	        			isChat = true;
-	    	        		}
 	    	        	}
 	    	        }
 	        	}
@@ -243,7 +232,7 @@ public class OutChatPacket implements Listener {
 			if (preEvent.getSender() != null) {
 				Player newsender = Bukkit.getPlayer(preEvent.getSender());
 				if (newsender != null) {
-					sender = Optional.of(new ICPlayer(newsender));
+					sender = Optional.of(ICPlayerFactory.getICPlayer(newsender));
 				}
 			}
 			component = preEvent.getComponent();

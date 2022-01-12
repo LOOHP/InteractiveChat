@@ -2,6 +2,7 @@ package com.loohp.interactivechat.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,8 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.modules.ItemDisplay;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
+import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.objectholders.ValueTrios;
@@ -118,7 +121,7 @@ public class InteractiveChatAPI {
 	 * @throws Exception
 	 */
 	public static Component createItemDisplayComponent(Player player, ItemStack item) throws Exception {
-		return ItemDisplay.createItemDisplay(new ICPlayer(player), item);
+		return ItemDisplay.createItemDisplay(ICPlayerFactory.getICPlayer(player), item);
 	}
 	
 	/**
@@ -464,5 +467,40 @@ public class InteractiveChatAPI {
 			future.completeExceptionally(e);
 		}
 		return future;
+	}
+	
+	/**
+	 * Get all online {@link ICPlayer}
+	 * @return A Collection of ICPlayers
+	 */
+	public static Collection<ICPlayer> getOnlineICPlayers() {
+		return ICPlayerFactory.getOnlineICPlayers();
+	}
+	
+	/**
+	 * Get {@link ICPlayer} from a {@link Player}
+	 * @param player
+	 * @return An ICPlayer
+	 */
+	public static ICPlayer getICPlayer(Player player) {
+		return ICPlayerFactory.getICPlayer(player);
+	}
+	
+	/**
+	 * Get {@link ICPlayer} from a {@link UUID}
+	 * @param uuid
+	 * @return An ICPlayer
+	 */
+	public static ICPlayer getICPlayer(UUID uuid) {
+		return ICPlayerFactory.getICPlayer(uuid);
+	}
+	
+	/**
+	 * Get {@link OfflineICPlayer} from a {@link UUID}
+	 * @param uuid
+	 * @return An OfflineICPlayer
+	 */
+	public static OfflineICPlayer getOfflineICPlayer(UUID uuid) {
+		return ICPlayerFactory.getOfflineICPlayer(uuid);
 	}
 }

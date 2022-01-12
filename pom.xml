@@ -5,7 +5,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.1.1.5</version>
+	<version>4.1.1.7</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -369,11 +369,11 @@
 			<systemPath>${basedir}/lib/Dynmap-3.3-beta-1-spigot.jar</systemPath>
 		</dependency>
 		<dependency>
-            <groupId>mineverse.aust1n46</groupId>
-            <artifactId>venturechat</artifactId>
-            <version>2.20.1</version>
-            <scope>provided</scope>
-        </dependency>
+			<groupId>mineverse.aust1n46</groupId>
+			<artifactId>venturechat</artifactId>
+			<version>2.20.1</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>MPDB</groupId>
 			<artifactId>MPDB</artifactId>

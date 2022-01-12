@@ -19,6 +19,7 @@ import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.registry.Registry;
@@ -92,12 +93,7 @@ public class ProcessExternalMessage {
 		if (senderUUID == null) {
 			sender = null;
 		} else {
-			Player bukkitplayer = Bukkit.getPlayer(senderUUID);
-        	if (bukkitplayer != null) {
-        		sender = new ICPlayer(bukkitplayer);
-        	} else {
-        		sender = InteractiveChat.remotePlayers.get(senderUUID);
-        	}
+			sender = ICPlayerFactory.getICPlayer(senderUUID);
 		}
 		
 		message = message.replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_0.pattern(), "").replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_1.pattern(), "").replaceAll(ProcessAccurateSender.COLOR_IGNORE_PATTERN.pattern(), "");
@@ -240,24 +236,14 @@ public class ProcessExternalMessage {
         
         ProcessSenderResult commandSender = ProcessCommands.process(component);
         if (commandSender.getSender() != null) {
-        	Player bukkitplayer = Bukkit.getPlayer(commandSender.getSender());
-        	if (bukkitplayer != null) {
-        		sender = Optional.of(new ICPlayer(bukkitplayer));
-        	} else {
-        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(commandSender.getSender()));
-        	}
+        	sender = Optional.ofNullable(ICPlayerFactory.getICPlayer(commandSender.getSender()));
         }
         ProcessSenderResult chatSender = null;
         if (!sender.isPresent()) {
         	if (InteractiveChat.useAccurateSenderFinder) {
         		chatSender = ProcessAccurateSender.process(component);
         		if (chatSender.getSender() != null) {
-    	        	Player bukkitplayer = Bukkit.getPlayer(chatSender.getSender());
-    	        	if (bukkitplayer != null) {
-    	        		sender = Optional.of(new ICPlayer(bukkitplayer));
-    	        	} else {
-    	        		sender = Optional.ofNullable(InteractiveChat.remotePlayers.get(chatSender.getSender()));
-    	        	}
+        			sender = Optional.ofNullable(ICPlayerFactory.getICPlayer(chatSender.getSender()));
     	        }
         	}
         }

@@ -70,6 +70,7 @@ import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
@@ -267,7 +268,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static boolean parsePAPIOnMainThread = false;
 	
 	public static Boolean bungeecordMode = false;
-	public static BiMap<UUID, ICPlayer> remotePlayers = Maps.synchronizedBiMap(HashBiMap.create());
 	public static Map<String, List<ICPlaceholder>> remotePlaceholderList = new HashMap<>();
 	public static int remoteDelay = 500;
 	public static boolean queueRemoteUpdate = false;
@@ -342,14 +342,14 @@ public class InteractiveChat extends JavaPlugin {
 		    	if (parsePAPIOnMainThread) {
 		    		Bukkit.getScheduler().runTask(plugin, () -> {
 		    			for (Player player : Bukkit.getOnlinePlayers()) {
-				    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
-				    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
+				    		PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameHoverText);
+				    		PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameClickValue);
 				    	}
 		    		});
 		    	} else {
 		    		for (Player player : Bukkit.getOnlinePlayers()) {
-			    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameHoverText);
-			    		PlaceholderParser.parse(new ICPlayer(player), usePlayerNameClickValue);
+			    		PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameHoverText);
+			    		PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameClickValue);
 			    	}
 		    	}
 		    }, 0, 100);

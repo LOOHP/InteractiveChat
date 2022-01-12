@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -40,7 +41,7 @@ public class PlaceholderParser {
 				}
 				if (InteractiveChat.useTooltipOnTab) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
-						parse(new ICPlayer(player), InteractiveChat.tabTooltip);
+						parse(ICPlayerFactory.getICPlayer(player), InteractiveChat.tabTooltip);
 					}
 				}
 			}

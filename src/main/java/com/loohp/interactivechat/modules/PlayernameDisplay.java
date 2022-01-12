@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ReplaceTextBundle;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CollectionUtils;
@@ -140,30 +141,19 @@ public class PlayernameDisplay implements Listener {
 	
 	private static List<ReplaceTextBundle> getNames() {
 		List<ReplaceTextBundle> names = new ArrayList<>();
-		Bukkit.getOnlinePlayers().forEach(each -> {
+		ICPlayerFactory.getOnlineICPlayers().forEach(each -> {
 			if (VanishUtils.isVanished(each.getUniqueId())) {
 				return;
 			}
-			ICPlayer icplayer = new ICPlayer(each);
-			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), icplayer, each.getName()));
-			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), icplayer, each.getDisplayName()));
-			}
-			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
-			for (String name : list) {
-				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), icplayer, name));
-			}
-		});	
-		InteractiveChat.remotePlayers.values().forEach(each -> {
-			if (each.isLocal() || VanishUtils.isVanished(each.getUniqueId())) {
-				return;
-			}
 			names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));
+			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
+				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), each, each.getDisplayName()));
+			}
 			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
 			for (String name : list) {
 				names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), each, name));
 			}
-		});
+		});	
 		
 		CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
 		Collections.sort(names, Collections.reverseOrder());

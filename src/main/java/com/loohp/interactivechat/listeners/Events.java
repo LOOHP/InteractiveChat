@@ -39,6 +39,7 @@ import com.loohp.interactivechat.modules.ProcessCommands;
 import com.loohp.interactivechat.objectholders.CooldownResult;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
@@ -319,7 +320,7 @@ public class Events implements Listener {
     private boolean checkMentionPlayers(String message, Player sender) {
     	if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.player", false, 200)) {
 			Map<String, UUID> playernames = new HashMap<>();
-			for (Player player : Bukkit.getOnlinePlayers()) {
+			for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
     			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
     			if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(player.getName()).equals(ChatColorUtils.stripColor(player.getDisplayName()))) {
     				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
@@ -327,11 +328,6 @@ public class Events implements Listener {
 				List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
 				for (String name : names) {
 					playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
-				}
-			}
-			synchronized (InteractiveChat.remotePlayers) {
-				for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
-					playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
 				}
 			}
 			for (Entry<String, UUID> entry : playernames.entrySet()) {
@@ -386,10 +382,7 @@ public class Events implements Listener {
 			int index = message.toLowerCase().indexOf(name.toLowerCase());
 			if (index >= 0) {
 				List<UUID> players = new ArrayList<>();
-				Bukkit.getOnlinePlayers().forEach(each -> players.add(each.getUniqueId()));
-				synchronized (InteractiveChat.remotePlayers) {
-					InteractiveChat.remotePlayers.values().forEach(each -> players.add(each.getUniqueId()));
-				}				
+				ICPlayerFactory.getOnlineICPlayers().forEach(each -> players.add(each.getUniqueId()));		
 				for (UUID uuid : players) {
 					if (!uuid.equals(sender.getUniqueId())) {
 						InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));

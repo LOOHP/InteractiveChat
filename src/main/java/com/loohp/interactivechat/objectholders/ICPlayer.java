@@ -25,7 +25,7 @@ public class ICPlayer extends OfflineICPlayer {
 	private boolean rightHanded;
 	private Map<String, String> remotePlaceholders;
 
-	public ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+	protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
 		super(uuid, selectedSlot, experienceLevel, equipment, inventory, enderchest);
 		this.remoteServer = server;
 		this.remoteName = name;
@@ -33,7 +33,7 @@ public class ICPlayer extends OfflineICPlayer {
 		this.remotePlaceholders = new HashMap<>();
 	}
 	
-	public ICPlayer(Player player) {
+	protected ICPlayer(Player player) {
 		super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
 		this.remoteServer = EMPTY_SERVER_REPRESENTATION;
 		this.remoteName = player.getName();
@@ -74,6 +74,10 @@ public class ICPlayer extends OfflineICPlayer {
 		return isLocal() ? getLocalPlayer().getDisplayName() : remoteName;
 	}
 
+	protected void setRemoteName(String remoteName) {
+		this.remoteName = remoteName;
+	}
+
 	@Override
 	public UUID getUniqueId() {
 		return uuid;
@@ -85,6 +89,10 @@ public class ICPlayer extends OfflineICPlayer {
 		} else {
 			return isLocal() ? getLocalPlayer().getMainHand().name().equalsIgnoreCase("RIGHT") : rightHanded;
 		}
+	}
+	
+	protected void setRemoteEquipment(ICPlayerEquipment equipment) {
+		this.remoteEquipment = equipment;
 	}
 
 	public void setRemoteRightHanded(boolean rightHanded) {
@@ -135,4 +143,37 @@ public class ICPlayer extends OfflineICPlayer {
 	public Map<String, String> getRemotePlaceholdersMapping() {
 		return remotePlaceholders;
 	}
+	
+	@Override
+	public ICPlayer getPlayer() {
+		return this;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof ICPlayer)) {
+			return false;
+		}
+		ICPlayer other = (ICPlayer) obj;
+		if (uuid == null) {
+			if (other.uuid != null) {
+				return false;
+			}
+		} else if (!uuid.equals(other.uuid)) {
+			return false;
+		}
+		return true;
+	}
+	
 }

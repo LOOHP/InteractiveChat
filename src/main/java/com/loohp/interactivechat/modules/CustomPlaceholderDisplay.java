@@ -11,6 +11,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventActio
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
@@ -33,7 +34,7 @@ public class CustomPlaceholderDisplay {
 			}
 			CustomPlaceholder cp = (CustomPlaceholder) icplaceholder;
 			
-			ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
+			ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : ICPlayerFactory.getICPlayer(reciever);
 			boolean casesensitive = cp.isCaseSensitive();
 			
 			if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
@@ -59,7 +60,7 @@ public class CustomPlaceholderDisplay {
 		
 		if (InteractiveChat.t && WebData.getInstance() != null) {
 			for (CustomPlaceholder cp : WebData.getInstance().getSpecialPlaceholders()) {
-				ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : new ICPlayer(reciever);
+				ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : ICPlayerFactory.getICPlayer(reciever);
 				boolean casesensitive = cp.isCaseSensitive();			
 				String placeholder = cp.getKeyword();
 				placeholder = (cp.getParseKeyword()) ? PlaceholderParser.parse(parseplayer, placeholder) : placeholder;

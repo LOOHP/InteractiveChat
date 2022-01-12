@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 
@@ -33,12 +33,8 @@ public class SenderFinder {
 			String msg = entry.getKey();
 			if (chat.contains(msg)) {
 				UUID uuid = entry.getValue();
-				Player player = Bukkit.getPlayer(uuid);
 				Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(msg), 5);
-				if (player != null) {
-					return Optional.of(new ICPlayer(player));
-				}
-				ICPlayer wplayer = InteractiveChat.remotePlayers.get(entry.getValue());
+				ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
 				if (wplayer != null) {
 					return Optional.of(wplayer);
 				}
@@ -60,25 +56,18 @@ public class SenderFinder {
 			UUID uuid = InteractiveChat.messages.get(mostsimular);
 			String finalmostsimular = mostsimular;
 			Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
-			Player player = Bukkit.getPlayer(uuid);
-			if (player != null) {
-				return Optional.of(new ICPlayer(player));
-			}
-			ICPlayer wplayer = InteractiveChat.remotePlayers.get(uuid);
+			ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
 			if (wplayer != null) {
 				return Optional.of(wplayer);
 			}
 		}
 		
 		Map<String, UUID> names = new HashMap<>();
-		Bukkit.getOnlinePlayers().forEach((each) -> {
+		ICPlayerFactory.getOnlineICPlayers().forEach((each) -> {
 			names.put(ChatColorUtils.stripColor(each.getName()), each.getUniqueId());
 			if (!ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
 				names.put(ChatColorUtils.stripColor(each.getDisplayName()), each.getUniqueId());
 			}
-		});
-		InteractiveChat.remotePlayers.entrySet().forEach(entry -> {
-			names.put(ChatColorUtils.stripColor(entry.getValue().getDisplayName()), entry.getKey());
 		});
 		Bukkit.getOnlinePlayers().forEach(each -> {
 			List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
@@ -98,11 +87,7 @@ public class SenderFinder {
 		}
 		
 		if (currentplayer != null) {
-			Player player = Bukkit.getPlayer(currentplayer);
-			if (player != null) {
-				return Optional.of(new ICPlayer(player));
-			}
-			ICPlayer wplayer = InteractiveChat.remotePlayers.get(currentplayer);
+			ICPlayer wplayer = ICPlayerFactory.getICPlayer(currentplayer);
 			if (wplayer != null) {
 				return Optional.of(wplayer);
 			}

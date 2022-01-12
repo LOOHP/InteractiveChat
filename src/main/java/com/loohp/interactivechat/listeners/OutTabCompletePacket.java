@@ -19,6 +19,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -41,7 +42,7 @@ public class OutTabCompletePacket {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
 			if (InteractiveChat.useTooltipOnTab) {
 				Map<String, UUID> playernames = new HashMap<>();
-				for (Player player : Bukkit.getOnlinePlayers()) {
+				for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
 	    			playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
 	    			if (!player.getName().equals(player.getDisplayName())) {
 	    				playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
@@ -49,11 +50,6 @@ public class OutTabCompletePacket {
 					List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
 					for (String name : names) {
 						playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
-					}
-				}
-				synchronized (InteractiveChat.remotePlayers) {
-					for (Entry<UUID, ICPlayer> entry : InteractiveChat.remotePlayers.entrySet()) {
-						playernames.put(ChatColorUtils.stripColor(entry.getValue().getName()), entry.getKey());
 					}
 				}
 				Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames = playernames);
@@ -82,15 +78,10 @@ public class OutTabCompletePacket {
 							ICPlayer icplayer = null;
 							for (Entry<String, UUID> entry : playernames.entrySet()) {
 								if (entry.getKey().equalsIgnoreCase(text)) {
-									icplayer = InteractiveChat.remotePlayers.get(entry.getValue());
+									icplayer = ICPlayerFactory.getICPlayer(entry.getValue());
 									if (icplayer == null) {
-										Player bukkitPlayer = Bukkit.getPlayer(entry.getValue());
-										if (bukkitPlayer == null) {
-											newMatches.add(suggestion);
-											continue;
-										} else {
-											icplayer = new ICPlayer(bukkitPlayer);
-										}
+										newMatches.add(suggestion);
+										continue;
 									}
 									break;
 								}

@@ -113,13 +113,21 @@ public class ICPlayerFactory {
 	}
 	
 	public static ICPlayer getICPlayer(Player player) {
-		return getICPlayer(player.getUniqueId());
+		ICPlayer icplayer = ICPLAYERS.get(player.getUniqueId());
+		if (icplayer != null) {
+			return icplayer;
+		}
+		return new ICPlayer(player);
 	}
 	
 	public static ICPlayer getICPlayer(UUID uuid) {
 		ICPlayer icplayer = ICPLAYERS.get(uuid);
 		if (icplayer != null) {
 			return icplayer;
+		}
+		Player player = Bukkit.getPlayer(uuid);
+		if (player != null) {
+			return new ICPlayer(player);
 		}
 		return null;
 	}

@@ -15,8 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -41,8 +42,8 @@ public class ICPlayerFactory {
 	
 	static {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onJoin(PlayerJoinEvent event) {
+			@EventHandler(priority = EventPriority.LOWEST)
+			public void onJoin(PlayerLoginEvent event) {
 				synchronized (LOCK) {
 					Player player = event.getPlayer();
 					if (!ICPLAYERS.containsKey(player.getUniqueId())) {
@@ -52,7 +53,7 @@ public class ICPlayerFactory {
 				}
 			}
 			
-			@EventHandler
+			@EventHandler(priority = EventPriority.MONITOR)
 			public void onLeave(PlayerQuitEvent event) {
 				synchronized (LOCK) {
 					UUID uuid = event.getPlayer().getUniqueId();

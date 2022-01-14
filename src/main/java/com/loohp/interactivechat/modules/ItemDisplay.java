@@ -25,7 +25,6 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
-import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -49,8 +48,8 @@ public class ItemDisplay {
 	@SuppressWarnings("deprecation")
 	public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
 		String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
-		if (InteractiveChat.itemCaseSensitive ? plain.contains(InteractiveChat.itemPlaceholder) : plain.toLowerCase().contains(InteractiveChat.itemPlaceholder.toLowerCase())) {
-			String regex = InteractiveChat.itemCaseSensitive ? CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(InteractiveChat.itemPlaceholder);
+		if (InteractiveChat.itemPlaceholder.matcher(plain).find()) {
+			String regex = InteractiveChat.itemPlaceholder.pattern();
 			if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
 				ICPlayer player = optplayer.get();
 				ItemStack[] equipment;
@@ -79,15 +78,15 @@ public class ItemDisplay {
 			} else {
 				Component message;
 				if (InteractiveChat.playerNotFoundReplaceEnable) {
-					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.itemPlaceholder));
+					message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.itemName));
 				} else {
-					message = Component.text(InteractiveChat.itemPlaceholder);
+					message = Component.text(InteractiveChat.itemName);
 				}
 				if (InteractiveChat.playerNotFoundHoverEnable && InteractiveChat.itemHover) {
-					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.itemPlaceholder))));
+					message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.itemName))));
 				}
 				if (InteractiveChat.playerNotFoundClickEnable) {
-					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.itemPlaceholder));
+					String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.itemName));
 					message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
 				}
 				component = ComponentReplacing.replace(component, regex, true, message);

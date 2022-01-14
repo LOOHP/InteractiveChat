@@ -222,8 +222,8 @@ public class PluginMessageSendingVelocity {
 		ByteArrayDataOutput output = ByteStreams.newDataOutput();
 		
 		output.writeByte(0);
-    	DataTypeIO.writeUUID(output, player);
-    	DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
+		DataTypeIO.writeUUID(output, player);
+    	DataTypeIO.writeUUID(output, placeholder.getInternalId());
     	output.writeLong(time);
 
 		int packetNumber = InteractiveChatVelocity.random.nextInt();
@@ -287,8 +287,8 @@ public class PluginMessageSendingVelocity {
     		boolean isBuiltIn = placeholder.isBuildIn();
     		output.writeBoolean(isBuiltIn);
     		if (isBuiltIn) {
-    			DataTypeIO.writeString(output, placeholder.getKeyword(), StandardCharsets.UTF_8);
-    			output.writeBoolean(placeholder.isCaseSensitive());
+    			DataTypeIO.writeString(output, placeholder.getKeyword().pattern(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(output, placeholder.getName(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(output, placeholder.getPermission(), StandardCharsets.UTF_8);
     			output.writeLong(placeholder.getCooldown());
@@ -296,13 +296,8 @@ public class PluginMessageSendingVelocity {
     			CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
     			output.writeInt(customPlaceholder.getPosition());
     			output.writeByte(customPlaceholder.getParsePlayer().getOrder());
-    			DataTypeIO.writeString(output, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
-    			output.writeInt(customPlaceholder.getAliases().size());
-    			for (String each : customPlaceholder.getAliases()) {
-    				DataTypeIO.writeString(output, each, StandardCharsets.UTF_8);
-    			}
+    			DataTypeIO.writeString(output, customPlaceholder.getKeyword().pattern(), StandardCharsets.UTF_8);
     			output.writeBoolean(customPlaceholder.getParseKeyword());
-    			output.writeBoolean(customPlaceholder.isCaseSensitive());
     			output.writeLong(customPlaceholder.getCooldown());
     			
     			CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
@@ -318,6 +313,7 @@ public class PluginMessageSendingVelocity {
     			output.writeBoolean(replace.isEnabled());
     			DataTypeIO.writeString(output, replace.getReplaceText(), StandardCharsets.UTF_8);
     			
+    			DataTypeIO.writeString(output, placeholder.getName(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
     		}
     	}
@@ -401,31 +397,6 @@ public class PluginMessageSendingVelocity {
 				player.getCurrentServer().get().sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
 				InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 			}
-		}
-	}
-	
-	public static void requestAliasesMapping(RegisteredServer server) throws IOException {
-		ByteArrayDataOutput output = ByteStreams.newDataOutput();
-
-		int packetNumber = InteractiveChatVelocity.random.nextInt();
-		int packetId = 0x0C;
-		byte[] data = output.toByteArray();
-
-		byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
-
-		for (int i = 0; i < dataArray.length; i++) {
-			byte[] chunk = dataArray[i];
-
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeInt(packetNumber);
-
-			out.writeShort(packetId);
-			out.writeBoolean(i == (dataArray.length - 1));
-
-			out.write(chunk);
-
-			server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
-			InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
 		}
 	}
 	

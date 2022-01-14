@@ -80,9 +80,7 @@ public class ICPlayerFactory {
 				icplayer.setRemoteInventory(inventory);
 				icplayer.setRemoteEnderChest(enderchest);
 			}
-			if (!REMOTE_UUID.contains(uuid)) {
-				REMOTE_UUID.add(uuid);
-			}
+			REMOTE_UUID.add(uuid);
 			return icplayer;
 		}
 	}

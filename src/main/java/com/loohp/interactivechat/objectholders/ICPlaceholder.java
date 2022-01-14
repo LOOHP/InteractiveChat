@@ -2,23 +2,24 @@ package com.loohp.interactivechat.objectholders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public abstract class ICPlaceholder {
 	
-	protected String keyword;
-	protected boolean caseSensitive;
+	protected Pattern keyword;
+	protected String name;
 	protected String description;
 	protected String permission;
 	protected long cooldown;
 	protected UUID internalId;
 	
-	public ICPlaceholder(String keyword, boolean caseSensitive, String description, String permission, long cooldown) {
+	public ICPlaceholder(Pattern keyword, String name, String description, String permission, long cooldown) {
 		this.keyword = keyword;
-		this.caseSensitive = caseSensitive;
+		this.name = name;
 		this.description = description;
 		this.permission = permission;
 		this.cooldown = cooldown;
-		this.internalId = UUID.nameUUIDFromBytes(keyword.toLowerCase().getBytes(StandardCharsets.UTF_8));
+		this.internalId = UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8));
 	}
 	
 	public abstract boolean isBuildIn();
@@ -27,18 +28,18 @@ public abstract class ICPlaceholder {
 		return permission;
 	}
 	
-	public String getKeyword() {
+	public Pattern getKeyword() {
 		return keyword;
-	}
-	
-	public boolean isCaseSensitive() {
-		return caseSensitive;
 	}
 	
 	public long getCooldown() {
 		return cooldown;
 	}
 	
+	public String getName() {
+		return name;
+	}
+
 	public String getDescription() {
 		return description;
 	}

@@ -50,7 +50,7 @@ public class PlaceholderCooldownManager {
 			UUID internalId = entry.getKey();
 			ICPlaceholder placeholder = InteractiveChat.placeholderList.get(internalId);
 			if (placeholder != null) {
-				if ((placeholder.isCaseSensitive() && message.contains(placeholder.getKeyword())) || (!placeholder.isCaseSensitive() && message.toLowerCase().contains(placeholder.getKeyword().toLowerCase()))) {
+				if (placeholder.getKeyword().matcher(message).find()) {
 					if (first) {
 						first = false;
 						if (InteractiveChat.universalCooldown > 0) {

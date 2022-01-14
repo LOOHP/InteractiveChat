@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -134,13 +135,13 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static boolean itemMapPreview = true;
 	
-	public static boolean itemCaseSensitive = false;
-	public static boolean invCaseSensitive = false;
-	public static boolean enderCaseSensitive = false;
+	public static Pattern itemPlaceholder = null;
+	public static Pattern invPlaceholder = null;
+	public static Pattern enderPlaceholder = null;
 	
-	public static String itemPlaceholder = "[item]";
-	public static String invPlaceholder = "[inv]";
-	public static String enderPlaceholder = "[ender]";
+	public static String itemName = "";
+	public static String invName = "";
+	public static String enderName = "";
 	
 	public static String itemReplaceText = "&f[&f{Item} &bx{Amount}&f]";
 	public static String itemSingularReplaceText = "&f[&f{Item}&f]";
@@ -253,8 +254,6 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<Plugin, Function<UUID, List<String>>> pluginNicknames = new ConcurrentHashMap<>();
 	
 	public static boolean filterUselessColorCodes = true;
-	
-	public static Map<String, String> aliasesMapping = new ConcurrentHashMap<>();
 	
 	public static boolean updaterEnabled = true;
 	public static boolean cancelledMessage = true;
@@ -468,7 +467,7 @@ public class InteractiveChat extends JavaPlugin {
 	    Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
 	    	if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {
 	    		try {
-					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values()) && BungeeMessageSender.resetAndForwardAliasMapping(System.currentTimeMillis(), InteractiveChat.aliasesMapping)) {
+					if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values())) {
 						queueRemoteUpdate = false;
 					}
 				} catch (Exception e) {

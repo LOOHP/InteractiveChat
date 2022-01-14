@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -22,7 +23,7 @@ public class Config {
 		return CONFIGS.get(id);
 	}
 	
-	public static void reloadConfigs() {
+	public static void reloadConfigs() throws InvalidConfigurationException, IOException {
 		for (Config config : CONFIGS.values()) {
 			config.reload();
 		}
@@ -34,7 +35,7 @@ public class Config {
 		}
 	}
 	
-	public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
+	public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException, InvalidConfigurationException {
 		if (CONFIGS.containsKey(id)) {
 			throw new IllegalArgumentException("Duplicate config id");
 		}
@@ -43,9 +44,13 @@ public class Config {
 			FileUtils.copy(ifNotFound, file);
 		}
 		
-		Config config = new Config(file, def, refreshComments);
+		Config config = new Config(file, def, refreshComments, dataFixer);
 		CONFIGS.put(id, config);
 		return config;
+	}
+	
+	public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
+		return loadConfig(id, file, ifNotFound, def, refreshComments, null);
 	}
 	
 	public static Config loadConfig(String id, File file) {
@@ -81,12 +86,18 @@ public class Config {
 	private YamlFile defConfig;
 	private YamlFile config;
 	
-	private Config(File file, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
+	private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException, InvalidConfigurationException {
 		this.file = file;
 		
 		defConfig = YamlFile.loadConfiguration(def, true);
 		config = new YamlFile(file);
 		config.loadWithComments();
+		
+		if (dataFixer != null) {
+			dataFixer.accept(this);
+			config = new YamlFile(file);
+			config.loadWithComments();
+		}
 		
 		for (String path : defConfig.getValues(true).keySet()) {
 			if (config.contains(path)) {
@@ -107,19 +118,28 @@ public class Config {
 		save();
 	}
 	
+	public File getFile() {
+		return file;
+	}
+
 	public void save() {
+		save(file);
+	}
+	
+	public void save(File file) {
 		try {
 			for (String path : config.getValues(true).keySet()) {
 				config.setComment(path, null, CommentType.SIDE);
 			}
-			config.save();
+			config.save(file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void reload() {
-		config = YamlFile.loadConfiguration(file, true);
+	public void reload() throws InvalidConfigurationException, IOException {
+		config = new YamlFile(file);
+		config.loadWithComments();
 	}
 	
 	public YamlFile getConfiguration() {

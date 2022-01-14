@@ -1,7 +1,6 @@
 package com.loohp.interactivechat.objectholders;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Pattern;
 
 public class CustomPlaceholder extends ICPlaceholder {
 	
@@ -9,17 +8,15 @@ public class CustomPlaceholder extends ICPlaceholder {
 	
 	private int position;
 	private ParsePlayer parsePlayer;
-	private List<String> aliases;
 	private boolean parseKeyword;
 	private CustomPlaceholderHoverEvent hover;
 	private CustomPlaceholderClickEvent click;
 	private CustomPlaceholderReplaceText replace;
 	
-	public CustomPlaceholder(int position, ParsePlayer parsePlayer, String keyword, List<String> aliases, boolean parseKeyword, boolean caseSensitive, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String description) {
-		super(keyword, caseSensitive, description, CUSTOM_PLACEHOLDER_PERMISSION + position, cooldown);
+	public CustomPlaceholder(int position, ParsePlayer parsePlayer, Pattern keyword, boolean parseKeyword, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String name, String description) {
+		super(keyword, name, description, CUSTOM_PLACEHOLDER_PERMISSION + position, cooldown);
 		this.position = position;
 		this.parsePlayer = parsePlayer;
-		this.aliases = aliases;
 		this.parseKeyword = parseKeyword;
 		this.hover = hover;
 		this.click = click;
@@ -38,10 +35,6 @@ public class CustomPlaceholder extends ICPlaceholder {
 	
 	public ParsePlayer getParsePlayer() {
 		return parsePlayer;
-	}
-	
-	public List<String> getAliases() {
-		return new ArrayList<>(aliases);
 	}
 	
 	public boolean getParseKeyword() {

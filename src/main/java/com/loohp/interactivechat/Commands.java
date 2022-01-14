@@ -254,7 +254,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 						int i = 0;
 						for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 							i++;
-							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+							String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getName()).replace("{Description}", placeholder.getDescription());
 							items.add(LegacyComponentSerializer.legacySection().deserialize(text));
 						}
 					} else {
@@ -262,7 +262,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 						for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 							if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
 								i++;
-								String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getKeyword()).replace("{Description}", placeholder.getDescription());
+								String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getName()).replace("{Description}", placeholder.getDescription());
 								items.add(LegacyComponentSerializer.legacySection().deserialize(text));
 							}
 						}
@@ -441,8 +441,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (InteractiveChat.version.isLegacy()) {
 				for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
-						String text = placeholder.getKeyword();
-						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
+						String text = placeholder.getName();
+						if (text.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
 							tab.add(text);
 						}
 					}
@@ -450,8 +450,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 			} else {
 				for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
 					if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
-						String text = placeholder.getKeyword();
-						if ((placeholder.isCaseSensitive() && text.startsWith(args[args.length - 1])) || (!placeholder.isCaseSensitive() && text.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))) {
+						String text = placeholder.getName();
+						if (text.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
 							Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder.getDescription());
 							String json = InteractiveChat.version.isLegacyRGB() ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
 							tab.add(text + "\0" + json);

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,6 +24,7 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
@@ -119,8 +121,8 @@ public class ProcessExternalMessage {
 		Component component = LegacyComponentSerializer.legacySection().deserialize(message);
 
 		if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
-			String placeholder = InteractiveChat.itemPlaceholder;
-			if (InteractiveChat.itemCaseSensitive ? message.contains(placeholder) : message.toLowerCase().contains(placeholder.toLowerCase())) {
+			Pattern placeholder = InteractiveChat.itemPlaceholder;
+			if (placeholder.matcher(message).find()) {
 				ItemStack item = sender.getEquipment().getItemInHand();
 				if (item == null) {
 					item = new ItemStack(Material.AIR);
@@ -140,35 +142,23 @@ public class ProcessExternalMessage {
 				} else {
 					replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
 				}
-				if (InteractiveChat.itemCaseSensitive) {
-					component = ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				} else {
-					component = ComponentReplacing.replace(component, "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				}
+				component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
 			}
 		}
 		
 		if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
-			String placeholder = InteractiveChat.invPlaceholder;
-			if (InteractiveChat.invCaseSensitive ? message.contains(placeholder) : message.toLowerCase().contains(placeholder.toLowerCase())) {
+			Pattern placeholder = InteractiveChat.invPlaceholder;
+			if (placeholder.matcher(message).find()) {
 				String replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
-				if (InteractiveChat.invCaseSensitive) {
-					component = ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				} else {
-					component = ComponentReplacing.replace(component, "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				}
+				component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
 			}
 		}
 		
 		if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
-			String placeholder = InteractiveChat.enderPlaceholder;
-			if (InteractiveChat.enderCaseSensitive ? message.contains(placeholder) : message.toLowerCase().contains(placeholder.toLowerCase())) {
+			Pattern placeholder = InteractiveChat.enderPlaceholder;
+			if (placeholder.matcher(message).find()) {
 				String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
-				if (InteractiveChat.enderCaseSensitive) {
-					component = ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				} else {
-					component = ComponentReplacing.replace(component, "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-				}
+				component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
 			}
 		}
 		
@@ -176,15 +166,13 @@ public class ProcessExternalMessage {
 			if (!placeholder.isBuildIn()) {
 				CustomPlaceholder customP = (CustomPlaceholder) placeholder;
 				if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
-					if (customP.isCaseSensitive() ? message.contains(customP.getKeyword()) : message.toLowerCase().contains(customP.getKeyword().toLowerCase())) {
-						String replaceText = customP.getKeyword();
+					if (customP.getKeyword().matcher(message).find()) {
 						if (customP.getReplace().isEnabled()) {
-							replaceText = ChatColor.WHITE + PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
-							if (customP.isCaseSensitive()) {
-								component = ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(customP.getKeyword()), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-							} else {
-								component = ComponentReplacing.replace(component, "(?i)" + CustomStringUtils.escapeMetaCharacters(customP.getKeyword()), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-							}
+							String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+							component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
+								String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
+								return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+							});
 						}
 					}
 				}
@@ -193,15 +181,13 @@ public class ProcessExternalMessage {
 		
 		if (InteractiveChat.t && WebData.getInstance() != null) {
 			for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
-				if (customP.isCaseSensitive() ? message.contains(customP.getKeyword()) : message.toLowerCase().contains(customP.getKeyword().toLowerCase())) {
-					String replaceText = customP.getKeyword();
+				if (customP.getKeyword().matcher(message).find()) {
 					if (customP.getReplace().isEnabled()) {
-						replaceText = ChatColor.WHITE + PlaceholderParser.parse(sender, customP.getReplace().getReplaceText());
-						if (customP.isCaseSensitive()) {
-							component = ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(customP.getKeyword()), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-						} else {
-							component = ComponentReplacing.replace(component, "(?i)" + CustomStringUtils.escapeMetaCharacters(customP.getKeyword()), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-						}
+						String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+						component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
+							String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
+							return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+						});
 					}
 				}
 			}

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,7 @@ import org.simpleyaml.configuration.file.FileConfiguration;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.datafixer.ConfigDataFixer;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -41,7 +43,7 @@ public class ConfigManager {
 	private static final String STORAGE_CONFIG = "storage";
 	
 	public static void setup() throws IOException, InvalidConfigurationException {
-		Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true);
+		Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true, config -> ConfigDataFixer.update(config));
 		Config.loadConfig(STORAGE_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), true);
 		loadConfig();
 	}
@@ -59,14 +61,16 @@ public class ConfigManager {
 	}
 	
 	public static void reloadConfig() {
-		Config.reloadConfigs();
-		loadConfig();
+		try {
+			Config.reloadConfigs();
+			loadConfig();
+		} catch (InvalidConfigurationException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	public static void loadConfig() {		
-		InteractiveChat.aliasesMapping.clear();
-		
 		InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
 		InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
 		
@@ -115,27 +119,10 @@ public class ConfigManager {
 		InteractiveChat.useEnder = getConfig().getBoolean("ItemDisplay.EnderChest.Enabled");
 		
 		InteractiveChat.itemMapPreview = getConfig().getBoolean("ItemDisplay.Item.PreviewMaps");
-		
-		InteractiveChat.itemCaseSensitive = getConfig().getBoolean("ItemDisplay.Item.CaseSensitive");
-		InteractiveChat.invCaseSensitive = getConfig().getBoolean("ItemDisplay.Inventory.CaseSensitive");
-		InteractiveChat.enderCaseSensitive = getConfig().getBoolean("ItemDisplay.EnderChest.CaseSensitive");
 	
-		InteractiveChat.itemPlaceholder = getConfig().getString("ItemDisplay.Item.Keyword");
-		InteractiveChat.invPlaceholder = getConfig().getString("ItemDisplay.Inventory.Keyword");
-		InteractiveChat.enderPlaceholder = getConfig().getString("ItemDisplay.EnderChest.Keyword");
-		
-		for (String alias : getConfig().getStringList("ItemDisplay.Item.Aliases")) {
-			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
-			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.itemPlaceholder);
-		}
-		for (String alias : getConfig().getStringList("ItemDisplay.Inventory.Aliases")) {
-			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
-			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.invPlaceholder);
-		}
-		for (String alias : getConfig().getStringList("ItemDisplay.EnderChest.Aliases")) {
-			alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
-			InteractiveChat.aliasesMapping.put(alias, InteractiveChat.enderPlaceholder);
-		}
+		InteractiveChat.itemPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Item.Keyword"));
+		InteractiveChat.invPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Inventory.Keyword"));
+		InteractiveChat.enderPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.EnderChest.Keyword"));
 		
 		InteractiveChat.itemReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
 		InteractiveChat.itemSingularReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.SingularText"));
@@ -267,25 +254,27 @@ public class ConfigManager {
 		
 		InteractiveChat.placeholderList.clear();
 		if (InteractiveChat.useItem) {
+			String name = InteractiveChat.itemName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Name"));
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
-			ICPlaceholder itemPlaceholder = new BuiltInPlaceholder(InteractiveChat.itemPlaceholder, InteractiveChat.itemCaseSensitive, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
+			ICPlaceholder itemPlaceholder = new BuiltInPlaceholder(InteractiveChat.itemPlaceholder, name, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
 			InteractiveChat.placeholderList.put(itemPlaceholder.getInternalId(), itemPlaceholder);
 		}
 		if (InteractiveChat.useInventory) {
+			String name = InteractiveChat.invName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Name"));
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
-			ICPlaceholder invPlaceholder = new BuiltInPlaceholder(InteractiveChat.invPlaceholder, InteractiveChat.invCaseSensitive, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000);
+			ICPlaceholder invPlaceholder = new BuiltInPlaceholder(InteractiveChat.invPlaceholder, name, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000);
 			InteractiveChat.placeholderList.put(invPlaceholder.getInternalId(), invPlaceholder);
 		}
 		if (InteractiveChat.useEnder) {
+			String name = InteractiveChat.enderName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Name"));
 			String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
-			ICPlaceholder enderPlaceholder = new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, InteractiveChat.enderCaseSensitive, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
+			ICPlaceholder enderPlaceholder = new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
 			InteractiveChat.placeholderList.put(enderPlaceholder.getInternalId(), enderPlaceholder);
 		}
-		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + String.valueOf(customNo)); customNo++) {
-			ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + String.valueOf(customNo));
+		for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + customNo); customNo++) {
+			ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + customNo);
 			ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer"));
-			boolean casesensitive = s.getBoolean("CaseSensitive");			
-			String placeholder = s.getString("Text");
+			String placeholder = s.getString("Keyword");
 			boolean parseKeyword = s.getBoolean("ParseKeyword");
 			long cooldown = s.getLong("Cooldown") * 1000;
 			boolean hoverEnabled = s.getBoolean("Hover.Enable");
@@ -295,16 +284,11 @@ public class ConfigManager {
 			String clickValue = s.getString("Click.Value");
 			boolean replaceEnabled = s.getBoolean("Replace.Enable");
 			String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText"));
-			List<String> aliases = s.getStringList("Aliases");
+			String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
 			String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
 
-			ICPlaceholder customPlaceholder = new CustomPlaceholder(customNo, parseplayer, placeholder, aliases, parseKeyword, casesensitive, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), description);
+			ICPlaceholder customPlaceholder = new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
 			InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
-			
-			for (String alias : aliases) {
-				alias = ChatColorUtils.translateAlternateColorCodes('&', alias);
-				InteractiveChat.aliasesMapping.put(alias, placeholder);
-			}
 		}
 		
 		if (InteractiveChat.bungeecordMode) {

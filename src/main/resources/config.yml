@@ -1,3 +1,6 @@
+#Do not change this value
+ConfigVersion: "${project.version}"
+
 Options:
   Updater: true
   ShowCancelledNotice: true
@@ -225,12 +228,8 @@ ItemDisplay:
   Item:
     #Enable players to show their items in main hand
     Enabled: true
-    #Should the item keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the item display function
-    Keyword: "[item]"
-    Aliases:
-      - "(?i)(\\[i\\])"
+    #The keyword to trigger the item display function (in regex)
+    Keyword: "(?i)\\[item\\]|\\[i\\]"
     #The text to replace the keyword
     #Special Placeholders:
     #Use {Item} for item display name
@@ -241,7 +240,7 @@ ItemDisplay:
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Item"
     #Cooldown of this placeholder
-    Cooldown: 0
+    Cooldown: 20
     #Enable the click GUI
     GUIEnabled: true
     #Enable the chat hover tooltip
@@ -261,7 +260,9 @@ ItemDisplay:
       AllowAir: true
       #Message to send when AllowAir is false and a player tried to show nothing
       DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
-    #This text is used when listing placeholders 
+    #This name is used when listing placeholders
+    Name: "[item]"
+    #This description is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 
     HoverableItemsTranslation:
@@ -274,12 +275,8 @@ ItemDisplay:
   Inventory:    
     #Enable players to show their inventory
     Enabled: true
-    #Should the inventory keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the inventory display function
-    Keyword: "[inv]"
-    Aliases:
-      - "(?i)(\\[inventory\\])"
+    #The keyword to trigger the inventory display function (in regex)
+    Keyword: "(?i)\\[inv\\]|\\[inventory\\]"
     #The text to replace the keyword
     Text: "&f[&b%player_name%'s Inventory&f]"
     #The title of the inventory view
@@ -298,18 +295,16 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
-    #This text is used when listing placeholders 
+    #This name is used when listing placeholders
+    Name: "[inv]"
+    #This description is used when listing placeholders 
     Description: "&bShow your Inventory in the chat!"
 
   EnderChest:    
     #Enable players to show their ender chest
     Enabled: true
-    #Should the ender chest keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the ender chest display function
-    Keyword: "[ender]"
-    Aliases:
-      - "(?i)(\\[e\\])"
+    #The keyword to trigger the ender chest display function (in regex)
+    Keyword: "(?i)\\[ender\\]|\\[e\\]"
     #The text to replace the keyword
     Text: "&f[&d%player_name%'s Ender Chest&f]"
     #The title of the ender chest inventory view
@@ -319,7 +314,9 @@ ItemDisplay:
     #Hover Message
     HoverMessage: 
       - "&bClick to view!"
-    #This text is used when listing placeholders 
+    #This name is used when listing placeholders
+    Name: "[ender]"
+    #This description is used when listing placeholders 
     Description: "&dShow your Ender Chest in the chat!"
 
 Player:

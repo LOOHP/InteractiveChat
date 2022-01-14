@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -128,7 +129,7 @@ public class InteractiveChatAPI {
 	 * Get the placeholder keyword list
 	 * @return The placeholder keyword list
 	 */
-	public static List<String> getPlaceholderList() {
+	public static List<Pattern> getPlaceholderList() {
 		return InteractiveChat.placeholderList.values().stream().map(each -> each.getKeyword()).collect(Collectors.toList());
 	}
 	

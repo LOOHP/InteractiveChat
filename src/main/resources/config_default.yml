@@ -1,3 +1,6 @@
+#Do not change this value
+ConfigVersion: "${project.version}"
+
 Options:
   Updater: true
   ShowCancelledNotice: true
@@ -239,12 +242,8 @@ ItemDisplay:
   Item:
     #Enable players to show their items in main hand
     Enabled: true
-    #Should the item keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the item display function
-    Keyword: "[item]"
-    Aliases:
-      - "(?i)(\\[i\\])"
+    #The keyword to trigger the item display function (in regex)
+    Keyword: "(?i)\\[item\\]|\\[i\\]"
     #The text to replace the keyword
     #Special Placeholders:
     #Use {Item} for item display name
@@ -275,7 +274,10 @@ ItemDisplay:
       AllowAir: true
       #Message to send when AllowAir is false and a player tried to show nothing
       DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
-    #This text is used when listing placeholders 
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
+    Name: "[item]"
+    #This description is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 
     HoverableItemsTranslation:
@@ -288,12 +290,8 @@ ItemDisplay:
   Inventory:    
     #Enable players to show their inventory
     Enabled: true
-    #Should the inventory keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the inventory display function
-    Keyword: "[inv]"
-    Aliases:
-      - "(?i)(\\[inventory\\])"
+    #The keyword to trigger the inventory display function (in regex)
+    Keyword: "(?i)\\[inv\\]|\\[inventory\\]"
     #The text to replace the keyword
     Text: "&f[&b%player_name%'s Inventory&f]"
     #The title of the inventory view
@@ -312,18 +310,17 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
-    #This text is used when listing placeholders 
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
+    Name: "[inv]"
+    #This description is used when listing placeholders 
     Description: "&bShow your Inventory in the chat!"
 
   EnderChest:    
     #Enable players to show their ender chest
     Enabled: true
-    #Should the ender chest keyword be case sensitive
-    CaseSensitive: false
-    #The keyword to trigger the ender chest display function
-    Keyword: "[ender]"
-    Aliases:
-      - "(?i)(\\[e\\])"
+    #The keyword to trigger the ender chest display function (in regex)
+    Keyword: "(?i)\\[ender\\]|\\[e\\]"
     #The text to replace the keyword
     Text: "&f[&d%player_name%'s Ender Chest&f]"
     #The title of the ender chest inventory view
@@ -333,7 +330,10 @@ ItemDisplay:
     #Hover Message
     HoverMessage: 
       - "&bClick to view!"
-    #This text is used when listing placeholders 
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
+    Name: "[ender]"
+    #This description is used when listing placeholders 
     Description: "&dShow your Ender Chest in the chat!"
 
 Player:
@@ -387,14 +387,10 @@ CustomPlaceholders:
     #Should the placholders be parsed with the message sender or the reciever
     #Either 'sender' or 'viewer'
     ParsePlayer: sender
-    #The keyword to look for in the chat
-    Text: "[money]"
-    Aliases:
-      - "(?i)(\\[m\\])"
+    #The keyword to look for in the chat (in regex)
+    Keyword: "(?i)\\[money\\]|\\[m\\]"
     #Parse Placeholders in the keyword text
     ParseKeyword: false
-    #Whether or the keyword check is case sensitive
-    CaseSensitive: true
     #Cooldown of this placeholder
     Cooldown: 0
     #Hover message settings
@@ -404,7 +400,7 @@ CustomPlaceholders:
       #Text for the hover message
       #Supports multiple lines
       Text: 
-        - "&6%player_name%'s Balance: $%vault_eco_balance_commas%"
+        - "&6%player_name%'s Balance: \\$%vault_eco_balance_commas%"
     #Click action settings
     Click:
       #Add a click action
@@ -427,14 +423,15 @@ CustomPlaceholders:
       Enable: true
       #The text to replace the keyword
       ReplaceText: "[%player_name%'s Balance]"
-    #This text is used when listing placeholders 
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
+    Name: "[money]"
+    #This description is used when listing placeholders 
     Description: "&eShow the amount of money you have in the chat!"
   '2':
     ParsePlayer: viewer
-    Text: "[loohpjames]"
-    Aliases: []
+    Keyword: "(?i)\\[loohpjames\\]"
     ParseKeyword: false
-    CaseSensitive: false
     Cooldown: 0
     Hover:
       Enable: true
@@ -448,13 +445,12 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: "&3&lLoohp&6&lJames"
+    Name: "[loohpjames]"
     Description: "&eLink to author's website!"
   '3':
     ParsePlayer: sender
-    Text: "[gametime]"
-    Aliases: []
+    Keyword: "(?i)\\[gametime\\]"
     ParseKeyword: false
-    CaseSensitive: true
     Cooldown: 0
     Hover:
       Enable: false
@@ -466,32 +462,31 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: "%player_world_time_24%"
+    Name: "[gametime]"
     Description: "&eShows the current time of the world you are in!"
   '4':
     ParsePlayer: viewer
-    Text: "[Hover]"
-    Aliases: []
+    Keyword: "(?i)\\[match: *([^\\[\\]]*)\\]"
     ParseKeyword: false
-    CaseSensitive: false
     Cooldown: 0
     Hover:
       Enable: true
       Text: 
-        - "&bHover Text is cool!"
+        - "&b$1"
     Click:
-      Enable: false
-      Action: ""
-      Value: ""
+      Enable: true
+      Action: RUN_COMMAND
+      Value: "/me $1"
     Replace:
-      Enable: false
-      ReplaceText: ""
-    Description: "&eExample Hover Text"
+      Enable: true
+      ReplaceText: "&b[&e$1&b]"
+    Name: "[match:<Text>]"
+    Description: "&eExample of using Regex matching groups Text"
   '5':
     ParsePlayer: sender
-    Text: '[time]'
+    Keyword: "(?i)\\[time\\]"
     Aliases: []
     ParseKeyword: false
-    CaseSensitive: true
     Cooldown: 0
     Hover:
       Enable: false
@@ -503,13 +498,13 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+    Name: "[time]"
     Description: "&eShows the current time of the server in the real world!"
   '6':
     ParsePlayer: sender
-    Text: '[pos]'
+    Keyword: "(?i)\\[pos\\]"
     Aliases: []
     ParseKeyword: false
-    CaseSensitive: true
     Cooldown: 0
     Hover:
       Enable: false
@@ -521,13 +516,13 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
+    Name: "[pos]"
     Description: "&eShows your current position!"
   '7':
     ParsePlayer: sender
-    Text: '[ping]'
+    Keyword: "(?i)\\[ping\\]"
     Aliases: []
     ParseKeyword: false
-    CaseSensitive: true
     Cooldown: 0
     Hover:
       Enable: false
@@ -539,4 +534,5 @@ CustomPlaceholders:
     Replace:
       Enable: true
       ReplaceText: '%player_colored_ping% &bms'
+    Name: "[ping]"
     Description: "&eShows your current ping!"

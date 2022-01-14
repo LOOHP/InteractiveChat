@@ -4,13 +4,27 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CustomStringUtils {
 	
-	private static final String[] META_CHARACTERS = new String[] {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%"};
+	private static final String[] META_CHARACTERS = new String[] {"\\","^","$","{","}","[","]","(",")",".","*","+","?","|","<",">","-","&","%", "\"", "'"};
 	private static final String[] REPLACE_ALL_META_CHARACTERS = new String[] {"$"};
+	private static final String REPLACE_REGEX = "(?<!\\\\)\\$%s|\\\\\\\\\\$%s";
+	private static final String REPLACE_ESCAPE_REGEX = "(?<!\\\\)\\\\\\$";
+	
+	public static String applyReplacementRegex(String str, MatchResult result, int groupOffset) {
+		str = str.replaceAll(REPLACE_REGEX.replace("%s", "0"), escapeReplaceAllMetaCharacters(result.group()));
+		for (int i = groupOffset + 1; i <= result.groupCount(); i++) {
+			String replacement = result.group(i);
+			if (replacement != null) {
+				str = str.replaceAll(REPLACE_REGEX.replace("%s", (i - groupOffset) + ""), escapeReplaceAllMetaCharacters(replacement));
+			}
+		}
+		return str.replaceAll(REPLACE_ESCAPE_REGEX, "\\$");
+	}
 	
 	public static Set<Character> getCharacterSet(String str) {
 		Set<Character> unique = new HashSet<>();

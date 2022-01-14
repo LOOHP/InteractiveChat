@@ -5,8 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -193,7 +191,7 @@ public class BungeeMessageSender {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	out.writeByte(1);
     	DataTypeIO.writeUUID(out, player);
-    	DataTypeIO.writeString(out, placeholder.getKeyword(), StandardCharsets.UTF_8);
+    	DataTypeIO.writeUUID(out, placeholder.getInternalId());
     	out.writeLong(time);
     	return forwardData(time, 0x07, out.toByteArray());
     }
@@ -208,16 +206,6 @@ public class BungeeMessageSender {
     public static boolean reloadBungeeConfig(long time) throws Exception {
     	ByteArrayDataOutput out = ByteStreams.newDataOutput();
     	return forwardData(time, 0x09, out.toByteArray());
-    }
-    
-    public static boolean resetAndForwardAliasMapping(long time, Map<String, String> mapping) throws Exception {
-    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
-    	out.writeInt(mapping.size());
-    	for (Entry<String, String> entry : mapping.entrySet()) {
-    		DataTypeIO.writeString(out, entry.getKey(), StandardCharsets.UTF_8);
-    		DataTypeIO.writeString(out, entry.getValue(), StandardCharsets.UTF_8);
-    	}
-    	return forwardData(time, 0x0A, out.toByteArray());
     }
     
     public static boolean permissionCheckResponse(long time, int id, boolean value) throws Exception {
@@ -235,8 +223,8 @@ public class BungeeMessageSender {
     		boolean isBuiltIn = placeholder.isBuildIn();
     		out.writeBoolean(isBuiltIn);
     		if (isBuiltIn) {
-    			DataTypeIO.writeString(out, placeholder.getKeyword(), StandardCharsets.UTF_8);
-    			out.writeBoolean(placeholder.isCaseSensitive());
+    			DataTypeIO.writeString(out, placeholder.getKeyword().pattern(), StandardCharsets.UTF_8);
+    			DataTypeIO.writeString(out, placeholder.getName(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(out, placeholder.getPermission(), StandardCharsets.UTF_8);
     			out.writeLong(placeholder.getCooldown());
@@ -244,13 +232,8 @@ public class BungeeMessageSender {
     			CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
     			out.writeInt(customPlaceholder.getPosition());
     			out.writeByte(customPlaceholder.getParsePlayer().getOrder());
-    			DataTypeIO.writeString(out, customPlaceholder.getKeyword(), StandardCharsets.UTF_8);
-    			out.writeInt(customPlaceholder.getAliases().size());
-    			for (String each : customPlaceholder.getAliases()) {
-    				DataTypeIO.writeString(out, each, StandardCharsets.UTF_8);
-    			}
+    			DataTypeIO.writeString(out, customPlaceholder.getKeyword().pattern(), StandardCharsets.UTF_8);
     			out.writeBoolean(customPlaceholder.getParseKeyword());
-    			out.writeBoolean(customPlaceholder.isCaseSensitive());
     			out.writeLong(customPlaceholder.getCooldown());
     			
     			CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
@@ -266,6 +249,7 @@ public class BungeeMessageSender {
     			out.writeBoolean(replace.isEnabled());
     			DataTypeIO.writeString(out, replace.getReplaceText(), StandardCharsets.UTF_8);
     			
+    			DataTypeIO.writeString(out, placeholder.getName(), StandardCharsets.UTF_8);
     			DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
     		}
     	}

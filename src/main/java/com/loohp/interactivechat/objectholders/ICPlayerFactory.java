@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +51,13 @@ public class ICPlayerFactory {
 						ICPlayer icplayer = new ICPlayer(player);
 						ICPLAYERS.put(icplayer.getUniqueId(), icplayer);
 					}
+				}
+			}
+			
+			@EventHandler(priority = EventPriority.MONITOR)
+			public void onJoinConfirm(PlayerLoginEvent event) {
+				if (!event.getResult().equals(Result.ALLOWED)) {
+					onLeave(new PlayerQuitEvent(event.getPlayer(), null));
 				}
 			}
 			

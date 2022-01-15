@@ -89,6 +89,7 @@ import com.loohp.interactivechat.utils.RarityUtils;
 import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.milkbowl.vault.permission.Permission;
 
@@ -583,7 +584,15 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static void sendMessage(CommandSender sender, Component component) {
 		if (InteractiveChat.version.isLegacyRGB()) {
-			sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
+			try {
+				sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
+			} catch (Throwable e) {
+				if (sender instanceof Player) {
+					((Player) sender).spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.legacyGson().serialize(component)));
+				} else {
+					sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
+				}
+			}
 		} else {
 			sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
 		}

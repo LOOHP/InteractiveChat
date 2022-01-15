@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
@@ -349,11 +352,22 @@ public class LanguageUtils {
 		}
 		Object nmsItemStackObject = asNMSCopyMethod.invoke(null, itemStack);
 		String path = getRawItemTypeNameMethod.invoke(nmsItemStackObject).toString() + ".name";
-		if (XMaterialUtils.matchXMaterial(itemStack).equals(XMaterial.PLAYER_HEAD)) {
+		XMaterial xMaterial = XMaterialUtils.matchXMaterial(itemStack);
+		if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
 			String owner = NBTEditor.getString(itemStack, "SkullOwner", "Name");
 			if (owner != null) {
 				path = "item.skull.player.name";
 			}
+		} else if (xMaterial.isOneOf(Arrays.asList("CONTAINS:banner"))) {
+			String color = xMaterial.name().replace("_BANNER", "").toLowerCase();
+			Matcher matcher = Pattern.compile("_(.)").matcher(color);
+			StringBuffer sb = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(sb, matcher.group(1).toUpperCase());
+			}
+			matcher.appendTail(sb);
+			path = "item.banner." + sb.toString() + ".name";
+			
 		}
 		return path;
 	}

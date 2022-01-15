@@ -102,9 +102,13 @@ public class ItemNBTUtils {
 	public static ItemStack getItemFromNBTJson(String json) {
 		try {
 			Object nmsNbtTagCompoundObj = parseMojangsonMethod.invoke(null, json);
-			nmsItemStackFromTagConstructor.setAccessible(true);
-			Object nmsItemStackObj = InteractiveChat.version.isOld() ? nmsItemStackFromTagMethod.invoke(null, nmsNbtTagCompoundObj) : nmsItemStackFromTagConstructor.newInstance(nmsNbtTagCompoundObj);
-			nmsItemStackFromTagConstructor.setAccessible(false);
+			Object nmsItemStackObj;
+			if (InteractiveChat.version.isOld()) {
+				nmsItemStackObj = nmsItemStackFromTagMethod.invoke(null, nmsNbtTagCompoundObj);
+			} else {
+				nmsItemStackFromTagConstructor.setAccessible(true);
+				nmsItemStackObj = nmsItemStackFromTagConstructor.newInstance(nmsNbtTagCompoundObj);
+			}
 			return (ItemStack) asBukkitCopyMethod.invoke(null, nmsItemStackObj);
 		} catch (Throwable e) {
 			return null;

@@ -245,7 +245,7 @@ public class ChatColorUtils {
     }
     
     public static String translatePopularHexFormats(char character, String str) {
-    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", String.valueOf(character)));
+    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", CustomStringUtils.escapeMetaCharacters(character + "")));
     	Matcher matcher = pattern.matcher(str);
     	StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {

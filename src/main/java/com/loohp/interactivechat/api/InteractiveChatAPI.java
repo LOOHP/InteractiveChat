@@ -27,8 +27,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Maps;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.modules.ItemDisplay;
@@ -37,7 +35,6 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
-import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -304,18 +301,18 @@ public class InteractiveChatAPI {
 	 * @param type
 	 * @return The shared inventory list
 	 */
-	public static BiMap<String, Inventory> getItemShareList(SharedType type) {
+	public static Map<String, Inventory> getItemShareList(SharedType type) {
 		switch (type) {
 		case ITEM:
-			return Maps.unmodifiableBiMap(InteractiveChat.itemDisplay);
+			return Collections.unmodifiableMap(InteractiveChat.itemDisplay);
 		case INVENTORY:
-			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay);
+			return Collections.unmodifiableMap(InteractiveChat.inventoryDisplay);
 		case INVENTORY1_UPPER:
-			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay1Upper);
+			return Collections.unmodifiableMap(InteractiveChat.inventoryDisplay1Upper);
 		case INVENTORY1_LOWER:
-			return Maps.unmodifiableBiMap(InteractiveChat.inventoryDisplay1Lower);
+			return Collections.unmodifiableMap(InteractiveChat.inventoryDisplay1Lower);
 		case ENDERCHEST:
-			return Maps.unmodifiableBiMap(InteractiveChat.enderDisplay);
+			return Collections.unmodifiableMap(InteractiveChat.enderDisplay);
 		}
 		return null;
 	}
@@ -340,23 +337,23 @@ public class InteractiveChatAPI {
 		switch (type) {
 		case ITEM:
 			InteractiveChat.itemDisplay.put(hash, inventory);
-			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 0, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			InteractiveChat.upperSharedInventory.add(inventory);
 			break;
 		case INVENTORY:
 			InteractiveChat.inventoryDisplay.put(hash, inventory);
-			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 1, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			InteractiveChat.upperSharedInventory.add(inventory);
 			break;
 		case INVENTORY1_UPPER:
 			InteractiveChat.inventoryDisplay1Upper.put(hash, inventory);
-			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 2, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			InteractiveChat.upperSharedInventory.add(inventory);
 			break;
 		case INVENTORY1_LOWER:
 			InteractiveChat.inventoryDisplay1Lower.put(hash, inventory);
-			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 3, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			InteractiveChat.lowerSharedInventory.add(inventory);
 			break;
 		case ENDERCHEST:
 			InteractiveChat.enderDisplay.put(hash, inventory);
-			InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 4, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
+			InteractiveChat.upperSharedInventory.add(inventory);
 			break;
 		}
 		return hash;
@@ -370,7 +367,6 @@ public class InteractiveChatAPI {
 	 */
 	public static String addMapToMapSharedList(String hash, ItemStack item) {
 		InteractiveChat.mapDisplay.put(hash, item);
-		InteractiveChat.itemDisplayTimeouts.add(new SharedDisplayTimeoutInfo(hash, 5, System.currentTimeMillis() + InteractiveChat.itemDisplayTimeout));
 		return hash;
 	}
 	

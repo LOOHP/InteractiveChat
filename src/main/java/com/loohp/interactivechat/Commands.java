@@ -64,12 +64,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 			if (sender.hasPermission("interactivechat.reload")) {
 				ConfigManager.reloadConfig();
 				InteractiveChat.placeholderCooldownManager.reloadPlaceholders();
-				InteractiveChat.itemDisplay.clear();
-				InteractiveChat.inventoryDisplay.clear();
-				InteractiveChat.inventoryDisplay1Lower.clear();
-				InteractiveChat.enderDisplay.clear();
-				InteractiveChat.mapDisplay.clear();
-				InteractiveChat.itemDisplayTimeouts.clear();
 				PlayerUtils.resetAllPermissionCache();
 				Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
 				if (InteractiveChat.bungeecordMode) {

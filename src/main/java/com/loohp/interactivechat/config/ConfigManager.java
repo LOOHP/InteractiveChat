@@ -372,5 +372,14 @@ public class ConfigManager {
 				WebData.getInstance().reload();
 			}
 		});
+		
+		InteractiveChat.itemDisplay.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.inventoryDisplay.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.inventoryDisplay1Upper.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.inventoryDisplay1Lower.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.enderDisplay.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.mapDisplay.clearAndSetTimeout(InteractiveChat.itemDisplayTimeout);
+		InteractiveChat.upperSharedInventory.clear();
+		InteractiveChat.lowerSharedInventory.clear();
 	}
 }

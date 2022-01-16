@@ -237,7 +237,7 @@ ItemDisplay:
   Settings:
     #How long should an item display be stored in memory after its creation
     #This is in minutes
-    Timeout: 360
+    Timeout: 5
 
   Item:
     #Enable players to show their items in main hand

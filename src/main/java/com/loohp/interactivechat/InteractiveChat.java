@@ -11,11 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -42,9 +40,7 @@ import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.MapMaker;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
@@ -69,13 +65,13 @@ import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
+import com.loohp.interactivechat.objectholders.ConcurrentCacheHashMap;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
-import com.loohp.interactivechat.objectholders.SharedDisplayTimeoutInfo;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -98,11 +94,6 @@ public class InteractiveChat extends JavaPlugin {
 	
 	public static final int BSTATS_PLUGIN_ID = 6747;
 	
-	public static Optional<Character> chatAltColorCode = Optional.empty();
-	
-	public static final Function<String, String> COLOR_CHAR_ESCAPE = str -> str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", InteractiveChat.chatAltColorCode.orElse(' ') + "");
-	public static final Function<String, String> COLOR_CHAR_UNESCAPE = str -> str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
-	
 	public static InteractiveChat plugin = null;
 	
 	public static String exactMinecraftVersion;
@@ -111,6 +102,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static ProtocolManager protocolManager;
 	
 	public static String language = "en_us";
+	
+	public static Optional<Character> chatAltColorCode = Optional.empty();
 	
 	public static Boolean essentialsHook = false;
 	public static Boolean essentialsDiscordHook = false;
@@ -216,19 +209,19 @@ public class InteractiveChat extends JavaPlugin {
 	public static Map<String, UUID> messages = new ConcurrentHashMap<>();
 	public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
 	public static Map<String, ICPlayer> keyPlayer = new ConcurrentHashMap<>();
-	
-	public static long itemDisplayTimeout = 0;
-	
+		
 	public static int invDisplayLayout = 0;
 	
-	public static Queue<SharedDisplayTimeoutInfo> itemDisplayTimeouts = new ConcurrentLinkedQueue<>();
+	public static long itemDisplayTimeout = 300000;
 	
-	public static BiMap<String, Inventory> itemDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<String, Inventory> inventoryDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<String, Inventory> inventoryDisplay1Upper = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<String, Inventory> inventoryDisplay1Lower = Maps.synchronizedBiMap(HashBiMap.create());
-	public static BiMap<String, Inventory> enderDisplay = Maps.synchronizedBiMap(HashBiMap.create());
-	public static Map<String, ItemStack> mapDisplay = new ConcurrentHashMap<>();
+	public static ConcurrentCacheHashMap<String, Inventory> itemDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static ConcurrentCacheHashMap<String, Inventory> inventoryDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static ConcurrentCacheHashMap<String, Inventory> inventoryDisplay1Upper = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static ConcurrentCacheHashMap<String, Inventory> inventoryDisplay1Lower = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static ConcurrentCacheHashMap<String, Inventory> enderDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static ConcurrentCacheHashMap<String, ItemStack> mapDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
+	public static Set<Inventory> upperSharedInventory = Collections.newSetFromMap(new MapMaker().concurrencyLevel(16).weakKeys().makeMap());
+	public static Set<Inventory> lowerSharedInventory = Collections.newSetFromMap(new MapMaker().concurrencyLevel(16).weakKeys().makeMap());
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	
@@ -300,7 +293,7 @@ public class InteractiveChat extends JavaPlugin {
 	@Override
 	public void onEnable() {	
 		plugin = this;
-		
+
 		externalProcessor = new ProcessExternalMessage();
 		
 		getServer().getPluginManager().registerEvents(new Debug(), this);
@@ -493,7 +486,7 @@ public class InteractiveChat extends JavaPlugin {
 	public void onDisable() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			Inventory topInventory = player.getOpenInventory().getTopInventory();
-			if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.itemDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay1Upper.inverse().containsKey(topInventory) || InteractiveChat.enderDisplay.inverse().containsKey(topInventory)) {
+			if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
 				player.closeInventory();
 				if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
 					InventoryUtils.restorePlayerInventory(player);
@@ -509,41 +502,12 @@ public class InteractiveChat extends JavaPlugin {
 	
 	private void gc() {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-			List<SharedDisplayTimeoutInfo> remove = new ArrayList<>();
-			long now = System.currentTimeMillis();
-			for (SharedDisplayTimeoutInfo entry : itemDisplayTimeouts) {
-				long timeout = entry.getTimeout();
-				if (now > timeout) {
-					itemDisplayTimeouts.remove(entry);
-					remove.add(entry);
-				}
-			}
-			if (!remove.isEmpty()) {
-				Bukkit.getScheduler().runTask(plugin, () -> {
-					for (SharedDisplayTimeoutInfo entry : remove) {
-						switch (entry.getType()) {
-						case 0:
-							itemDisplay.remove(entry.getHash());
-							break;
-						case 1:
-							inventoryDisplay.remove(entry.getHash());
-							break;
-						case 2:
-							inventoryDisplay1Upper.remove(entry.getHash());
-							break;
-						case 3:
-							inventoryDisplay1Lower.remove(entry.getHash());
-							break;
-						case 4:
-							enderDisplay.remove(entry.getHash());
-							break;
-						case 5:
-							mapDisplay.remove(entry.getHash());
-							break;
-						}
-					}
-				});
-			}
+			itemDisplay.cleanUp();
+			inventoryDisplay.cleanUp();
+			inventoryDisplay1Upper.cleanUp();
+			inventoryDisplay1Lower.cleanUp();
+			enderDisplay.cleanUp();
+			mapDisplay.cleanUp();
 		}, 0, 1200);
 	}
 	

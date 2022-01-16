@@ -244,8 +244,8 @@ public class ChatColorUtils {
         return text;
     }
     
-    public static String translatePopularHexFormats(char code, String str) {
-    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", String.valueOf(code)));
+    public static String translatePopularHexFormats(char character, String str) {
+    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", String.valueOf(character)));
     	Matcher matcher = pattern.matcher(str);
     	StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -258,5 +258,13 @@ public class ChatColorUtils {
 		matcher.appendTail(sb);
 		return sb.toString();
     }
+    
+    public static String escapeColorCharacters(char character, String str) {
+    	return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", character + "");
+    }
   
+    public static String unescapeColorCharacters(String str) {
+    	return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
+    }
+    
 }

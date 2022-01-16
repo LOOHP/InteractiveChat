@@ -406,7 +406,7 @@ public class Events implements Listener {
 				event.setMessage(ChatColorUtils.translateAlternateColorCodes(InteractiveChat.chatAltColorCode.get(), event.getMessage()));
 			}
 		} else {
-			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));
+			event.setMessage(ChatColorUtils.escapeColorCharacters(InteractiveChat.chatAltColorCode.orElse(' '), event.getMessage()));
 		}
 	}
 	
@@ -421,7 +421,7 @@ public class Events implements Listener {
 				event.setMessage(translated.substring(translated.indexOf("/")));
 			}
 		} else {
-			event.setMessage(InteractiveChat.COLOR_CHAR_ESCAPE.apply(event.getMessage()));
+			event.setMessage(ChatColorUtils.escapeColorCharacters(InteractiveChat.chatAltColorCode.orElse(' '), event.getMessage()));
 		}
 	}
 	
@@ -449,7 +449,7 @@ public class Events implements Listener {
 			return;
 		}
 		Inventory topInventory = event.getView().getTopInventory();
-		if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.itemDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay.inverse().containsKey(topInventory) || InteractiveChat.inventoryDisplay1Upper.inverse().containsKey(topInventory) || InteractiveChat.enderDisplay.inverse().containsKey(topInventory)) {
+		if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
 			
 			event.setCancelled(true);
 			cancelledInventory.add(event);

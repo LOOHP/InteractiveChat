@@ -39,6 +39,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextDecoration.State;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
@@ -142,7 +143,7 @@ public class InventoryDisplay {
 		int level = player.getExperienceLevel();
 		ItemStack exp = XMaterial.EXPERIENCE_BOTTLE.parseItem();
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
-			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
+			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, State.FALSE);
 			if (level != 1) {
 				expText = expText.args(Component.text(level));
 			}
@@ -240,7 +241,7 @@ public class InventoryDisplay {
 		
 		ItemStack exp = XMaterial.EXPERIENCE_BOTTLE.parseItem();
 		if (InteractiveChat.version.isNewerThan(MCVersion.V1_15)) {
-			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decorate(TextDecoration.ITALIC);
+			TranslatableComponent expText = (TranslatableComponent) Component.translatable(getLevelTranslation(level)).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, State.FALSE);
 			if (level != 1) {
 				expText = expText.args(Component.text(level));
 			}

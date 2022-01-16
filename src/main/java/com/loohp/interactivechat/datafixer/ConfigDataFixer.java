@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.datafixer;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.simpleyaml.configuration.ConfigurationSection;
 
@@ -57,6 +58,15 @@ public class ConfigDataFixer {
 				s.set("Name", text);
 				s.set("Aliases", null);
 			}
+		}
+		
+		if (configVersion.compareTo(new Version("4.1.1.13")) < 0) {
+			if (!backup) {
+				config.save(new File(config.getFile().getParent(), config.getFile().getName() + "." + versionString + ".bak"));
+			}
+			backup = true;
+			
+			config.getConfiguration().set("Settings.FormattingTags.AdditionalRGBFormats", Arrays.asList("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"));
 		}
 		
 		config.getConfiguration().set("ConfigVersion", InteractiveChat.plugin.getDescription().getVersion());

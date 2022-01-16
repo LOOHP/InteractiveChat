@@ -17,14 +17,13 @@ public class ChatColorUtils {
 	
 	private static final Set<Character> COLORS = new HashSet<>();
 	
-	private static final String VALID_HEX_COLOR = "^#[0-9a-fA-F]{6}$";
-	private static final String VALID_RGB_COLOR = "^\u00a7x(?:\u00a7[0-9a-fA-F]){6}$";
-	private static final String VALID_RGB_COLOR2 = "^\u00a7#[0-9a-fA-F]{6}$";
-	
 	public static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[color=(#[0-9a-fA-F]{6})\\]");
 	public static final Pattern COLOR_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[color=#[0-9a-fA-F]{6}\\])");
 	
-	public static final String POPULAR_HEX_FORMAT = "%s#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])";
+	public static final Pattern RGB_HEX_COLOR_1 = Pattern.compile("(?:&|" + COLOR_CHAR + ")x(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])");
+	public static final Pattern RGB_HEX_COLOR_2 = Pattern.compile("(?:&|" + COLOR_CHAR + ")#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
+	
+	public static final Pattern STANDARD_COLOR_CODE = Pattern.compile("&([0-9a-fA-F])");
 	
 	static {
 		COLORS.add('0');
@@ -173,90 +172,84 @@ public class ChatColorUtils {
     	return sb.toString();
     }
     
-    public static String hexToColorCode(String hex) {
+    private static String hexToColorCode(String hex) {
     	if (hex == null) {
     		return hex;
     	}
-    	
-    	int pos = hex.indexOf("#");
-    	if (!hex.matches(VALID_HEX_COLOR) || pos < 0 || hex.length() < (pos + 7)) {
-    		return "\u00a7x\u00a7F\u00a7F\u00a7F\u00a7F\u00a7F\u00a7F";
+    	Matcher matcher = RGB_HEX_COLOR_1.matcher(hex);
+    	if (matcher.matches()) {
+    		return COLOR_CHAR + "x" + COLOR_CHAR + matcher.group(1) + COLOR_CHAR + matcher.group(2) + COLOR_CHAR + matcher.group(3) + COLOR_CHAR + matcher.group(4) + COLOR_CHAR + matcher.group(5) + COLOR_CHAR + matcher.group(6);
+    	} else {
+    		return COLOR_CHAR + "x" + COLOR_CHAR + "f" + COLOR_CHAR + "f" + COLOR_CHAR + "f" + COLOR_CHAR + "f" + COLOR_CHAR + "f" + COLOR_CHAR + "f" ;
     	}
-    	return "\u00a7x\u00a7" + String.valueOf(hex.charAt(1)) + "\u00a7" + String.valueOf(hex.charAt(2)) + "\u00a7" + String.valueOf(hex.charAt(3)) + "\u00a7" + String.valueOf(hex.charAt(4)) + "\u00a7" + String.valueOf(hex.charAt(5)) + "\u00a7" + String.valueOf(hex.charAt(6));
     }
     
     public static String translateAlternateColorCodes(char code, String text) {    	
-		if (text == null) {
+		if (text == null || text.length() < 2) {
 			return text;
 		}
-		
-		if (text.length() < 2) {
-        	return text;
-        }
-		
-		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.rgbTags) {
-			Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
+		if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+			if (InteractiveChat.rgbTags) {
+				Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
+				StringBuffer sb = new StringBuffer();
+				while (matcher.find()) {
+					String escape = matcher.group(1);
+					String color = matcher.group(2);
+					String replacement = hexToColorCode(color);
+					if (escape != null) {
+						replacement = escape + replacement;
+					}
+					matcher.appendReplacement(sb, replacement);
+				}
+				matcher.appendTail(sb);
+				
+				matcher = COLOR_TAG_ESCAPE.matcher(sb.toString());
+				sb = new StringBuffer();
+				while (matcher.find()) {
+					String escaped = matcher.group(1);
+					matcher.appendReplacement(sb, escaped);
+				}
+				matcher.appendTail(sb);
+				
+				text = sb.toString();
+			}
+			Matcher matcher = RGB_HEX_COLOR_1.matcher(text);
 			StringBuffer sb = new StringBuffer();
 			while (matcher.find()) {
-				String escape = matcher.group(1);
-				String color = matcher.group(2);
-				String replacement = hexToColorCode(color);
-				if (escape != null) {
-					replacement = escape + replacement;
-				}
-				matcher.appendReplacement(sb, replacement);
+				matcher.appendReplacement(sb, COLOR_CHAR + "x" + COLOR_CHAR + matcher.group(1) + COLOR_CHAR + matcher.group(2) + COLOR_CHAR + matcher.group(3) + COLOR_CHAR + matcher.group(4) + COLOR_CHAR + matcher.group(5) + COLOR_CHAR + matcher.group(6));
 			}
 			matcher.appendTail(sb);
-			
-			matcher = COLOR_TAG_ESCAPE.matcher(sb.toString());
+			matcher = RGB_HEX_COLOR_2.matcher(sb.toString());
 			sb = new StringBuffer();
 			while (matcher.find()) {
-				String escaped = matcher.group(1);
-				matcher.appendReplacement(sb, escaped);
+				matcher.appendReplacement(sb, COLOR_CHAR + "x" + COLOR_CHAR + matcher.group(1) + COLOR_CHAR + matcher.group(2) + COLOR_CHAR + matcher.group(3) + COLOR_CHAR + matcher.group(4) + COLOR_CHAR + matcher.group(5) + COLOR_CHAR + matcher.group(6));
 			}
 			matcher.appendTail(sb);
-			
 			text = sb.toString();
-    	}
-        
-        for (int i = 0; i < text.length() - 1; i++) {
-        	if (text.charAt(i) == code) {
-        		if (text.charAt(i + 1) == 'x' && text.length() > (i + 14)) {
-        			String section = text.substring(i, i + 14);
-        			if (section.matches(VALID_RGB_COLOR.replace("\u00a7", CustomStringUtils.escapeMetaCharacters(code + "")))) {
-	        			String translated = section.replace(code, '\u00a7');
-	        			text = text.replace(section, translated);
-        			}
-        		} else if (text.charAt(i + 1) == '#' && text.length() > (i + 8)) {
-        			String section = text.substring(i, i + 8);
-        			if (section.matches(VALID_RGB_COLOR2.replace("\u00a7", CustomStringUtils.escapeMetaCharacters(code + "")))) {
-        				String translated = "\u00a7x\u00a7" + section.substring(2).replaceAll(".(?=.)", "$0\u00a7");
-        				text = text.replace(section, translated);
-        			}
-        		} else if (COLORS.contains(text.charAt(i + 1))) {
-        			StringBuilder sb = new StringBuilder(text);
-        			sb.setCharAt(i, '\u00a7');
-        			text = sb.toString();
-        		}
-        	}
-        }
-
-        return text;
-    }
-    
-    public static String translatePopularHexFormats(char character, String str) {
-    	Pattern pattern = Pattern.compile(POPULAR_HEX_FORMAT.replace("%s", CustomStringUtils.escapeMetaCharacters(character + "")));
-    	Matcher matcher = pattern.matcher(str);
-    	StringBuffer sb = new StringBuffer();
-		while (matcher.find()) {
-			String replacement = "\u00a7x";
-			for (int i = 1; i < 7; i++) {
-				replacement += "\u00a7" + matcher.group(i).toUpperCase();
+			
+			outer: for (Pattern pattern : InteractiveChat.additionalRGBFormats) {
+				matcher = pattern.matcher(text);
+				sb = new StringBuffer();
+				while (matcher.find()) {
+					if (matcher.groupCount() < 6) {
+						continue outer;
+					}
+					matcher.appendReplacement(sb, COLOR_CHAR + "x" + COLOR_CHAR + matcher.group(1) + COLOR_CHAR + matcher.group(2) + COLOR_CHAR + matcher.group(3) + COLOR_CHAR + matcher.group(4) + COLOR_CHAR + matcher.group(5) + COLOR_CHAR + matcher.group(6));				
+				}
+				matcher.appendTail(sb);
+				text = sb.toString();
 			}
-			matcher.appendReplacement(sb, replacement);
+    	}
+		
+		Matcher matcher = STANDARD_COLOR_CODE.matcher(text);
+		StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			matcher.appendReplacement(sb, COLOR_CHAR + matcher.group(1));
 		}
 		matcher.appendTail(sb);
-		return sb.toString();
+		text = sb.toString();
+
+        return text;
     }
     
     public static String escapeColorCharacters(char character, String str) {

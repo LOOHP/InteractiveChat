@@ -67,6 +67,12 @@ Settings:
     AllowRGBTags: true
     #Allow the use of "[font=uniform]" Font tags (1.16+)
     AllowFontTags: true
+    #Define custom RGB formats using regex
+    #Matching group 1-6 should be EACH of the characters in the RGB hex code
+    #For example, the regex for "#123456" should be
+    #"#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
+    AdditionalRGBFormats: 
+      - "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
   BungeecordUnknownItem:
     ReplaceItem: BARRIER
     DisplayName: "&cUnknown Item {Type}"

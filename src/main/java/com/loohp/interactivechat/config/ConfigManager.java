@@ -359,8 +359,9 @@ public class ConfigManager {
 		InteractiveChat.useBukkitDisplayName = getConfig().getBoolean("Chat.UseBukkitDisplayName");
 		InteractiveChat.useEssentialsNicknames = getConfig().getBoolean("Chat.UseEssentialsNicknames");
 		
-		InteractiveChat.rgbTags = getConfig().contains("Settings.FormattingTags.AllowRGBTags") ? getConfig().getBoolean("Settings.FormattingTags.AllowRGBTags") : getConfig().getBoolean("Settings.ForamttingTags.AllowRGBTags");
-		InteractiveChat.fontTags = getConfig().contains("Settings.FormattingTags.AllowFontTags") ? getConfig().getBoolean("Settings.FormattingTags.AllowFontTags") : getConfig().getBoolean("Settings.ForamttingTags.AllowFontTags");
+		InteractiveChat.rgbTags = getConfig().getBoolean("Settings.FormattingTags.AllowRGBTags");
+		InteractiveChat.fontTags = getConfig().getBoolean("Settings.FormattingTags.AllowFontTags");
+		InteractiveChat.additionalRGBFormats = getConfig().getStringList("Settings.FormattingTags.AdditionalRGBFormats").stream().map(each -> Pattern.compile(each)).collect(Collectors.toList());
 		
 		InteractiveChat.language = getConfig().getString("Settings.Language");
 		

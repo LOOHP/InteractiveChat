@@ -425,7 +425,7 @@ public class Events implements Listener {
 		}
 	}
 	
-	private Set<InventoryClickEvent> cancelledInventory = new HashSet<>();
+	private static Set<InventoryClickEvent> cancelledInventory = new HashSet<>();
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInventoryClick(InventoryClickEvent event) {

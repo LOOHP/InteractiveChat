@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -40,7 +41,6 @@ import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.google.common.collect.MapMaker;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
@@ -220,8 +220,8 @@ public class InteractiveChat extends JavaPlugin {
 	public static ConcurrentCacheHashMap<String, Inventory> inventoryDisplay1Lower = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
 	public static ConcurrentCacheHashMap<String, Inventory> enderDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
 	public static ConcurrentCacheHashMap<String, ItemStack> mapDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
-	public static Set<Inventory> upperSharedInventory = Collections.newSetFromMap(new MapMaker().concurrencyLevel(16).weakKeys().makeMap());
-	public static Set<Inventory> lowerSharedInventory = Collections.newSetFromMap(new MapMaker().concurrencyLevel(16).weakKeys().makeMap());
+	public static Set<Inventory> upperSharedInventory = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+	public static Set<Inventory> lowerSharedInventory = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 	
 	public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	

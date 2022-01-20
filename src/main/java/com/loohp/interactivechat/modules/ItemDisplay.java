@@ -230,9 +230,11 @@ public class ItemDisplay {
 					if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
 						empty = InteractiveChat.itemFrame2.clone();
 					}
-					ItemMeta emptyMeta = empty.getItemMeta();
-					emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-					empty.setItemMeta(emptyMeta);
+					if (empty.hasItemMeta()) {
+						ItemMeta emptyMeta = empty.getItemMeta();
+						emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+						empty.setItemMeta(emptyMeta);
+					}
 					for (int j = 0; j < inv.getSize(); j++) {
 						inv.setItem(j, empty);
 					}

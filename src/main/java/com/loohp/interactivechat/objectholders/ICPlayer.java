@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 
 import com.loohp.interactivechat.InteractiveChat;
@@ -26,18 +27,16 @@ public class ICPlayer extends OfflineICPlayer {
 	private Map<String, String> remotePlaceholders;
 
 	protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
-		super(uuid, selectedSlot, experienceLevel, equipment, inventory, enderchest);
+		super(uuid, selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
 		this.remoteServer = server;
 		this.remoteName = name;
-		this.rightHanded = rightHanded;
 		this.remotePlaceholders = new HashMap<>();
 	}
 	
 	protected ICPlayer(Player player) {
-		super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
+		super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
 		this.remoteServer = EMPTY_SERVER_REPRESENTATION;
 		this.remoteName = player.getName();
-		this.rightHanded = InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT);
 		this.remotePlaceholders = new HashMap<>();
 	}
 
@@ -83,6 +82,7 @@ public class ICPlayer extends OfflineICPlayer {
 		return uuid;
 	}
 
+	@Override
 	public boolean isRightHanded() {
 		if (InteractiveChat.version.isOld()) {
 			return true;
@@ -90,13 +90,13 @@ public class ICPlayer extends OfflineICPlayer {
 			return isLocal() ? getLocalPlayer().getMainHand().name().equalsIgnoreCase("RIGHT") : rightHanded;
 		}
 	}
-	
-	protected void setRemoteEquipment(ICPlayerEquipment equipment) {
-		this.remoteEquipment = equipment;
-	}
 
 	public void setRemoteRightHanded(boolean rightHanded) {
 		this.rightHanded = rightHanded;
+	}
+	
+	protected void setRemoteEquipment(ICPlayerEquipment equipment) {
+		this.remoteEquipment = equipment;
 	}
 	
 	@Override
@@ -129,6 +129,16 @@ public class ICPlayer extends OfflineICPlayer {
 	
 	public void setRemoteInventory(Inventory inventory) {
 		remoteInventory = inventory;
+	}
+	
+	@Override
+	public ItemStack getMainHandItem() {
+		return getInventory().getItem(getSelectedSlot());
+	}
+	
+	@Override
+	public ItemStack getOffHandItem() {
+		return getInventory().getSize() > 40 ? getInventory().getItem(40) : null;
 	}
 	
 	@Override

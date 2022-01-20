@@ -5,29 +5,32 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class OfflineICPlayer {
 	
 	protected final UUID uuid;
 	protected final String offlineName;
 	protected int selectedSlot;
+	protected boolean rightHanded;
 	protected int experienceLevel;
 	protected EntityEquipment remoteEquipment;
 	protected Inventory remoteInventory;
 	protected Inventory remoteEnderchest;
 	
-	protected OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+	protected OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
 		this.uuid = uuid;
 		this.offlineName = offlineName;
 		this.selectedSlot = selectedSlot;
+		this.rightHanded = rightHanded;
 		this.experienceLevel = experienceLevel;
 		this.remoteEquipment = equipment;
 		this.remoteInventory = inventory;
 		this.remoteEnderchest = enderchest;
 	}
 	
-	protected OfflineICPlayer(UUID uuid, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
-		this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, experienceLevel, equipment, inventory, enderchest);
+	protected OfflineICPlayer(UUID uuid, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+		this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
 	}
 
 	public UUID getUniqueId() {
@@ -41,6 +44,10 @@ public class OfflineICPlayer {
 	public int getSelectedSlot() {
 		return selectedSlot;
 	}
+	
+	public boolean isRightHanded() {
+		return rightHanded;
+	}
 
 	public int getExperienceLevel() {
 		return experienceLevel;
@@ -52,6 +59,14 @@ public class OfflineICPlayer {
 
 	public Inventory getInventory() {
 		return remoteInventory;
+	}
+	
+	public ItemStack getMainHandItem() {
+		return getInventory().getItem(getSelectedSlot());
+	}
+	
+	public ItemStack getOffHandItem() {
+		return getInventory().getSize() > 40 ? getInventory().getItem(40) : null;
 	}
 	
 	public Inventory getEnderChest() {

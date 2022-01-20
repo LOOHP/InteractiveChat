@@ -174,6 +174,7 @@ public class ICPlayerFactory {
 			NamedTag nbtData = NBTUtil.read(dat);
 			CompoundTag rootTag = (CompoundTag) nbtData.getTag();
 			int selectedSlot = rootTag.getInt("SelectedItemSlot");
+			boolean rightHanded = rootTag.containsKey("LeftHanded") ? !rootTag.getBoolean("LeftHanded") : true;
 			int xpLevel = rootTag.getInt("XpLevel");
 			ICPlayerEquipment equipment = new ICPlayerEquipment();
 			Inventory inventory = Bukkit.createInventory(null, 45);
@@ -234,7 +235,7 @@ public class ICPlayerFactory {
 					xpLevel = expData.getLevel();
 				}
 			}
-			return new OfflineICPlayer(uuid, playerName, selectedSlot, xpLevel, equipment, inventory, enderchest);
+			return new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest);
 		} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 			return null;

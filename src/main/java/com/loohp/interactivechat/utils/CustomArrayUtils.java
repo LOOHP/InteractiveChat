@@ -27,14 +27,12 @@ public class CustomArrayUtils {
 		if (!src.getClass().isArray()) {
 			return false;
 		}
-		boolean isNull = true;
 		for (int i = 0; i < Array.getLength(src); i++) {
 			if (Array.get(src, i) != null) {
-				isNull = false;
-				break;
+				return false;
 			}
 		}
-		return isNull;
+		return true;
 	}
 
 }

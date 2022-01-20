@@ -137,6 +137,7 @@ public class OutChatPacket implements Listener {
 	        			try {
 	        				component = t.convertFrom(packet.getModifier().read(i));
 	        			} catch (Throwable e) {
+	        				System.err.println(t.toString(packet.getModifier().read(i)));
 	        				e.printStackTrace();
 	        	        	service.send(packet, reciever, messageUUID);
 	        	        	return;

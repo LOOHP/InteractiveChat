@@ -44,9 +44,10 @@ Settings:
   #Bungeecord Mode
   Bungeecord: false
   #Add chat listening plugins here for compatibility
+  #Add their chat listening class to this list if InteractiveChat is conflicting with a plugin that reads input from chat
+  #You DO NOT have to add normal chat formatting plugins in this list
   #Format: "Plugin:<REGEX of Plugin Name>, Class:<REGEX of Class Name>, EventPriority:<String of EventPriority>"
   ChatListeningPlugins: []
-  #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   UseAccurateSenderParser: true
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false

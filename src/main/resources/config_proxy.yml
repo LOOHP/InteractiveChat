@@ -2,7 +2,6 @@
 ConfigVersion: "${project.version}"
 
 Settings:
-  #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   #Make sure this setting is the same on all servers in your network
   UseAccurateSenderParser: true
 

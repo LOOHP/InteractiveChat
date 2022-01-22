@@ -73,7 +73,7 @@ Settings:
     #Matching group 1-6 should be EACH of the characters in the RGB hex code
     #For example, the regex for "#123456" should be
     #"#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
-    AdditionalRGBFormats: 
+    AdditionalRGBFormats:
       - "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
   BungeecordUnknownItem:
     ReplaceItem: BARRIER
@@ -119,7 +119,7 @@ Settings:
       Enable: true
       #Text for the hover message
       #Supports multiple lines
-      Text: 
+      Text:
         - "&cUnable to parse placeholder.."
     #Click action settings
     Click:
@@ -159,7 +159,7 @@ Commands:
   #SUGGEST_COMMAND
   Action: SUGGEST_COMMAND
 
-  HoverMessage: 
+  HoverMessage:
     - "&eClick to use command!"
 
 Chat:
@@ -189,7 +189,7 @@ Chat:
   #These are currently unused
   UnknownPlayerMentionSubtitle: "&fSomeone had mentioned you in the chat!"
   UnknownPlayerMentionActionbar: ""
-  
+
   #The subtitle and actionbar  to show when mentioned
   #Note that actionbar might not work if your version of Minecraft does not support it
   #Blank to disable
@@ -202,7 +202,7 @@ Chat:
   MentionToast: "&3%player_name% &fmentioned you!"
 
   #Use the bossbar to show a message (MC 1.9+)
-  MentionBossBar: 
+  MentionBossBar:
     #Blank to disable
     Text: "&3%player_name% &fmentioned you!"
     #Color of the bossbar if supported
@@ -269,7 +269,7 @@ ItemDisplay:
     HoverEnabled: true
     #Alternative hover message to show if HoverEnabled is false
     #Leave blank to disable
-    AlternativeHoverMessage: 
+    AlternativeHoverMessage:
       - ""
     #The item used for the frame of the Item GUI
     Frame:
@@ -295,7 +295,7 @@ ItemDisplay:
       #The title of the inventory view
       InventoryTitle: "Item Preview"
 
-  Inventory:    
+  Inventory:
     #Enable players to show their inventory
     Enabled: true
     #The keyword to trigger the inventory display function (in regex)
@@ -324,7 +324,7 @@ ItemDisplay:
     #This description is used when listing placeholders 
     Description: "&bShow your Inventory in the chat!"
 
-  EnderChest:    
+  EnderChest:
     #Enable players to show their ender chest
     Enabled: true
     #The keyword to trigger the ender chest display function (in regex)
@@ -336,7 +336,7 @@ ItemDisplay:
     #Cooldown of this placeholder
     Cooldown: 0
     #Hover Message
-    HoverMessage: 
+    HoverMessage:
       - "&bClick to view!"
     #This name is used to identify your placeholder
     #It must be a non-regex form of your keyword and should satisfy your keyword
@@ -360,7 +360,7 @@ Player:
     Enable: true
     #The text to show in the hover message
     #Supports multiple lines
-    Text: 
+    Text:
       - '&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%'
       - '&eBiome: &6%player_biome_capitalized%'
       - '&cHealth: %player_health_rounded%&7/%player_max_health_rounded%'
@@ -384,7 +384,7 @@ Player:
 TabCompletion:
   #This only works on command tab completions
   #Doesn't work on chat tab completions or on versions on or below 1.12.2
-  PlayerNameToolTip: 
+  PlayerNameToolTip:
     Enabled: true
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
@@ -407,7 +407,7 @@ CustomPlaceholders:
       Enable: true
       #Text for the hover message
       #Supports multiple lines
-      Text: 
+      Text:
         - "&6%player_name%'s Balance: \\$%vault_eco_balance_commas%"
     #Click action settings
     Click:
@@ -443,7 +443,7 @@ CustomPlaceholders:
     Cooldown: 0
     Hover:
       Enable: true
-      Text: 
+      Text:
         - "&eVisit the author's website!"
         - "&bClick me!"
     Click:
@@ -479,7 +479,7 @@ CustomPlaceholders:
     Cooldown: 0
     Hover:
       Enable: true
-      Text: 
+      Text:
         - "&b$1"
     Click:
       Enable: true

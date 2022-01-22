@@ -1,1 +1,8 @@
-{"id":"interactivechatvelocity","name":"InteractiveChatVelocity","version":"${project.version}","authors":["LOOHP"],"dependencies":[],"main":"com.loohp.interactivechat.proxy.velocity.InteractiveChatVelocity"}
+{
+  "id": "interactivechatvelocity",
+  "name": "InteractiveChatVelocity",
+  "version": "${project.version}",
+  "authors": ["LOOHP"],
+  "dependencies": [],
+  "main": "com.loohp.interactivechat.proxy.velocity.InteractiveChatVelocity"
+}

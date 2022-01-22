@@ -1,40 +1,5 @@
 package com.loohp.interactivechat.proxy.velocity;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Filter;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
-import org.slf4j.Logger;
-
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -79,7 +44,6 @@ import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.packet.Chat;
-
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -87,42 +51,66 @@ import io.netty.channel.ChannelPromise;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Filter;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
+import org.slf4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class InteractiveChatVelocity {
-	
-	public static final int BSTATS_PLUGIN_ID = 10945;
-	public static final String CONFIG_ID = "config";
-	
-	public static InteractiveChatVelocity plugin = null;
-	protected static Random random = new Random();
-	public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
-	private static volatile boolean filtersAdded = false;
-	
-	private static Map<Integer, byte[]> incomming = new HashMap<>();
-	
-	protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
-	
-	private static Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
-	
-	public static List<String> parseCommands = new ArrayList<>();
-	
-	public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
-	
-	public static boolean useAccurateSenderFinder = true;
-	
-	public static int delay = 200;
-	protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
-	
-	private static ProxyMessageForwardingHandler messageForwardingHandler;
-	public static ProxyPlayerCooldownManager playerCooldownManager;
-	
-	private static ThreadPoolExecutor pluginMessageHandlingExecutor;
-	
-	public static ProxyServer proxyServer;
-	private VelocityPluginDescription description;
-    private Logger logger;
-    private File dataFolder;
-    private Metrics.Factory metricsFactory;
+
+    public static final int BSTATS_PLUGIN_ID = 10945;
+    public static final String CONFIG_ID = "config";
+
+    public static InteractiveChatVelocity plugin = null;
+    public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
+    public static List<String> parseCommands = new ArrayList<>();
+    public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
+    public static boolean useAccurateSenderFinder = true;
+    public static int delay = 200;
+    public static ProxyPlayerCooldownManager playerCooldownManager;
+    public static ProxyServer proxyServer;
+    protected static Random random = new Random();
+    protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
+    protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
+    private static final boolean filtersAdded = false;
+    private static final Map<Integer, byte[]> incomming = new HashMap<>();
+    private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
+    private static ProxyMessageForwardingHandler messageForwardingHandler;
+    private static ThreadPoolExecutor pluginMessageHandlingExecutor;
+    private VelocityPluginDescription description;
+    private final Logger logger;
+    private final File dataFolder;
+    private final Metrics.Factory metricsFactory;
 
     @Inject
     public InteractiveChatVelocity(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, @DataDirectory Path dataDirectory) {
@@ -132,549 +120,549 @@ public class InteractiveChatVelocity {
         this.dataFolder = dataDirectory.toFile();
     }
 
+    public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
+        return Collections.unmodifiableMap(serverInteractiveChatInfo);
+    }
+
+    public static CompletableFuture<Boolean> hasPermission(CommandSource sender, String permission) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (!(sender instanceof Player)) {
+            future.complete(sender.hasPermission(permission));
+            return future;
+        }
+
+        Player player = (Player) sender;
+        if (player.hasPermission(permission)) {
+            future.complete(true);
+        } else {
+            if (!player.getCurrentServer().isPresent()) {
+                future.complete(false);
+            } else {
+                proxyServer.getScheduler().buildTask(plugin, () -> {
+                    try {
+                        int id = random.nextInt();
+                        PluginMessageSendingVelocity.checkPermission(player, permission, id);
+                        long start = System.currentTimeMillis() + delay + 500;
+                        while (System.currentTimeMillis() < start) {
+                            Boolean value = permissionChecks.remove(id);
+                            if (value != null) {
+                                future.complete(value);
+                                return;
+                            } else {
+                                TimeUnit.NANOSECONDS.sleep(500000);
+                            }
+                        }
+                        future.complete(false);
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).schedule();
+            }
+        }
+        return future;
+    }
+
+    public static void sendMessage(Object sender, Component component) {
+        NativeAdventureConverter.sendNativeAudienceMessage(sender, component, false);
+    }
+
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-    	plugin = this;
-    	
-    	try {
-			JSONObject json = (JSONObject) new JSONParser().parse(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("velocity-plugin.json"), StandardCharsets.UTF_8));
-			description = new VelocityPluginDescription(json);
-		} catch (IOException | ParseException e1) {
-			e1.printStackTrace();
-		}
-        
-    	if (!getDataFolder().exists()) {
-            getDataFolder().mkdir();
-		}
+        plugin = this;
+
         try {
-			Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
-		} catch (IOException | InvalidConfigurationException e) {
-			e.printStackTrace();
-			return;
-		}
+            JSONObject json = (JSONObject) new JSONParser().parse(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("velocity-plugin.json"), StandardCharsets.UTF_8));
+            description = new VelocityPluginDescription(json);
+        } catch (IOException | ParseException e1) {
+            e1.printStackTrace();
+        }
+
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdir();
+        }
+        try {
+            Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+            return;
+        }
         loadConfig();
-        
+
         CommandsVelocity.createBrigadierCommand();
-        
+
         proxyServer.getChannelRegistrar().register(ICChannelIdentifier.INSTANCE);
-        
+
         getLogger().info(TextColor.GREEN + "[InteractiveChat] Registered Plugin Messaging Channels!");
-        
+
         Metrics metrics = metricsFactory.make(this, BSTATS_PLUGIN_ID);
         Charts.setup(metrics);
-        
+
         playerCooldownManager = new ProxyPlayerCooldownManager(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
-        
-		messageForwardingHandler = new ProxyMessageForwardingHandler((info, component) -> {
-			Player player = proxyServer.getPlayer(info.getPlayer()).get();
-			ServerConnection server = player.getCurrentServer().get();
-			proxyServer.getScheduler().buildTask(plugin, () -> {
-				try {
-					if (player != null && server != null) {
-						PluginMessageSendingVelocity.requestMessageProcess(player, server.getServer(), component, info.getId());
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}).delay(delay + 50, TimeUnit.MILLISECONDS).schedule();
-		}, (info, component) -> {
-			Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition(), null);
-    		Optional<Player> optplayer = getServer().getPlayer(info.getPlayer());
-    		if (optplayer.isPresent()) {
-    			ConnectedPlayer userConnection = (ConnectedPlayer) optplayer.get();				    
-        		userConnection.getConnection().getChannel().write(chatPacket);
-    		}
-		}, uuid -> {
-			return proxyServer.getPlayer(uuid).isPresent();
-		}, uuid -> {
-			Optional<ServerConnection> optCurrentServer = proxyServer.getPlayer(uuid).get().getCurrentServer();
-			return optCurrentServer.isPresent() && hasInteractiveChat(optCurrentServer.get().getServer());
-		}, () -> (long) delay + 2000);
-        
-		ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy Async PluginMessage Processing Thread #%d").build();
-		pluginMessageHandlingExecutor = new ThreadPoolExecutor(8, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(true), factory);
-		
+
+        messageForwardingHandler = new ProxyMessageForwardingHandler((info, component) -> {
+            Player player = proxyServer.getPlayer(info.getPlayer()).get();
+            ServerConnection server = player.getCurrentServer().get();
+            proxyServer.getScheduler().buildTask(plugin, () -> {
+                try {
+                    if (player != null && server != null) {
+                        PluginMessageSendingVelocity.requestMessageProcess(player, server.getServer(), component, info.getId());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).delay(delay + 50, TimeUnit.MILLISECONDS).schedule();
+        }, (info, component) -> {
+            Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition(), null);
+            Optional<Player> optplayer = getServer().getPlayer(info.getPlayer());
+            if (optplayer.isPresent()) {
+                ConnectedPlayer userConnection = (ConnectedPlayer) optplayer.get();
+                userConnection.getConnection().getChannel().write(chatPacket);
+            }
+        }, uuid -> {
+            return proxyServer.getPlayer(uuid).isPresent();
+        }, uuid -> {
+            Optional<ServerConnection> optCurrentServer = proxyServer.getPlayer(uuid).get().getCurrentServer();
+            return optCurrentServer.isPresent() && hasInteractiveChat(optCurrentServer.get().getServer());
+        }, () -> (long) delay + 2000);
+
+        ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatProxy Async PluginMessage Processing Thread #%d").build();
+        pluginMessageHandlingExecutor = new ThreadPoolExecutor(8, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(true), factory);
+
         getLogger().info(TextColor.GREEN + "[InteractiveChat] InteractiveChat (Velocity) has been enabled!");
-        
+
         run();
     }
-    
+
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-    	try {
-			messageForwardingHandler.close();
-			pluginMessageHandlingExecutor.shutdown();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	getLogger().info(TextColor.RED + "[InteractiveChat] InteractiveChat (Velocity) has been disabled!");
+        try {
+            messageForwardingHandler.close();
+            pluginMessageHandlingExecutor.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getLogger().info(TextColor.RED + "[InteractiveChat] InteractiveChat (Velocity) has been disabled!");
     }
-    
+
     public File getDataFolder() {
-    	return dataFolder;
+        return dataFolder;
     }
-    
+
     public VelocityPluginDescription getDescription() {
-    	return description;
+        return description;
     }
-    
+
     public Logger getLogger() {
-    	return logger;
+        return logger;
     }
-    
+
     public ProxyServer getServer() {
-    	return proxyServer;
+        return proxyServer;
     }
-    
-	public void loadConfig() {
-		Config config = Config.getConfig(CONFIG_ID);
-		try {
-			config.reload();
-		} catch (InvalidConfigurationException | IOException e) {
-			e.printStackTrace();
-		}
-		
-		parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
-		useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
+
+    public void loadConfig() {
+        Config config = Config.getConfig(CONFIG_ID);
+        try {
+            config.reload();
+        } catch (InvalidConfigurationException | IOException e) {
+            e.printStackTrace();
+        }
+
+        parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
+        useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
     }
-    
-    public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
-		return Collections.unmodifiableMap(serverInteractiveChatInfo);
-	}
-    
+
     private void addFilters() {
-    	try {
-    		org.apache.logging.log4j.Logger logger = LogManager.getRootLogger();
-	    	LogFilter filter = new LogFilter();
-	    	Method method = logger.getClass().getMethod("addFilter", Filter.class);
-	    	method.invoke(logger, filter);
-	    } catch (Exception e) {
-	    	getLogger().info(TextColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
-	    }
+        try {
+            org.apache.logging.log4j.Logger logger = LogManager.getRootLogger();
+            LogFilter filter = new LogFilter();
+            Method method = logger.getClass().getMethod("addFilter", Filter.class);
+            method.invoke(logger, filter);
+        } catch (Exception e) {
+            getLogger().info(TextColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
+        }
     }
-	
-	public static CompletableFuture<Boolean> hasPermission(CommandSource sender, String permission) {
-		CompletableFuture<Boolean> future = new CompletableFuture<>();
-		if (!(sender instanceof Player)) {
-			future.complete(sender.hasPermission(permission));
-			return future;
-		}
-		
-		Player player = (Player) sender;
-		if (player.hasPermission(permission)) {
-			future.complete(true);
-		} else {
-			if (!player.getCurrentServer().isPresent()) {
-				future.complete(false);
-			} else {
-				proxyServer.getScheduler().buildTask(plugin, () -> {
-					try {
-    					int id = random.nextInt();
-						PluginMessageSendingVelocity.checkPermission(player, permission, id);
-						long start = System.currentTimeMillis() + delay + 500;
-						while (System.currentTimeMillis() < start) {
-							Boolean value = permissionChecks.remove(id);
-							if (value != null) {
-								future.complete(value);
-								return;
-							} else {
-								TimeUnit.NANOSECONDS.sleep(500000);
-							}
-						}
-						future.complete(false);
-					} catch (IOException | InterruptedException e) {
-						e.printStackTrace();
-					}
-				}).schedule();
-			}
-		}
-		return future;
-	}
 
-	private void run() {
-		proxyServer.getScheduler().buildTask(plugin, () -> {
-			try {
-				PluginMessageSendingVelocity.sendPlayerListData();
-				PluginMessageSendingVelocity.sendDelayAndScheme();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			long now = System.currentTimeMillis();
-			for (Map<String, Long> list : forwardedMessages.values()) {
-				Iterator<Long> itr = list.values().iterator();
-				while (itr.hasNext()) {
-					long time = itr.next();
-					if (time - 5000 > now) {
-						itr.remove();
-					}
-				}
-			}
-		}).delay(5000, TimeUnit.MILLISECONDS).schedule();
-	}
+    private void run() {
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            try {
+                PluginMessageSendingVelocity.sendPlayerListData();
+                PluginMessageSendingVelocity.sendDelayAndScheme();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-	@Subscribe
-	public void onReceive(PluginMessageEvent event) {
-		if (!event.getIdentifier().getId().equals("interchat:main")) {
-			return;
-		}
-		
-		ChannelMessageSource source = event.getSource();
-		
-		if (!(source instanceof ServerConnection)) {
-			return;
-		}
-		
-		event.setResult(ForwardResult.handled());
+            long now = System.currentTimeMillis();
+            for (Map<String, Long> list : forwardedMessages.values()) {
+                Iterator<Long> itr = list.values().iterator();
+                while (itr.hasNext()) {
+                    long time = itr.next();
+                    if (time - 5000 > now) {
+                        itr.remove();
+                    }
+                }
+            }
+        }).delay(5000, TimeUnit.MILLISECONDS).schedule();
+    }
 
-		RegisteredServer server = ((ServerConnection) source).getServer();
-		String senderServer = server.getServerInfo().getName();
-		
-		byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
-		ByteArrayDataInput in = ByteStreams.newDataInput(packet);
-		int packetNumber = in.readInt();
-		int packetId = in.readShort();
-		
-		if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
-			boolean isEnding = in.readBoolean();
-	        byte[] data = new byte[packet.length - 7];
-	        in.readFully(data);
-	        
-	        byte[] chain = incomming.remove(packetNumber);
-	    	if (chain != null) {
-	    		ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-	    		buff.put(chain);
-	    		buff.put(data);
-	    		data = buff.array();
-	    	}
-	        
-	        if (!isEnding) {
-	        	incomming.put(packetNumber, data);
-	        	return;
-	        }
-	        
-	        byte[] finalData = data;
-	        pluginMessageHandlingExecutor.submit(() -> {
-	        	try {
-		        	ByteArrayDataInput input = ByteStreams.newDataInput(finalData);	        	
-			        switch (packetId) {
-			        case 0x07:
-			        	int cooldownType = input.readByte();
-			        	switch (cooldownType) {
-			        	case 0:
-			        		UUID uuid = DataTypeIO.readUUID(input);
-			        		long time = input.readLong();
-			        		playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
-			        		break;
-			        	case 1:
-			        		uuid = DataTypeIO.readUUID(input);
-			        		UUID internalId = DataTypeIO.readUUID(input);
-			        		time = input.readLong();
-			        		playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
-			        		break;
-			        	}
-			        	for (RegisteredServer eachServer : getServer().getAllServers()) {
-							if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
-								eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, finalData);
-								pluginMessagesCounter.incrementAndGet();
-							}
-						}
-			        	break;
-			        case 0x08:
-			        	UUID messageId = DataTypeIO.readUUID(input);
-			        	String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        	messageForwardingHandler.recievedProcessedMessage(messageId, component);
-			        	break;
-			        case 0x09:
-			        	loadConfig();
-			        	break;
-			        case 0x0B:
-			        	int id = input.readInt();
-			        	boolean permissionValue = input.readBoolean();
-			        	permissionChecks.put(id, permissionValue);
-			        	break;
-			        case 0x0C:
-			        	int size1 = input.readInt();
-			        	List<ICPlaceholder> list = new ArrayList<>(size1);
-			        	for (int i = 0; i < size1; i++) {
-			        		boolean isBulitIn = input.readBoolean();
-			        		if (isBulitIn) {
-			        			String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			long cooldown = input.readLong();
-			        			list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
-			        		} else {
-			        			int customNo = input.readInt();
-			        			ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());	
-			        			String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			boolean parseKeyword = input.readBoolean();
-			        			long cooldown = input.readLong();
-			        			boolean hoverEnabled = input.readBoolean();
-			        			String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			boolean clickEnabled = input.readBoolean();
-			        			String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			boolean replaceEnabled = input.readBoolean();
-			        			String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-			        			String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+    @Subscribe
+    public void onReceive(PluginMessageEvent event) {
+        if (!event.getIdentifier().getId().equals("interchat:main")) {
+            return;
+        }
 
-			        			list.add(new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
-			        		}
-			        	}
-			        	placeholderList.put(server.getServerInfo().getName(), list);
-			        	playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
-			        	PluginMessageSendingVelocity.forwardPlaceholderList(list, server);
-			        	break;
-			        case 0x0D:
-			        	UUID uuid2 = DataTypeIO.readUUID(input);
-			        	PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
-			        	break;
-			        case 0x10:
-			        	UUID requestUUID = DataTypeIO.readUUID(input);
-			        	int requestType = input.readByte();
-			        	switch (requestType) {
-			        	case 0:
-			        		PluginMessageSendingVelocity.respondPlayerListRequest(requestUUID, server);
-			        		break;
-		        		default:
-		        			break;
-			        	}
-		        	}
-		        } catch (IOException e) {
-					e.printStackTrace();
-				}
-	        });
-		} else {
-			pluginMessageHandlingExecutor.submit(() -> {
-				for (RegisteredServer eachServer : getServer().getAllServers()) {
-					if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
-						eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
-						pluginMessagesCounter.incrementAndGet();
-					}
-				}
-			});
-		}
-	}
-	
-	@Subscribe
-	public void onBungeeChat(PlayerChatEvent event) {
-		if (!event.getResult().isAllowed()) {
-			return;
-		}
-		Player player = event.getPlayer();
-		UUID uuid = player.getUniqueId();
-		String message = event.getMessage();
-		
-		if (!player.getCurrentServer().isPresent()) {
-			return;
-		}
-		
-		String newMessage = event.getMessage();
-		
-		boolean hasInteractiveChat = false;
-		BackendInteractiveChatData data = serverInteractiveChatInfo.get(player.getCurrentServer().get().getServerInfo().getName());
-		if (data != null) {
-			hasInteractiveChat = data.hasInteractiveChat();
-		}
-		
-		if (newMessage.startsWith("/")) {
-			if (hasInteractiveChat) {
-				for (String parsecommand : InteractiveChatVelocity.parseCommands) {
-					//getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
-					if (newMessage.matches(parsecommand)) {
-						String command = newMessage.trim();
-						String uuidmatch = "<cmd=" + uuid.toString() + ">";
-						command += " " + uuidmatch;
-						event.setResult(ChatResult.message(command));
-						break;
-					}
-				}
-			}
-		} else {
-			if (InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
-				String uuidmatch = "<chat=" + uuid.toString() + ">";
-				message += " " + uuidmatch;
-				event.setResult(ChatResult.message(message));
-			}
+        ChannelMessageSource source = event.getSource();
 
-			proxyServer.getScheduler().buildTask(plugin, () -> {
-				Map<String, Long> messages = forwardedMessages.get(uuid);
-				if (messages != null && messages.remove(newMessage) != null) {
-					try {
-						PluginMessageSendingVelocity.sendMessagePair(uuid, newMessage);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}).delay(100, TimeUnit.MILLISECONDS).schedule();
-		}
-	}
-	
-	@Subscribe
-	public void onServerConnected(ServerPostConnectEvent event) {
-		Player player = event.getPlayer();
-		
-		VelocityServerConnection serverConnection = ((ConnectedPlayer) event.getPlayer()).getConnectedServer();
-		ChannelPipeline pipeline = serverConnection.ensureConnected().getChannel().pipeline();
+        if (!(source instanceof ServerConnection)) {
+            return;
+        }
 
-		pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
-			@Override
-			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
-				try {
-					if (obj instanceof Chat) {
-						Chat packet = (Chat) obj;
-						UUID uuid = player.getUniqueId();
-						String message = packet.getMessage();
-						byte position = packet.getType();
-						if ((position == 0 || position == 1) && uuid != null && message != null) {
-							Map<String, Long> list = forwardedMessages.get(uuid);
-							if (list != null) {
-								list.put(message, System.currentTimeMillis());
-							}
-						}
-					}
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-				super.write(channelHandlerContext, obj, channelPromise);
-			}
-		});
-	}
+        event.setResult(ForwardResult.handled());
 
-	@Subscribe
-	public void onPlayerConnected(PostLoginEvent event) {
-		if (!filtersAdded) {
-			addFilters();
-		}
-		
-		Player player = event.getPlayer();
+        RegisteredServer server = ((ServerConnection) source).getServer();
+        String senderServer = server.getServerInfo().getName();
 
-		forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
-		
-		if (player.hasPermission("interactivechat.backendinfo")) {
-			String proxyVersion = getDescription().getVersion();
-			for (BackendInteractiveChatData data  : serverInteractiveChatInfo.values()) {
-				if (data.isOnline() && data.getProtocolVersion() != Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION) {
-					String msg = TextColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running a version of InteractiveChat which has the same plugin messaging protocol version as the proxy!";
-					HoverEvent<Component> hoverComponent = Component.text(TextColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + TextColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")").asHoverEvent();
-					TextComponent text = Component.text(msg).hoverEvent(hoverComponent);
-					sendMessage(player, text);
-					sendMessage(getServer().getConsoleCommandSource(), text);
-				}
-			}
-		}
-		
-		ConnectedPlayer userConnection = (ConnectedPlayer) player;
-		ChannelPipeline pipeline = userConnection.getConnection().getChannel().pipeline();
+        byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
+        ByteArrayDataInput in = ByteStreams.newDataInput(packet);
+        int packetNumber = in.readInt();
+        int packetId = in.readShort();
 
-		pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
-			@Override
-			public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
-				try {
-					if (obj instanceof Chat) {
-						Chat packet = (Chat) obj;
-						String message = packet.getMessage();
-						byte position = packet.getType();
-						if ((position == 0 || position == 1) && message != null) {
-							if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-								packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
-								if (Registry.ID_PATTERN.matcher(message).find()) {
-									packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
-								}
-							} else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
-								messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
-								return;
-							}
-						}
-					}
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-				super.write(channelHandlerContext, obj, channelPromise);
-			}
-		});
-	}
+        if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
+            boolean isEnding = in.readBoolean();
+            byte[] data = new byte[packet.length - 7];
+            in.readFully(data);
 
-	@Subscribe
-	public void onSwitch(ServerConnectedEvent event) {
-		RegisteredServer to = event.getServer();
-		Player player = event.getPlayer();
-		UUID uuid = player.getUniqueId();
-		if (!placeholderList.containsKey(to.getServerInfo().getName())) {
-			try {
-				PluginMessageSendingVelocity.requestPlaceholderList(to);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		try {
-			PluginMessageSendingVelocity.sendPlayerListData();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
-		if (universalTime >= 0) {
-			try {
-				PluginMessageSendingVelocity.sendPlayerUniversalCooldown(to, uuid, universalTime);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		List<ICPlaceholder> placeholders = placeholderList.get(to.getServerInfo().getName());
-		if (placeholders != null) {
-			for (ICPlaceholder placeholder : placeholders) {
-				long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getInternalId());
-				if (placeholderTime >= 0) {
-					try {
-						PluginMessageSendingVelocity.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		proxyServer.getScheduler().buildTask(plugin, () -> {
-			try {
-				PluginMessageSendingVelocity.sendDelayAndScheme();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}).schedule();
-		proxyServer.getScheduler().buildTask(plugin, () -> {
-			if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
-				sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
-			}
-		}).delay(100, TimeUnit.MILLISECONDS).schedule();
-	}
+            byte[] chain = incomming.remove(packetNumber);
+            if (chain != null) {
+                ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
+                buff.put(chain);
+                buff.put(data);
+                data = buff.array();
+            }
 
-	@Subscribe
-	public void onLeave(DisconnectEvent event) {
-		forwardedMessages.remove(event.getPlayer().getUniqueId());
-		proxyServer.getScheduler().buildTask(plugin, () -> {
-			try {
-				PluginMessageSendingVelocity.sendPlayerListData();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}).delay(1000, TimeUnit.MILLISECONDS).schedule();
-	}
-	
-	private boolean hasInteractiveChat(RegisteredServer server) {
-		if (server == null || server.getServerInfo() == null) {
-			return false;
-		}
-		BackendInteractiveChatData data = serverInteractiveChatInfo.get(server.getServerInfo().getName());
-		if (data == null) {
-			return false;
-		}
-		return data.hasInteractiveChat();
-	}
-	
-	public static void sendMessage(Object sender, Component component) {
-		NativeAdventureConverter.sendNativeAudienceMessage(sender, component, false);
-	}
+            if (!isEnding) {
+                incomming.put(packetNumber, data);
+                return;
+            }
+
+            byte[] finalData = data;
+            pluginMessageHandlingExecutor.submit(() -> {
+                try {
+                    ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
+                    switch (packetId) {
+                        case 0x07:
+                            int cooldownType = input.readByte();
+                            switch (cooldownType) {
+                                case 0:
+                                    UUID uuid = DataTypeIO.readUUID(input);
+                                    long time = input.readLong();
+                                    playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
+                                    break;
+                                case 1:
+                                    uuid = DataTypeIO.readUUID(input);
+                                    UUID internalId = DataTypeIO.readUUID(input);
+                                    time = input.readLong();
+                                    playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
+                                    break;
+                            }
+                            for (RegisteredServer eachServer : getServer().getAllServers()) {
+                                if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
+                                    eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, finalData);
+                                    pluginMessagesCounter.incrementAndGet();
+                                }
+                            }
+                            break;
+                        case 0x08:
+                            UUID messageId = DataTypeIO.readUUID(input);
+                            String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                            messageForwardingHandler.recievedProcessedMessage(messageId, component);
+                            break;
+                        case 0x09:
+                            loadConfig();
+                            break;
+                        case 0x0B:
+                            int id = input.readInt();
+                            boolean permissionValue = input.readBoolean();
+                            permissionChecks.put(id, permissionValue);
+                            break;
+                        case 0x0C:
+                            int size1 = input.readInt();
+                            List<ICPlaceholder> list = new ArrayList<>(size1);
+                            for (int i = 0; i < size1; i++) {
+                                boolean isBulitIn = input.readBoolean();
+                                if (isBulitIn) {
+                                    String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    long cooldown = input.readLong();
+                                    list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
+                                } else {
+                                    int customNo = input.readInt();
+                                    ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
+                                    String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    boolean parseKeyword = input.readBoolean();
+                                    long cooldown = input.readLong();
+                                    boolean hoverEnabled = input.readBoolean();
+                                    String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    boolean clickEnabled = input.readBoolean();
+                                    String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    boolean replaceEnabled = input.readBoolean();
+                                    String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+
+                                    list.add(new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
+                                }
+                            }
+                            placeholderList.put(server.getServerInfo().getName(), list);
+                            playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
+                            PluginMessageSendingVelocity.forwardPlaceholderList(list, server);
+                            break;
+                        case 0x0D:
+                            UUID uuid2 = DataTypeIO.readUUID(input);
+                            PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
+                            break;
+                        case 0x10:
+                            UUID requestUUID = DataTypeIO.readUUID(input);
+                            int requestType = input.readByte();
+                            switch (requestType) {
+                                case 0:
+                                    PluginMessageSendingVelocity.respondPlayerListRequest(requestUUID, server);
+                                    break;
+                                default:
+                                    break;
+                            }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            pluginMessageHandlingExecutor.submit(() -> {
+                for (RegisteredServer eachServer : getServer().getAllServers()) {
+                    if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
+                        eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
+                        pluginMessagesCounter.incrementAndGet();
+                    }
+                }
+            });
+        }
+    }
+
+    @Subscribe
+    public void onBungeeChat(PlayerChatEvent event) {
+        if (!event.getResult().isAllowed()) {
+            return;
+        }
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        String message = event.getMessage();
+
+        if (!player.getCurrentServer().isPresent()) {
+            return;
+        }
+
+        String newMessage = event.getMessage();
+
+        boolean hasInteractiveChat = false;
+        BackendInteractiveChatData data = serverInteractiveChatInfo.get(player.getCurrentServer().get().getServerInfo().getName());
+        if (data != null) {
+            hasInteractiveChat = data.hasInteractiveChat();
+        }
+
+        if (newMessage.startsWith("/")) {
+            if (hasInteractiveChat) {
+                for (String parsecommand : InteractiveChatVelocity.parseCommands) {
+                    //getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
+                    if (newMessage.matches(parsecommand)) {
+                        String command = newMessage.trim();
+                        String uuidmatch = "<cmd=" + uuid.toString() + ">";
+                        command += " " + uuidmatch;
+                        event.setResult(ChatResult.message(command));
+                        break;
+                    }
+                }
+            }
+        } else {
+            if (InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
+                String uuidmatch = "<chat=" + uuid.toString() + ">";
+                message += " " + uuidmatch;
+                event.setResult(ChatResult.message(message));
+            }
+
+            proxyServer.getScheduler().buildTask(plugin, () -> {
+                Map<String, Long> messages = forwardedMessages.get(uuid);
+                if (messages != null && messages.remove(newMessage) != null) {
+                    try {
+                        PluginMessageSendingVelocity.sendMessagePair(uuid, newMessage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).delay(100, TimeUnit.MILLISECONDS).schedule();
+        }
+    }
+
+    @Subscribe
+    public void onServerConnected(ServerPostConnectEvent event) {
+        Player player = event.getPlayer();
+
+        VelocityServerConnection serverConnection = ((ConnectedPlayer) event.getPlayer()).getConnectedServer();
+        ChannelPipeline pipeline = serverConnection.ensureConnected().getChannel().pipeline();
+
+        pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
+            @Override
+            public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
+                try {
+                    if (obj instanceof Chat) {
+                        Chat packet = (Chat) obj;
+                        UUID uuid = player.getUniqueId();
+                        String message = packet.getMessage();
+                        byte position = packet.getType();
+                        if ((position == 0 || position == 1) && uuid != null && message != null) {
+                            Map<String, Long> list = forwardedMessages.get(uuid);
+                            if (list != null) {
+                                list.put(message, System.currentTimeMillis());
+                            }
+                        }
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+                super.write(channelHandlerContext, obj, channelPromise);
+            }
+        });
+    }
+
+    @Subscribe
+    public void onPlayerConnected(PostLoginEvent event) {
+        if (!filtersAdded) {
+            addFilters();
+        }
+
+        Player player = event.getPlayer();
+
+        forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
+
+        if (player.hasPermission("interactivechat.backendinfo")) {
+            String proxyVersion = getDescription().getVersion();
+            for (BackendInteractiveChatData data : serverInteractiveChatInfo.values()) {
+                if (data.isOnline() && data.getProtocolVersion() != Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION) {
+                    String msg = TextColor.RED + "[InteractiveChat] Warning: Backend Server " + data.getServer() + " is not running a version of InteractiveChat which has the same plugin messaging protocol version as the proxy!";
+                    HoverEvent<Component> hoverComponent = Component.text(TextColor.YELLOW + "Proxy Version: " + proxyVersion + " (" + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")\n" + TextColor.RED + data.getServer() + " Version: " + data.getVersion() + " (" + data.getProtocolVersion() + ")").asHoverEvent();
+                    TextComponent text = Component.text(msg).hoverEvent(hoverComponent);
+                    sendMessage(player, text);
+                    sendMessage(getServer().getConsoleCommandSource(), text);
+                }
+            }
+        }
+
+        ConnectedPlayer userConnection = (ConnectedPlayer) player;
+        ChannelPipeline pipeline = userConnection.getConnection().getChannel().pipeline();
+
+        pipeline.addBefore(Connections.HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
+            @Override
+            public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
+                try {
+                    if (obj instanceof Chat) {
+                        Chat packet = (Chat) obj;
+                        String message = packet.getMessage();
+                        byte position = packet.getType();
+                        if ((position == 0 || position == 1) && message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
+                                }
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
+                                return;
+                            }
+                        }
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+                super.write(channelHandlerContext, obj, channelPromise);
+            }
+        });
+    }
+
+    @Subscribe
+    public void onSwitch(ServerConnectedEvent event) {
+        RegisteredServer to = event.getServer();
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        if (!placeholderList.containsKey(to.getServerInfo().getName())) {
+            try {
+                PluginMessageSendingVelocity.requestPlaceholderList(to);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            PluginMessageSendingVelocity.sendPlayerListData();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
+        if (universalTime >= 0) {
+            try {
+                PluginMessageSendingVelocity.sendPlayerUniversalCooldown(to, uuid, universalTime);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        List<ICPlaceholder> placeholders = placeholderList.get(to.getServerInfo().getName());
+        if (placeholders != null) {
+            for (ICPlaceholder placeholder : placeholders) {
+                long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getInternalId());
+                if (placeholderTime >= 0) {
+                    try {
+                        PluginMessageSendingVelocity.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            try {
+                PluginMessageSendingVelocity.sendDelayAndScheme();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).schedule();
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
+                sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
+            }
+        }).delay(100, TimeUnit.MILLISECONDS).schedule();
+    }
+
+    @Subscribe
+    public void onLeave(DisconnectEvent event) {
+        forwardedMessages.remove(event.getPlayer().getUniqueId());
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            try {
+                PluginMessageSendingVelocity.sendPlayerListData();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).delay(1000, TimeUnit.MILLISECONDS).schedule();
+    }
+
+    private boolean hasInteractiveChat(RegisteredServer server) {
+        if (server == null || server.getServerInfo() == null) {
+            return false;
+        }
+        BackendInteractiveChatData data = serverInteractiveChatInfo.get(server.getServerInfo().getName());
+        if (data == null) {
+            return false;
+        }
+        return data.hasInteractiveChat();
+    }
 
 }

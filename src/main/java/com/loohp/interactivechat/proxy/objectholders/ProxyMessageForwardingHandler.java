@@ -16,232 +16,232 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class ProxyMessageForwardingHandler implements AutoCloseable {
-	
-	private Map<UUID, Queue<ForwardMessageInfo>> messageOrder;
-	private Map<UUID, ForwardMessageInfo> messageData;
-	private Queue<OutboundMessage> sendingQueue;
-	private BiConsumer<ForwardMessageInfo, String> forwardForProcessing;
-	private BiConsumer<ForwardMessageInfo, String> sendToPlayer;
-	private Predicate<UUID> isPlayerOnline;
-	private Predicate<UUID> hasInteractiveChatOnConnectedServer;
-	private Supplier<Long> executionWaitTime;
-	private Map<UUID, Map<UUID, OutboundMessage>> waitingPackets;
-	private Map<UUID, Long> lastSuccessfulCheck;
-	
-	private AtomicBoolean isValid;
-	
-	public ProxyMessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
-		this.isValid = new AtomicBoolean(true);
-		this.messageOrder = new ConcurrentHashMap<>();
-		this.messageData = new ConcurrentHashMap<>();
-		this.sendingQueue = new ConcurrentLinkedQueue<>();
-		this.forwardForProcessing = forwardForProcessing;
-		this.sendToPlayer = sendToPlayer;
-		this.isPlayerOnline = isPlayerOnline;
-		this.hasInteractiveChatOnConnectedServer = hasInteractiveChatOnConnectedServer;
-		this.executionWaitTime = executionWaitTime;
-		this.waitingPackets = new ConcurrentHashMap<>();
-		this.lastSuccessfulCheck = new ConcurrentHashMap<>();
-		
-		packetSender();
-		packetOrderSender();
-		monitor();
-	}
-	
-	public synchronized void processMessage(UUID player, String message, byte position) {
-		UUID messageId = UUID.randomUUID();
-		if (hasInteractiveChatOnConnectedServer.test(player)) {
-			messageOrder.putIfAbsent(player, new ConcurrentLinkedQueue<>());
-			Queue<ForwardMessageInfo> queue = messageOrder.get(player);
-			ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
-			messageData.put(messageId, forwardMessageInfo);
-			queue.add(forwardMessageInfo);
-			forwardForProcessing.accept(forwardMessageInfo, message);
-		} else {
-			ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
-			sendToPlayer.accept(forwardMessageInfo, message);
-		}
-	}
-	
-	public void recievedProcessedMessage(UUID messageId, String message) {
-		ForwardMessageInfo info = messageData.remove(messageId);
-		if (info != null) {
-			Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
-			OutboundMessage outboundMessage = new OutboundMessage(info, message);
-			if (queue != null) {
-				if (queue.contains(info)) {
-					waitingPackets.putIfAbsent(info.getPlayer(), new ConcurrentHashMap<>());
-					Map<UUID, OutboundMessage> waitingMap = waitingPackets.get(info.getPlayer());
-					waitingMap.put(messageId, outboundMessage);
-				} else {
-					sendingQueue.add(outboundMessage);
-					queue.remove(info);
-				}
-			}
-		}
-	}
-	
-	public void clearPlayer(UUID player) {
-		Queue<ForwardMessageInfo> messages = messageOrder.remove(player);
-		if (messages != null) {
-			for (ForwardMessageInfo info : messages) {
-				messageData.remove(info.getId());
-			}
-		}
-	}
-	
-	private void packetSender() {
-		new Timer().schedule(new TimerTask() {	
-			@Override
-			public void run() {
-				while (!sendingQueue.isEmpty()) {
-					OutboundMessage out = sendingQueue.poll();
-					if (isPlayerOnline.test(out.getInfo().getPlayer())) {
-						sendToPlayer.accept(out.getInfo(), out.getMessage());
-					}
-				}
-			}
-		}, 0, 50);
-	}
-	
-	private void monitor() {
-		new Timer().schedule(new TimerTask() {	
-			@Override
-			public void run() {
-				long time = System.currentTimeMillis();
-				for (Queue<ForwardMessageInfo> queue : messageOrder.values()) {
-					queue.removeIf(each -> each.getTime() + executionWaitTime.get() < time);
-				}
-				Iterator<ForwardMessageInfo> itr0 = messageData.values().iterator();
-				while (itr0.hasNext()) {
-					ForwardMessageInfo id = itr0.next();
-					if (id.getTime() + executionWaitTime.get() < time) {
-						itr0.remove();
-					}
-				}
-				
-				for (UUID player : messageOrder.keySet()) {
-					if (!isPlayerOnline.test(player)) {
-						clearPlayer(player);
-					}
-				}
-			}
-		}, 0, 1000);
-	}
-	
-	private void packetOrderSender() {
-		new Thread(() -> {
-			while (true) {
-				for (Entry<UUID, Map<UUID, OutboundMessage>> entry : waitingPackets.entrySet()) {
-					long time = System.currentTimeMillis();
-					UUID playerUUID = entry.getKey();
-					Queue<ForwardMessageInfo> orderingQueue = messageOrder.get(playerUUID);
-					Map<UUID, OutboundMessage> playerWaitingPackets = entry.getValue();
-					ForwardMessageInfo forwardMessageInfo;
-					if (orderingQueue != null) {
-						if ((forwardMessageInfo = orderingQueue.peek()) == null) {
-							Iterator<Entry<UUID, OutboundMessage>> itr = playerWaitingPackets.entrySet().iterator();
-							while (itr.hasNext()) {
-								sendingQueue.add(itr.next().getValue());
-								itr.remove();
-							}
-						} else {
-							UUID id = forwardMessageInfo.getId();
-							OutboundMessage outboundPacket = playerWaitingPackets.get(id);
-							if (outboundPacket != null) {
-								sendingQueue.add(outboundPacket);
-								playerWaitingPackets.remove(id);
-								orderingQueue.remove(forwardMessageInfo);
-								lastSuccessfulCheck.put(playerUUID, time);
-							} else {
-								if (playerWaitingPackets.isEmpty()) {
-									lastSuccessfulCheck.put(playerUUID, time);
-								} else {
-									Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
-									if (lastSuccessful == null) {
-										lastSuccessfulCheck.put(playerUUID, time);
-									} else if ((lastSuccessful + executionWaitTime.get()) < time) {
-										orderingQueue.poll();
-										lastSuccessfulCheck.put(playerUUID, time);
-									}
-								}						
-							}
-						}
-					}
-				}
-				
-				if (!isValid()) {
-					break;
-				}
-				try {
-					TimeUnit.NANOSECONDS.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					break;
-				}
-			}
-		}).start();
-	}
-	
-	@Override
-	public synchronized void close() throws Exception {
-		isValid.set(false);
-	}
-	
-	public boolean isValid() {
-		return isValid.get();
-	}
-	
-	public static class ForwardMessageInfo {
-		
-		private UUID id;
-		private UUID player;
-		private byte position;
-		private long time;
-		
-		public ForwardMessageInfo(UUID id, UUID player, byte position, long time) {
-			this.id = id;
-			this.player = player;
-			this.position = position;
-			this.time = time;
-		}
 
-		public UUID getId() {
-			return id;
-		}
+    private final Map<UUID, Queue<ForwardMessageInfo>> messageOrder;
+    private final Map<UUID, ForwardMessageInfo> messageData;
+    private final Queue<OutboundMessage> sendingQueue;
+    private final BiConsumer<ForwardMessageInfo, String> forwardForProcessing;
+    private final BiConsumer<ForwardMessageInfo, String> sendToPlayer;
+    private final Predicate<UUID> isPlayerOnline;
+    private final Predicate<UUID> hasInteractiveChatOnConnectedServer;
+    private final Supplier<Long> executionWaitTime;
+    private final Map<UUID, Map<UUID, OutboundMessage>> waitingPackets;
+    private final Map<UUID, Long> lastSuccessfulCheck;
 
-		public UUID getPlayer() {
-			return player;
-		}
+    private final AtomicBoolean isValid;
 
-		public byte getPosition() {
-			return position;
-		}
+    public ProxyMessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
+        this.isValid = new AtomicBoolean(true);
+        this.messageOrder = new ConcurrentHashMap<>();
+        this.messageData = new ConcurrentHashMap<>();
+        this.sendingQueue = new ConcurrentLinkedQueue<>();
+        this.forwardForProcessing = forwardForProcessing;
+        this.sendToPlayer = sendToPlayer;
+        this.isPlayerOnline = isPlayerOnline;
+        this.hasInteractiveChatOnConnectedServer = hasInteractiveChatOnConnectedServer;
+        this.executionWaitTime = executionWaitTime;
+        this.waitingPackets = new ConcurrentHashMap<>();
+        this.lastSuccessfulCheck = new ConcurrentHashMap<>();
 
-		public long getTime() {
-			return time;
-		}
-		
-	}
-	
-	private static class OutboundMessage {
-		
-		private ForwardMessageInfo info;
-		private String message;
-		
-		public OutboundMessage(ForwardMessageInfo info, String message) {
-			this.info = info;
-			this.message = message;
-		}
+        packetSender();
+        packetOrderSender();
+        monitor();
+    }
 
-		public ForwardMessageInfo getInfo() {
-			return info;
-		}
+    public synchronized void processMessage(UUID player, String message, byte position) {
+        UUID messageId = UUID.randomUUID();
+        if (hasInteractiveChatOnConnectedServer.test(player)) {
+            messageOrder.putIfAbsent(player, new ConcurrentLinkedQueue<>());
+            Queue<ForwardMessageInfo> queue = messageOrder.get(player);
+            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
+            messageData.put(messageId, forwardMessageInfo);
+            queue.add(forwardMessageInfo);
+            forwardForProcessing.accept(forwardMessageInfo, message);
+        } else {
+            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
+            sendToPlayer.accept(forwardMessageInfo, message);
+        }
+    }
 
-		public String getMessage() {
-			return message;
-		}
-		
-	}
+    public void recievedProcessedMessage(UUID messageId, String message) {
+        ForwardMessageInfo info = messageData.remove(messageId);
+        if (info != null) {
+            Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
+            OutboundMessage outboundMessage = new OutboundMessage(info, message);
+            if (queue != null) {
+                if (queue.contains(info)) {
+                    waitingPackets.putIfAbsent(info.getPlayer(), new ConcurrentHashMap<>());
+                    Map<UUID, OutboundMessage> waitingMap = waitingPackets.get(info.getPlayer());
+                    waitingMap.put(messageId, outboundMessage);
+                } else {
+                    sendingQueue.add(outboundMessage);
+                    queue.remove(info);
+                }
+            }
+        }
+    }
+
+    public void clearPlayer(UUID player) {
+        Queue<ForwardMessageInfo> messages = messageOrder.remove(player);
+        if (messages != null) {
+            for (ForwardMessageInfo info : messages) {
+                messageData.remove(info.getId());
+            }
+        }
+    }
+
+    private void packetSender() {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                while (!sendingQueue.isEmpty()) {
+                    OutboundMessage out = sendingQueue.poll();
+                    if (isPlayerOnline.test(out.getInfo().getPlayer())) {
+                        sendToPlayer.accept(out.getInfo(), out.getMessage());
+                    }
+                }
+            }
+        }, 0, 50);
+    }
+
+    private void monitor() {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                long time = System.currentTimeMillis();
+                for (Queue<ForwardMessageInfo> queue : messageOrder.values()) {
+                    queue.removeIf(each -> each.getTime() + executionWaitTime.get() < time);
+                }
+                Iterator<ForwardMessageInfo> itr0 = messageData.values().iterator();
+                while (itr0.hasNext()) {
+                    ForwardMessageInfo id = itr0.next();
+                    if (id.getTime() + executionWaitTime.get() < time) {
+                        itr0.remove();
+                    }
+                }
+
+                for (UUID player : messageOrder.keySet()) {
+                    if (!isPlayerOnline.test(player)) {
+                        clearPlayer(player);
+                    }
+                }
+            }
+        }, 0, 1000);
+    }
+
+    private void packetOrderSender() {
+        new Thread(() -> {
+            while (true) {
+                for (Entry<UUID, Map<UUID, OutboundMessage>> entry : waitingPackets.entrySet()) {
+                    long time = System.currentTimeMillis();
+                    UUID playerUUID = entry.getKey();
+                    Queue<ForwardMessageInfo> orderingQueue = messageOrder.get(playerUUID);
+                    Map<UUID, OutboundMessage> playerWaitingPackets = entry.getValue();
+                    ForwardMessageInfo forwardMessageInfo;
+                    if (orderingQueue != null) {
+                        if ((forwardMessageInfo = orderingQueue.peek()) == null) {
+                            Iterator<Entry<UUID, OutboundMessage>> itr = playerWaitingPackets.entrySet().iterator();
+                            while (itr.hasNext()) {
+                                sendingQueue.add(itr.next().getValue());
+                                itr.remove();
+                            }
+                        } else {
+                            UUID id = forwardMessageInfo.getId();
+                            OutboundMessage outboundPacket = playerWaitingPackets.get(id);
+                            if (outboundPacket != null) {
+                                sendingQueue.add(outboundPacket);
+                                playerWaitingPackets.remove(id);
+                                orderingQueue.remove(forwardMessageInfo);
+                                lastSuccessfulCheck.put(playerUUID, time);
+                            } else {
+                                if (playerWaitingPackets.isEmpty()) {
+                                    lastSuccessfulCheck.put(playerUUID, time);
+                                } else {
+                                    Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
+                                    if (lastSuccessful == null) {
+                                        lastSuccessfulCheck.put(playerUUID, time);
+                                    } else if ((lastSuccessful + executionWaitTime.get()) < time) {
+                                        orderingQueue.poll();
+                                        lastSuccessfulCheck.put(playerUUID, time);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!isValid()) {
+                    break;
+                }
+                try {
+                    TimeUnit.NANOSECONDS.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public synchronized void close() throws Exception {
+        isValid.set(false);
+    }
+
+    public boolean isValid() {
+        return isValid.get();
+    }
+
+    public static class ForwardMessageInfo {
+
+        private final UUID id;
+        private final UUID player;
+        private final byte position;
+        private final long time;
+
+        public ForwardMessageInfo(UUID id, UUID player, byte position, long time) {
+            this.id = id;
+            this.player = player;
+            this.position = position;
+            this.time = time;
+        }
+
+        public UUID getId() {
+            return id;
+        }
+
+        public UUID getPlayer() {
+            return player;
+        }
+
+        public byte getPosition() {
+            return position;
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+    }
+
+    private static class OutboundMessage {
+
+        private final ForwardMessageInfo info;
+        private final String message;
+
+        public OutboundMessage(ForwardMessageInfo info, String message) {
+            this.info = info;
+            this.message = message;
+        }
+
+        public ForwardMessageInfo getInfo() {
+            return info;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+    }
 
 }

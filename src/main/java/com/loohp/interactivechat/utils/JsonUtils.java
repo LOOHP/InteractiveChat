@@ -1,5 +1,13 @@
 package com.loohp.interactivechat.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.ChatColor;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -7,27 +15,20 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import net.md_5.bungee.api.ChatColor;
-
 public class JsonUtils {
-	
+
     private static final StringBuilder JSON_BUILDER = new StringBuilder("{\"text\":\"\",\"extra\":[");
 
     private static final int RETAIN = "{\"text\":\"\",\"extra\":[".length();
+    private static final StringBuilder STYLE = new StringBuilder();
 
     public static String toJSON(String message) {
-        if (message == null || message.isEmpty())
+        if (message == null || message.isEmpty()) {
             return null;
-        if (JSON_BUILDER.length() > RETAIN)
+        }
+        if (JSON_BUILDER.length() > RETAIN) {
             JSON_BUILDER.delete(RETAIN, JSON_BUILDER.length());
+        }
         String[] parts = message.split(Character.toString(ChatColor.COLOR_CHAR));
         boolean first = true;
         String colour = null;
@@ -36,23 +37,24 @@ public class JsonUtils {
         for (String part : parts) {
             // If it starts with a colour, just ignore the empty String
             // before it
-            if(part.isEmpty()) {
+            if (part.isEmpty()) {
                 continue;
             }
-            
+
             String newStyle = null;
             if (!ignoreFirst) {
                 newStyle = getStyle(part.charAt(0));
             } else {
-                ignoreFirst = false;    
+                ignoreFirst = false;
             }
-            
+
             if (newStyle != null) {
                 part = part.substring(1);
-                if(newStyle.startsWith("\"c"))
+                if (newStyle.startsWith("\"c")) {
                     colour = newStyle;
-                else
+                } else {
                     format = newStyle;
+                }
             }
             if (!part.isEmpty()) {
                 if (first) {
@@ -76,13 +78,12 @@ public class JsonUtils {
         return JSON_BUILDER.append("]}").toString();
     }
 
-    private static final StringBuilder STYLE = new StringBuilder();
-
     @SuppressWarnings("deprecation")
-	private static String getStyle(char colour) {
-        if(STYLE.length() > 0)
+    private static String getStyle(char colour) {
+        if (STYLE.length() > 0) {
             STYLE.delete(0, STYLE.length());
-        switch(colour) {
+        }
+        switch (colour) {
             case 'k':
                 return "\"obfuscated\": true,";
             case 'l':
@@ -99,87 +100,88 @@ public class JsonUtils {
                 break;
         }
         ChatColor cc = ChatColor.getByChar(colour);
-        if(cc == null)
+        if (cc == null) {
             return null;
+        }
         return STYLE.append("\"color\":\"").append(cc.name().toLowerCase()).append("\",").toString();
     }
-    
+
     public static boolean containsKey(String json, String key) {
-    	try {
-			Object jsonObj = new JSONParser().parse(json);
-			if (jsonObj instanceof JSONObject) {
-				return containsKey((JSONObject) jsonObj, key);
-			} else if (jsonObj instanceof JSONArray) {
-				return containsKey((JSONArray) jsonObj, key);
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-    	return false;
+        try {
+            Object jsonObj = new JSONParser().parse(json);
+            if (jsonObj instanceof JSONObject) {
+                return containsKey((JSONObject) jsonObj, key);
+            } else if (jsonObj instanceof JSONArray) {
+                return containsKey((JSONArray) jsonObj, key);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
-    
+
     private static boolean containsKey(JSONObject json, String key) {
-    	boolean contains = false;
-    	for (Object obj : json.keySet()) {
-    		if (obj instanceof String) {
-    			if (((String) obj).equals(key)) {
-    				return true;
-    			}
-    		}
-    		Object jsonObj = json.get(obj);
-    		if (jsonObj instanceof JSONObject) {
-    			contains = containsKey((JSONObject) jsonObj, key);
-			} else if (jsonObj instanceof JSONArray) {
-				contains = containsKey((JSONArray) jsonObj, key);
-			}
-    		if (contains) {
-    			return true;
-    		}
-    	}
-    	return contains;
+        boolean contains = false;
+        for (Object obj : json.keySet()) {
+            if (obj instanceof String) {
+                if (obj.equals(key)) {
+                    return true;
+                }
+            }
+            Object jsonObj = json.get(obj);
+            if (jsonObj instanceof JSONObject) {
+                contains = containsKey((JSONObject) jsonObj, key);
+            } else if (jsonObj instanceof JSONArray) {
+                contains = containsKey((JSONArray) jsonObj, key);
+            }
+            if (contains) {
+                return true;
+            }
+        }
+        return contains;
     }
-    
+
     private static boolean containsKey(JSONArray json, String key) {
-    	boolean contains = false;
-    	for (Object jsonObj : json) {
-    		if (jsonObj instanceof JSONObject) {
-    			contains = containsKey((JSONObject) jsonObj, key);
-			} else if (jsonObj instanceof JSONArray) {
-				contains = containsKey((JSONArray) jsonObj, key);
-			}
-    		if (contains) {
-    			return true;
-    		}
-    	}
-    	return contains;
+        boolean contains = false;
+        for (Object jsonObj : json) {
+            if (jsonObj instanceof JSONObject) {
+                contains = containsKey((JSONObject) jsonObj, key);
+            } else if (jsonObj instanceof JSONArray) {
+                contains = containsKey((JSONArray) jsonObj, key);
+            }
+            if (contains) {
+                return true;
+            }
+        }
+        return contains;
     }
-    
+
     @SuppressWarnings("unchecked")
-	public static String toString(JSONObject json) {
-    	JSONObject toSave = json;
-        
-    	TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
-    	treeMap.putAll(toSave);
-    	
-    	Gson g = new GsonBuilder().create();
+    public static String toString(JSONObject json) {
+        JSONObject toSave = json;
+
+        TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+        treeMap.putAll(toSave);
+
+        Gson g = new GsonBuilder().create();
         return g.toJson(treeMap);
     }
-    
+
     @SuppressWarnings("unchecked")
-	public static boolean saveToFilePretty(JSONObject json, File file) {
+    public static boolean saveToFilePretty(JSONObject json, File file) {
         try {
-        	JSONObject toSave = json;
-        
-        	TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
-        	treeMap.putAll(toSave);
-        	
-        	Gson g = new GsonBuilder().setPrettyPrinting().create();
+            JSONObject toSave = json;
+
+            TreeMap<String, Object> treeMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+            treeMap.putAll(toSave);
+
+            Gson g = new GsonBuilder().setPrettyPrinting().create();
             String prettyJsonString = g.toJson(treeMap);
-            
+
             PrintWriter clear = new PrintWriter(file);
             clear.print("");
             clear.close();
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             writer.write(prettyJsonString);
             writer.flush();
@@ -187,17 +189,17 @@ public class JsonUtils {
 
             return true;
         } catch (Exception e) {
-        	e.printStackTrace();
-        	return false;
+            e.printStackTrace();
+            return false;
         }
     }
-    
+
     public static boolean isValid(String test) {
-	    try {
-	        Object obj = new JSONParser().parse(test);
-	        return obj instanceof JSONObject || obj instanceof JSONArray;
-	    } catch (ParseException e) {
-	    	return false;
-	    }
+        try {
+            Object obj = new JSONParser().parse(test);
+            return obj instanceof JSONObject || obj instanceof JSONArray;
+        } catch (ParseException e) {
+            return false;
+        }
     }
 }

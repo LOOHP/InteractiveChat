@@ -1,5 +1,6 @@
 package com.loohp.interactivechat.proxy.velocity;
 
+import com.loohp.interactivechat.registry.Registry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Marker;
@@ -9,28 +10,27 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
-import com.loohp.interactivechat.registry.Registry;
-
 public class LogFilterVelocity implements Filter {
 
     public Filter.Result checkMessage(String message, Level level) {
-    	 if (!Registry.ID_PATTERN.matcher(message).find()) {
-    		return Filter.Result.NEUTRAL;
-    	} else {
-    		LogManager.getRootLogger().log(level, message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
-    		return Filter.Result.DENY;
-    	}
+        if (!Registry.ID_PATTERN.matcher(message).find()) {
+            return Filter.Result.NEUTRAL;
+        } else {
+            LogManager.getRootLogger().log(level, message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
+            return Filter.Result.DENY;
+        }
     }
 
     public LifeCycle.State getState() {
         try {
             return LifeCycle.State.STARTED;
-        } catch (Exception localException) {}
+        } catch (Exception localException) {
+        }
         return null;
     }
 
     public void initialize() {
-    	
+
     }
 
     public boolean isStarted() {
@@ -42,11 +42,11 @@ public class LogFilterVelocity implements Filter {
     }
 
     public void start() {
-    	
+
     }
 
     public void stop() {
-    	
+
     }
 
     public Filter.Result filter(LogEvent event) {

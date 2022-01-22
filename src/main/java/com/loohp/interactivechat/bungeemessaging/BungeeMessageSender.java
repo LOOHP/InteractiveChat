@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
 public class BungeeMessageSender {
 
     public static final Pattern VALID_CUSTOM_CHANNEL = Pattern.compile("[a-z]+:[a-z0-9_]+");
-    protected static short itemStackScheme = 0;
-    protected static short inventoryScheme = 0;
     private static final Random random = new Random();
     private static final ConcurrentSkipListMap<Long, Set<String>> sent = new ConcurrentSkipListMap<>();
+    protected static short itemStackScheme = 0;
+    protected static short inventoryScheme = 0;
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {

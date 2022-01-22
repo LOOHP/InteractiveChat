@@ -264,6 +264,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
         public UUID getId() {
             return id;
         }
+
     }
 
     private static class MessageOrderInfo {

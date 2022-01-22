@@ -462,6 +462,7 @@ public class PluginMessageSendingBungee {
         public String getName() {
             return name;
         }
+
     }
 
 }

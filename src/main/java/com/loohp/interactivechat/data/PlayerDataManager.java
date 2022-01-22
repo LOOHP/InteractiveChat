@@ -119,6 +119,7 @@ public class PlayerDataManager implements Listener {
         public void setInventoryDisplayLayout(int inventoryDisplayLayout) {
             this.inventoryDisplayLayout = inventoryDisplayLayout;
         }
+
     }
 
 }

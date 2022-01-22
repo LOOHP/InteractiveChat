@@ -44,6 +44,10 @@ public enum ChatComponentType {
     });
 
     private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent};
+
+    public static ChatComponentType[] byPriority() {
+        return Arrays.copyOf(BY_PRIORITY, BY_PRIORITY.length);
+    }
     private final String regex;
     private final Function<Object, Component> converterFrom;
     private final BiFunction<Component, Boolean, Object> converterTo;
@@ -54,10 +58,6 @@ public enum ChatComponentType {
         this.converterFrom = converterFrom;
         this.converterTo = converterTo;
         this.toString = toString;
-    }
-
-    public static ChatComponentType[] byPriority() {
-        return Arrays.copyOf(BY_PRIORITY, BY_PRIORITY.length);
     }
 
     public String getMatchingRegex() {

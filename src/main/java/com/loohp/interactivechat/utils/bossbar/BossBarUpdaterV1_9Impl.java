@@ -16,17 +16,6 @@ import java.util.Set;
 
 public class BossBarUpdaterV1_9Impl extends BossBarUpdater {
 
-    protected org.bukkit.boss.BossBar bukkitBossbar;
-
-    public BossBarUpdaterV1_9Impl(BossBar bossbar, Player[] players) {
-        super(bossbar, players);
-        BarFlag[] flags = bossbar.flags().stream().map(each -> toBukkit(each)).toArray(size -> new BarFlag[size]);
-        bukkitBossbar = Bukkit.createBossBar(LegacyComponentSerializer.legacySection().serialize(bossbar.name()), toBukkit(bossbar.color()), toBukkit(bossbar.overlay()), flags);
-        for (Player player : players) {
-            bukkitBossbar.addPlayer(player);
-        }
-    }
-
     private static BarColor toBukkit(BossBar.Color color) {
         switch (color) {
             case BLUE:
@@ -72,6 +61,16 @@ public class BossBarUpdaterV1_9Impl extends BossBarUpdater {
             case PLAY_BOSS_MUSIC:
             default:
                 return BarFlag.PLAY_BOSS_MUSIC;
+        }
+    }
+    protected org.bukkit.boss.BossBar bukkitBossbar;
+
+    public BossBarUpdaterV1_9Impl(BossBar bossbar, Player[] players) {
+        super(bossbar, players);
+        BarFlag[] flags = bossbar.flags().stream().map(each -> toBukkit(each)).toArray(size -> new BarFlag[size]);
+        bukkitBossbar = Bukkit.createBossBar(LegacyComponentSerializer.legacySection().serialize(bossbar.name()), toBukkit(bossbar.color()), toBukkit(bossbar.overlay()), flags);
+        for (Player player : players) {
+            bukkitBossbar.addPlayer(player);
         }
     }
 

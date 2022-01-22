@@ -14,6 +14,10 @@ import java.util.Arrays;
 public class ProxyCustomDataRecievedEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     private final String channel;
     private final byte[] data;
 
@@ -21,10 +25,6 @@ public class ProxyCustomDataRecievedEvent extends Event {
         super(!Bukkit.isPrimaryThread());
         this.channel = channel;
         this.data = data;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     public String getChannel() {

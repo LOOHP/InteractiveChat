@@ -39,9 +39,6 @@ public class PlayernameDisplay implements Listener {
     private static final AtomicInteger flag = new AtomicInteger();
     private static List<ReplaceTextBundle> names = new ArrayList<>();
 
-    private PlayernameDisplay() {
-    }
-
     public static void setup() {
         Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -144,6 +141,9 @@ public class PlayernameDisplay implements Listener {
         Collections.sort(names, Collections.reverseOrder());
 
         return names;
+    }
+
+    private PlayernameDisplay() {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

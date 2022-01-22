@@ -60,14 +60,6 @@ public class CustomPlaceholder extends ICPlaceholder {
 
         private static final ParsePlayer[] VALUES = values();
 
-        private final String name;
-        private final int ord;
-
-        ParsePlayer(String name, int ord) {
-            this.name = name;
-            this.ord = ord;
-        }
-
         public static ParsePlayer fromString(String name) {
             for (ParsePlayer parsePlayer : VALUES) {
                 if (name.equalsIgnoreCase(parsePlayer.toString())) {
@@ -84,6 +76,13 @@ public class CustomPlaceholder extends ICPlaceholder {
                 }
             }
             return VIEWER;
+        }
+        private final String name;
+        private final int ord;
+
+        ParsePlayer(String name, int ord) {
+            this.name = name;
+            this.ord = ord;
         }
 
         public int getOrder() {
@@ -175,7 +174,9 @@ public class CustomPlaceholder extends ICPlaceholder {
             }
             if (text == null) {
                 return other.text == null;
-            } else return text.equals(other.text);
+            } else {
+                return text.equals(other.text);
+            }
         }
 
     }
@@ -234,7 +235,9 @@ public class CustomPlaceholder extends ICPlaceholder {
             }
             if (value == null) {
                 return other.value == null;
-            } else return value.equals(other.value);
+            } else {
+                return value.equals(other.value);
+            }
         }
 
     }
@@ -283,7 +286,9 @@ public class CustomPlaceholder extends ICPlaceholder {
             }
             if (replaceText == null) {
                 return other.replaceText == null;
-            } else return replaceText.equals(other.replaceText);
+            } else {
+                return replaceText.equals(other.replaceText);
+            }
         }
 
     }

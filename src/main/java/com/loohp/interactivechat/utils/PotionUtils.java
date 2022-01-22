@@ -43,4 +43,5 @@ public class PotionUtils {
         }
         return potionMapping.get(PotionType.UNCRAFTABLE);
     }
+
 }

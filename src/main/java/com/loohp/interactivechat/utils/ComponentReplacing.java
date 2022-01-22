@@ -211,6 +211,7 @@ public class ComponentReplacing {
     }
 
     private static class ComponentReplacingData {
+
         private final String text;
         private final List<Integer> pos;
 
@@ -232,5 +233,7 @@ public class ComponentReplacing {
             int first = this.pos.indexOf(index);
             return pos - first;
         }
+
     }
+
 }

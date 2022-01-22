@@ -21,6 +21,10 @@ import java.util.UUID;
 public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     private final Player reciever;
     private final UUID sender;
     private String title;
@@ -42,10 +46,6 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         this.bossbar = bossbar;
         this.sound = sound;
         this.cancel = cancel;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     @Override
@@ -117,4 +117,5 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     public HandlerList getHandlers() {
         return HANDLERS;
     }
+
 }

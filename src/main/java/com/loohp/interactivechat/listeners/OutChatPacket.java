@@ -56,8 +56,8 @@ import java.util.stream.Stream;
 
 public class OutChatPacket implements Listener {
 
-    private static int chatFieldsSize;
     private static final AsyncChatSendingExecutor service;
+    private static int chatFieldsSize;
 
     static {
         PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);

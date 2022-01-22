@@ -17,19 +17,19 @@ import java.util.UUID;
 public class PostPacketComponentProcessEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     private final Player reciever;
-    private Component component;
     private final UUID sender;
+    private Component component;
 
     public PostPacketComponentProcessEvent(boolean async, Player reciever, Component component, UUID sender) {
         super(async);
         this.reciever = reciever;
         this.component = component;
         this.sender = sender;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     public Player getReciver() {

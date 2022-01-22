@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 
 public class ItemNBTUtils {
 
+    private static final BiMap<String, Integer> enchantmentIds = HashBiMap.create();
     private static Class<?> craftItemStackClass;
     private static Class<?> nmsItemStackClass;
     private static Method asNMSCopyMethod;
@@ -24,8 +25,6 @@ public class ItemNBTUtils {
     private static Method asBukkitCopyMethod;
     private static Method nbtTagCompoundGetStringMethod;
     private static Method nbtTagCompoundGetMethod;
-
-    private static final BiMap<String, Integer> enchantmentIds = HashBiMap.create();
 
     static {
         try {

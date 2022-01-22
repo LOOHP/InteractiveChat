@@ -19,11 +19,10 @@ public class ICPlayer extends OfflineICPlayer {
     private static final Inventory EMPTY_INVENTORY = Bukkit.createInventory(null, 54);
     private static final Inventory EMPTY_ENDERCHEST = Bukkit.createInventory(null, 18);
     private static final ICPlayerEquipment EMPTY_EQUIPMENT = new ICPlayerEquipment();
-
+    private final Map<String, String> remotePlaceholders;
     private String remoteServer;
     private String remoteName;
     private boolean rightHanded;
-    private final Map<String, String> remotePlaceholders;
 
     protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
         super(uuid, selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
@@ -177,7 +176,9 @@ public class ICPlayer extends OfflineICPlayer {
         ICPlayer other = (ICPlayer) obj;
         if (uuid == null) {
             return other.uuid == null;
-        } else return uuid.equals(other.uuid);
+        } else {
+            return uuid.equals(other.uuid);
+        }
     }
 
 }

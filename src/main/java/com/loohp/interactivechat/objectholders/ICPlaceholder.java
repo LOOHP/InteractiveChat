@@ -70,7 +70,9 @@ public abstract class ICPlaceholder {
         ICPlaceholder other = (ICPlaceholder) obj;
         if (internalId == null) {
             return other.internalId == null;
-        } else return internalId.equals(other.internalId);
+        } else {
+            return internalId.equals(other.internalId);
+        }
     }
 
 }

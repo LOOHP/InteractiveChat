@@ -21,4 +21,5 @@ public class ProcessSenderResult {
     public UUID getSender() {
         return sender;
     }
+
 }

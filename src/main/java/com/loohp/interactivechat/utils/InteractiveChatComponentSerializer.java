@@ -51,10 +51,6 @@ public class InteractiveChatComponentSerializer {
         //LEGACY_SERIALIZER_SPECIAL_HEX = new InteractiveChatLegacyComponentSerializer();
     }
 
-    private InteractiveChatComponentSerializer() {
-
-    }
-
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {
         return BUNGEECORD_CHAT_LEGACY;
     }
@@ -91,6 +87,10 @@ public class InteractiveChatComponentSerializer {
             }
         }
         return null;
+    }
+
+    private InteractiveChatComponentSerializer() {
+
     }
 
     public static class InteractiveChatBungeecordAPILegacyComponentSerializer implements ComponentSerializer<Component, Component, String> {
@@ -229,6 +229,7 @@ public class InteractiveChatComponentSerializer {
             }
             return Component.text(TagStringIO.get().asString(tag.build()));
         }
+
     }
 
     public static class InteractiveChatPlainTextComponentSerializer implements PlainTextComponentSerializer {

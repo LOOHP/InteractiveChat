@@ -24,14 +24,6 @@ public class ServerPingVelocity {
     public static final String INTERACTIVECHAT_PROTOCOL_IDENTIFIER = "InterativeChatBungeePing";
     public static final String UNKNOWN_VERSION = "unknown";
     public static final int UNKNOWN_PROTOCOL = -1;
-    private final int ping;
-
-    //=====================
-    private final boolean hasInteractiveChat;
-    private ServerPingVelocity(int ping, boolean hasInteractiveChat) {
-        this.ping = ping;
-        this.hasInteractiveChat = hasInteractiveChat;
-    }
 
     public static CompletableFuture<ServerPingVelocity> getPing(ServerInfo server) {
         CompletableFuture<ServerPingVelocity> future = new CompletableFuture<>();
@@ -213,6 +205,14 @@ public class ServerPingVelocity {
             }
         }).start();
         return future;
+    }
+    private final int ping;
+    //=====================
+    private final boolean hasInteractiveChat;
+
+    private ServerPingVelocity(int ping, boolean hasInteractiveChat) {
+        this.ping = ping;
+        this.hasInteractiveChat = hasInteractiveChat;
     }
 
     public int getPing() {

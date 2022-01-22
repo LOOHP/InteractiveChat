@@ -2,8 +2,8 @@ package com.loohp.interactivechat.objectholders;
 
 public class PermissionCache {
 
-    private boolean value;
     private final long time;
+    private boolean value;
 
     public PermissionCache(boolean value, long time) {
         this.value = value;

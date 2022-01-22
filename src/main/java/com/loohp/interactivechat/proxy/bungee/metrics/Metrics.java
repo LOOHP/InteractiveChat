@@ -64,64 +64,6 @@ public class Metrics {
         }
     }
 
-    // The plugin
-    private final Plugin plugin;
-    // The plugin id
-    private final int pluginId;
-    // A list with all custom charts
-    private final List<CustomChart> charts = new ArrayList<>();
-    // Is bStats enabled on this server?
-    private boolean enabled;
-    // The uuid of the server
-    private String serverUUID;
-    // Should failed requests be logged?
-    private boolean logFailedRequests = false;
-
-    /**
-     * Class constructor.
-     *
-     * @param plugin   The plugin which stats should be submitted.
-     * @param pluginId The id of the plugin.
-     *                 It can be found at <a href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
-     */
-    public Metrics(Plugin plugin, int pluginId) {
-        this.plugin = plugin;
-        this.pluginId = pluginId;
-
-        try {
-            loadConfig();
-        } catch (IOException e) {
-            // Failed to load configuration
-            plugin.getLogger().log(Level.WARNING, "Failed to load bStats config!", e);
-            return;
-        }
-
-        // We are not allowed to send data about this server :(
-        if (!enabled) {
-            return;
-        }
-
-        Class<?> usedMetricsClass = getFirstBStatsClass();
-        if (usedMetricsClass == null) {
-            // Failed to get first metrics class
-            return;
-        }
-        if (usedMetricsClass == getClass()) {
-            // We are the first! :)
-            linkMetrics(this);
-            startSubmitting();
-        } else {
-            // We aren't the first so we link to the first metrics class
-            try {
-                usedMetricsClass.getMethod("linkMetrics", Object.class).invoke(null, this);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                if (logFailedRequests) {
-                    plugin.getLogger().log(Level.WARNING, "Failed to link to first metrics class " + usedMetricsClass.getName() + "!", e);
-                }
-            }
-        }
-    }
-
     /**
      * Links an other metrics class with this class.
      * This method is called using Reflection.
@@ -197,6 +139,63 @@ public class Metrics {
             gzip.write(str.getBytes(StandardCharsets.UTF_8));
         }
         return outputStream.toByteArray();
+    }
+    // The plugin
+    private final Plugin plugin;
+    // The plugin id
+    private final int pluginId;
+    // A list with all custom charts
+    private final List<CustomChart> charts = new ArrayList<>();
+    // Is bStats enabled on this server?
+    private boolean enabled;
+    // The uuid of the server
+    private String serverUUID;
+    // Should failed requests be logged?
+    private boolean logFailedRequests = false;
+
+    /**
+     * Class constructor.
+     *
+     * @param plugin   The plugin which stats should be submitted.
+     * @param pluginId The id of the plugin.
+     *                 It can be found at <a href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
+     */
+    public Metrics(Plugin plugin, int pluginId) {
+        this.plugin = plugin;
+        this.pluginId = pluginId;
+
+        try {
+            loadConfig();
+        } catch (IOException e) {
+            // Failed to load configuration
+            plugin.getLogger().log(Level.WARNING, "Failed to load bStats config!", e);
+            return;
+        }
+
+        // We are not allowed to send data about this server :(
+        if (!enabled) {
+            return;
+        }
+
+        Class<?> usedMetricsClass = getFirstBStatsClass();
+        if (usedMetricsClass == null) {
+            // Failed to get first metrics class
+            return;
+        }
+        if (usedMetricsClass == getClass()) {
+            // We are the first! :)
+            linkMetrics(this);
+            startSubmitting();
+        } else {
+            // We aren't the first so we link to the first metrics class
+            try {
+                usedMetricsClass.getMethod("linkMetrics", Object.class).invoke(null, this);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                if (logFailedRequests) {
+                    plugin.getLogger().log(Level.WARNING, "Failed to link to first metrics class " + usedMetricsClass.getName() + "!", e);
+                }
+            }
+        }
     }
 
     /**
@@ -492,6 +491,7 @@ public class Metrics {
             data.addProperty("value", value);
             return data;
         }
+
     }
 
     /**
@@ -536,6 +536,7 @@ public class Metrics {
             data.add("values", values);
             return data;
         }
+
     }
 
     /**
@@ -585,6 +586,7 @@ public class Metrics {
             data.add("values", values);
             return data;
         }
+
     }
 
     /**

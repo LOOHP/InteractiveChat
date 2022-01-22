@@ -255,4 +255,5 @@ public class ICPlayerEquipment implements EntityEquipment {
     public Entity getHolder() {
         return null;
     }
+
 }

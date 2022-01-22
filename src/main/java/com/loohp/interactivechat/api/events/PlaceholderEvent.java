@@ -16,6 +16,10 @@ import org.bukkit.event.HandlerList;
 public class PlaceholderEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     protected final ICPlayer sender;
     protected final Player receiver;
     protected final long timeSent;
@@ -33,10 +37,6 @@ public class PlaceholderEvent extends Event implements Cancellable {
 
     public PlaceholderEvent(Player receiver, Component component, long timeSent) {
         this(null, receiver, component, timeSent);
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     public boolean hasSender() {

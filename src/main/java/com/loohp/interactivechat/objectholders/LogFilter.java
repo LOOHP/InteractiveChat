@@ -120,4 +120,5 @@ public class LogFilter implements Filter {
     public Filter.Result getOnMismatch() {
         return Filter.Result.NEUTRAL;
     }
+
 }

@@ -16,6 +16,10 @@ import java.util.UUID;
 public class PreChatPacketSendEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     private final Player reciever;
     private final PacketContainer packet;
     private final UUID sender;
@@ -32,10 +36,6 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         this.original = original;
         this.sendOriginalIfCancelled = sendOriginalIfCancelled;
         this.cancel = cancelled;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     @Override

@@ -466,6 +466,7 @@ public class PluginMessageSendingVelocity {
         public String getName() {
             return name;
         }
+
     }
 
 }

@@ -43,10 +43,6 @@ public class ComponentCompacting {
 
     private static final TextDecoration[] DECORATIONS = TextDecoration.values();
 
-    private ComponentCompacting() {
-
-    }
-
     public static Component optimize(Component component) {
         return optimizeStyle(optimizeEvents(component), null);
     }
@@ -146,8 +142,6 @@ public class ComponentCompacting {
         return optimized.children(childrenToAppend);
     }
 
-    // todo(kashike): extract
-
     /**
      * Simplify the provided style to remove any information that is redundant.
      *
@@ -188,7 +182,14 @@ public class ComponentCompacting {
         return builder.build();
     }
 
+    // todo(kashike): extract
+
     private static TextComponent concatContentWithFirstStyleAndSecondChildren(final TextComponent one, final TextComponent two) {
         return Component.text(one.content() + two.content(), one.style()).children(two.children());
     }
+
+    private ComponentCompacting() {
+
+    }
+
 }

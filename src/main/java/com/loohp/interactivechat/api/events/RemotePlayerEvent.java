@@ -13,15 +13,15 @@ import org.bukkit.event.HandlerList;
 public class RemotePlayerEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     protected final ICPlayer player;
 
     public RemotePlayerEvent(ICPlayer player) {
         super(!Bukkit.isPrimaryThread());
         this.player = player;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     public ICPlayer getPlayer() {

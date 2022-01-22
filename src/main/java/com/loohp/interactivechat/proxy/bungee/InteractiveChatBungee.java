@@ -85,9 +85,9 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
     public static final int BSTATS_PLUGIN_ID = 8839;
     public static final String CONFIG_ID = "config";
-
+    private static final Map<Integer, byte[]> incomming = new HashMap<>();
+    private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static boolean viaVersionHook = false;
-
     public static InteractiveChatBungee plugin;
     public static Metrics metrics;
     public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
@@ -100,8 +100,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
     protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
     private static volatile boolean filtersAdded = false;
-    private static final Map<Integer, byte[]> incomming = new HashMap<>();
-    private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
 

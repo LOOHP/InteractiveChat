@@ -44,7 +44,9 @@ public class WrappedString {
         WrappedString other = (WrappedString) obj;
         if (string == null) {
             return other.string == null;
-        } else return string.equals(other.string);
+        } else {
+            return string.equals(other.string);
+        }
     }
 
 }

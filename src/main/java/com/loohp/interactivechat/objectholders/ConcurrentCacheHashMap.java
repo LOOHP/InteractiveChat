@@ -283,6 +283,7 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         public void clear() {
             backingMap.clear();
         }
+
     }
 
     public static class ConcurrentCacheHashMapValueCollection<K, V> implements Collection<V> {
@@ -384,6 +385,7 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         public void clear() {
             backingMap.clear();
         }
+
     }
 
     public static class ConcurrentCacheHashMapEntrySet<K, V> implements Set<Entry<K, V>> {

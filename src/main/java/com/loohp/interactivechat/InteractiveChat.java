@@ -287,8 +287,6 @@ public class InteractiveChat extends JavaPlugin {
     public static PlaceholderCooldownManager placeholderCooldownManager;
     public static Database database;
 
-    public ProcessExternalMessage externalProcessor;
-
     /**
      * <b>Do not invoke unless you know what you are doing!!!</b>
      */
@@ -339,6 +337,7 @@ public class InteractiveChat extends JavaPlugin {
             sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
         }
     }
+    public ProcessExternalMessage externalProcessor;
 
     @Override
     public void onEnable() {

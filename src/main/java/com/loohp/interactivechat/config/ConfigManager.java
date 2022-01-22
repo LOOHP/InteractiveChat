@@ -382,4 +382,5 @@ public class ConfigManager {
         InteractiveChat.upperSharedInventory.clear();
         InteractiveChat.lowerSharedInventory.clear();
     }
+
 }

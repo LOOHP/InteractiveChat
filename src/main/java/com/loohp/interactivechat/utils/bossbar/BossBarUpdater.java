@@ -13,6 +13,15 @@ import java.util.Set;
 
 public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable {
 
+    public static BossBarUpdater update(BossBar bossbar, Player... players) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+            return new BossBarUpdaterV1_16Impl(bossbar, players);
+        } else if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_9)) {
+            return new BossBarUpdaterV1_9Impl(bossbar, players);
+        } else {
+            throw new UnsupportedOperationException("Bossbars are not supported on this version of Minecraft.");
+        }
+    }
     protected BossBar bossbar;
     protected Player[] players;
     protected boolean isValid;
@@ -22,16 +31,6 @@ public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable 
         this.bossbar = bossbar;
         this.players = players;
         this.isValid = true;
-    }
-
-    public static BossBarUpdater update(BossBar bossbar, Player... players) {
-        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-            return new BossBarUpdaterV1_16Impl(bossbar, players);
-        } else if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_9)) {
-            return new BossBarUpdaterV1_9Impl(bossbar, players);
-        } else {
-            throw new UnsupportedOperationException("Bossbars are not supported on this version of Minecraft.");
-        }
     }
 
     @Override

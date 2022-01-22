@@ -21,14 +21,6 @@ public enum MCVersion {
     V1_8("1.8", 0),
     UNSUPPORTED("Unsupported", -1);
 
-    private final String name;
-    private final int shortNum;
-
-    MCVersion(String name, int shortNum) {
-        this.name = name;
-        this.shortNum = shortNum;
-    }
-
     public static MCVersion fromPackageName(String packageName) {
         if (packageName.contains("1_18_R1")) {
             return V1_18;
@@ -76,6 +68,13 @@ public enum MCVersion {
             }
         }
         return UNSUPPORTED;
+    }
+    private final String name;
+    private final int shortNum;
+
+    MCVersion(String name, int shortNum) {
+        this.name = name;
+        this.shortNum = shortNum;
     }
 
     @Override

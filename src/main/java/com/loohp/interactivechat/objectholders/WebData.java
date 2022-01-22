@@ -19,6 +19,17 @@ public class WebData {
 
     public static final String URL = "https://api.loohpjames.com/spigot/plugins/interactivechat";
     private static WebData INSTANCE = null;
+
+    public static WebData getInstance() {
+        return INSTANCE;
+    }
+
+    public static WebData newInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new WebData();
+        }
+        return INSTANCE;
+    }
     private JSONObject json;
     private List<CustomPlaceholder> specialPlaceholders;
 
@@ -45,17 +56,6 @@ public class WebData {
 
         reload();
         run();
-    }
-
-    public static WebData getInstance() {
-        return INSTANCE;
-    }
-
-    public static WebData newInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new WebData();
-        }
-        return INSTANCE;
     }
 
     private void run() {

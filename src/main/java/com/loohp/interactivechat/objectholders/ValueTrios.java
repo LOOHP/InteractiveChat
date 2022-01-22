@@ -60,7 +60,9 @@ public class ValueTrios<F, S, T> {
         }
         if (third == null) {
             return other.third == null;
-        } else return third.equals(other.third);
+        } else {
+            return third.equals(other.third);
+        }
     }
 
 }

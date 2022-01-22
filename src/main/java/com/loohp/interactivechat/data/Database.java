@@ -29,11 +29,7 @@ public class Database {
         COLUMNS.put("INV_DISPLAY_LAYOUT", "int");
     }
 
-    public boolean isMYSQL = false;
-
     private final boolean bungee;
-
-    private Connection connection;
     private final File dataFolder;
     private final String storageType;
     private final String host;
@@ -42,6 +38,8 @@ public class Database {
     private final String password;
     private final String table = "InteractiveChat_USER_PERFERENCES";
     private final int port;
+    public boolean isMYSQL = false;
+    private Connection connection;
 
     public Database(boolean bungee, File dataFolder, String storageType, String host, String database, String username, String password, int port) {
         this.bungee = bungee;

@@ -96,7 +96,9 @@ public class OfflineICPlayer {
         OfflineICPlayer other = (OfflineICPlayer) obj;
         if (uuid == null) {
             return other.uuid == null;
-        } else return uuid.equals(other.uuid);
+        } else {
+            return uuid.equals(other.uuid);
+        }
     }
 
 }

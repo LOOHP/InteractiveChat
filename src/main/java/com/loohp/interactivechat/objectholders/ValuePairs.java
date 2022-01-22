@@ -49,7 +49,9 @@ public class ValuePairs<F, S> {
         }
         if (second == null) {
             return other.second == null;
-        } else return second.equals(other.second);
+        } else {
+            return second.equals(other.second);
+        }
     }
 
 }

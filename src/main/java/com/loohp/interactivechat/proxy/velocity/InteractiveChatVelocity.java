@@ -90,7 +90,9 @@ public class InteractiveChatVelocity {
 
     public static final int BSTATS_PLUGIN_ID = 10945;
     public static final String CONFIG_ID = "config";
-
+    private static final boolean filtersAdded = false;
+    private static final Map<Integer, byte[]> incomming = new HashMap<>();
+    private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static InteractiveChatVelocity plugin = null;
     public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
     public static List<String> parseCommands = new ArrayList<>();
@@ -102,23 +104,8 @@ public class InteractiveChatVelocity {
     protected static Random random = new Random();
     protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
     protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
-    private static final boolean filtersAdded = false;
-    private static final Map<Integer, byte[]> incomming = new HashMap<>();
-    private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
-    private VelocityPluginDescription description;
-    private final Logger logger;
-    private final File dataFolder;
-    private final Metrics.Factory metricsFactory;
-
-    @Inject
-    public InteractiveChatVelocity(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, @DataDirectory Path dataDirectory) {
-        InteractiveChatVelocity.proxyServer = server;
-        this.logger = logger;
-        this.metricsFactory = metricsFactory;
-        this.dataFolder = dataDirectory.toFile();
-    }
 
     public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
         return Collections.unmodifiableMap(serverInteractiveChatInfo);
@@ -164,6 +151,18 @@ public class InteractiveChatVelocity {
 
     public static void sendMessage(Object sender, Component component) {
         NativeAdventureConverter.sendNativeAudienceMessage(sender, component, false);
+    }
+    private final Logger logger;
+    private final File dataFolder;
+    private final Metrics.Factory metricsFactory;
+    private VelocityPluginDescription description;
+
+    @Inject
+    public InteractiveChatVelocity(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, @DataDirectory Path dataDirectory) {
+        InteractiveChatVelocity.proxyServer = server;
+        this.logger = logger;
+        this.metricsFactory = metricsFactory;
+        this.dataFolder = dataDirectory.toFile();
     }
 
     @Subscribe

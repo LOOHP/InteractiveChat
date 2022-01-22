@@ -18,6 +18,10 @@ import java.util.UUID;
 public class PrePacketComponentProcessEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
     private final Player reciever;
     private Component component;
     private UUID sender;
@@ -27,10 +31,6 @@ public class PrePacketComponentProcessEvent extends Event {
         this.reciever = reciever;
         this.component = component;
         this.sender = sender;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     public Player getReciver() {

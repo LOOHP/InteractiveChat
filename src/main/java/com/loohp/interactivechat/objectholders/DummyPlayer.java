@@ -12,14 +12,6 @@ import java.util.UUID;
 
 public abstract class DummyPlayer implements Player {
 
-    private final String name;
-    private final UUID uuid;
-
-    public DummyPlayer(String name, UUID uuid) {
-        this.name = name;
-        this.uuid = uuid;
-    }
-
     public static DummyPlayer newInstance(String name, UUID uuid) {
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(DummyPlayer.class);
@@ -43,6 +35,13 @@ public abstract class DummyPlayer implements Player {
             e.printStackTrace();
         }
         return null;
+    }
+    private final String name;
+    private final UUID uuid;
+
+    public DummyPlayer(String name, UUID uuid) {
+        this.name = name;
+        this.uuid = uuid;
     }
 
     @Override

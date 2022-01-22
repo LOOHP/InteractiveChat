@@ -519,14 +519,13 @@ public class InteractiveChatAPI {
             }
         }
 
+        public static SharedType fromValue(int value) {
+            return MAPPINGS.get(value);
+        }
         private final int value;
 
         SharedType(int value) {
             this.value = value;
-        }
-
-        public static SharedType fromValue(int value) {
-            return MAPPINGS.get(value);
         }
 
         public int getValue() {
@@ -534,4 +533,5 @@ public class InteractiveChatAPI {
         }
 
     }
+
 }

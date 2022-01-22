@@ -37,7 +37,7 @@ Messages:
 
   PlayerOnlyCommand: "&cThis command cannot be used in the console!"
   InvalidPlayer: "&cThat is not a valid player!"
-  NoEnoughArgs: "&cInsufficent arguments!"
+  NoEnoughArgs: "&cInsufficient arguments!"
   InvalidArgs: "&cInvalid arguments!"
 
 Settings:
@@ -85,7 +85,7 @@ Settings:
   #Visit this page for all the languages that Minecraft offers:
   #https://minecraft.fandom.com/wiki/Language
   Language: en_us
-  #Use indiviual permissions for custom placeholders
+  #Use individual permissions for custom placeholders
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1
   UseCustomPlaceholderPermissions: false
@@ -93,7 +93,7 @@ Settings:
   ContainerViewTitle: "Container Contents"
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
-  #This list is in REGEX so you can do some more advanced matches.
+  #This list is in REGEX, so you can do some more advanced matches.
   CommandsToParse:
     - "(?i)/emsg .*"
     - "(?i)/msg .*"
@@ -101,14 +101,13 @@ Settings:
     - "(?i)/tell .*"
     - "(?i)/r .*"
   #A list of chat messages to ignore
-  #This list is in REGEX so you can do some more advanced matches.
+  #This list is in REGEX, so you can do some more advanced matches.
   MessagesToIgnore:
     - ".*\\[.*IGNORE.*\\].*"
   #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
   #Placeholders will not be parsed when a player is in cooldown
   UniversalCooldown: 0
-  #Maximum Placholders that can be used in one message
-  #Message will be cancelled if the limit is reached
+  #Maximum Placeholders that can be used in one message will be cancelled if the limit is reached
   #Put in -1 to disable the limit
   MaxPlaceholders: -1
   #Settings for if the plugin is unable to fetch a placeholder
@@ -146,7 +145,7 @@ Settings:
       ReplaceText: '&c{Placeholder}&r'
 
 Commands:
-  #Whether or not to make commands displayed in chat clickable
+  #Whether to make commands displayed in chat clickable
   Enabled: true
   #The formatting to trigger the command display function
   Format: "[{Command}]"
@@ -234,7 +233,7 @@ Chat:
   MentionHighlight: "&e{MentionedPlayer}"
 
   #The text to show when the player mentioned hover over the highlighted text
-  #Use {Sender} and {Reciever}
+  #Use {Sender} and {Receiver}
   MentionHoverText:
     - "&b{Sender} mentioned you!"
 
@@ -289,7 +288,7 @@ ItemDisplay:
     Description: "&aShow the Item you are holding in the chat!"
 
     HoverableItemsTranslation:
-      #Whether or not to make all chat message item tooltips clickable (e.g. death messages, give command results)
+      #Whether to make all chat message item tooltips clickable (e.g. death messages, give command results)
       #Only have an effect if GUIEnabled is enabled above
       Enabled: true
       #The title of the inventory view
@@ -353,7 +352,7 @@ Player:
   OverrideOriginal:
     HoverEvent: true
     ClickEvent: true
-  #Whether or not names have to be capitalized correctly to be replaced
+  #Whether names have to be capitalized correctly to be replaced
   CaseSensitive: true
   Hover:
     #Add a hover message to all player names in chat
@@ -389,10 +388,10 @@ TabCompletion:
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
 #Note that all settings have to be present even if they are set to false
-#Just copy everything and change each setting so you do not end up messing up
+#Just copy everything and change each setting, so you do not end up messing up
 CustomPlaceholders:
   '1':
-    #Should the placholders be parsed with the message sender or the reciever
+    #Should the placeholders be parsed with the message sender or the receiver
     #Either 'sender' or 'viewer'
     ParsePlayer: sender
     #The keyword to look for in the chat (in regex)

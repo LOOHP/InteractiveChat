@@ -37,7 +37,7 @@ Messages:
 
   PlayerOnlyCommand: "&cThis command cannot be used in the console!"
   InvalidPlayer: "&cThat is not a valid player!"
-  NoEnoughArgs: "&cInsufficent arguments!"
+  NoEnoughArgs: "&cInsufficient arguments!"
   InvalidArgs: "&cInvalid arguments!"
 
 Settings:
@@ -47,7 +47,17 @@ Settings:
   #Add their chat listening class to this list if InteractiveChat is conflicting with a plugin that reads input from chat
   #You DO NOT have to add normal chat formatting plugins in this list
   #Format: "Plugin:<REGEX of Plugin Name>, Class:<REGEX of Class Name>, EventPriority:<String of EventPriority>"
-  ChatListeningPlugins: []
+  ChatListeningPlugins:
+    - "Plugin:PlayerWarps, Class:.*, EventPriority:LOWEST"
+    - "Plugin:QuickShop, Class:.*, EventPriority:LOWEST"
+    - "Plugin:WordGamesPlus, Class:.*, EventPriority:MONITOR"
+    - "Plugin:MangoQuest, Class:.*, EventPriority:NORMAL"
+    - "Plugin:Quests, Class:.*, EventPriority:NORMAL"
+    - "Plugin:JetsMinions, Class:.*, EventPriority:NORMAL"
+    - "Plugin:Slimefun, Class:.*, EventPriority:LOWEST"
+    - "Plugin:ChatBubbles, Class:.*, EventPriority:NORMAL"
+    - "Plugin:BankPlus, Class:.*, EventPriority:MONITOR"
+  #Turn this off if InteractiveChat is conflicting with a plugin that reads input from chat
   UseAccurateSenderParser: true
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
@@ -63,7 +73,8 @@ Settings:
     #Matching group 1-6 should be EACH of the characters in the RGB hex code
     #For example, the regex for "#123456" should be
     #"#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
-    AdditionalRGBFormats: []
+    AdditionalRGBFormats:
+      - "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
   BungeecordUnknownItem:
     ReplaceItem: BARRIER
     DisplayName: "&cUnknown Item {Type}"
@@ -74,7 +85,7 @@ Settings:
   #Visit this page for all the languages that Minecraft offers:
   #https://minecraft.fandom.com/wiki/Language
   Language: en_us
-  #Use indiviual permissions for custom placeholders
+  #Use individual permissions for custom placeholders
   #For example the first custom placeholder will have the permission
   #interactivechat.module.custom.1
   UseCustomPlaceholderPermissions: false
@@ -82,17 +93,21 @@ Settings:
   ContainerViewTitle: "Container Contents"
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
-  #This list is in REGEX so you can do some more advanced matches.
-  CommandsToParse: []
+  #This list is in REGEX, so you can do some more advanced matches.
+  CommandsToParse:
+    - "(?i)/emsg .*"
+    - "(?i)/msg .*"
+    - "(?i)/pm .*"
+    - "(?i)/tell .*"
+    - "(?i)/r .*"
   #A list of chat messages to ignore
-  #This list is in REGEX so you can do some more advanced matches.
+  #This list is in REGEX, so you can do some more advanced matches.
   MessagesToIgnore:
     - ".*\\[.*IGNORE.*\\].*"
   #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
   #Placeholders will not be parsed when a player is in cooldown
   UniversalCooldown: 0
-  #Maximum Placholders that can be used in one message
-  #Message will be cancelled if the limit is reached
+  #Maximum Placeholders that can be used in one message will be cancelled if the limit is reached
   #Put in -1 to disable the limit
   MaxPlaceholders: -1
   #Settings for if the plugin is unable to fetch a placeholder
@@ -130,7 +145,7 @@ Settings:
       ReplaceText: '&c{Placeholder}&r'
 
 Commands:
-  #Whether or not to make commands displayed in chat clickable
+  #Whether to make commands displayed in chat clickable
   Enabled: true
   #The formatting to trigger the command display function
   Format: "[{Command}]"
@@ -218,7 +233,7 @@ Chat:
   MentionHighlight: "&e{MentionedPlayer}"
 
   #The text to show when the player mentioned hover over the highlighted text
-  #Use {Sender} and {Reciever}
+  #Use {Sender} and {Receiver}
   MentionHoverText:
     - "&b{Sender} mentioned you!"
 
@@ -246,7 +261,7 @@ ItemDisplay:
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Item"
     #Cooldown of this placeholder
-    Cooldown: 20
+    Cooldown: 0
     #Enable the click GUI
     GUIEnabled: true
     #Enable the chat hover tooltip
@@ -266,13 +281,14 @@ ItemDisplay:
       AllowAir: true
       #Message to send when AllowAir is false and a player tried to show nothing
       DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
-    #This name is used when listing placeholders
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
     Name: "[item]"
-    #This description is used when listing placeholders 
+    #This description is used when listing placeholders
     Description: "&aShow the Item you are holding in the chat!"
 
     HoverableItemsTranslation:
-      #Whether or not to make all chat message item tooltips clickable (e.g. death messages, give command results)
+      #Whether to make all chat message item tooltips clickable (e.g. death messages, give command results)
       #Only have an effect if GUIEnabled is enabled above
       Enabled: true
       #The title of the inventory view
@@ -301,9 +317,10 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
-    #This name is used when listing placeholders
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
     Name: "[inv]"
-    #This description is used when listing placeholders 
+    #This description is used when listing placeholders
     Description: "&bShow your Inventory in the chat!"
 
   EnderChest:
@@ -320,13 +337,14 @@ ItemDisplay:
     #Hover Message
     HoverMessage:
       - "&bClick to view!"
-    #This name is used when listing placeholders
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy your keyword
     Name: "[ender]"
-    #This description is used when listing placeholders 
+    #This description is used when listing placeholders
     Description: "&dShow your Ender Chest in the chat!"
 
 Player:
-  #Let InteractiveChat handle all player names that appears in chat
+  #Let InteractiveChat handle all player names that appears in chat (literally ALL)
   UsePlayerNameInteraction: true
   #Let InteractiveChat override original hover/click events with its own hover/click events
   #If it is set to false, the original hover/click event will take priority
@@ -334,7 +352,7 @@ Player:
   OverrideOriginal:
     HoverEvent: true
     ClickEvent: true
-  #Whether or not names have to be capitalized correctly to be replaced
+  #Whether names have to be capitalized correctly to be replaced
   CaseSensitive: true
   Hover:
     #Add a hover message to all player names in chat
@@ -370,5 +388,5 @@ TabCompletion:
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
 #Note that all settings have to be present even if they are set to false
-#Just copy everything and change each setting so you do not end up messing up
+#Just copy everything and change each setting, so you do not end up messing up
 CustomPlaceholders: []

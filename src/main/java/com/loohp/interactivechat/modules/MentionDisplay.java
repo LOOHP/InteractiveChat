@@ -136,7 +136,7 @@ public class MentionDisplay {
     public static Component processPlayer(String placeholder, Player reciever, ICPlayer sender, Component component, long unix) {
         String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder));
         Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
-        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()));
+        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()).replace("{Receiver}", reciever.getDisplayName()));
         HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));
         replacement = replacement.hoverEvent(hoverEvent);
         return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, replacement);

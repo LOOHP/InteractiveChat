@@ -42,6 +42,7 @@ import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.PotionUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
+import com.loohp.yamlconfiguration.YamlConfiguration;
 import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -65,8 +66,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.simpleyaml.configuration.file.FileConfiguration;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -233,9 +232,9 @@ public class InteractiveChat extends JavaPlugin {
 
     public static List<MentionPair> mentionPair = Collections.synchronizedList(new ArrayList<>());
     public static String mentionPrefix = "@";
-    public static String mentionHightlight = "&e{MentionedPlayer}";
+    public static String mentionHighlight = "&e{MentionedPlayer}";
     public static String mentionHover = "&e{MentionedPlayer}";
-    public static long mentionDuration = 2;
+    public static double mentionDuration = 2;
     public static String mentionEnable = "";
     public static String mentionDisable = "";
 
@@ -337,6 +336,7 @@ public class InteractiveChat extends JavaPlugin {
             sender.spigot().sendMessage(ComponentSerializer.parse(InteractiveChatComponentSerializer.gson().serialize(component)));
         }
     }
+
     public ProcessExternalMessage externalProcessor;
 
     @Override
@@ -361,7 +361,7 @@ public class InteractiveChat extends JavaPlugin {
         }
         try {
             ConfigManager.setup();
-        } catch (IOException | InvalidConfigurationException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -397,7 +397,7 @@ public class InteractiveChat extends JavaPlugin {
             }, 0, 100);
         }
 
-        FileConfiguration storage = ConfigManager.getStorageConfig();
+        YamlConfiguration storage = ConfigManager.getStorageConfig();
         database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));
         database.setup();
 

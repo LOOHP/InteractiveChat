@@ -48,7 +48,6 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.Chat;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 import us.myles.ViaVersion.api.Via;
 
 import java.io.File;
@@ -147,11 +146,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
     public static void loadConfig() {
         Config config = Config.getConfig(CONFIG_ID);
-        try {
-            config.reload();
-        } catch (InvalidConfigurationException | IOException e) {
-            e.printStackTrace();
-        }
+        config.reload();
 
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
@@ -186,7 +181,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         }
         try {
             Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getResourceAsStream("config_proxy.yml"), getResourceAsStream("config_proxy.yml"), true);
-        } catch (IOException | InvalidConfigurationException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }

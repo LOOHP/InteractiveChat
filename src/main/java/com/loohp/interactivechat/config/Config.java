@@ -1,9 +1,7 @@
 package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.utils.FileUtils;
-import org.simpleyaml.configuration.comments.CommentType;
-import org.simpleyaml.configuration.file.YamlFile;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
+import com.loohp.yamlconfiguration.YamlConfiguration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +20,7 @@ public class Config {
         return CONFIGS.get(id);
     }
 
-    public static void reloadConfigs() throws InvalidConfigurationException, IOException {
+    public static void reloadConfigs() throws IOException {
         for (Config config : CONFIGS.values()) {
             config.reload();
         }
@@ -34,7 +32,7 @@ public class Config {
         }
     }
 
-    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException, InvalidConfigurationException {
+    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException {
         if (CONFIGS.containsKey(id)) {
             throw new IllegalArgumentException("Duplicate config id");
         }
@@ -48,11 +46,11 @@ public class Config {
         return config;
     }
 
-    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException, InvalidConfigurationException {
+    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException {
         return loadConfig(id, file, ifNotFound, def, refreshComments, null);
     }
 
-    public static Config loadConfig(String id, File file) {
+    public static Config loadConfig(String id, File file) throws IOException {
         if (getConfig(id) != null) {
             throw new IllegalArgumentException("Duplicate config id");
         }
@@ -82,38 +80,36 @@ public class Config {
     }
 
     private File file;
-    private YamlFile defConfig;
-    private YamlFile config;
+    private YamlConfiguration defConfig;
+    private YamlConfiguration config;
 
-    private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException, InvalidConfigurationException {
+    private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException {
         this.file = file;
 
-        defConfig = YamlFile.loadConfiguration(def, true);
-        config = new YamlFile(file);
-        config.loadWithComments();
+        defConfig = new YamlConfiguration(def);
+        config = new YamlConfiguration(file);
 
         if (dataFixer != null) {
             dataFixer.accept(this);
-            config = new YamlFile(file);
-            config.loadWithComments();
+            config.reload();
         }
 
         for (String path : defConfig.getValues(true).keySet()) {
             if (config.contains(path)) {
                 if (refreshComments) {
-                    config.setComment(path, defConfig.getComment(path, CommentType.BLOCK), CommentType.BLOCK);
+                    config.setAboveComment(path, defConfig.getAboveComment(path));
                 }
             } else if (!defConfig.isConfigurationSection(path)) {
                 config.set(path, defConfig.get(path));
-                config.setComment(path, defConfig.getComment(path, CommentType.BLOCK), CommentType.BLOCK);
+                config.setAboveComment(path, defConfig.getAboveComment(path));
             }
         }
 
         save();
     }
 
-    private Config(File file) {
-        config = YamlFile.loadConfiguration(file, true);
+    private Config(File file) throws IOException {
+        config = new YamlConfiguration(file);
         save();
     }
 
@@ -126,22 +122,14 @@ public class Config {
     }
 
     public void save(File file) {
-        try {
-            for (String path : config.getValues(true).keySet()) {
-                config.setComment(path, null, CommentType.SIDE);
-            }
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        config.save(file);
     }
 
-    public void reload() throws InvalidConfigurationException, IOException {
-        config = new YamlFile(file);
-        config.loadWithComments();
+    public void reload() {
+        config.reload();
     }
 
-    public YamlFile getConfiguration() {
+    public YamlConfiguration getConfiguration() {
         return config;
     }
 

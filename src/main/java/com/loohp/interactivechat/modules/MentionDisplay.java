@@ -45,7 +45,7 @@ public class MentionDisplay {
         if (optPair.isPresent()) {
             MentionPair pair = optPair.get();
             if (pair.getSender().equals(sender.getUniqueId())) {
-                Player reciever = beenpinged;
+                Player receiver = beenpinged;
 
                 String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
                 String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
@@ -87,7 +87,7 @@ public class MentionDisplay {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + settings);
                 }
 
-                PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, reciever, sender.getUniqueId(), title, subtitle, actionbar, toast, optBossBar, sound, false);
+                PlayerMentionPlayerEvent mentionEvent = new PlayerMentionPlayerEvent(async, receiver, sender.getUniqueId(), title, subtitle, actionbar, toast, optBossBar, sound, false);
                 Bukkit.getPluginManager().callEvent(mentionEvent);
                 if (!mentionEvent.isCancelled()) {
                     title = mentionEvent.getTitle();
@@ -95,27 +95,27 @@ public class MentionDisplay {
                     actionbar = mentionEvent.getActionbar();
 
                     int time = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
-                    TitleUtils.sendTitle(reciever, title, subtitle, actionbar, 10, Math.max(time, 1), 20);
+                    TitleUtils.sendTitle(receiver, title, subtitle, actionbar, 10, Math.max(time, 1), 20);
                     if (sound != null) {
-                        reciever.playSound(reciever.getLocation(), sound, volume, pitch);
+                        receiver.playSound(receiver.getLocation(), sound, volume, pitch);
                     }
                     if (!mentionEvent.getToast().isEmpty() && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
-                        ToastUtils.mention(sender, reciever, toast, WRITABLE_BOOK.clone());
+                        ToastUtils.mention(sender, receiver, toast, WRITABLE_BOOK.clone());
                     }
 
                     int bossBarTime = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.Duration") * 20);
                     int bossBarRemoveDelay = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.RemoveDelay") * 20);
                     if (mentionEvent.getBossBar().isPresent() && !InteractiveChat.version.isOld()) {
-                        BossBarUpdater updater = BossBarUpdater.update(mentionEvent.getBossBar().get(), reciever);
+                        BossBarUpdater updater = BossBarUpdater.update(mentionEvent.getBossBar().get(), receiver);
                         BossBarUtils.countdownBossBar(updater, Math.max(bossBarTime, 1), Math.max(bossBarRemoveDelay, 0));
                     }
 
                     List<String> names = new ArrayList<>();
-                    names.add(ChatColorUtils.stripColor(reciever.getName()));
-                    if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(reciever.getName()).equals(ChatColorUtils.stripColor(reciever.getDisplayName()))) {
-                        names.add(ChatColorUtils.stripColor(reciever.getDisplayName()));
+                    names.add(ChatColorUtils.stripColor(receiver.getName()));
+                    if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(receiver.getName()).equals(ChatColorUtils.stripColor(receiver.getDisplayName()))) {
+                        names.add(ChatColorUtils.stripColor(receiver.getDisplayName()));
                     }
-                    List<String> list = InteractiveChatAPI.getNicknames(reciever.getUniqueId());
+                    List<String> list = InteractiveChatAPI.getNicknames(receiver.getUniqueId());
                     for (String name : list) {
                         names.add(ChatColorUtils.stripColor(name));
                     }
@@ -123,7 +123,7 @@ public class MentionDisplay {
                     names.add("everyone");
 
                     for (String name : names) {
-                        component = processPlayer(InteractiveChat.mentionPrefix + name, reciever, sender, component, unix);
+                        component = processPlayer(InteractiveChat.mentionPrefix + name, receiver, sender, component, unix);
                     }
 
                     pair.remove();
@@ -134,7 +134,7 @@ public class MentionDisplay {
     }
 
     public static Component processPlayer(String placeholder, Player reciever, ICPlayer sender, Component component, long unix) {
-        String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHightlight.replace("{MentionedPlayer}", placeholder));
+        String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlight.replace("{MentionedPlayer}", placeholder));
         Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
         String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()).replace("{Receiver}", reciever.getDisplayName()));
         HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));

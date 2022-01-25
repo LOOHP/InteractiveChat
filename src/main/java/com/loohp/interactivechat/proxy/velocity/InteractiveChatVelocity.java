@@ -56,7 +56,6 @@ import org.apache.logging.log4j.core.Filter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -152,6 +151,7 @@ public class InteractiveChatVelocity {
     public static void sendMessage(Object sender, Component component) {
         NativeAdventureConverter.sendNativeAudienceMessage(sender, component, false);
     }
+
     private final Logger logger;
     private final File dataFolder;
     private final Metrics.Factory metricsFactory;
@@ -181,7 +181,7 @@ public class InteractiveChatVelocity {
         }
         try {
             Config.loadConfig(CONFIG_ID, new File(getDataFolder(), "bungeeconfig.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), getClass().getClassLoader().getResourceAsStream("config_proxy.yml"), true);
-        } catch (IOException | InvalidConfigurationException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
@@ -261,11 +261,7 @@ public class InteractiveChatVelocity {
 
     public void loadConfig() {
         Config config = Config.getConfig(CONFIG_ID);
-        try {
-            config.reload();
-        } catch (InvalidConfigurationException | IOException e) {
-            e.printStackTrace();
-        }
+        config.reload();
 
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");

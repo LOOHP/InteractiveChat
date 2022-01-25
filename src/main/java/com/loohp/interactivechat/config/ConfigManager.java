@@ -16,6 +16,8 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.XMaterialUtils;
+import com.loohp.yamlconfiguration.ConfigurationSection;
+import com.loohp.yamlconfiguration.YamlConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -23,9 +25,6 @@ import org.bukkit.Material;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.simpleyaml.configuration.ConfigurationSection;
-import org.simpleyaml.configuration.file.FileConfiguration;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,17 +39,17 @@ public class ConfigManager {
     private static final String MAIN_CONFIG = "config";
     private static final String STORAGE_CONFIG = "storage";
 
-    public static void setup() throws IOException, InvalidConfigurationException {
+    public static void setup() throws IOException {
         Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true, config -> ConfigDataFixer.update(config));
         Config.loadConfig(STORAGE_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), true);
         loadConfig();
     }
 
-    public static FileConfiguration getConfig() {
+    public static YamlConfiguration getConfig() {
         return Config.getConfig(MAIN_CONFIG).getConfiguration();
     }
 
-    public static FileConfiguration getStorageConfig() {
+    public static YamlConfiguration getStorageConfig() {
         return Config.getConfig(STORAGE_CONFIG).getConfiguration();
     }
 
@@ -62,7 +61,7 @@ public class ConfigManager {
         try {
             Config.reloadConfigs();
             loadConfig();
-        } catch (InvalidConfigurationException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -300,10 +299,10 @@ public class ConfigManager {
         InteractiveChat.limitReachMessage = getConfig().getString("Messages.LimitReached");
 
         InteractiveChat.mentionPrefix = getConfig().getString("Chat.MentionPrefix");
-        InteractiveChat.mentionHightlight = getConfig().getString("Chat.MentionHighlight");
+        InteractiveChat.mentionHighlight = getConfig().getString("Chat.MentionHighlight");
         List<String> stringList3 = getConfig().getStringList("Chat.MentionHoverText");
         InteractiveChat.mentionHover = String.join("\n", stringList3);
-        InteractiveChat.mentionDuration = getConfig().getLong("Chat.MentionedTitleDuration");
+        InteractiveChat.mentionDuration = getConfig().getDouble("Chat.MentionedTitleDuration");
 
         InteractiveChat.mentionEnable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.EnableMentions"));
         InteractiveChat.mentionDisable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.DisableMentions"));

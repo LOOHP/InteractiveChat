@@ -4,7 +4,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.updater.Version;
 import com.loohp.interactivechat.utils.CustomStringUtils;
-import org.simpleyaml.configuration.ConfigurationSection;
+import com.loohp.yamlconfiguration.ConfigurationSection;
 
 import java.io.File;
 import java.util.Arrays;

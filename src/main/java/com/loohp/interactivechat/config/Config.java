@@ -80,6 +80,7 @@ public class Config {
             return false;
         }
     }
+
     private File file;
     private YamlFile defConfig;
     private YamlFile config;

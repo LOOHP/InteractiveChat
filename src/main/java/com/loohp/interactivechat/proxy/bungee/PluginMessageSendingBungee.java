@@ -32,7 +32,7 @@ public class PluginMessageSendingBungee {
         List<PlayerListPlayerData> dataList = new ArrayList<>();
         for (ProxiedPlayer player : players) {
             if (player.getServer() != null) {
-                dataList.add(new PlayerListPlayerData(player.getServer().getInfo().getName(), player.getUniqueId(), player.getDisplayName()));
+                dataList.add(new PlayerListPlayerData(player.getServer().getInfo().getName(), player.getUniqueId(), player.getName()));
             }
         }
 
@@ -82,7 +82,7 @@ public class PluginMessageSendingBungee {
                 ServerPingBungee response = each.get();
                 if (response.hasInteractiveChat()) {
                     int ping = response.getPing();
-                    return ping < 0 ? 0 : ping;
+                    return Math.max(ping, 0);
                 } else {
                     return 0;
                 }

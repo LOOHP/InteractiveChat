@@ -2,6 +2,7 @@ package com.loohp.interactivechat;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
@@ -32,6 +33,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.NicknameManager;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
@@ -284,6 +286,7 @@ public class InteractiveChat extends JavaPlugin {
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;
     public static PlaceholderCooldownManager placeholderCooldownManager;
+    public static NicknameManager nicknameManager;
     public static Database database;
 
     /**
@@ -500,6 +503,22 @@ public class InteractiveChat extends JavaPlugin {
         ClientSettingPacket.clientSettingsListener();
 
         playerDataManager = new PlayerDataManager(this, database);
+        nicknameManager = new NicknameManager(uuid -> InteractiveChatAPI.getNicknames(uuid), () -> InteractiveChatAPI.getOnlineUUIDs(), 5000, (uuid, nicknames) -> {
+            if (InteractiveChat.bungeecordMode) {
+                Player bukkitPlayer = Bukkit.getPlayer(uuid);
+                if (bukkitPlayer != null) {
+                    Set<String> nicks = new HashSet<>(nicknames);
+                    if (InteractiveChat.useBukkitDisplayName) {
+                        nicks.add(bukkitPlayer.getDisplayName());
+                    }
+                    try {
+                        BungeeMessageSender.forwardNicknames(System.currentTimeMillis(), uuid, nicks);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new Placeholders().register();
@@ -543,6 +562,7 @@ public class InteractiveChat extends JavaPlugin {
             }
         }
         restoreIsolatedChatListeners();
+        nicknameManager.close();
         try {
             OutChatPacket.getAsyncChatSendingExecutor().close();
         } catch (Exception e) {

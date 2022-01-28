@@ -27,7 +27,9 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -37,13 +39,13 @@ public class PlayernameDisplay implements Listener {
 
     private static final Random random = new Random();
     private static final AtomicInteger flag = new AtomicInteger();
-    private static List<ReplaceTextBundle> names = new ArrayList<>();
+    private static Collection<ReplaceTextBundle> names = new LinkedHashSet<>();
 
     public static void setup() {
         Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             int valid = flag.get();
-            List<ReplaceTextBundle> names = getNames();
+            Collection<ReplaceTextBundle> names = getNames();
             Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
                 if (flag.get() == valid) {
                     PlayernameDisplay.names = names;
@@ -52,19 +54,19 @@ public class PlayernameDisplay implements Listener {
         }, 0, 100);
     }
 
-    public static Component process(Component component, Optional<ICPlayer> sender, Player reciever, long unix) {
-        List<ReplaceTextBundle> names = PlayernameDisplay.names;
+    public static Component process(Component component, Optional<ICPlayer> sender, Player receiver, long unix) {
+        Collection<ReplaceTextBundle> names = PlayernameDisplay.names;
         if (names == null) {
             names = getNames();
         }
         for (ReplaceTextBundle entry : names) {
-            component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, reciever, component, unix);
+            component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, unix);
         }
 
         return ComponentCompacting.optimize(component);
     }
 
-    private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player reciever, Component component, long unix) {
+    private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player receiver, Component component, long unix) {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.usePlayerNameCaseSensitive) {
             if (!plain.contains(placeholder)) {
@@ -112,7 +114,7 @@ public class PlayernameDisplay implements Listener {
                 List<Component> withs = new ArrayList<>(trans.args());
                 for (int u = 0; u < withs.size(); u++) {
                     Component with = withs.get(u);
-                    withs.set(u, processPlayer(placeholder, player, sender, reciever, with, unix));
+                    withs.set(u, processPlayer(placeholder, player, sender, receiver, with, unix));
                 }
                 trans = trans.args(withs);
                 children.set(i, trans);
@@ -121,7 +123,7 @@ public class PlayernameDisplay implements Listener {
         return ComponentCompacting.optimize(component.children(children));
     }
 
-    private static List<ReplaceTextBundle> getNames() {
+    private static Collection<ReplaceTextBundle> getNames() {
         List<ReplaceTextBundle> names = new ArrayList<>();
         ICPlayerFactory.getOnlineICPlayers().forEach(each -> {
             if (VanishUtils.isVanished(each.getUniqueId())) {
@@ -131,16 +133,15 @@ public class PlayernameDisplay implements Listener {
             if (InteractiveChat.useBukkitDisplayName && !ChatColorUtils.stripColor(each.getName()).equals(ChatColorUtils.stripColor(each.getDisplayName()))) {
                 names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getDisplayName()), each, each.getDisplayName()));
             }
-            List<String> list = InteractiveChatAPI.getNicknames(each.getUniqueId());
-            for (String name : list) {
-                names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(name), each, name));
+            for (String nickname : each.getNicknames()) {
+                names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(nickname), each, nickname));
             }
         });
 
         CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
         Collections.sort(names, Collections.reverseOrder());
 
-        return names;
+        return new LinkedHashSet<>(names);
     }
 
     private PlayernameDisplay() {

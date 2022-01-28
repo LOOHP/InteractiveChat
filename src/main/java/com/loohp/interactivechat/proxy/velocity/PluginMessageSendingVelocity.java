@@ -86,7 +86,7 @@ public class PluginMessageSendingVelocity {
                 ServerPingVelocity response = each.get();
                 if (response.hasInteractiveChat()) {
                     int ping = response.getPing();
-                    return ping < 0 ? 0 : ping;
+                    return Math.max(ping, 0);
                 } else {
                     return 0;
                 }

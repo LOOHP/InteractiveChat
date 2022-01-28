@@ -1,5 +1,7 @@
 package com.loohp.interactivechat.objectholders;
 
+import java.util.Objects;
+
 public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 
     private final String placeholder;
@@ -26,12 +28,29 @@ public class ReplaceTextBundle implements Comparable<ReplaceTextBundle> {
 
     @Override
     public int compareTo(ReplaceTextBundle anotherReplaceTextBundle) {
-        int compare = Integer.valueOf(placeholder.length()).compareTo(anotherReplaceTextBundle.placeholder.length());
+        int compare = Integer.compare(placeholder.length(), anotherReplaceTextBundle.placeholder.length());
         if (compare != 0) {
             return compare;
         } else {
-            return Integer.valueOf(replaceText.length()).compareTo(anotherReplaceTextBundle.replaceText.length());
+            return Integer.compare(replaceText.length(), anotherReplaceTextBundle.replaceText.length());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ReplaceTextBundle that = (ReplaceTextBundle) o;
+        return placeholder.equals(that.placeholder) && player.equals(that.player) && replaceText.equals(that.replaceText);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(placeholder, player, replaceText);
     }
 
 }

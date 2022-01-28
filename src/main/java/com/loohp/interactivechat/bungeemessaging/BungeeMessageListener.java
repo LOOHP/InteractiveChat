@@ -346,6 +346,18 @@ public class BungeeMessageListener implements PluginMessageListener {
                             break;
                     }
                     break;
+                case 0x11:
+                    UUID playerUUID3 = DataTypeIO.readUUID(input);
+                    int nicknameSize = input.readInt();
+                    Set<String> remotePlaceholder = new HashSet<>();
+                    for (int i = 0; i < nicknameSize; i++) {
+                        remotePlaceholder.add(DataTypeIO.readString(input, StandardCharsets.UTF_8));
+                    }
+                    ICPlayer icPlayer = ICPlayerFactory.getICPlayer(playerUUID3);
+                    if (icPlayer != null) {
+                        icPlayer.setRemoteNicknames(remotePlaceholder);
+                    }
+                    break;
                 case 0xFF:
                     String customChannel = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                     int dataLength = input.readInt();
@@ -355,9 +367,6 @@ public class BungeeMessageListener implements PluginMessageListener {
                     Bukkit.getPluginManager().callEvent(dataEvent);
                     break;
             }
-            //for (Player player : Bukkit.getOnlinePlayers()) {
-            //	player.sendMessage(packetId + "");
-            //}
         } catch (Exception e) {
             e.printStackTrace();
         }

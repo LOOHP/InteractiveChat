@@ -43,7 +43,7 @@ public class PlaceholderParser {
                     }
                 }
             }
-        }, 200, 200);
+        }, 100, 100);
     }
 
     private static Pattern getExpansionPattern() {

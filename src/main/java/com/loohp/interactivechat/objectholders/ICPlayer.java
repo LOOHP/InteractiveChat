@@ -9,7 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ICPlayer extends OfflineICPlayer {
@@ -19,15 +21,18 @@ public class ICPlayer extends OfflineICPlayer {
     private static final Inventory EMPTY_INVENTORY = Bukkit.createInventory(null, 54);
     private static final Inventory EMPTY_ENDERCHEST = Bukkit.createInventory(null, 18);
     private static final ICPlayerEquipment EMPTY_EQUIPMENT = new ICPlayerEquipment();
-    private final Map<String, String> remotePlaceholders;
+
     private String remoteServer;
     private String remoteName;
     private boolean rightHanded;
+    private Set<String> remoteNicknames;
+    private Map<String, String> remotePlaceholders;
 
     protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
         super(uuid, selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
         this.remoteServer = server;
         this.remoteName = name;
+        this.remoteNicknames = new HashSet<>();
         this.remotePlaceholders = new HashMap<>();
     }
 
@@ -35,6 +40,7 @@ public class ICPlayer extends OfflineICPlayer {
         super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
         this.remoteServer = EMPTY_SERVER_REPRESENTATION;
         this.remoteName = player.getName();
+        this.remoteNicknames = new HashSet<>();
         this.remotePlaceholders = new HashMap<>();
     }
 
@@ -146,6 +152,22 @@ public class ICPlayer extends OfflineICPlayer {
 
     public void setRemoteEnderChest(Inventory enderchest) {
         remoteEnderchest = enderchest;
+    }
+
+    public Set<String> getNicknames() {
+        Set<String> nicknames = new HashSet<>(InteractiveChat.nicknameManager.getNicknames(uuid));
+        if (!isLocal()) {
+            nicknames.addAll(remoteNicknames);
+        }
+        return nicknames;
+    }
+
+    public Set<String> getRemoteNicknames() {
+        return remoteNicknames;
+    }
+
+    public void setRemoteNicknames(Set<String> remoteNicknames) {
+        this.remoteNicknames = remoteNicknames;
     }
 
     public Map<String, String> getRemotePlaceholdersMapping() {

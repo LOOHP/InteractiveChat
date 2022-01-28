@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -115,6 +116,10 @@ public class ICPlayerFactory {
 
     public static Collection<ICPlayer> getOnlineICPlayers() {
         return new ArrayList<>(ICPLAYERS.values());
+    }
+
+    public static Set<UUID> getOnlineUUIDs() {
+        return new LinkedHashSet<>(ICPLAYERS.keySet());
     }
 
     public static ICPlayer getICPlayer(Player player) {

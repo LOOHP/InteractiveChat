@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Registry {
 
     public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InterativeChatBungeePing";
-    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 8;
+    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 9;
 
     public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 16;
 
@@ -30,6 +30,7 @@ public class Registry {
         set.add(0x06);
         set.add(0x0E);
         set.add(0x0F);
+        set.add(0x11);
         set.add(0xFF);
         PROXY_PASSTHROUGH_RELAY_PACKETS = Collections.unmodifiableSet(set);
     }

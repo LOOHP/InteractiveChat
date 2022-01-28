@@ -291,4 +291,14 @@ public class BungeeMessageSender {
         return forwardData(time, 0x10, out.toByteArray());
     }
 
+    public static boolean forwardNicknames(long time, UUID player, Set<String> nicknames) throws Exception {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        DataTypeIO.writeUUID(out, player);
+        out.writeInt(nicknames.size());
+        for (String names : nicknames) {
+            DataTypeIO.writeString(out, names, StandardCharsets.UTF_8);
+        }
+        return forwardData(time, 0x11, out.toByteArray());
+    }
+
 }

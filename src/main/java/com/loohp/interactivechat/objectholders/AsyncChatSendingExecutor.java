@@ -23,11 +23,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public class AsyncChatSendingExecutor implements AutoCloseable {
 
-    private final Supplier<Long> executionWaitTime;
+    private final LongSupplier executionWaitTime;
     private final long killThreadAfter;
 
     private final ReentrantLock executeLock;
@@ -41,7 +42,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     private final List<Integer> taskIds;
     private final AtomicBoolean isValid;
 
-    public AsyncChatSendingExecutor(Supplier<Long> executionWaitTime, long killThreadAfter) {
+    public AsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
         ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
         this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
         this.executeLock = new ReentrantLock(true);
@@ -144,7 +145,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                                     Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
                                     if (lastSuccessful == null) {
                                         lastSuccessfulCheck.put(playerUUID, time);
-                                    } else if ((lastSuccessful + executionWaitTime.get()) < time) {
+                                    } else if ((lastSuccessful + executionWaitTime.getAsLong()) < time) {
                                         orderingQueue.poll();
                                         lastSuccessfulCheck.put(playerUUID, time);
                                     }
@@ -209,7 +210,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                     if (Bukkit.getPlayer(entry.getKey()) == null) {
                         itr1.remove();
                     } else {
-                        entry.getValue().removeIf(each -> (each.getTime() + executionWaitTime.get()) < time);
+                        entry.getValue().removeIf(each -> (each.getTime() + executionWaitTime.getAsLong()) < time);
                     }
                 }
 

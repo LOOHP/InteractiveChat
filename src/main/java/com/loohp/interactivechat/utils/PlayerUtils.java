@@ -7,12 +7,16 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +31,10 @@ public class PlayerUtils implements Listener {
 
     private static final Map<UUID, Map<String, PermissionCache>> PERMISSION_CACHE = new ConcurrentHashMap<>();
     private static final ItemStack AIR = new ItemStack(Material.AIR);
+
+    private static Class<?> craftPlayerClass;
+    private static Method craftPlayerGetHandleMethod;
+    private static Field nmsPlayerPingField;
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -48,6 +56,26 @@ public class PlayerUtils implements Listener {
                 }
             }
         }, 0, 600);
+
+        try {
+            craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+            craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
+            nmsPlayerPingField = craftPlayerGetHandleMethod.getReturnType().getField("ping");
+        } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException ignored) {}
+    }
+
+    public static int getPing(Player player) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
+            return player.getPing();
+        } else {
+            try {
+                Object entityPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+                return nmsPlayerPingField.getInt(entityPlayer);
+            } catch (IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return Integer.MAX_VALUE;
     }
 
     public static boolean hasPermission(UUID uuid, String permission, boolean def, int timeout) {

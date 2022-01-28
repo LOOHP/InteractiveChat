@@ -474,6 +474,15 @@ public class InteractiveChatAPI {
     }
 
     /**
+     * Get all online icplayer's uuid
+     *
+     * @return A set of uuid
+     */
+    public static Set<UUID> getOnlineUUIDs() {
+        return ICPlayerFactory.getOnlineUUIDs();
+    }
+
+    /**
      * Get {@link ICPlayer} from a {@link Player}
      *
      * @param player
@@ -522,6 +531,7 @@ public class InteractiveChatAPI {
         public static SharedType fromValue(int value) {
             return MAPPINGS.get(value);
         }
+
         private final int value;
 
         SharedType(int value) {

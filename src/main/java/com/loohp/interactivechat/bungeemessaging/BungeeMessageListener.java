@@ -6,8 +6,8 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ProxyCustomDataRecievedEvent;
-import com.loohp.interactivechat.api.events.RemotePlayerAddedEvent;
-import com.loohp.interactivechat.api.events.RemotePlayerRemovedEvent;
+import com.loohp.interactivechat.api.events.ICPlayerJoinEvent;
+import com.loohp.interactivechat.api.events.ICPlayerQuitEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
@@ -21,6 +21,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
+import com.loohp.interactivechat.objectholders.ICPlayerFactory.RemotePlayerCreateResult;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
@@ -115,23 +116,16 @@ public class BungeeMessageListener implements PluginMessageListener {
                             }
                         }
                         if (!localUUID.contains(uuid) && !ICPlayerFactory.getRemoteUUIDs().contains(uuid)) {
-                            ICPlayer newPlayer = ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
-                            Bukkit.getPluginManager().callEvent(new RemotePlayerAddedEvent(newPlayer));
+                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
                         }
                         newSet.add(uuid);
                     }
                     current.removeAll(newSet);
                     for (UUID uuid : current) {
-                        ICPlayer removedPlayer = ICPlayerFactory.remoteRemoteICPlayer(uuid);
-                        if (removedPlayer != null) {
-                            Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
-                        }
+                        ICPlayerFactory.removeRemoteICPlayer(uuid);
                     }
                     for (UUID uuid : localUUID) {
-                        ICPlayer removedPlayer = ICPlayerFactory.remoteRemoteICPlayer(uuid);
-                        if (removedPlayer != null) {
-                            Bukkit.getPluginManager().callEvent(new RemotePlayerRemovedEvent(removedPlayer));
-                        }
+                        ICPlayerFactory.removeRemoteICPlayer(uuid);
                     }
                     break;
                 case 0x01:

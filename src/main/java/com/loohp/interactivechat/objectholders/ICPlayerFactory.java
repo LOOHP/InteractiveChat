@@ -1,6 +1,9 @@
 package com.loohp.interactivechat.objectholders;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.api.events.ICPlayerJoinEvent;
+import com.loohp.interactivechat.api.events.ICPlayerQuitEvent;
+import com.loohp.interactivechat.api.events.OfflineICPlayerCreationEvent;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import net.craftersland.data.bridge.PD;
 import net.craftersland.data.bridge.objects.DatabaseEnderchestData;
@@ -39,6 +42,7 @@ public class ICPlayerFactory {
     private static final Object LOCK = new Object();
     private static final Set<UUID> REMOTE_UUID = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Map<UUID, ICPlayer> ICPLAYERS = new ConcurrentHashMap<>();
+    private static final Map<UUID, ICPlayer> LOGGING_IN = new ConcurrentHashMap<>();
 
     static {
         Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -49,6 +53,7 @@ public class ICPlayerFactory {
                     if (!ICPLAYERS.containsKey(player.getUniqueId())) {
                         ICPlayer icplayer = new ICPlayer(player);
                         ICPLAYERS.put(icplayer.getUniqueId(), icplayer);
+                        LOGGING_IN.put(icplayer.getUniqueId(), icplayer);
                     }
                 }
             }
@@ -57,6 +62,10 @@ public class ICPlayerFactory {
             public void onJoinConfirm(PlayerLoginEvent event) {
                 if (!event.getResult().equals(Result.ALLOWED)) {
                     onLeave(new PlayerQuitEvent(event.getPlayer(), null));
+                } else {
+                    UUID uuid = event.getPlayer().getUniqueId();
+                    LOGGING_IN.remove(uuid);
+                    Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(getICPlayer(uuid), false));
                 }
             }
 
@@ -65,19 +74,25 @@ public class ICPlayerFactory {
                 synchronized (LOCK) {
                     UUID uuid = event.getPlayer().getUniqueId();
                     if (!REMOTE_UUID.contains(uuid)) {
-                        ICPLAYERS.remove(uuid);
+                        ICPlayer icplayer = ICPLAYERS.remove(uuid);
+                        if (icplayer != null && LOGGING_IN.remove(uuid) == null) {
+                            Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, false));
+                        }
                     }
                 }
             }
         }, InteractiveChat.plugin);
     }
 
-    public static ICPlayer createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+    public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
         synchronized (LOCK) {
             ICPlayer icplayer = getICPlayer(uuid);
+            boolean newlyCreated;
             if (icplayer == null) {
                 icplayer = new ICPlayer(server, name, uuid, rightHanded, selectedSlot, experienceLevel, equipment, inventory, enderchest);
                 ICPLAYERS.put(uuid, icplayer);
+                newlyCreated = true;
+                Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(icplayer, true));
             } else {
                 icplayer.setRemoteServer(server);
                 icplayer.setRemoteName(name);
@@ -87,13 +102,14 @@ public class ICPlayerFactory {
                 icplayer.setRemoteEquipment(equipment);
                 icplayer.setRemoteInventory(inventory);
                 icplayer.setRemoteEnderChest(enderchest);
+                newlyCreated = false;
             }
             REMOTE_UUID.add(uuid);
-            return icplayer;
+            return new RemotePlayerCreateResult(icplayer, newlyCreated);
         }
     }
 
-    public static ICPlayer remoteRemoteICPlayer(UUID uuid) {
+    public static RemotePlayerRemoveResult removeRemoteICPlayer(UUID uuid) {
         synchronized (LOCK) {
             if (!REMOTE_UUID.contains(uuid)) {
                 return null;
@@ -103,10 +119,13 @@ public class ICPlayerFactory {
                 return null;
             }
             REMOTE_UUID.remove(uuid);
+            boolean keptDueToLocallyOnline = true;
             if (!icplayer.isLocal()) {
                 ICPLAYERS.remove(uuid);
+                Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, true));
+                keptDueToLocallyOnline = false;
             }
-            return icplayer;
+            return new RemotePlayerRemoveResult(icplayer, keptDueToLocallyOnline);
         }
     }
 
@@ -238,11 +257,53 @@ public class ICPlayerFactory {
                     xpLevel = expData.getLevel();
                 }
             }
-            return new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest);
+            OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest));
+            Bukkit.getPluginManager().callEvent(event);
+            return event.getPlayer();
         } catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static class RemotePlayerCreateResult {
+
+        private ICPlayer player;
+        private boolean isNewlyCreated;
+
+        public RemotePlayerCreateResult(ICPlayer player, boolean isNewlyCreated) {
+            this.player = player;
+            this.isNewlyCreated = isNewlyCreated;
+        }
+
+        public ICPlayer getPlayer() {
+            return player;
+        }
+
+        public boolean isNewlyCreated() {
+            return isNewlyCreated;
+        }
+
+    }
+
+    public static class RemotePlayerRemoveResult {
+
+        private ICPlayer player;
+        private boolean keptDueToLocallyOnline;
+
+        public RemotePlayerRemoveResult(ICPlayer player, boolean keptDueToLocallyOnline) {
+            this.player = player;
+            this.keptDueToLocallyOnline = keptDueToLocallyOnline;
+        }
+
+        public ICPlayer getPlayer() {
+            return player;
+        }
+
+        public boolean isKeptDueToLocallyOnline() {
+            return keptDueToLocallyOnline;
+        }
+
     }
 
 }

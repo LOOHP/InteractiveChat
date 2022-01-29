@@ -5,6 +5,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class OfflineICPlayer {
@@ -18,6 +20,8 @@ public class OfflineICPlayer {
     protected Inventory remoteInventory;
     protected Inventory remoteEnderchest;
 
+    private Map<String, Object> properties;
+
     protected OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
         this.uuid = uuid;
         this.offlineName = offlineName;
@@ -27,6 +31,7 @@ public class OfflineICPlayer {
         this.remoteEquipment = equipment;
         this.remoteInventory = inventory;
         this.remoteEnderchest = enderchest;
+        this.properties = new HashMap<>();
     }
 
     protected OfflineICPlayer(UUID uuid, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
@@ -75,6 +80,23 @@ public class OfflineICPlayer {
 
     public ICPlayer getPlayer() {
         return ICPlayerFactory.getICPlayer(uuid);
+    }
+
+
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
+
+    public boolean hasProperty(String key) {
+        return properties.containsKey(key);
+    }
+
+    public Map<String, Object> getProperties() {
+        return new HashMap<>(properties);
+    }
+
+    public Object addProperties(String key, Object value) {
+        return properties.put(key, value);
     }
 
     @Override

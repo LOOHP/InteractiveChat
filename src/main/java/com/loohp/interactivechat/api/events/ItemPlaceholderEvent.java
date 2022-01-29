@@ -4,6 +4,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -14,6 +15,12 @@ import org.bukkit.inventory.ItemStack;
  * @author LOOHP
  */
 public class ItemPlaceholderEvent extends PlaceholderEvent {
+
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
     private ItemStack itemStack;
 
@@ -48,6 +55,10 @@ public class ItemPlaceholderEvent extends PlaceholderEvent {
     @Deprecated
     public void setCancelled(boolean cancel) {
         throw new UnsupportedOperationException("Cancelling this event is not allowed");
+    }
+
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
 }

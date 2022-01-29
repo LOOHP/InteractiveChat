@@ -22,6 +22,7 @@ public class PrePacketComponentProcessEvent extends Event {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
+
     private final Player reciever;
     private Component component;
     private UUID sender;

@@ -18,6 +18,7 @@ public class ProxyCustomDataRecievedEvent extends Event {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
+
     private final String channel;
     private final byte[] data;
 

@@ -25,6 +25,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
+
     private final Player reciever;
     private final UUID sender;
     private String title;

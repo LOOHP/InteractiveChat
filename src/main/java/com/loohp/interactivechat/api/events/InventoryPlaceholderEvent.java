@@ -3,6 +3,7 @@ package com.loohp.interactivechat.api.events;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 
 /**
@@ -14,6 +15,12 @@ import org.bukkit.inventory.Inventory;
  * @author LOOHP
  */
 public class InventoryPlaceholderEvent extends PlaceholderEvent {
+
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
     private final InventoryPlaceholderType type;
     private Inventory inventory;
@@ -54,6 +61,10 @@ public class InventoryPlaceholderEvent extends PlaceholderEvent {
     @Deprecated
     public void setCancelled(boolean cancel) {
         throw new UnsupportedOperationException("Cancelling this event is not allowed");
+    }
+
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public enum InventoryPlaceholderType {

@@ -20,6 +20,7 @@ public class PlaceholderEvent extends Event implements Cancellable {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
+
     protected final ICPlayer sender;
     protected final Player receiver;
     protected final long timeSent;

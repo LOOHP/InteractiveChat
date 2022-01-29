@@ -21,6 +21,7 @@ public class PostPacketComponentProcessEvent extends Event {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
+
     private final Player reciever;
     private final UUID sender;
     private Component component;

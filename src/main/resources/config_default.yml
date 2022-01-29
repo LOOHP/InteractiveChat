@@ -543,21 +543,3 @@ CustomPlaceholders:
       ReplaceText: '%player_colored_ping% &bms'
     Name: "[ping]"
     Description: "&eShows your current ping!"
-  '8':
-    ParsePlayer: viewer
-    Keyword: "https?:\\/\\/(www\\.)?([-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b)([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)"
-    ParseKeyword: false
-    Cooldown: 0
-    Hover:
-      Enable: true
-      Text:
-        - "&eClick to open: &b$0"
-    Click:
-      Enable: true
-      Action: OPEN_URL
-      Value: "$0"
-    Replace:
-      Enable: true
-      ReplaceText: "&b[&e$2&b]"
-    Name: "[URL]"
-    Description: "&eExample of using Regex matching groups to open urls"

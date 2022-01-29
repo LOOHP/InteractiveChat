@@ -12,7 +12,7 @@ import java.util.UUID;
 public class OfflineICPlayer {
 
     protected final UUID uuid;
-    protected final String offlineName;
+    protected String offlineName;
     protected int selectedSlot;
     protected boolean rightHanded;
     protected int experienceLevel;
@@ -42,28 +42,56 @@ public class OfflineICPlayer {
         return uuid;
     }
 
+    protected void setEnderchest(Inventory remoteEnderchest) {
+        this.remoteEnderchest = remoteEnderchest;
+    }
+
     public String getName() {
         return offlineName;
+    }
+
+    protected void setName(String offlineName) {
+        this.offlineName = offlineName;
     }
 
     public int getSelectedSlot() {
         return selectedSlot;
     }
 
+    protected void setSelectedSlot(int selectedSlot) {
+        this.selectedSlot = selectedSlot;
+    }
+
     public boolean isRightHanded() {
         return rightHanded;
+    }
+
+    protected void setRightHanded(boolean rightHanded) {
+        this.rightHanded = rightHanded;
     }
 
     public int getExperienceLevel() {
         return experienceLevel;
     }
 
+    protected void setExperienceLevel(int experienceLevel) {
+        this.experienceLevel = experienceLevel;
+    }
+
     public EntityEquipment getEquipment() {
         return remoteEquipment;
     }
 
+    protected void setEquipment(EntityEquipment remoteEquipment) {
+        this.remoteEquipment = remoteEquipment;
+    }
+
     public Inventory getInventory() {
         return remoteInventory;
+    }
+
+    protected void setInventory(Inventory remoteInventory) {
+        this.remoteInventory = remoteInventory;
     }
 
     public ItemStack getMainHandItem() {
@@ -81,7 +109,6 @@ public class OfflineICPlayer {
     public ICPlayer getPlayer() {
         return ICPlayerFactory.getICPlayer(uuid);
     }
-
 
     public Object getProperty(String key) {
         return properties.get(key);

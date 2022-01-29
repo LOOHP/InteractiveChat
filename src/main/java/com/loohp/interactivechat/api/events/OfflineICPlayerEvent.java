@@ -6,11 +6,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * This is fired when an offlineICPlayer is created
+ * This is the base class of all events related to offlineicplayers.
  *
  * @author LOOHP
  */
-public class OfflineICPlayerCreationEvent extends OfflineICPlayerEvent {
+public class OfflineICPlayerEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -18,8 +18,15 @@ public class OfflineICPlayerCreationEvent extends OfflineICPlayerEvent {
         return HANDLERS;
     }
 
-    public OfflineICPlayerCreationEvent(OfflineICPlayer player) {
-        super(player);
+    protected final OfflineICPlayer player;
+
+    public OfflineICPlayerEvent(OfflineICPlayer player) {
+        super(!Bukkit.isPrimaryThread());
+        this.player = player;
+    }
+
+    public OfflineICPlayer getPlayer() {
+        return player;
     }
 
     public HandlerList getHandlers() {

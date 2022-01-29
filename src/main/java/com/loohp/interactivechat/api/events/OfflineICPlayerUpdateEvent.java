@@ -1,16 +1,14 @@
 package com.loohp.interactivechat.api.events;
 
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * This is fired when an offlineICPlayer is created
+ * This is fired when an offlineICPlayer is updated
  *
  * @author LOOHP
  */
-public class OfflineICPlayerCreationEvent extends OfflineICPlayerEvent {
+public class OfflineICPlayerUpdateEvent extends OfflineICPlayerEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -18,7 +16,7 @@ public class OfflineICPlayerCreationEvent extends OfflineICPlayerEvent {
         return HANDLERS;
     }
 
-    public OfflineICPlayerCreationEvent(OfflineICPlayer player) {
+    public OfflineICPlayerUpdateEvent(OfflineICPlayer player) {
         super(player);
     }
 

@@ -174,7 +174,7 @@
           <toolTipText value="Whether to parse placeholders in the keyword text"/>
         </properties>
       </component>
-      <scrollpane id="b5075">
+      <scrollpane id="b5075" binding="scrollTestOutput">
         <constraints>
           <grid row="9" column="3" row-span="2" col-span="4" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -189,7 +189,7 @@
           </component>
         </children>
       </scrollpane>
-      <scrollpane id="d0c0">
+      <scrollpane id="d0c0" binding="scrollReplaceText">
         <constraints>
           <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -204,7 +204,7 @@
           </component>
         </children>
       </scrollpane>
-      <scrollpane id="891b6">
+      <scrollpane id="891b6" binding="scrollHoverText">
         <constraints>
           <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>

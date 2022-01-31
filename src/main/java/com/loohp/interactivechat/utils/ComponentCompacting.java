@@ -182,14 +182,8 @@ public class ComponentCompacting {
         return builder.build();
     }
 
-    // todo(kashike): extract
-
     private static TextComponent concatContentWithFirstStyleAndSecondChildren(final TextComponent one, final TextComponent two) {
         return Component.text(one.content() + two.content(), one.style()).children(two.children());
-    }
-
-    private ComponentCompacting() {
-
     }
 
 }

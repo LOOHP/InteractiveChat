@@ -14,8 +14,13 @@ public class Version implements Comparable<Version> {
         this.version = version;
     }
 
-    public final String get() {
+    public String get() {
         return this.version;
+    }
+
+    @Override
+    public String toString() {
+        return get();
     }
 
     @Override

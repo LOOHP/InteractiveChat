@@ -10,14 +10,21 @@ import org.json.simple.JSONObject;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -54,7 +61,7 @@ public class GUIMain {
             messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
             main: while (true) {
-                int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Visit Links"}, null);
+                int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Custom Placeholder Creator", "Visit Links"}, null);
                 switch (input) {
                     case 0:
                         checkForUpdates(title, icon, version);
@@ -66,6 +73,14 @@ public class GUIMain {
                         generateDefaultConfigs(title, icon);
                         break;
                     case 3:
+                        BufferedImage resizedIcon = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D g = resizedIcon.createGraphics();
+                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                        g.drawImage(image, 0, 0, 32, 32, null);
+                        g.dispose();
+                        customPlaceholderCreator(title, resizedIcon, icon);
+                        break main;
+                    case 4:
                         visitLinks(title, icon);
                         break;
                     default:
@@ -76,7 +91,8 @@ public class GUIMain {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
-            JOptionPane.showMessageDialog(null, createLabel("An error occurred!\n" + sw, 13), title, JOptionPane.INFORMATION_MESSAGE);
+            Toolkit.getDefaultToolkit().beep();
+            JOptionPane.showMessageDialog(null, createLabel("An error occurred!\n" + sw, 13), title, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -135,7 +151,8 @@ public class GUIMain {
         if (!folder.exists() || !folder.isDirectory()) {
             folder = new File("InteractiveChatBungee");
             if (!folder.exists() || !folder.isDirectory()) {
-                JOptionPane.showMessageDialog(null, createLabel("Error: Plugin folder not found", 15, Color.RED), title, JOptionPane.INFORMATION_MESSAGE, icon);
+                Toolkit.getDefaultToolkit().beep();
+                JOptionPane.showMessageDialog(null, createLabel("Error: Plugin folder not found", 15, Color.RED), title, JOptionPane.ERROR_MESSAGE, icon);
                 return;
             }
         }
@@ -203,6 +220,10 @@ public class GUIMain {
         if (folder != null) {
             JOptionPane.showMessageDialog(null, createLabel("Files saved at: " + folder.getAbsolutePath(), 15), title, JOptionPane.INFORMATION_MESSAGE, icon);
         }
+    }
+
+    protected static void customPlaceholderCreator(String title, BufferedImage image, Icon icon) {
+        new CustomPlaceholderCreator(title + " - Custom Placeholder Creator", image, icon);
     }
 
     protected static JLabel createLabel(String message, float fontSize) {

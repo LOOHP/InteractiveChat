@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.loohp.interactivechat.main.CustomPlaceholderCreator">
+  <grid id="27dc6" binding="panel" layout-manager="GridLayoutManager" row-count="11" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="875" height="572"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="201c2" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Name"/>
+          <toolTipText value="This name is used to identify your placeholder, it must be a non-regex form of your keyword and should satisfy your keyword"/>
+        </properties>
+      </component>
+      <component id="c856f" class="javax.swing.JTextField" binding="textFieldName">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="This name is used to identify your placeholder, it must be a non-regex form of your keyword and should satisfy your keyword"/>
+        </properties>
+      </component>
+      <component id="f9493" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Description"/>
+          <toolTipText value="This description is used when listing placeholders"/>
+        </properties>
+      </component>
+      <component id="63929" class="javax.swing.JTextField" binding="textFieldDescription">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="This description is used when listing placeholders"/>
+        </properties>
+      </component>
+      <component id="50cbd" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Keyword"/>
+          <toolTipText value="The keyword to look for in the chat (in regex)"/>
+        </properties>
+      </component>
+      <component id="b78ea" class="javax.swing.JTextField" binding="textFieldKeyword">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="The keyword to look for in the chat (in regex)"/>
+        </properties>
+      </component>
+      <component id="a2f01" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="ParsePlayer"/>
+          <toolTipText value="Should the placeholders be parsed with the message sender or the receiver"/>
+        </properties>
+      </component>
+      <component id="b49b2" class="javax.swing.JComboBox" binding="boxParsePlayer">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Should the placeholders be parsed with the message sender or the receiver"/>
+        </properties>
+      </component>
+      <component id="54595" class="javax.swing.JTextField" binding="textFieldCooldown">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="Cooldown of this placeholder in seconds"/>
+        </properties>
+      </component>
+      <component id="4308b" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Cooldown"/>
+          <toolTipText value="Cooldown of this placeholder in seconds"/>
+        </properties>
+      </component>
+      <component id="5e7ac" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Text"/>
+          <toolTipText value="Text for the hover message"/>
+        </properties>
+      </component>
+      <component id="dd18c" class="javax.swing.JComboBox" binding="boxClickAction">
+        <constraints>
+          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The action to do when clicked"/>
+        </properties>
+      </component>
+      <component id="a5bc1" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Value"/>
+          <toolTipText value="The value for the action above, for example, '/say yellow is her fav color' for the action RUN_COMMAND"/>
+        </properties>
+      </component>
+      <component id="58eaa" class="javax.swing.JTextField" binding="textFieldClickValue">
+        <constraints>
+          <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="The value for the action above, for example, '/say yellow is her fav color' for the action RUN_COMMAND"/>
+        </properties>
+      </component>
+      <component id="31ea0" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="ReplaceText"/>
+          <toolTipText value="The text to replace the keyword"/>
+        </properties>
+      </component>
+      <component id="352b5" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Action"/>
+          <toolTipText value="The action to do when clicked"/>
+        </properties>
+      </component>
+      <component id="4300e" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="ParseKeyword"/>
+          <toolTipText value="Whether to parse placeholders in the keyword text"/>
+        </properties>
+      </component>
+      <component id="ba12e" class="javax.swing.JCheckBox" binding="checkBoxParseKeyword">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="false"/>
+          <text value="Enable"/>
+          <toolTipText value="Whether to parse placeholders in the keyword text"/>
+        </properties>
+      </component>
+      <scrollpane id="b5075">
+        <constraints>
+          <grid row="9" column="3" row-span="2" col-span="4" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="e6fb9" class="javax.swing.JTextArea" binding="textAreaTestOutput">
+            <constraints/>
+            <properties>
+              <editable value="false"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <scrollpane id="d0c0">
+        <constraints>
+          <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="1ddf7" class="javax.swing.JTextArea" binding="textAreaReplaceText">
+            <constraints/>
+            <properties>
+              <toolTipText value="The text to replace the keyword"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <scrollpane id="891b6">
+        <constraints>
+          <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="72f8d" class="javax.swing.JTextArea" binding="textAreaHover">
+            <constraints/>
+            <properties>
+              <text value=""/>
+              <toolTipText value="Text for the hover message"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <scrollpane id="506f2" binding="scrollPaneConfigOutput">
+        <constraints>
+          <grid row="1" column="3" row-span="7" col-span="4" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="185e1" class="javax.swing.JTextArea" binding="textAreaConfigOutput">
+            <constraints/>
+            <properties>
+              <editable value="false"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="3ad13" class="javax.swing.JCheckBox" binding="checkBoxHover">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Hover"/>
+          <toolTipText value="Add a hover message"/>
+        </properties>
+      </component>
+      <component id="33ed2" class="javax.swing.JCheckBox" binding="checkBoxClick">
+        <constraints>
+          <grid row="8" column="0" row-span="2" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Click"/>
+          <toolTipText value="Add a click action"/>
+        </properties>
+      </component>
+      <component id="c50d5" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="8" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Test Chat"/>
+          <toolTipText value="Test your CustomPlaceholder"/>
+        </properties>
+      </component>
+      <component id="58ea7" class="javax.swing.JTextField" binding="textFieldTestChat">
+        <constraints>
+          <grid row="8" column="4" row-span="1" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="Test your CustomPlaceholder"/>
+        </properties>
+      </component>
+      <component id="a9383" class="javax.swing.JCheckBox" binding="checkBoxReplace">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Replace"/>
+          <toolTipText value="Whether the keyword should be replaced with another text"/>
+        </properties>
+      </component>
+      <component id="b4fce" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Index"/>
+          <toolTipText value="Make sure your CustomPlaceholders are indexed correctly starting from 1"/>
+        </properties>
+      </component>
+      <component id="88101" class="javax.swing.JSpinner" binding="spinnerIndex" custom-create="true">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Make sure your CustomPlaceholders are indexed correctly starting from 1"/>
+        </properties>
+      </component>
+      <component id="aebdd" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Config Output (Copy this to your actual config)"/>
+        </properties>
+      </component>
+      <component id="3d933" class="javax.swing.JButton" binding="buttonDefaultExamples">
+        <constraints>
+          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Default Examples"/>
+        </properties>
+      </component>
+      <component id="e9c0" class="javax.swing.JButton" binding="buttonImport">
+        <constraints>
+          <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Import from Config"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

@@ -260,7 +260,7 @@ ItemDisplay:
     SingularText: "&f[&f{Item}&f]"
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Item"
-    #Cooldown of this placeholder
+    #Cooldown of this placeholder in seconds
     Cooldown: 0
     #Enable the click GUI
     GUIEnabled: true
@@ -303,7 +303,7 @@ ItemDisplay:
     Text: "&f[&b%player_name%'s Inventory&f]"
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Inventory"
-    #Cooldown of this placeholder
+    #Cooldown of this placeholder in seconds
     Cooldown: 0
     #Which layout do you want to be shown
     #Currently there is layout 0 and layout 1
@@ -332,7 +332,7 @@ ItemDisplay:
     Text: "&f[&d%player_name%'s Ender Chest&f]"
     #The title of the ender chest inventory view
     InventoryTitle: "%player_name%'s Ender Chest"
-    #Cooldown of this placeholder
+    #Cooldown of this placeholder in seconds
     Cooldown: 0
     #Hover Message
     HoverMessage:
@@ -396,9 +396,9 @@ CustomPlaceholders:
     ParsePlayer: sender
     #The keyword to look for in the chat (in regex)
     Keyword: "(?i)\\[money\\]|\\[m\\]"
-    #Parse Placeholders in the keyword text
+    #Whether to parse placeholders in the keyword text
     ParseKeyword: false
-    #Cooldown of this placeholder
+    #Cooldown of this placeholder in seconds
     Cooldown: 0
     #Hover message settings
     Hover:
@@ -492,7 +492,6 @@ CustomPlaceholders:
   '5':
     ParsePlayer: sender
     Keyword: "(?i)\\[time\\]"
-    Aliases: []
     ParseKeyword: false
     Cooldown: 0
     Hover:
@@ -510,7 +509,6 @@ CustomPlaceholders:
   '6':
     ParsePlayer: sender
     Keyword: "(?i)\\[pos\\]"
-    Aliases: []
     ParseKeyword: false
     Cooldown: 0
     Hover:
@@ -528,7 +526,6 @@ CustomPlaceholders:
   '7':
     ParsePlayer: sender
     Keyword: "(?i)\\[ping\\]"
-    Aliases: []
     ParseKeyword: false
     Cooldown: 0
     Hover:

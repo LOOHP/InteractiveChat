@@ -1,6 +1,5 @@
 package com.loohp.interactivechat.utils;
 
-import com.loohp.interactivechat.InteractiveChat;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
@@ -50,7 +49,11 @@ public class ChatColorUtils {
     }
 
     public static String filterIllegalColorCodes(String string) {
-        return InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) ? string.replaceAll("\u00a7[^0-9A-Fa-fk-orx]", "") : string.replaceAll("\u00a7[^0-9a-fk-or]", "");
+        return filterIllegalColorCodes(string, com.loohp.interactivechat.InteractiveChat.version.isLegacyRGB());
+    }
+
+    public static String filterIllegalColorCodes(String string, boolean legacyRGB) {
+        return legacyRGB ? string.replaceAll("\u00a7[^0-9a-fk-or]", "") : string.replaceAll("\u00a7[^0-9A-Fa-fk-orx]", "");
     }
 
     public static String getLastColors(String input) {
@@ -174,11 +177,15 @@ public class ChatColorUtils {
     }
 
     public static String translateAlternateColorCodes(char code, String text) {
+        return translateAlternateColorCodes(code, text, com.loohp.interactivechat.InteractiveChat.version.isLegacyRGB(), com.loohp.interactivechat.InteractiveChat.rgbTags, com.loohp.interactivechat.InteractiveChat.additionalRGBFormats);
+    }
+
+    public static String translateAlternateColorCodes(char code, String text, boolean legacyRGB, boolean rgbTags, List<Pattern> additionalRGBFormats) {
         if (text == null || text.length() < 2) {
             return text;
         }
-        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-            if (InteractiveChat.rgbTags) {
+        if (!legacyRGB) {
+            if (rgbTags) {
                 Matcher matcher = COLOR_TAG_PATTERN.matcher(text);
                 StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
@@ -217,7 +224,7 @@ public class ChatColorUtils {
             text = sb.toString();
 
             outer:
-            for (Pattern pattern : InteractiveChat.additionalRGBFormats) {
+            for (Pattern pattern : additionalRGBFormats) {
                 matcher = pattern.matcher(text);
                 sb = new StringBuffer();
                 while (matcher.find()) {

@@ -77,6 +77,7 @@ public class CustomPlaceholder extends ICPlaceholder {
             }
             return VIEWER;
         }
+
         private final String name;
         private final int ord;
 
@@ -96,38 +97,14 @@ public class CustomPlaceholder extends ICPlaceholder {
     }
 
     public enum ClickEventAction {
-        /**
-         * Open a url at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
-         */
+
         OPEN_URL,
-        /**
-         * Open a file at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
-         */
         OPEN_FILE,
-        /**
-         * Run the command given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
-         */
         RUN_COMMAND,
-        /**
-         * Inserts the string given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
-         * text box.
-         */
         SUGGEST_COMMAND,
-        /**
-         * Change to the page number given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} in a book.
-         */
         CHANGE_PAGE,
-        /**
-         * Copy the string given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
-         * clipboard.
-         */
-        COPY_TO_CLIPBOARD
+        COPY_TO_CLIPBOARD;
+
     }
 
     public static class CustomPlaceholderHoverEvent {

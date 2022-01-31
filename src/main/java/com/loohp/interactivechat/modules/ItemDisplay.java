@@ -18,6 +18,7 @@ import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.ItemStackUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
@@ -147,33 +148,38 @@ public class ItemDisplay {
         ItemStack originalItem = item.clone();
 
         String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
-        //Bukkit.getConsoleSender().sendMessage(itemJson.length() + "");
+        ItemStack trimmedItem = null;
         if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > InteractiveChat.itemTagMaxLength) {
-            ItemStack trimedItem = new ItemStack(item.getType());
-            trimedItem.addUnsafeEnchantments(item.getEnchantments());
+            trimmedItem = new ItemStack(item.getType());
+            trimmedItem.addUnsafeEnchantments(item.getEnchantments());
+            if (!item.getType().equals(Material.AIR) && NBTEditor.contains(item, "display", "Name")) {
+                ItemStack nameItem = trimmedItem.clone();
+                String name = NBTEditor.getString(item, "display", "Name");
+                nameItem = NBTEditor.set(nameItem, name, "display", "Name");
+                String newjson = ItemNBTUtils.getNMSItemStackJson(nameItem);
+                if (newjson.length() <= InteractiveChat.itemTagMaxLength) {
+                    trimmedItem = nameItem;
+                }
+            }
             if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
-                ItemStack loreItem = trimedItem.clone();
+                ItemStack loreItem = trimmedItem.clone();
                 ItemMeta meta = loreItem.getItemMeta();
                 meta.setLore(item.getItemMeta().getLore());
                 loreItem.setItemMeta(meta);
                 String newjson = ItemNBTUtils.getNMSItemStackJson(loreItem);
-                if (newjson.length() <= 30000) {
-                    trimedItem = loreItem;
+                if (newjson.length() <= InteractiveChat.itemTagMaxLength) {
+                    trimmedItem = loreItem;
                 }
             }
-            itemJson = ItemNBTUtils.getNMSItemStackJson(trimedItem);
             trimmed = true;
         }
-
-        //itemJson = ItemNBTUtils.convertToVersion(xMaterial, itemJson, MCVersion.V1_12);
-        //ystem.out.println(itemJson);
 
         String amountString = "";
         Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item);
 
         amountString = String.valueOf(item.getAmount());
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
-        String tag = ItemNBTUtils.getNMSItemStackTag(item);
+        String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
         HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(tag == null ? ShowItem.of(key, item.getAmount()) : ShowItem.of(key, item.getAmount(), BinaryTagHolder.of(tag)));
         String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
         String sha1 = HashUtils.createSha1(title, item);

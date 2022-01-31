@@ -61,7 +61,7 @@ Settings:
   UseAccurateSenderParser: true
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
-  ItemTagMaxLength: 32767
+  ItemTagMaxLength: 30767
   PacketStringMaxLength: 32767
   SendOriginalMessageIfExceedLengthLimit: true
   FormattingTags:

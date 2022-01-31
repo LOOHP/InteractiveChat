@@ -53,22 +53,24 @@ public class GUIMain {
             JLabel messageLabel = createLabel(message, 15);
             messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-            int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Visit Links"}, null);
-            switch (input) {
-                case -1:
-                    break;
-                case 0:
-                    checkForUpdates(title, icon, version);
-                    break;
-                case 1:
-                    validConfigs(title, icon);
-                    break;
-                case 2:
-                    generateDefaultConfigs(title, icon);
-                    break;
-                case 3:
-                    visitLinks(title, icon);
-                    break;
+            main: while (true) {
+                int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Visit Links"}, null);
+                switch (input) {
+                    case 0:
+                        checkForUpdates(title, icon, version);
+                        break;
+                    case 1:
+                        validConfigs(title, icon);
+                        break;
+                    case 2:
+                        generateDefaultConfigs(title, icon);
+                        break;
+                    case 3:
+                        visitLinks(title, icon);
+                        break;
+                    default:
+                        break main;
+                }
             }
         } catch (Throwable e) {
             StringWriter sw = new StringWriter();

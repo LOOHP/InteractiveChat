@@ -32,28 +32,32 @@ public class CMLMain {
 
             System.out.println("Starting " + pluginName + " v" + version + " Tools...");
             System.out.println();
-            System.out.println("You are running " + pluginName + " v" + version);
-            System.out.println();
-            System.out.println("Links:");
-            System.out.println("SpigotMC: \"https://www.spigotmc.org/resources/75870/\"");
-            System.out.println("GitHub: \"https://github.com/LOOHP/InteractiveChat\"");
-            System.out.println("Build Server: \"https://ci.loohpjames.com\"");
-            System.out.println();
-            System.out.println("Select one of the tools by typing in their corresponding number");
+            main: while (true) {
+                System.out.println("You are running " + pluginName + " v" + version);
+                System.out.println();
+                System.out.println("Links:");
+                System.out.println("SpigotMC: \"https://www.spigotmc.org/resources/75870/\"");
+                System.out.println("GitHub: \"https://github.com/LOOHP/InteractiveChat\"");
+                System.out.println("Build Server: \"https://ci.loohpjames.com\"");
+                System.out.println();
+                System.out.println("Select one of the tools by typing in their corresponding number");
 
-            System.out.println("1. Check for Updates   2. Validate Plugin Configs   3.Generate Default Configs");
+                System.out.println("1. Check for Updates   2. Validate Plugin Configs   3.Generate Default Configs   4. Exit");
 
-            String input = IN.readLine();
-            switch (input) {
-                case "1":
-                    checkForUpdates(version);
-                    break;
-                case "2":
-                    validConfigs();
-                    break;
-                case "3":
-                    generateDefaultConfigs();
-                    break;
+                String input = IN.readLine();
+                switch (input) {
+                    case "1":
+                        checkForUpdates(version);
+                        break;
+                    case "2":
+                        validConfigs();
+                        break;
+                    case "3":
+                        generateDefaultConfigs();
+                        break;
+                    default:
+                        break main;
+                }
             }
         } catch (Throwable e) {
             System.err.println("An error occurred!");

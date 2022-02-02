@@ -65,7 +65,7 @@ public class OutChatPacket implements Listener {
 
         for (chatFieldsSize = 1; chatFieldsSize < packet.getModifier().size(); chatFieldsSize++) {
             String clazz = packet.getModifier().getField(chatFieldsSize).getType().getName();
-            if (!matches.stream().anyMatch(each -> clazz.matches(each))) {
+            if (matches.stream().noneMatch(each -> clazz.matches(each))) {
                 chatFieldsSize--;
                 break;
             }

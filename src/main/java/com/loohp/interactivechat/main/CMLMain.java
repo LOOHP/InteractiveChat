@@ -25,7 +25,7 @@ public class CMLMain {
 
     public static void launch(String[] args) {
         try {
-            YamlConfiguration pluginYaml = new YamlConfiguration(GUIMain.class.getClassLoader().getResourceAsStream("plugin.yml"));
+            YamlConfiguration pluginYaml = new YamlConfiguration(CMLMain.class.getClassLoader().getResourceAsStream("plugin.yml"));
 
             String pluginName = pluginYaml.getString("name");
             String version = pluginYaml.getString("version");
@@ -151,13 +151,13 @@ public class CMLMain {
             folder = new File("InteractiveChat", "generated");
             FileUtils.removeFolderRecursively(folder);
             folder.mkdirs();
-            FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("config_default.yml"), new File(folder, "config.yml"));
-            FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("storage.yml"), new File(folder, "storage.yml"));
+            FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("config_default.yml"), new File(folder, "config.yml"));
+            FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("storage.yml"), new File(folder, "storage.yml"));
         } else if (input.equals("2")) {
             folder = new File("InteractiveChatBungee", "generated");
             FileUtils.removeFolderRecursively(folder);
             folder.mkdirs();
-            FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("config_proxy.yml"), new File(folder, "bungeeconfig.yml"));
+            FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("config_proxy.yml"), new File(folder, "bungeeconfig.yml"));
         }
         if (folder != null) {
             System.out.println("Files saved at: " + folder.getAbsolutePath());

@@ -92,7 +92,7 @@ public class GUIMain {
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Toolkit.getDefaultToolkit().beep();
-            JOptionPane.showMessageDialog(null, createLabel("An error occurred!\n" + sw, 13), title, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, createLabel("An error occurred!\n" + sw, 13, Color.RED), title, JOptionPane.ERROR_MESSAGE);
         }
     }
 

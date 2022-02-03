@@ -38,6 +38,10 @@ public class OfflineICPlayer {
         this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
     }
 
+    protected OfflineICPlayer(UUID uuid) {
+        this(uuid, 0, true, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
+    }
+
     public UUID getUniqueId() {
         return uuid;
     }
@@ -108,6 +112,10 @@ public class OfflineICPlayer {
 
     public ICPlayer getPlayer() {
         return ICPlayerFactory.getICPlayer(uuid);
+    }
+
+    public void updateOfflineData() {
+        ICPlayerFactory.getOfflineICPlayer(uuid);
     }
 
     public Object getProperty(String key) {

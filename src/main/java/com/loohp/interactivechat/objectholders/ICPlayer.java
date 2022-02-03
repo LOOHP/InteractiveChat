@@ -18,9 +18,6 @@ public class ICPlayer extends OfflineICPlayer {
 
     public static final String LOCAL_SERVER_REPRESENTATION = "*local_server";
     public static final String EMPTY_SERVER_REPRESENTATION = "*invalid";
-    private static final Inventory EMPTY_INVENTORY = Bukkit.createInventory(null, 54);
-    private static final Inventory EMPTY_ENDERCHEST = Bukkit.createInventory(null, 18);
-    private static final ICPlayerEquipment EMPTY_EQUIPMENT = new ICPlayerEquipment();
 
     private String remoteServer;
     private String remoteName;
@@ -37,7 +34,7 @@ public class ICPlayer extends OfflineICPlayer {
     }
 
     protected ICPlayer(Player player) {
-        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), EMPTY_EQUIPMENT, EMPTY_INVENTORY, EMPTY_ENDERCHEST);
+        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), new ICPlayerEquipment(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
         this.remoteServer = EMPTY_SERVER_REPRESENTATION;
         this.remoteName = player.getName();
         this.remoteNicknames = new HashSet<>();

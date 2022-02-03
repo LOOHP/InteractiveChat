@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiPredicate;
 
 public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
 
@@ -15,11 +16,13 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
     private final ConcurrentHashMap<K, V> mapping;
     private final ConcurrentHashMap<K, Long> insertionTime;
     private long timeout;
+    private BiPredicate<K, V> removeCondition;
 
     public ConcurrentCacheHashMap(long timeout) {
         this.timeout = timeout;
         this.mapping = new ConcurrentHashMap<>();
         this.insertionTime = new ConcurrentHashMap<>();
+        this.removeCondition = (k, y) -> true;
     }
 
     public ConcurrentCacheHashMap(long timeout, int initialCapacity) {
@@ -39,6 +42,15 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         this.timeout = timeout;
         this.mapping = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
         this.insertionTime = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
+        this.removeCondition = (k, y) -> true;
+    }
+
+    public void setRemoveCondition(BiPredicate<K, V> removeCondition) {
+        this.removeCondition = removeCondition;
+    }
+
+    public void clearRemoveCondition() {
+        this.removeCondition = (k, v) -> true;
     }
 
     public long getTimeout() {
@@ -68,7 +80,7 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         }
         V value = mapping.get(key);
         Long expireTime = insertionTime.get(key);
-        if (value == null || expireTime == null || now() > expireTime) {
+        if (value == null || expireTime == null || (now() > expireTime && removeCondition.test((K) key, value))) {
             mapping.remove(key);
             insertionTime.remove(key);
             return null;

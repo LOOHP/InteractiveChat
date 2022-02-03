@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,7 @@ public class ICPlayerFactory {
     private static final Set<UUID> REMOTE_UUID = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Map<UUID, ICPlayer> ICPLAYERS = new ConcurrentHashMap<>();
     private static final Map<UUID, ICPlayer> LOGGING_IN = new ConcurrentHashMap<>();
-    private static final ConcurrentCacheHashMap<UUID, OfflineICPlayer> CACHED_OFFLINE_PLAYERS = new ConcurrentCacheHashMap<>(300000);
+    private static final Map<UUID, WeakReference<OfflineICPlayer>> REFERENCED_OFFLINE_PLAYERS = new ConcurrentHashMap<>();
 
     static {
         Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -85,7 +86,7 @@ public class ICPlayerFactory {
             }
         }, InteractiveChat.plugin);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> CACHED_OFFLINE_PLAYERS.cleanUp(), 12000, 12000);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
     }
 
     public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
@@ -172,7 +173,17 @@ public class ICPlayerFactory {
         }
         File dat = new File(Bukkit.getWorlds().get(0).getWorldFolder().getAbsolutePath() + "/playerdata", uuid.toString() + ".dat");
         if (!dat.exists()) {
-            return null;
+            OfflineICPlayer offlineICPlayer = getReferenced(uuid);
+            if (offlineICPlayer == null) {
+                offlineICPlayer = new OfflineICPlayer(uuid);
+                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
+                Bukkit.getPluginManager().callEvent(event);
+                REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
+            } else {
+                OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);
+                Bukkit.getPluginManager().callEvent(event);
+            }
+            return offlineICPlayer;
         }
         boolean mysqlPDBInventorySync = false;
         boolean mysqlPDBArmorSync = false;
@@ -261,13 +272,12 @@ public class ICPlayerFactory {
                     xpLevel = expData.getLevel();
                 }
             }
-            OfflineICPlayer offlineICPlayer = CACHED_OFFLINE_PLAYERS.get(uuid);
+            OfflineICPlayer offlineICPlayer = getReferenced(uuid);
             if (offlineICPlayer == null) {
-                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest));
+                offlineICPlayer = new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest);
+                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
                 Bukkit.getPluginManager().callEvent(event);
-                offlineICPlayer = event.getPlayer();
-                CACHED_OFFLINE_PLAYERS.put(uuid, offlineICPlayer);
-                return offlineICPlayer;
+                REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
             } else {
                 offlineICPlayer.setName(playerName);
                 offlineICPlayer.setSelectedSlot(selectedSlot);
@@ -278,12 +288,20 @@ public class ICPlayerFactory {
                 offlineICPlayer.setEnderchest(enderchest);
                 OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);
                 Bukkit.getPluginManager().callEvent(event);
-                return offlineICPlayer;
             }
+            return offlineICPlayer;
         } catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private static OfflineICPlayer getReferenced(UUID uuid) {
+        WeakReference<OfflineICPlayer> ref = REFERENCED_OFFLINE_PLAYERS.get(uuid);
+        if (ref == null) {
+            return null;
+        }
+        return ref.get();
     }
 
     public static class RemotePlayerCreateResult {

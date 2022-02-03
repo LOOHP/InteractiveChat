@@ -2,6 +2,7 @@ package com.loohp.interactivechat.main;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -83,7 +84,6 @@ public class CustomPlaceholderCreator extends JFrame {
     private JComboBox<ClickEventAction> boxClickAction;
     private JTextField textFieldClickValue;
     private JCheckBox checkBoxReplace;
-    private JTextArea textAreaReplaceText;
     private JCheckBox checkBoxHover;
     private JTextField textFieldTestChat;
     private JTextArea textAreaTestOutput;
@@ -97,6 +97,7 @@ public class CustomPlaceholderCreator extends JFrame {
     private JScrollPane scrollTestOutput;
     private JCheckBox regexCheckBox;
     private JLabel labelKeywordComma;
+    private JTextField textFieldReplaceText;
 
     public CustomPlaceholderCreator(String title, BufferedImage image, Icon icon) {
         this.title = title;
@@ -134,9 +135,9 @@ public class CustomPlaceholderCreator extends JFrame {
         boxClickAction.addActionListener(configOutputListener);
         textFieldClickValue.addKeyListener(configOutputListener);
         checkBoxReplace.addActionListener(configOutputListener);
-        textAreaReplaceText.addKeyListener(configOutputListener);
+        textFieldReplaceText.addKeyListener(configOutputListener);
         checkBoxHover.addActionListener(configOutputListener);
-        textAreaReplaceText.addKeyListener(configOutputListener);
+        textFieldReplaceText.addKeyListener(configOutputListener);
         checkBoxHover.addActionListener(configOutputListener);
         spinnerIndex.addChangeListener(configOutputListener);
         regexCheckBox.addChangeListener(configOutputListener);
@@ -222,7 +223,7 @@ public class CustomPlaceholderCreator extends JFrame {
         }
         textFieldClickValue.setText(section.getString("Click.Value"));
         checkBoxReplace.setSelected(section.getBoolean("Replace.Enable"));
-        textAreaReplaceText.setText(section.getString("Replace.ReplaceText"));
+        textFieldReplaceText.setText(section.getString("Replace.ReplaceText"));
         regexCheckBox.setSelected(true);
         labelKeywordComma.setVisible(false);
 
@@ -251,7 +252,7 @@ public class CustomPlaceholderCreator extends JFrame {
         long cooldown = validLong(textFieldCooldown.getText()) == null ? Long.parseLong(textFieldCooldown.getText()) : 0;
         CustomPlaceholderHoverEvent hoverEvent = new CustomPlaceholderHoverEvent(checkBoxHover.isSelected(), textAreaHover.getText());
         CustomPlaceholderClickEvent clickEvent = new CustomPlaceholderClickEvent(checkBoxClick.isSelected(), (ClickEventAction) boxClickAction.getSelectedItem(), textFieldClickValue.getText());
-        CustomPlaceholderReplaceText replaceText = new CustomPlaceholderReplaceText(checkBoxReplace.isSelected(), textAreaReplaceText.getText());
+        CustomPlaceholderReplaceText replaceText = new CustomPlaceholderReplaceText(checkBoxReplace.isSelected(), textFieldReplaceText.getText());
         return new CustomPlaceholder((int) spinnerIndex.getValue(), parsePlayer, keyword, parseKeyword, cooldown, hoverEvent, clickEvent, replaceText, name, description);
     }
 
@@ -346,7 +347,7 @@ public class CustomPlaceholderCreator extends JFrame {
     private void $$$setupUI$$$() {
         createUIComponents();
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(11, 9, new Insets(0, 0, 0, 0), -1, -1));
+        panel.setLayout(new GridLayoutManager(14, 8, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
         label1.setText("Name");
         label1.setToolTipText("This name is used to identify your placeholder, it must be a non-regex form of your keyword and should satisfy your keyword");
@@ -385,25 +386,25 @@ public class CustomPlaceholderCreator extends JFrame {
         final JLabel label6 = new JLabel();
         label6.setText("Text");
         label6.setToolTipText("Text for the hover message");
-        panel.add(label6, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label6, new GridConstraints(7, 1, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         boxClickAction = new JComboBox();
         boxClickAction.setToolTipText("The action to do when clicked");
-        panel.add(boxClickAction, new GridConstraints(8, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(boxClickAction, new GridConstraints(10, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label7 = new JLabel();
         label7.setText("Value");
         label7.setToolTipText("The value for the action above, for example, '/say yellow is her fav color' for the action RUN_COMMAND");
-        panel.add(label7, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label7, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         textFieldClickValue = new JTextField();
         textFieldClickValue.setToolTipText("The value for the action above, for example, '/say yellow is her fav color' for the action RUN_COMMAND");
-        panel.add(textFieldClickValue, new GridConstraints(9, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panel.add(textFieldClickValue, new GridConstraints(11, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label8 = new JLabel();
         label8.setText("ReplaceText");
         label8.setToolTipText("The text to replace the keyword");
-        panel.add(label8, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label8, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label9 = new JLabel();
         label9.setText("Action");
         label9.setToolTipText("The action to do when clicked");
-        panel.add(label9, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label9, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
         label10.setText("ParseKeyword");
         label10.setToolTipText("Whether to parse placeholders in the keyword text");
@@ -414,23 +415,18 @@ public class CustomPlaceholderCreator extends JFrame {
         checkBoxParseKeyword.setToolTipText("Whether to parse placeholders in the keyword text");
         panel.add(checkBoxParseKeyword, new GridConstraints(5, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         scrollTestOutput = new JScrollPane();
-        panel.add(scrollTestOutput, new GridConstraints(9, 5, 2, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel.add(scrollTestOutput, new GridConstraints(9, 5, 5, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         textAreaTestOutput = new JTextArea();
         textAreaTestOutput.setEditable(false);
         scrollTestOutput.setViewportView(textAreaTestOutput);
-        scrollReplaceText = new JScrollPane();
-        panel.add(scrollReplaceText, new GridConstraints(10, 2, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        textAreaReplaceText = new JTextArea();
-        textAreaReplaceText.setToolTipText("The text to replace the keyword");
-        scrollReplaceText.setViewportView(textAreaReplaceText);
         scrollHoverText = new JScrollPane();
-        panel.add(scrollHoverText, new GridConstraints(7, 2, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel.add(scrollHoverText, new GridConstraints(7, 2, 3, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         textAreaHover = new JTextArea();
         textAreaHover.setText("");
         textAreaHover.setToolTipText("Text for the hover message");
         scrollHoverText.setViewportView(textAreaHover);
         scrollPaneConfigOutput = new JScrollPane();
-        panel.add(scrollPaneConfigOutput, new GridConstraints(1, 5, 7, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel.add(scrollPaneConfigOutput, new GridConstraints(1, 5, 7, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         textAreaConfigOutput = new JTextArea();
         textAreaConfigOutput.setEditable(false);
         scrollPaneConfigOutput.setViewportView(textAreaConfigOutput);
@@ -438,39 +434,32 @@ public class CustomPlaceholderCreator extends JFrame {
         checkBoxHover.setSelected(true);
         checkBoxHover.setText("Hover");
         checkBoxHover.setToolTipText("Add a hover message");
-        panel.add(checkBoxHover, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(checkBoxHover, new GridConstraints(7, 0, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         checkBoxClick = new JCheckBox();
         checkBoxClick.setSelected(true);
         checkBoxClick.setText("Click");
         checkBoxClick.setToolTipText("Add a click action");
-        panel.add(checkBoxClick, new GridConstraints(8, 0, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label11 = new JLabel();
-        label11.setText("Test Chat");
-        label11.setToolTipText("Test your CustomPlaceholder");
-        panel.add(label11, new GridConstraints(8, 5, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textFieldTestChat = new JTextField();
-        textFieldTestChat.setToolTipText("Test your CustomPlaceholder");
-        panel.add(textFieldTestChat, new GridConstraints(8, 6, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panel.add(checkBoxClick, new GridConstraints(10, 0, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         checkBoxReplace = new JCheckBox();
         checkBoxReplace.setSelected(true);
         checkBoxReplace.setText("Replace");
         checkBoxReplace.setToolTipText("Whether the keyword should be replaced with another text");
-        panel.add(checkBoxReplace, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        label12.setText("Index");
-        label12.setToolTipText("Make sure your CustomPlaceholders are indexed correctly starting from 1");
-        panel.add(label12, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(checkBoxReplace, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label11 = new JLabel();
+        label11.setText("Index");
+        label11.setToolTipText("Make sure your CustomPlaceholders are indexed correctly starting from 1");
+        panel.add(label11, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         spinnerIndex.setToolTipText("Make sure your CustomPlaceholders are indexed correctly starting from 1");
         panel.add(spinnerIndex, new GridConstraints(0, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label13 = new JLabel();
-        label13.setText("Config Output (Copy this to your actual config)");
-        panel.add(label13, new GridConstraints(0, 5, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label12 = new JLabel();
+        label12.setText("Config Output (Copy this to your actual config)");
+        panel.add(label12, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         buttonDefaultExamples = new JButton();
         buttonDefaultExamples.setText("Default Examples");
-        panel.add(buttonDefaultExamples, new GridConstraints(0, 7, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(buttonDefaultExamples, new GridConstraints(0, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         buttonImport = new JButton();
         buttonImport.setText("Import from Config");
-        panel.add(buttonImport, new GridConstraints(0, 8, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(buttonImport, new GridConstraints(0, 7, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         regexCheckBox = new JCheckBox();
         regexCheckBox.setSelected(true);
         regexCheckBox.setText("Regex");
@@ -481,6 +470,21 @@ public class CustomPlaceholderCreator extends JFrame {
         labelKeywordComma.setText("(Separate aliases with \",\")");
         labelKeywordComma.setVisible(false);
         panel.add(labelKeywordComma, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        textFieldReplaceText = new JTextField();
+        textFieldReplaceText.setToolTipText("The value for the action above, for example, '/say yellow is her fav color' for the action RUN_COMMAND");
+        panel.add(textFieldReplaceText, new GridConstraints(12, 2, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel.add(spacer1, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(panel1, new GridConstraints(8, 5, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        textFieldTestChat = new JTextField();
+        textFieldTestChat.setToolTipText("Test your CustomPlaceholder");
+        panel1.add(textFieldTestChat, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setText("Test Chat");
+        label13.setToolTipText("Test your CustomPlaceholder");
+        panel1.add(label13, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

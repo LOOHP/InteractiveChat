@@ -119,8 +119,12 @@ public class MentionDisplay {
                     for (String name : list) {
                         names.add(ChatColorUtils.stripColor(name));
                     }
-                    names.add("here");
-                    names.add("everyone");
+                    if (!InteractiveChat.disableHere) {
+                        names.add("here");
+                    }
+                    if (!InteractiveChat.disableEveryone) {
+                        names.add("everyone");
+                    }
 
                     for (String name : names) {
                         component = processPlayer(InteractiveChat.mentionPrefix + name, receiver, sender, component, unix);
@@ -133,10 +137,10 @@ public class MentionDisplay {
         return component;
     }
 
-    public static Component processPlayer(String placeholder, Player reciever, ICPlayer sender, Component component, long unix) {
+    public static Component processPlayer(String placeholder, Player receiver, ICPlayer sender, Component component, long unix) {
         String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlight.replace("{MentionedPlayer}", placeholder));
         Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
-        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", reciever.getDisplayName()).replace("{Receiver}", reciever.getDisplayName()));
+        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", receiver.getDisplayName()).replace("{Receiver}", receiver.getDisplayName()));
         HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));
         replacement = replacement.hoverEvent(hoverEvent);
         return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, replacement);

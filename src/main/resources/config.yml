@@ -169,6 +169,9 @@ Chat:
   #Enable the mention title and sound
   AllowMention: true
 
+  DisableHere: false
+  DisableEveryone: false
+
   #The prefix to trigger a mention
   #Can be an empty String
   MentionPrefix: "@"

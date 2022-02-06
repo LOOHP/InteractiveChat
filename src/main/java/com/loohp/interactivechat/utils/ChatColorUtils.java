@@ -3,9 +3,7 @@ package com.loohp.interactivechat.utils;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,32 +15,6 @@ public class ChatColorUtils {
     public static final Pattern RGB_HEX_COLOR_1 = Pattern.compile("(?:&|" + COLOR_CHAR + ")x(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])");
     public static final Pattern RGB_HEX_COLOR_2 = Pattern.compile("(?:&|" + COLOR_CHAR + ")#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
     public static final Pattern STANDARD_COLOR_CODE = Pattern.compile("&([0-9A-Fa-fk-or])");
-    private static final Set<Character> COLORS = new HashSet<>();
-
-    static {
-        COLORS.add('0');
-        COLORS.add('1');
-        COLORS.add('2');
-        COLORS.add('3');
-        COLORS.add('4');
-        COLORS.add('5');
-        COLORS.add('6');
-        COLORS.add('7');
-        COLORS.add('8');
-        COLORS.add('9');
-        COLORS.add('a');
-        COLORS.add('b');
-        COLORS.add('c');
-        COLORS.add('d');
-        COLORS.add('e');
-        COLORS.add('f');
-        COLORS.add('k');
-        COLORS.add('l');
-        COLORS.add('m');
-        COLORS.add('n');
-        COLORS.add('o');
-        COLORS.add('r');
-    }
 
     public static String stripColor(String string) {
         return string.replaceAll("\u00a7[0-9A-Fa-fk-orx]", "");

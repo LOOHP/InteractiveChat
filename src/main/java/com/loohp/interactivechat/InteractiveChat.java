@@ -185,6 +185,8 @@ public class InteractiveChat extends JavaPlugin {
     public static String invSkullName = "";
 
     public static boolean allowMention = true;
+    public static boolean disableHere = false;
+    public static boolean disableEveryone = false;
 
     public static boolean clickableCommands = true;
     public static String clickableCommandsFormat = "";

@@ -299,14 +299,14 @@ public class Events implements Listener {
         PlayerData data = InteractiveChat.playerDataManager.getPlayerData(sender);
         if (InteractiveChat.allowMention && (data == null || !data.isMentionDisabled())) {
             String message = event.getMessage();
-
-            if (checkMentionEveryone(message, sender)) {
+            if (!InteractiveChat.disableEveryone && checkMentionEveryone(message, sender)) {
                 return;
             }
-            if (checkMentionHere(message, sender)) {
+            if (!InteractiveChat.disableHere && checkMentionHere(message, sender)) {
                 return;
             }
             if (checkMentionPlayers(message, sender)) {
+                //noinspection UnnecessaryReturnStatement
                 return;
             }
         }

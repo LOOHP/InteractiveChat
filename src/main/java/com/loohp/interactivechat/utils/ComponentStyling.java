@@ -50,7 +50,7 @@ public class ComponentStyling {
         for (Component child : component.children()) {
             if (child instanceof TextComponent) {
                 TextComponent textComponent = (TextComponent) child;
-                String[] parts = textComponent.content().split("\n", -1);
+                String[] parts = textComponent.content().split("\\R", -1);
                 if (parts.length > 1) {
                     currentChildrens.add(textComponent.content(parts[0]));
                     filtered.add(ComponentCompacting.optimize(component.children(currentChildrens)));

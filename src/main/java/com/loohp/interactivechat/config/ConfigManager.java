@@ -84,7 +84,7 @@ public class ConfigManager {
                     CompatibilityListener listener = new CompatibilityListener(args[0].replace("Plugin:", "").trim(), args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
                     InteractiveChat.compatibilityListeners.add(listener);
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -96,6 +96,8 @@ public class ConfigManager {
         InteractiveChat.filterUselessColorCodes = getConfig().getBoolean("Settings.FilterUselessColorCodes", true);
 
         InteractiveChat.allowMention = getConfig().getBoolean("Chat.AllowMention");
+        InteractiveChat.disableHere = getConfig().getBoolean("Chat.DisableHere");
+        InteractiveChat.disableEveryone = getConfig().getBoolean("Chat.DisableEveryone");
 
         InteractiveChat.universalCooldown = getConfig().getLong("Settings.UniversalCooldown") * 1000;
 

@@ -60,6 +60,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
         if (args[0].equalsIgnoreCase("reload")) {
             if (sender.hasPermission("interactivechat.reload")) {
+                InteractiveChat.closeSharedInventoryViews();
                 ConfigManager.reloadConfig();
                 InteractiveChat.placeholderCooldownManager.reloadPlaceholders();
                 PlayerUtils.resetAllPermissionCache();
@@ -229,14 +230,12 @@ public class Commands implements CommandExecutor, TabCompleter {
                         start = Integer.parseInt(args[1]) - 1;
                         if (start < 0) {
                             start = 0;
-                            throw new NumberFormatException();
                         }
                     }
                     if (args.length > 2) {
                         end = Integer.parseInt(args[2]);
                         if (end < 0) {
                             end = InteractiveChat.placeholderList.size();
-                            throw new NumberFormatException();
                         }
                     }
                     InteractiveChatAPI.sendMessageUnprocessed(sender, LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.listPlaceholderHeader));
@@ -351,69 +350,61 @@ public class Commands implements CommandExecutor, TabCompleter {
             }
             return true;
         }
-		/*
-		if (args[0].equalsIgnoreCase("lengthtest") && sender.hasPermission("interactivechat.debug")) {
-			Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-				try {
-					int length = args.length < 2 ? 5000 : Integer.parseInt(args[1]);
-					String str = "";
-					for (int i = 0; i < length; i++) {
-						str += (i % 2) == 0 ? (ChatColor.GOLD + "n") : (ChatColor.YELLOW + "a");
-					}
-					sender.spigot().sendMessage(new TextComponent(str));
-				} catch (Exception e) {
-					sender.sendMessage(e.getMessage());
-				}
-			});
-			return true;
-		}
-		*/
+
         if (sender instanceof Player && args.length > 1) {
             Player player = (Player) sender;
-            if (args[0].equals("viewinv")) {
-                PlayerData data = InteractiveChat.playerDataManager.getPlayerData(player);
-                String hash = args[1];
-                if (data == null || data.getInventoryDisplayLayout() == 0) {
-                    Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
+            switch (args[0]) {
+                case "viewinv": {
+                    PlayerData data = InteractiveChat.playerDataManager.getPlayerData(player);
+                    String hash = args[1];
+                    if (data == null || data.getInventoryDisplayLayout() == 0) {
+                        Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
+                        if (inv != null) {
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+                        } else {
+                            player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                        }
+                    } else {
+                        Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
+                        Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
+                        if (inv != null && inv2 != null) {
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                                player.openInventory(inv);
+                                InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
+                                InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
+                            });
+                        } else {
+                            player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                        }
+                    }
+                    break;
+                }
+                case "viewender": {
+                    Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
                     if (inv != null) {
                         Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
-                } else {
-                    Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
-                    Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
-                    if (inv != null && inv2 != null) {
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                            player.openInventory(inv);
-                            InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
-                            InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
-                        });
+                    break;
+                }
+                case "viewitem": {
+                    Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
+                    if (inv != null) {
+                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
+                    break;
                 }
-            } else if (args[0].equals("viewender")) {
-                Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
-                if (inv != null) {
-                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
-                } else {
-                    player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
-                }
-            } else if (args[0].equals("viewitem")) {
-                Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
-                if (inv != null) {
-                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
-                } else {
-                    player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
-                }
-            } else if (args[0].equals("viewmap")) {
-                ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
-                if (map != null) {
-                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map));
-                } else {
-                    player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
-                }
+                case "viewmap":
+                    ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
+                    if (map != null) {
+                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map));
+                    } else {
+                        player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                    }
+                    break;
             }
             return true;
         }

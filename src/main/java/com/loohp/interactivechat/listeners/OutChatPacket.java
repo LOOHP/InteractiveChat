@@ -110,19 +110,19 @@ public class OutChatPacket implements Listener {
                 event.setCancelled(true);
                 event.setReadOnly(false);
 
-                Player reciever = event.getPlayer();
+                Player receiver = event.getPlayer();
                 PacketContainer packet = packetOriginal.deepClone();
 
                 UUID messageUUID = UUID.randomUUID();
 
                 service.execute(() -> {
-                    processPacket(reciever, packet, messageUUID, event.isFiltered());
-                }, reciever, messageUUID);
+                    processPacket(receiver, packet, messageUUID, event.isFiltered());
+                }, receiver, messageUUID);
             }
         });
     }
 
-    private static void processPacket(Player reciever, PacketContainer packet, UUID messageUUID, boolean isFiltered) {
+    private static void processPacket(Player receiver, PacketContainer packet, UUID messageUUID, boolean isFiltered) {
         PacketContainer originalPacket = packet.deepClone();
         try {
             Component component = null;
@@ -138,7 +138,7 @@ public class OutChatPacket implements Listener {
                         } catch (Throwable e) {
                             System.err.println(t.toString(packet.getModifier().read(i)));
                             e.printStackTrace();
-                            service.send(packet, reciever, messageUUID);
+                            service.send(packet, receiver, messageUUID);
                             return;
                         }
                         field = i;
@@ -148,23 +148,23 @@ public class OutChatPacket implements Listener {
                 }
             }
             if (field < 0 || type == null || component == null) {
-                service.send(packet, reciever, messageUUID);
+                service.send(packet, receiver, messageUUID);
                 return;
             }
 
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
             try {
                 if (legacyText.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> legacyText.matches(each))) {
-                    service.send(packet, reciever, messageUUID);
+                    service.send(packet, receiver, messageUUID);
                     return;
                 }
             } catch (Exception e) {
-                service.send(packet, reciever, messageUUID);
+                service.send(packet, receiver, messageUUID);
                 return;
             }
 
             if (InteractiveChat.version.isOld() && JsonUtils.containsKey(InteractiveChatComponentSerializer.gson().serialize(component), "translate")) {
-                service.send(packet, reciever, messageUUID);
+                service.send(packet, receiver, messageUUID);
                 return;
             }
 
@@ -210,8 +210,8 @@ public class OutChatPacket implements Listener {
                 if (isFiltered) {
                     Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
                         service.execute(() -> {
-                            processPacket(reciever, packet, messageUUID, false);
-                        }, reciever, messageUUID);
+                            processPacket(receiver, packet, messageUUID, false);
+                        }, receiver, messageUUID);
                     }, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
                     return;
                 }
@@ -227,7 +227,7 @@ public class OutChatPacket implements Listener {
             component = ComponentModernizing.modernize(component);
 
             UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, reciever, component, preEventSenderUUID);
+            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(preEvent);
             if (preEvent.getSender() != null) {
                 Player newsender = Bukkit.getPlayer(preEvent.getSender());
@@ -240,33 +240,33 @@ public class OutChatPacket implements Listener {
             component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
 
             if (InteractiveChat.translateHoverableItems && InteractiveChat.itemGUI) {
-                component = HoverableItemDisplay.process(component, reciever);
+                component = HoverableItemDisplay.process(component, receiver);
             }
 
             if (InteractiveChat.usePlayerName) {
-                component = PlayernameDisplay.process(component, sender, reciever, unix);
+                component = PlayernameDisplay.process(component, sender, receiver, unix);
             }
 
             if (InteractiveChat.allowMention && sender.isPresent()) {
-                PlayerData data = InteractiveChat.playerDataManager.getPlayerData(reciever);
+                PlayerData data = InteractiveChat.playerDataManager.getPlayerData(receiver);
                 if (data == null || !data.isMentionDisabled()) {
-                    component = MentionDisplay.process(component, reciever, sender.get(), unix, true);
+                    component = MentionDisplay.process(component, receiver, sender.get(), unix, true);
                 }
             }
 
             if (InteractiveChat.useItem) {
-                component = ItemDisplay.process(component, sender, reciever, unix);
+                component = ItemDisplay.process(component, sender, receiver, unix);
             }
 
             if (InteractiveChat.useInventory) {
-                component = InventoryDisplay.process(component, sender, reciever, unix);
+                component = InventoryDisplay.process(component, sender, receiver, unix);
             }
 
             if (InteractiveChat.useEnder) {
-                component = EnderchestDisplay.process(component, sender, reciever, unix);
+                component = EnderchestDisplay.process(component, sender, receiver, unix);
             }
 
-            component = CustomPlaceholderDisplay.process(component, sender, reciever, InteractiveChat.placeholderList.values(), unix);
+            component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
 
             if (InteractiveChat.clickableCommands) {
                 component = CommandsDisplay.process(component);
@@ -278,11 +278,11 @@ public class OutChatPacket implements Listener {
                 }
             }
 
-            if (PlayerUtils.getColorSettings(reciever).equals(ColorSettings.OFF)) {
+            if (PlayerUtils.getColorSettings(receiver).equals(ColorSettings.OFF)) {
                 component = ComponentStyling.stripColor(component);
             }
 
-            PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, reciever, component, preEventSenderUUID);
+            PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(postEvent);
             component = postEvent.getComponent();
 
@@ -305,7 +305,7 @@ public class OutChatPacket implements Listener {
             if (packet.getUUIDs().size() > 0) {
                 packet.getUUIDs().write(0, postEventSenderUUID);
             }
-            PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, reciever, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
+            PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
             Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
@@ -316,20 +316,20 @@ public class OutChatPacket implements Listener {
             if (sendEvent.isCancelled()) {
                 if (sendEvent.sendOriginalIfCancelled()) {
                     PacketContainer originalPacketModified = sendEvent.getOriginal();
-                    service.send(originalPacketModified, reciever, messageUUID);
+                    service.send(originalPacketModified, receiver, messageUUID);
                     return;
                 } else {
                     if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + reciever.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
+                        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + receiver.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
                     }
                 }
-                service.discard(reciever.getUniqueId(), messageUUID);
+                service.discard(receiver.getUniqueId(), messageUUID);
                 return;
             }
-            service.send(packet, reciever, messageUUID);
+            service.send(packet, receiver, messageUUID);
         } catch (Exception e) {
             e.printStackTrace();
-            service.send(originalPacket, reciever, messageUUID);
+            service.send(originalPacket, receiver, messageUUID);
         }
     }
 

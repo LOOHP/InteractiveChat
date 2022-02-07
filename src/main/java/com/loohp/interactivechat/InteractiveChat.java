@@ -326,6 +326,18 @@ public class InteractiveChat extends JavaPlugin {
         InteractiveChat.isolatedSyncListeners.clear();
     }
 
+    public static void closeSharedInventoryViews() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Inventory topInventory = player.getOpenInventory().getTopInventory();
+            if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
+                player.closeInventory();
+                if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
+                    InventoryUtils.restorePlayerInventory(player);
+                }
+            }
+        }
+    }
+
     public static void sendMessage(CommandSender sender, Component component) {
         if (InteractiveChat.version.isLegacyRGB()) {
             try {
@@ -554,15 +566,7 @@ public class InteractiveChat extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Inventory topInventory = player.getOpenInventory().getTopInventory();
-            if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
-                player.closeInventory();
-                if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
-                    InventoryUtils.restorePlayerInventory(player);
-                }
-            }
-        }
+        closeSharedInventoryViews();
         restoreIsolatedChatListeners();
         nicknameManager.close();
         try {

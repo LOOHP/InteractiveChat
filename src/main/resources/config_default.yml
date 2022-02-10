@@ -391,7 +391,8 @@ TabCompletion:
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
 #Note that all settings have to be present even if they are set to false
-#Just copy everything and change each setting, so you do not end up messing up
+#Just copy everything and change each setting, so you won't miss anything
+#You can also use the CustomPlaceholderCreator tool by double-clicking this plugin jar
 CustomPlaceholders:
   '1':
     #Should the placeholders be parsed with the message sender or the receiver

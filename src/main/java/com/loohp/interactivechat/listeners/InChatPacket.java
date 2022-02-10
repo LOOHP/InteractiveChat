@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.NMSUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -18,7 +19,9 @@ import org.bukkit.plugin.AuthorNagException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,12 +31,45 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
 public class InChatPacket {
 
     private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
     private static final EventPriority[] EVENT_PRIORITIES = new EventPriority[] {EventPriority.LOWEST, EventPriority.LOW, EventPriority.NORMAL, EventPriority.HIGH, EventPriority.HIGHEST, EventPriority.MONITOR};
+
+    private static Class<?> craftPlayerClass;
+    private static Method craftPlayerGetHandleMethod;
+    private static Field playerConnectionField;
+    private static Class<?> nmsPacketPlayInChatClass;
+    private static Method handleChatMethod;
+
+    static {
+        try {
+            craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+            craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
+            try {
+                playerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("playerConnection");
+            } catch (NoSuchFieldException e) {
+                playerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("b");
+            }
+            nmsPacketPlayInChatClass = NMSUtils.getNMSClass("net.minecraft.server.%s.PacketPlayInChat", "net.minecraft.network.protocol.game.PacketPlayInChat");
+            handleChatMethod = Stream.of(playerConnectionField.getType().getMethods()).filter(each -> each.getParameterCount() == 1 && each.getParameterTypes()[0].equals(nmsPacketPlayInChatClass)).findFirst().get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void handleChatPacket(Player player, PacketContainer packet) throws InvocationTargetException, IllegalAccessException {
+        if (!packet.getType().equals(PacketType.Play.Client.CHAT)) {
+            throw new IllegalArgumentException("PacketContainer is not of type \"PacketType.Play.Client.CHAT\"");
+        }
+        Object nmsPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+        Object playerConnectionObject = playerConnectionField.get(nmsPlayer);
+        Object packetPlayInChatPacket = packet.getHandle();
+        handleChatMethod.invoke(playerConnectionObject, packetPlayInChatPacket);
+    }
 
     public static void chatMessageListener() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -74,8 +110,8 @@ public class InChatPacket {
                         }
 
                         if (player.isConversing()) {
-                            String conver = message;
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(conver));
+                            String conversation = message;
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(conversation));
                             return;
                         }
 
@@ -149,7 +185,7 @@ public class InChatPacket {
                             while (!flag.get()) {
                                 try {
                                     TimeUnit.NANOSECONDS.sleep(10000);
-                                } catch (InterruptedException e) {
+                                } catch (InterruptedException ignored) {
                                 }
                             }
                         }
@@ -159,7 +195,7 @@ public class InChatPacket {
                         }
 
                         try {
-                            InteractiveChat.protocolManager.recieveClientPacket(player, newPacket, false);
+                            handleChatPacket(player, newPacket);
                         } catch (IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                         }

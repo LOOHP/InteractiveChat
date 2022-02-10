@@ -29,7 +29,7 @@ public class ChatColorUtils {
     }
 
     public static String getLastColors(String input) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for (int i = input.length() - 1; i > 0; i--) {
             if (input.charAt(i - 1) == '\u00a7') {
@@ -39,7 +39,7 @@ public class ChatColorUtils {
                     i -= 13;
                 }
                 if (isLegal(color)) {
-                    result = color + result;
+                    result.insert(0, color);
                     if (color.charAt(1) == 'x' || isColor(ChatColor.getByChar(input.charAt(i))) || ChatColor.getByChar(input.charAt(i)).equals(ChatColor.RESET)) {
                         break;
                     }
@@ -47,11 +47,11 @@ public class ChatColorUtils {
             }
         }
 
-        return result;
+        return result.toString();
     }
 
     public static String getFirstColors(String input) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         boolean found = false;
 
         if (input.length() < 2) {
@@ -69,11 +69,11 @@ public class ChatColorUtils {
             if (isLegal(color)) {
                 if (!found) {
                     found = true;
-                    result = color;
+                    result = new StringBuilder(color);
                 } else if (color.charAt(1) == 'x' || isColor(ChatColor.getByChar(color.charAt(1)))) {
-                    result = color;
+                    result = new StringBuilder(color);
                 } else {
-                    result = result + color;
+                    result.append(color);
                 }
                 i++;
             } else if (found) {
@@ -82,7 +82,7 @@ public class ChatColorUtils {
             i++;
         }
 
-        return result;
+        return result.toString();
     }
 
     public static boolean isColor(ChatColor color) {

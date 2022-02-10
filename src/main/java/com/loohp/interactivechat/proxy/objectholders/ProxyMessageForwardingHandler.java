@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class ProxyMessageForwardingHandler implements AutoCloseable {
 
@@ -24,13 +24,13 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
     private final BiConsumer<ForwardMessageInfo, String> sendToPlayer;
     private final Predicate<UUID> isPlayerOnline;
     private final Predicate<UUID> hasInteractiveChatOnConnectedServer;
-    private final Supplier<Long> executionWaitTime;
+    private final LongSupplier executionWaitTime;
     private final Map<UUID, Map<UUID, OutboundMessage>> waitingPackets;
     private final Map<UUID, Long> lastSuccessfulCheck;
 
     private final AtomicBoolean isValid;
 
-    public ProxyMessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, Supplier<Long> executionWaitTime) {
+    public ProxyMessageForwardingHandler(BiConsumer<ForwardMessageInfo, String> forwardForProcessing, BiConsumer<ForwardMessageInfo, String> sendToPlayer, Predicate<UUID> isPlayerOnline, Predicate<UUID> hasInteractiveChatOnConnectedServer, LongSupplier executionWaitTime) {
         this.isValid = new AtomicBoolean(true);
         this.messageOrder = new ConcurrentHashMap<>();
         this.messageData = new ConcurrentHashMap<>();
@@ -63,7 +63,7 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
         }
     }
 
-    public void recievedProcessedMessage(UUID messageId, String message) {
+    public void receivedProcessedMessage(UUID messageId, String message) {
         ForwardMessageInfo info = messageData.remove(messageId);
         if (info != null) {
             Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
@@ -110,12 +110,12 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
             public void run() {
                 long time = System.currentTimeMillis();
                 for (Queue<ForwardMessageInfo> queue : messageOrder.values()) {
-                    queue.removeIf(each -> each.getTime() + executionWaitTime.get() < time);
+                    queue.removeIf(each -> each.getTime() + executionWaitTime.getAsLong() < time);
                 }
                 Iterator<ForwardMessageInfo> itr0 = messageData.values().iterator();
                 while (itr0.hasNext()) {
                     ForwardMessageInfo id = itr0.next();
-                    if (id.getTime() + executionWaitTime.get() < time) {
+                    if (id.getTime() + executionWaitTime.getAsLong() < time) {
                         itr0.remove();
                     }
                 }
@@ -160,7 +160,7 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
                                     Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
                                     if (lastSuccessful == null) {
                                         lastSuccessfulCheck.put(playerUUID, time);
-                                    } else if ((lastSuccessful + executionWaitTime.get()) < time) {
+                                    } else if ((lastSuccessful + executionWaitTime.getAsLong()) < time) {
                                         orderingQueue.poll();
                                         lastSuccessfulCheck.put(playerUUID, time);
                                     }

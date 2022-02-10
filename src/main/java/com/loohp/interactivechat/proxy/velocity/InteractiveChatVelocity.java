@@ -370,7 +370,7 @@ public class InteractiveChatVelocity {
                         case 0x08:
                             UUID messageId = DataTypeIO.readUUID(input);
                             String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                            messageForwardingHandler.recievedProcessedMessage(messageId, component);
+                            messageForwardingHandler.receivedProcessedMessage(messageId, component);
                             break;
                         case 0x09:
                             loadConfig();
@@ -483,7 +483,11 @@ public class InteractiveChatVelocity {
         } else {
             if (InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
                 String uuidmatch = "<chat=" + uuid.toString() + ">";
-                message += " " + uuidmatch;
+                int totalLength = message.length() + uuidmatch.length();
+                if (totalLength > 256) {
+                    message = message.substring(0, 256 - uuidmatch.length());
+                }
+                message += uuidmatch;
                 event.setResult(ChatResult.message(message));
             }
 
@@ -567,10 +571,14 @@ public class InteractiveChatVelocity {
                         byte position = packet.getType();
                         if ((position == 0 || position == 1) && message != null) {
                             if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                packet.setMessage(message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", ""));
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    packet.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), "").trim());
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
+                                if (message.length() > 256) {
+                                    message = message.substring(0, 256);
+                                }
+                                packet.setMessage(message);
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
                                 return;

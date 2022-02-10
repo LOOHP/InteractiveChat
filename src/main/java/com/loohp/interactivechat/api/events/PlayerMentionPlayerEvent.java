@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * This event is called before the plugin plays the title and sound to the
  * player who is mentioned. The sound will be
- * null if you did't set a sound in the config. Set the Sound to null if you do
+ * null if you didn't set a sound in the config. Set the Sound to null if you do
  * not want to play any sound.
  *
  * @author LOOHP

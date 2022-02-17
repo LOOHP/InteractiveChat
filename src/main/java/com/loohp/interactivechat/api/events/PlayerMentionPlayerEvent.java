@@ -1,3 +1,23 @@
+/*
+ * This file is part of InteractiveChat.
+ *
+ * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2022. Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.loohp.interactivechat.api.events;
 
 import net.kyori.adventure.bossbar.BossBar;
@@ -36,9 +56,9 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     private Sound sound;
     private boolean cancel;
 
-    public PlayerMentionPlayerEvent(boolean async, Player reciever, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean cancel) {
+    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean cancel) {
         super(async);
-        this.reciever = reciever;
+        this.reciever = receiver;
         this.sender = sender;
         this.title = title;
         this.subtitle = subtitle;
@@ -59,7 +79,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         this.cancel = cancel;
     }
 
-    public Player getReciver() {
+    public Player getReceiver() {
         return reciever;
     }
 

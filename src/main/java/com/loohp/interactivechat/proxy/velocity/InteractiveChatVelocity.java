@@ -1,3 +1,23 @@
+/*
+ * This file is part of InteractiveChat.
+ *
+ * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2022. Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.loohp.interactivechat.proxy.velocity;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -14,6 +34,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
+import com.loohp.interactivechat.proxy.bungee.InteractiveChatBungee;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
@@ -473,16 +494,20 @@ public class InteractiveChatVelocity {
                     //getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
                     if (newMessage.matches(parsecommand)) {
                         String command = newMessage.trim();
-                        String uuidmatch = "<cmd=" + uuid.toString() + ">";
-                        command += " " + uuidmatch;
+                        String uuidmatch = " <cmd=" + uuid.toString() + ">";
+                        int totalLength = command.length() + uuidmatch.length();
+                        if (totalLength > 256) {
+                            command = command.substring(0, 256 - uuidmatch.length());
+                        }
+                        command += uuidmatch;
                         event.setResult(ChatResult.message(command));
                         break;
                     }
                 }
             }
         } else {
-            if (InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
-                String uuidmatch = "<chat=" + uuid.toString() + ">";
+            if (InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
+                String uuidmatch = " <chat=" + uuid.toString() + ">";
                 int totalLength = message.length() + uuidmatch.length();
                 if (totalLength > 256) {
                     message = message.substring(0, 256 - uuidmatch.length());
@@ -574,9 +599,6 @@ public class InteractiveChatVelocity {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
-                                }
-                                if (message.length() > 256) {
-                                    message = message.substring(0, 256);
                                 }
                                 packet.setMessage(message);
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {

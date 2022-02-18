@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -66,7 +67,9 @@ public class HTTPRequestUtils {
             connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
             connection.addRequestProperty("Pragma", "no-cache");
             Collector<CharSequence, ?, String> c = joinLines ? Collectors.joining() : Collectors.joining("\n");
-            String reply = new BufferedReader(new InputStreamReader(connection.getInputStream())).lines().collect(c);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String reply = reader.lines().collect(c);
+            reader.close();
             return reply;
         } catch (IOException e) {
             return null;
@@ -111,6 +114,23 @@ public class HTTPRequestUtils {
             return baos.toByteArray();
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    public static long getContentSize(String link) {
+        try {
+            URLConnection connection = new URL(link).openConnection();
+            connection.setUseCaches(false);
+            connection.setDefaultUseCaches(false);
+            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+            connection.addRequestProperty("Pragma", "no-cache");
+            if (connection instanceof HttpURLConnection) {
+                ((HttpURLConnection) connection).setRequestMethod("HEAD");
+            }
+            return connection.getContentLengthLong();
+        } catch (IOException e) {
+            return -1;
         }
     }
 

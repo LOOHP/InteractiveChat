@@ -86,7 +86,6 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
     public void receivedProcessedMessage(UUID messageId, String message) {
         ForwardMessageInfo info = messageData.remove(messageId);
         if (info != null) {
-            System.out.println(info.getPlayer() + " ==> " + message);
             Queue<ForwardMessageInfo> queue = messageOrder.get(info.getPlayer());
             OutboundMessage outboundMessage = new OutboundMessage(info, message);
             if (queue != null) {

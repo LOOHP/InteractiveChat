@@ -253,7 +253,7 @@ public class ProcessExternalMessage {
                 }
             }
         }
-        if (!sender.isPresent()) {
+        if (!sender.isPresent() && !InteractiveChat.useAccurateSenderFinder) {
             sender = SenderFinder.getSender(component, rawMessageKey);
         }
 

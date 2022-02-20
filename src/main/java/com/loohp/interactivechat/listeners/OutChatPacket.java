@@ -224,7 +224,7 @@ public class OutChatPacket implements Listener {
                     }
                 }
             }
-            if (!sender.isPresent()) {
+            if (!sender.isPresent() && !InteractiveChat.useAccurateSenderFinder) {
                 sender = SenderFinder.getSender(component, rawMessageKey);
             }
 

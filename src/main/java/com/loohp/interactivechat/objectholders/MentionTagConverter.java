@@ -42,6 +42,10 @@ public class MentionTagConverter {
         return reverse.matcher(input).replaceAll("$1");
     }
 
+    public boolean containsTags(String input) {
+        return reverse.matcher(input).find();
+    }
+
     public String getRawTagStyle() {
         return style;
     }

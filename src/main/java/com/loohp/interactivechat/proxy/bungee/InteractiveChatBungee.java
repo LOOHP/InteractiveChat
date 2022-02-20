@@ -300,10 +300,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 logger.setFilter(new Filter() {
                     @Override
                     public boolean isLoggable(LogRecord record) {
-                        String message = record.getMessage();
-                        if (!Registry.ID_PATTERN.matcher(message).find()) {
-                            record.setMessage(message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
-                        }
+                        record.setMessage(Registry.MENTION_TAG_CONVERTER.revertTags(record.getMessage().replaceAll(Registry.ID_PATTERN.pattern(), "")));
                         return true;
                     }
                 });

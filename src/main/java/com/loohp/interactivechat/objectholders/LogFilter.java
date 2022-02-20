@@ -37,7 +37,7 @@ public class LogFilter implements Filter {
         try {
             if (message == null || message.isEmpty()) {
                 return Filter.Result.NEUTRAL;
-            } else if (!Registry.ID_PATTERN.matcher(message).find()) {
+            } else if (!Registry.ID_PATTERN.matcher(message).find() && !Registry.MENTION_TAG_CONVERTER.containsTags(message)) {
                 return Filter.Result.NEUTRAL;
             } else {
                 String processed = ProcessExternalMessage.processWithoutReceiver(message);
@@ -52,7 +52,7 @@ public class LogFilter implements Filter {
     public LifeCycle.State getState() {
         try {
             return LifeCycle.State.STARTED;
-        } catch (Exception localException) {
+        } catch (Exception ignored) {
         }
         return null;
     }

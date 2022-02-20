@@ -27,6 +27,7 @@ import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
@@ -57,16 +58,14 @@ public class MentionDisplay {
 
     private static final ItemStack WRITABLE_BOOK = XMaterial.WRITABLE_BOOK.parseItem();
 
-    public static Component process(Component component, Player beenpinged, ICPlayer sender, long unix, boolean async) {
+    public static Component process(Component component, Player receiver, ICPlayer sender, long unix, boolean async) {
         Optional<MentionPair> optPair;
         synchronized (InteractiveChat.mentionPair) {
-            optPair = InteractiveChat.mentionPair.stream().filter(each -> each.getReciever().equals(beenpinged.getUniqueId())).findFirst();
+            optPair = InteractiveChat.mentionPair.stream().filter(each -> each.getReciever().equals(receiver.getUniqueId())).findFirst();
         }
         if (optPair.isPresent()) {
             MentionPair pair = optPair.get();
             if (pair.getSender().equals(sender.getUniqueId())) {
-                Player receiver = beenpinged;
-
                 String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.MentionedTitle")));
                 String subtitle = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
                 String actionbar = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, ConfigManager.getConfig().getString("Chat.KnownPlayerMentionActionbar")));
@@ -154,16 +153,19 @@ public class MentionDisplay {
                 }
             }
         }
+        component = ComponentReplacing.replace(component, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
+            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
+        }));
         return component;
     }
 
     public static Component processPlayer(String placeholder, Player receiver, ICPlayer sender, Component component, long unix) {
-        String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlight.replace("{MentionedPlayer}", placeholder));
+        String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlight.replace("{MentionedPlayer}", Registry.MENTION_TAG_CONVERTER.revertTags(placeholder)));
         Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
         String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", receiver.getDisplayName()).replace("{Receiver}", receiver.getDisplayName()));
         HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));
         replacement = replacement.hoverEvent(hoverEvent);
-        return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(placeholder), true, replacement);
+        return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(Registry.MENTION_TAG_CONVERTER.getTagStyle(placeholder)), true, replacement);
     }
 
 }

@@ -202,7 +202,7 @@ public class ComponentReplacing {
 
     private static List<ComponentReplacingData> getData(Component component) {
         List<ComponentReplacingData> sections = new ArrayList<>();
-        String current = "";
+        StringBuilder current = new StringBuilder();
         List<Integer> pos = new ArrayList<>();
         int i = -1;
         boolean lastIsTextComponent = false;
@@ -211,21 +211,21 @@ public class ComponentReplacing {
             if (child instanceof TextComponent) {
                 lastIsTextComponent = true;
                 String content = ((TextComponent) child).content();
-                current += content;
+                current.append(content);
                 for (int u = 0; u < content.length(); u++) {
                     pos.add(i);
                 }
             } else {
                 if (lastIsTextComponent) {
                     lastIsTextComponent = false;
-                    sections.add(new ComponentReplacingData(current, pos));
-                    current = "";
+                    sections.add(new ComponentReplacingData(current.toString(), pos));
+                    current = new StringBuilder();
                     pos = new ArrayList<>();
                 }
             }
         }
         if (lastIsTextComponent) {
-            sections.add(new ComponentReplacingData(current, pos));
+            sections.add(new ComponentReplacingData(current.toString(), pos));
         }
         return sections;
     }

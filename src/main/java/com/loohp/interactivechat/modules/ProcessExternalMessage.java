@@ -76,9 +76,9 @@ public class ProcessExternalMessage {
         return externalProcessorField.get(plugin);
     }
 
-    public static String processWithoutReviever(String message) {
+    public static String processWithoutReceiver(String message) {
         if (initPlugin.isEnabled()) {
-            return initPlugin.externalProcessor.processWithoutReviever0(message);
+            return initPlugin.externalProcessor.processWithoutReceiver0(message);
         } else {
             try {
                 Object obj = getInstance();
@@ -91,14 +91,14 @@ public class ProcessExternalMessage {
         }
     }
 
-    public static String processAndRespond(Player reciever, String component) throws Exception {
+    public static String processAndRespond(Player receiver, String component) throws Exception {
         if (initPlugin.isEnabled()) {
-            return initPlugin.externalProcessor.processAndRespond0(reciever, component);
+            return initPlugin.externalProcessor.processAndRespond0(receiver, component);
         } else {
             try {
                 Object obj = getInstance();
                 Method processAndRespond0Method = obj.getClass().getMethod("processAndRespond0", Player.class, String.class);
-                return (String) processAndRespond0Method.invoke(obj, reciever, component);
+                return (String) processAndRespond0Method.invoke(obj, receiver, component);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,7 +107,7 @@ public class ProcessExternalMessage {
     }
 
     @SuppressWarnings("deprecation")
-    public String processWithoutReviever0(String message) {
+    public String processWithoutReceiver0(String message) {
         UUID senderUUID = ProcessAccurateSender.find(message);
         ICPlayer sender;
         if (senderUUID == null) {
@@ -116,7 +116,9 @@ public class ProcessExternalMessage {
             sender = ICPlayerFactory.getICPlayer(senderUUID);
         }
 
+        message = Registry.MENTION_TAG_CONVERTER.revertTags(message);
         message = message.replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_0.pattern(), "").replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_1.pattern(), "").replaceAll(ProcessAccurateSender.COLOR_IGNORE_PATTERN.pattern(), "");
+        message = message.replaceAll(ProcessAccurateSender.PATTERN_0.pattern(), "$2");
 
         if (sender == null) {
             return message;

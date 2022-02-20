@@ -32,25 +32,25 @@ import github.scarsz.discordsrv.api.events.GameChatMessagePreProcessEvent;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.Component;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.TextReplacementConfig;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class DiscordSRVEvents {
 
-    /*
-    @Subscribe(priority = ListenerPriority.LOWEST)
-    public void onVentureChatBungeeToDiscord(VentureChatMessagePreProcessEvent event) {
-        Component component = event.getMessageComponent();
-        event.setMessageComponent(process(component));
-    }
-    */
     public static Component process(Component component) {
-        component = convert(ComponentReplacing.replace(convert(component), Registry.ID_PATTERN.pattern(), net.kyori.adventure.text.Component.empty())).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
+        component = convert(ComponentReplacing.replace(ComponentReplacing.replace(convert(component), Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
+            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
+        })), Registry.ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
+            String placeholder = result.group(4);
+            String replacement = placeholder == null ? "" : placeholder;
+            return LegacyComponentSerializer.legacySection().deserialize(replacement);
+        })).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
             String escape = result.group(1);
             String replacement = escape == null ? "" : escape;
             return builder.content(replacement);
         }).build());
         if (InteractiveChat.fontTags) {
             component = component.replaceText(TextReplacementConfig.builder().match(ComponentFont.FONT_TAG_PATTERN).replacement((result, builder) -> {
-                String escape = result.group(1);
+                String escape = result.group(2);
                 String replacement = escape == null ? "" : escape;
                 return builder.content(replacement);
             }).build());
@@ -71,5 +71,13 @@ public class DiscordSRVEvents {
         Component component = event.getMessageComponent();
         event.setMessageComponent(process(component));
     }
+
+    /*
+    @Subscribe(priority = ListenerPriority.LOWEST)
+    public void onVentureChatBungeeToDiscord(VentureChatMessagePreProcessEvent event) {
+        Component component = event.getMessageComponent();
+        event.setMessageComponent(process(component));
+    }
+    */
 
 }

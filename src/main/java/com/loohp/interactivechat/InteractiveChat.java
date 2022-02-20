@@ -38,7 +38,6 @@ import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.Events;
-import com.loohp.interactivechat.listeners.InChatPacket;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutChatPacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
@@ -46,7 +45,6 @@ import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
-import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.ConcurrentCacheHashMap;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
@@ -78,14 +76,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -93,7 +86,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -288,11 +280,6 @@ public class InteractiveChat extends JavaPlugin {
 
     public static ItemStack unknownReplaceItem;
 
-    public static List<CompatibilityListener> compatibilityListeners = new ArrayList<>();
-    public static Map<EventPriority, Set<RegisteredListener>> isolatedAsyncListeners = new EnumMap<>(EventPriority.class);
-    public static Map<EventPriority, Set<RegisteredListener>> isolatedSyncListeners = new EnumMap<>(EventPriority.class);
-    public static Map<EventPriority, Set<RegisteredListener>> superVanishPremiumVanishListeners = new EnumMap<>(EventPriority.class);
-
     public static boolean useAccurateSenderFinder = true;
 
     public static boolean useBukkitDisplayName = true;
@@ -310,41 +297,6 @@ public class InteractiveChat extends JavaPlugin {
     public static PlaceholderCooldownManager placeholderCooldownManager;
     public static NicknameManager nicknameManager;
     public static Database database;
-
-    /**
-     * <b>Do not invoke unless you know what you are doing!!!</b>
-     */
-    @Deprecated
-    public static void restoreIsolatedChatListeners() {
-        HandlerList handlerList = AsyncPlayerChatEvent.getHandlerList();
-        for (EventPriority priority : EventPriority.values()) {
-            Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedAsyncListeners.get(priority);
-            if (isolatedListeners != null) {
-                for (RegisteredListener registration : isolatedListeners) {
-                    handlerList.register(registration);
-                }
-            }
-            Set<RegisteredListener> vanishListeners = InteractiveChat.superVanishPremiumVanishListeners.get(priority);
-            if (vanishListeners != null) {
-                for (RegisteredListener registration : vanishListeners) {
-                    handlerList.register(registration);
-                }
-            }
-        }
-        InteractiveChat.isolatedAsyncListeners.clear();
-        InteractiveChat.superVanishPremiumVanishListeners.clear();
-
-        HandlerList syncHandlerList = PlayerChatEvent.getHandlerList();
-        for (EventPriority priority : EventPriority.values()) {
-            Set<RegisteredListener> isolatedListeners = InteractiveChat.isolatedSyncListeners.get(priority);
-            if (isolatedListeners != null) {
-                for (RegisteredListener registration : isolatedListeners) {
-                    syncHandlerList.register(registration);
-                }
-            }
-        }
-        InteractiveChat.isolatedSyncListeners.clear();
-    }
 
     public static void closeSharedInventoryViews() {
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -445,7 +397,6 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OutChatPacket(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
         OutChatPacket.chatMessageListener();
-        InChatPacket.chatMessageListener();
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();
         }
@@ -587,7 +538,6 @@ public class InteractiveChat extends JavaPlugin {
     @Override
     public void onDisable() {
         closeSharedInventoryViews();
-        restoreIsolatedChatListeners();
         nicknameManager.close();
         try {
             OutChatPacket.getAsyncChatSendingExecutor().close();

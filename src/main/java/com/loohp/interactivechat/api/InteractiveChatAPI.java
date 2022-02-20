@@ -403,7 +403,7 @@ public class InteractiveChatAPI {
     /**
      * Get the plugins registered to provide nicknames
      *
-     * @return A set of registered plguins
+     * @return A set of registered plugins
      */
     public static Set<Plugin> getRegisteredNicknameProviders() {
         return Collections.unmodifiableSet(InteractiveChat.pluginNicknames.keySet());
@@ -494,7 +494,7 @@ public class InteractiveChatAPI {
     }
 
     /**
-     * Get all online icplayer's uuid
+     * Get all online icplayers' uuid
      *
      * @return A set of uuid
      */
@@ -516,20 +516,54 @@ public class InteractiveChatAPI {
      * Get {@link ICPlayer} from a {@link UUID}
      *
      * @param uuid
-     * @return An ICPlayer
+     * @return An ICPlayer or null if not found
      */
     public static ICPlayer getICPlayer(UUID uuid) {
         return ICPlayerFactory.getICPlayer(uuid);
     }
 
     /**
+     * Get {@link ICPlayer} with the given username
+     *
+     * @param name
+     * @return An ICPlayer or null if not found
+     */
+    public static ICPlayer getICPlayer(String name) {
+        return ICPlayerFactory.getICPlayer(name);
+    }
+
+    /**
+     * Get {@link ICPlayer} with the exact given name, case-insensitive.
+     *
+     * @param name
+     * @return An ICPlayer or null if not found
+     */
+    public static ICPlayer getICPlayerExact(String name) {
+        return ICPlayerFactory.getICPlayerExact(name);
+    }
+
+    /**
      * Get {@link OfflineICPlayer} from a {@link UUID}
+     * If the offline player has never joined the server, null may be returned.
      *
      * @param uuid
-     * @return An OfflineICPlayer
+     * @return An OfflineICPlayer or null if not found
      */
     public static OfflineICPlayer getOfflineICPlayer(UUID uuid) {
         return ICPlayerFactory.getOfflineICPlayer(uuid);
+    }
+
+    /**
+     * Get {@link OfflineICPlayer} from the given username
+     * This method may involve a blocking web request to get the UUID for the given name.
+     * If the offline player has never joined the server, null may be returned.
+     *
+     * @param name
+     * @return An OfflineICPlayer or null if not found
+     */
+    @Deprecated
+    public static OfflineICPlayer getOfflineICPlayer(String name) {
+        return ICPlayerFactory.getOfflineICPlayer(name);
     }
 
     public enum SharedType {

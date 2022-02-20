@@ -27,7 +27,7 @@ import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.yamlconfiguration.ConfigurationSection;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 
 public class ConfigDataFixer {
 
@@ -85,7 +85,16 @@ public class ConfigDataFixer {
             }
             backup = true;
 
-            config.getConfiguration().set("Settings.FormattingTags.AdditionalRGBFormats", Arrays.asList("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"));
+            config.getConfiguration().set("Settings.FormattingTags.AdditionalRGBFormats", Collections.singletonList("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"));
+        }
+
+        if (configVersion.compareTo(new Version("4.1.2.14")) < 0) {
+            if (!backup) {
+                config.save(new File(config.getFile().getParent(), config.getFile().getName() + "." + versionString + ".bak"));
+            }
+            backup = true;
+
+            config.getConfiguration().set("Settings.ChatListeningPlugins", null);
         }
 
         config.getConfiguration().set("ConfigVersion", InteractiveChat.plugin.getDescription().getVersion());

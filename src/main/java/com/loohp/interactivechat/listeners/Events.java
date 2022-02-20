@@ -25,8 +25,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.modules.ProcessAccurateSender;
-import com.loohp.interactivechat.modules.ProcessCommands;
 import com.loohp.interactivechat.objectholders.CooldownResult;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
@@ -39,7 +37,6 @@ import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.TimeUtils;
-import com.loohp.interactivechat.utils.VanishUtils;
 import com.loohp.interactivechat.utils.XMaterialUtils;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
@@ -72,7 +69,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -115,48 +111,35 @@ public class Events implements Listener {
                     return;
                 }
 
-                if (InteractiveChat.maxPlaceholders >= 0) {
-                    int count = 0;
-                    for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                        if (icplaceholder.getKeyword().matcher(command).find()) {
-                            if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+                int count = 0;
+                for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+                    Matcher matcher = icplaceholder.getKeyword().matcher(command);
+                    if (matcher.find()) {
+                        int start = matcher.start();
+                        if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
+                            if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
                                 event.setCancelled(true);
                                 String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
                                 event.getPlayer().sendMessage(cancelmessage);
                                 return;
                             }
-                            int lastIndex = 0;
-                            Matcher matcher = icplaceholder.getKeyword().matcher(command);
-                            while (lastIndex != -1) {
-                                boolean found = matcher.find();
-                                lastIndex = found ? matcher.end() : -1;
-                                if (lastIndex != -1) {
+                            Matcher matcher1 = icplaceholder.getKeyword().matcher(command);
+                            while (matcher1.find()) {
+                                int startPos = matcher1.start();
+                                if ((startPos < 1 || command.charAt(startPos - 1) != '\\') || (startPos > 1 && command.charAt(startPos - 1) == '\\' && command.charAt(startPos - 2) == '\\')) {
                                     count++;
                                 }
                             }
                         }
                     }
-                    if (count > InteractiveChat.maxPlaceholders) {
-                        event.setCancelled(true);
-                        String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
-                        event.getPlayer().sendMessage(cancelmessage);
-                        return;
-                    }
-                } else if (PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
-                    for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                        if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {
-                            if (icplaceholder.getKeyword().matcher(command).find()) {
-                                if (!InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
-                                    event.setCancelled(true);
-                                    String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
-                                    event.getPlayer().sendMessage(cancelmessage);
-                                    return;
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                }
+                if (InteractiveChat.maxPlaceholders >= 0 && count > InteractiveChat.maxPlaceholders) {
+                    event.setCancelled(true);
+                    String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
+                    event.getPlayer().sendMessage(cancelmessage);
+                    return;
+                } else if (count <= 0) {
+                    return;
                 }
 
                 if (!Registry.ID_PATTERN.matcher(command).find()) {
@@ -164,24 +147,18 @@ public class Events implements Listener {
                         Pattern placeholder = icplaceholder.getKeyword();
                         Matcher matcher = placeholder.matcher(command);
                         if (matcher.find()) {
-                            String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + command.substring(matcher.start(), matcher.end()) + ">";
-                            command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
-                            event.setMessage(command);
-                            break;
+                            int start = matcher.start();
+                            if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
+                                String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
+                                event.setMessage(command);
+                                break;
+                            }
                         }
                     }
                     break;
                 }
             }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void eventCancelledCheck(AsyncPlayerChatEvent event) {
-        String message = event.getMessage();
-        if (message.contains(Registry.CANCELLED_IDENTIFIER)) {
-            event.setMessage(message.replace(Registry.CANCELLED_IDENTIFIER, ""));
-            event.setCancelled(true);
         }
     }
 
@@ -198,7 +175,7 @@ public class Events implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void checkChatforChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
+    public void checkChatForChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
 
         translateAltColorCode(event);
 
@@ -206,7 +183,8 @@ public class Events implements Listener {
             return;
         }
 
-        checkMention(event);
+        String processedMessage = checkMention(event);
+        event.setMessage(processedMessage);
 
         if (!InteractiveChat.chatManagerHook) {
             return;
@@ -218,17 +196,6 @@ public class Events implements Listener {
     private void checkChatMessage(AsyncPlayerChatEvent event) {
         String message = event.getMessage();
         Player player = event.getPlayer();
-
-        if (InteractiveChat.vanishHook) {
-            String tagRemovedMessage = message.replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_0.pattern(), "").replaceAll(ProcessCommands.COLOR_IGNORE_PATTERN_1.pattern(), "").replaceAll(ProcessAccurateSender.COLOR_IGNORE_PATTERN.pattern(), "").trim();
-            Optional<String> result = VanishUtils.checkChatIsCancelled(player, tagRemovedMessage);
-            if (result.isPresent()) {
-                message = message.replace(tagRemovedMessage, result.get());
-            } else {
-                event.setCancelled(true);
-                return;
-            }
-        }
 
         CooldownResult cooldownResult = InteractiveChat.placeholderCooldownManager.checkMessage(event.getPlayer().getUniqueId(), message);
         if (!cooldownResult.getOutcome().isAllowed()) {
@@ -250,53 +217,48 @@ public class Events implements Listener {
             return;
         }
 
-        if (InteractiveChat.maxPlaceholders >= 0) {
-            int count = 0;
-            for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                if (icplaceholder.getKeyword().matcher(message).find()) {
-                    if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
+        int count = 0;
+        for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+            Matcher matcher = icplaceholder.getKeyword().matcher(message);
+            if (matcher.find()) {
+                int start = matcher.start();
+                if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                    if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
                         event.setCancelled(true);
                         String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
                         event.getPlayer().sendMessage(cancelmessage);
                         return;
                     }
-                    int lastIndex = 0;
-                    Matcher matcher = icplaceholder.getKeyword().matcher(message);
-                    while (lastIndex != -1) {
-                        boolean found = matcher.find();
-                        lastIndex = found ? matcher.end() : -1;
-                        if (lastIndex != -1) {
+                    Matcher matcher1 = icplaceholder.getKeyword().matcher(message);
+                    while (matcher1.find()) {
+                        int startPos = matcher1.start();
+                        if ((startPos < 1 || message.charAt(startPos - 1) != '\\') || (startPos > 1 && message.charAt(startPos - 1) == '\\' && message.charAt(startPos - 2) == '\\')) {
                             count++;
                         }
                     }
                 }
             }
-            if (count > InteractiveChat.maxPlaceholders) {
-                event.setCancelled(true);
-                String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, InteractiveChat.limitReachMessage));
-                player.sendMessage(cancelmessage);
-                return;
-            }
-        } else if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", false, 200)) {
-            for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder)) {
-                    if (icplaceholder.getKeyword().matcher(message).find()) {
-                        if (!InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR)) {
-                            event.setCancelled(true);
-                            String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
-                            event.getPlayer().sendMessage(cancelmessage);
-                            return;
-                        } else {
+        }
+        if (InteractiveChat.maxPlaceholders >= 0 && count > InteractiveChat.maxPlaceholders) {
+            event.setCancelled(true);
+            String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
+            event.getPlayer().sendMessage(cancelmessage);
+            return;
+        } else if (count > 0) {
+            if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !Registry.ID_PATTERN.matcher(message).find()) {
+                for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+                    Pattern placeholder = icplaceholder.getKeyword();
+                    Matcher matcher = placeholder.matcher(message);
+                    if (matcher.find()) {
+                        int start = matcher.start();
+                        if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                            String uuidmatch = "<chat=" + event.getPlayer().getUniqueId() + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                            message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
                             break;
                         }
                     }
                 }
             }
-        }
-
-        if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !Registry.ID_PATTERN.matcher(message).find()) {
-            String uuidmatch = "<chat=" + player.getUniqueId() + ">";
-            message = message + " " + uuidmatch;
         }
 
         event.setMessage(message);
@@ -314,25 +276,26 @@ public class Events implements Listener {
         }
     }
 
-    private void checkMention(AsyncPlayerChatEvent event) {
+    private String checkMention(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
+        String message = event.getMessage();
         PlayerData data = InteractiveChat.playerDataManager.getPlayerData(sender);
         if (InteractiveChat.allowMention && (data == null || !data.isMentionDisabled())) {
-            String message = event.getMessage();
-            if (!InteractiveChat.disableEveryone && checkMentionEveryone(message, sender)) {
-                return;
+            String processedMessage;
+            if (!InteractiveChat.disableEveryone && (processedMessage = checkMentionEveryone(message, sender)) != null) {
+                return processedMessage;
             }
-            if (!InteractiveChat.disableHere && checkMentionHere(message, sender)) {
-                return;
+            if (!InteractiveChat.disableHere && (processedMessage = checkMentionHere(message, sender)) != null) {
+                return processedMessage;
             }
-            if (checkMentionPlayers(message, sender)) {
-                //noinspection UnnecessaryReturnStatement
-                return;
+            if ((processedMessage = checkMentionPlayers(message, sender)) != null) {
+                return processedMessage;
             }
         }
+        return message;
     }
 
-    private boolean checkMentionPlayers(String message, Player sender) {
+    private String checkMentionPlayers(String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.player", false, 200)) {
             Map<String, UUID> playernames = new HashMap<>();
             for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
@@ -350,6 +313,7 @@ public class Events implements Listener {
                 UUID uuid = entry.getValue();
                 int index = message.toLowerCase().indexOf(name.toLowerCase());
                 if (index >= 0) {
+                    message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
                     if (!uuid.equals(sender.getUniqueId())) {
                         InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));
                         if (InteractiveChat.bungeecordMode) {
@@ -360,18 +324,19 @@ public class Events implements Listener {
                             }
                         }
                     }
-                    return true;
+                    return message;
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean checkMentionHere(String message, Player sender) {
+    private String checkMentionHere(String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.here", false, 200)) {
             String name = InteractiveChat.mentionPrefix + "here";
             int index = message.toLowerCase().indexOf(name.toLowerCase());
             if (index >= 0) {
+                message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     UUID uuid = player.getUniqueId();
                     if (!uuid.equals(sender.getUniqueId())) {
@@ -385,17 +350,18 @@ public class Events implements Listener {
                         }
                     }
                 }
-                return true;
+                return message;
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean checkMentionEveryone(String message, Player sender) {
+    private String checkMentionEveryone(String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.everyone", false, 200)) {
             String name = InteractiveChat.mentionPrefix + "everyone";
             int index = message.toLowerCase().indexOf(name.toLowerCase());
             if (index >= 0) {
+                message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
                 List<UUID> players = new ArrayList<>();
                 ICPlayerFactory.getOnlineICPlayers().forEach(each -> players.add(each.getUniqueId()));
                 for (UUID uuid : players) {
@@ -410,10 +376,10 @@ public class Events implements Listener {
                         }
                     }
                 }
-                return true;
+                return message;
             }
         }
-        return false;
+        return null;
     }
 
     private void translateAltColorCode(AsyncPlayerChatEvent event) {

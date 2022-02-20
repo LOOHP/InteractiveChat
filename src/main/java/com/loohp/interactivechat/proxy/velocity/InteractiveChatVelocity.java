@@ -103,6 +103,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -488,32 +489,60 @@ public class InteractiveChatVelocity {
             hasInteractiveChat = data.hasInteractiveChat();
         }
 
+        boolean usage = false;
+        outer:
+        for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+            for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                if (icplaceholder.getKeyword().matcher(message).find()) {
+                    usage = true;
+                    break outer;
+                }
+            }
+        }
+
         if (newMessage.startsWith("/")) {
-            if (hasInteractiveChat) {
+            if (usage && hasInteractiveChat) {
                 for (String parsecommand : InteractiveChatVelocity.parseCommands) {
-                    //getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
                     if (newMessage.matches(parsecommand)) {
                         String command = newMessage.trim();
-                        String uuidmatch = " <cmd=" + uuid.toString() + ">";
-                        int totalLength = command.length() + uuidmatch.length();
-                        if (totalLength > 256) {
-                            command = command.substring(0, 256 - uuidmatch.length());
+                        outer:
+                        for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                            for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                                Pattern placeholder = icplaceholder.getKeyword();
+                                Matcher matcher = placeholder.matcher(command);
+                                if (matcher.find()) {
+                                    String uuidmatch = "<cmd=" + uuid + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                    command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
+                                    if (command.length() > 256) {
+                                        command = command.substring(0, 256);
+                                    }
+                                    event.setResult(ChatResult.message(command));
+                                    break outer;
+                                }
+                            }
                         }
-                        command += uuidmatch;
-                        event.setResult(ChatResult.message(command));
                         break;
                     }
                 }
             }
         } else {
-            if (InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
-                String uuidmatch = " <chat=" + uuid.toString() + ">";
-                int totalLength = message.length() + uuidmatch.length();
-                if (totalLength > 256) {
-                    message = message.substring(0, 256 - uuidmatch.length());
+            if (usage && InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
+                outer:
+                for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                    for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                        Pattern placeholder = icplaceholder.getKeyword();
+                        Matcher matcher = placeholder.matcher(message);
+                        if (matcher.find()) {
+                            String uuidmatch = "<chat=" + uuid + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                            message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
+                            if (message.length() > 256) {
+                                message = message.substring(0, 256);
+                            }
+                            event.setResult(ChatResult.message(message));
+                            break outer;
+                        }
+                    }
                 }
-                message += uuidmatch;
-                event.setResult(ChatResult.message(message));
             }
 
             proxyServer.getScheduler().buildTask(plugin, () -> {

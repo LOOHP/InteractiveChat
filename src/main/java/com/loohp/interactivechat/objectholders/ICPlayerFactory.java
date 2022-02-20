@@ -186,25 +186,38 @@ public class ICPlayerFactory {
         return null;
     }
 
+    public static ICPlayer getICPlayer(String name) {
+        for (ICPlayer player : ICPLAYERS.values()) {
+            if (player.getName().toLowerCase().startsWith(name.toLowerCase())) {
+                return player;
+            }
+        }
+        Player player = Bukkit.getPlayer(name);
+        if (player != null) {
+            return new ICPlayer(player);
+        }
+        return null;
+    }
+
+    public static ICPlayer getICPlayerExact(String name) {
+        for (ICPlayer player : ICPLAYERS.values()) {
+            if (player.getName().equalsIgnoreCase(name)) {
+                return player;
+            }
+        }
+        Player player = Bukkit.getPlayerExact(name);
+        if (player != null) {
+            return new ICPlayer(player);
+        }
+        return null;
+    }
+
     public static OfflineICPlayer getOfflineICPlayer(UUID uuid) {
         ICPlayer icplayer = getICPlayer(uuid);
         if (icplayer != null) {
             return icplayer;
         }
         File dat = new File(Bukkit.getWorlds().get(0).getWorldFolder().getAbsolutePath() + "/playerdata", uuid.toString() + ".dat");
-        if (!dat.exists()) {
-            OfflineICPlayer offlineICPlayer = getReferenced(uuid);
-            if (offlineICPlayer == null) {
-                offlineICPlayer = new OfflineICPlayer(uuid);
-                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
-                Bukkit.getPluginManager().callEvent(event);
-                REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
-            } else {
-                OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);
-                Bukkit.getPluginManager().callEvent(event);
-            }
-            return offlineICPlayer;
-        }
         boolean mysqlPDBInventorySync = false;
         boolean mysqlPDBArmorSync = false;
         boolean mysqlPDBEnderChestSync = false;
@@ -227,41 +240,59 @@ public class ICPlayerFactory {
                 mysqlPDBExpSync = false;
             }
         }
+        if (!dat.exists() && !mysqlPDBInventorySync && !mysqlPDBArmorSync && !mysqlPDBEnderChestSync && !mysqlPDBExpSync) {
+            OfflineICPlayer offlineICPlayer = getReferenced(uuid);
+            if (offlineICPlayer == null) {
+                offlineICPlayer = new OfflineICPlayer(uuid);
+                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
+                Bukkit.getPluginManager().callEvent(event);
+                REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
+            } else {
+                OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);
+                Bukkit.getPluginManager().callEvent(event);
+            }
+            return offlineICPlayer;
+        }
         try {
-            NamedTag nbtData = NBTUtil.read(dat);
-            CompoundTag rootTag = (CompoundTag) nbtData.getTag();
-            int selectedSlot = rootTag.getInt("SelectedItemSlot");
-            boolean rightHanded = !rootTag.containsKey("LeftHanded") || !rootTag.getBoolean("LeftHanded");
-            int xpLevel = rootTag.getInt("XpLevel");
+            int selectedSlot = 0;
+            boolean rightHanded = true;
+            int xpLevel = 0;
             ICPlayerEquipment equipment = new ICPlayerEquipment();
             Inventory inventory = Bukkit.createInventory(null, 45);
             Inventory enderchest = Bukkit.createInventory(null, 27);
-            for (CompoundTag entry : rootTag.getListTag("Inventory").asTypedList(CompoundTag.class)) {
-                int slot = entry.getByte("Slot");
-                entry.remove("Slot");
-                ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
-                if (slot == 100) {
-                    equipment.setBoots(item);
-                    slot = 36;
-                } else if (slot == 101) {
-                    equipment.setLeggings(item);
-                    slot = 37;
-                } else if (slot == 102) {
-                    equipment.setChestplate(item);
-                    slot = 38;
-                } else if (slot == 103) {
-                    equipment.setHelmet(item);
-                    slot = 39;
-                } else if (slot == -106) {
-                    slot = 40;
+            if (dat.exists()) {
+                NamedTag nbtData = NBTUtil.read(dat);
+                CompoundTag rootTag = (CompoundTag) nbtData.getTag();
+                selectedSlot = rootTag.getInt("SelectedItemSlot");
+                rightHanded = !rootTag.containsKey("LeftHanded") || !rootTag.getBoolean("LeftHanded");
+                xpLevel = rootTag.getInt("XpLevel");
+                for (CompoundTag entry : rootTag.getListTag("Inventory").asTypedList(CompoundTag.class)) {
+                    int slot = entry.getByte("Slot");
+                    entry.remove("Slot");
+                    ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
+                    if (slot == 100) {
+                        equipment.setBoots(item);
+                        slot = 36;
+                    } else if (slot == 101) {
+                        equipment.setLeggings(item);
+                        slot = 37;
+                    } else if (slot == 102) {
+                        equipment.setChestplate(item);
+                        slot = 38;
+                    } else if (slot == 103) {
+                        equipment.setHelmet(item);
+                        slot = 39;
+                    } else if (slot == -106) {
+                        slot = 40;
+                    }
+                    inventory.setItem(slot, item);
                 }
-                inventory.setItem(slot, item);
-            }
-            for (CompoundTag entry : rootTag.getListTag("EnderItems").asTypedList(CompoundTag.class)) {
-                int slot = entry.getByte("Slot");
-                entry.remove("Slot");
-                ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
-                enderchest.setItem(slot, item);
+                for (CompoundTag entry : rootTag.getListTag("EnderItems").asTypedList(CompoundTag.class)) {
+                    int slot = entry.getByte("Slot");
+                    entry.remove("Slot");
+                    ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
+                    enderchest.setItem(slot, item);
+                }
             }
             if (mysqlPDBInventorySync || mysqlPDBArmorSync) {
                 DatabaseInventoryData invData = PD.instance.getInventoryStorageHandler().getData(dummyPlayer);
@@ -314,6 +345,11 @@ public class ICPlayerFactory {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Deprecated
+    public static OfflineICPlayer getOfflineICPlayer(String name) {
+        return getOfflineICPlayer(Bukkit.getOfflinePlayer(name).getUniqueId());
     }
 
     private static OfflineICPlayer getReferenced(UUID uuid) {

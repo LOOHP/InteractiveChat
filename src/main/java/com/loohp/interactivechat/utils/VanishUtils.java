@@ -30,16 +30,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class VanishUtils {
 
@@ -57,21 +53,6 @@ public class VanishUtils {
         } catch (Exception e) {
             premiumVanishChatListener = null;
             premiumVanishChatListenerExecuteMethod = null;
-        }
-    }
-
-    public static Optional<String> checkChatIsCancelled(Player player, String message) {
-        if (premiumVanishChatListener == null) {
-            return Optional.of(message);
-        } else {
-            AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(!Bukkit.isPrimaryThread(), player, message, new HashSet<>());
-            try {
-                premiumVanishChatListenerExecuteMethod.invoke(premiumVanishChatListener, null, event);
-                return event.isCancelled() ? Optional.empty() : Optional.of(event.getMessage());
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                e.printStackTrace();
-                return Optional.of(message);
-            }
         }
     }
 
@@ -107,7 +88,7 @@ public class VanishUtils {
     private synchronized static Set<UUID> getOfflineVanish() {
         long time = System.currentTimeMillis();
         if (cacheTimeout < time) {
-            offlineVanish = VanishAPI.getAllInvisiblePlayers().stream().collect(Collectors.toSet());
+            offlineVanish = new HashSet<>(VanishAPI.getAllInvisiblePlayers());
             cacheTimeout = time + 3000;
         }
         return offlineVanish;

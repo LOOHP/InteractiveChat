@@ -40,7 +40,7 @@ public class LogFilter implements Filter {
             } else if (!Registry.ID_PATTERN.matcher(message).find()) {
                 return Filter.Result.NEUTRAL;
             } else {
-                String processed = ProcessExternalMessage.processWithoutReviever(message);
+                String processed = ProcessExternalMessage.processWithoutReceiver(message);
                 LogManager.getRootLogger().log(level, processed);
                 return Filter.Result.DENY;
             }

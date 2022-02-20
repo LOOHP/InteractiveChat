@@ -23,7 +23,6 @@ package com.loohp.interactivechat.config;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.datafixer.ConfigDataFixer;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
-import com.loohp.interactivechat.objectholders.CompatibilityListener;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderClickEvent;
@@ -42,7 +41,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -93,20 +91,6 @@ public class ConfigManager {
 
         InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
         InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
-
-        InteractiveChat.restoreIsolatedChatListeners();
-        InteractiveChat.compatibilityListeners.clear();
-        List<String> compatibility = getConfig().getStringList("Settings.ChatListeningPlugins");
-        for (String str : compatibility) {
-            try {
-                String[] args = str.split(",");
-                if (args.length == 3) {
-                    CompatibilityListener listener = new CompatibilityListener(args[0].replace("Plugin:", "").trim(), args[1].replace("Class:", "").trim(), EventPriority.valueOf(args[2].replace("EventPriority:", "").trim().toUpperCase()));
-                    InteractiveChat.compatibilityListeners.add(listener);
-                }
-            } catch (Exception ignored) {
-            }
-        }
 
         String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
         InteractiveChat.chatAltColorCode = colorCodeString.length() == 1 ? Optional.of(colorCodeString.charAt(0)) : Optional.empty();

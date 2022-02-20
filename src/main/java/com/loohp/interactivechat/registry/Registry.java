@@ -20,20 +20,24 @@
 
 package com.loohp.interactivechat.registry;
 
+import com.loohp.interactivechat.objectholders.MentionTagConverter;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 public class Registry {
 
-    public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InterativeChatBungeePing";
-    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 9;
+    public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InteractiveChatBungeePing";
+    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 10;
 
-    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 21;
+    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 22;
 
-    public static final String CANCELLED_IDENTIFIER = "<IC-Chat-Cancelled>";
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*))?>)");
+
+    public static final MentionTagConverter MENTION_TAG_CONVERTER = new MentionTagConverter("<IC#%s>");
 
     public static final int MINECRAFT_1_16_PROTOCOL_VERSION = 735;
 

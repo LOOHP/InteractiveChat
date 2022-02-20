@@ -23,6 +23,7 @@ package com.loohp.interactivechat.proxy.bungee;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -38,12 +39,15 @@ import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.loohp.interactivechat.utils.PlayerUtils;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -68,6 +72,7 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.Chat;
+import org.bukkit.Material;
 import us.myles.ViaVersion.api.Via;
 
 import java.io.File;
@@ -97,6 +102,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -489,32 +495,70 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
+        boolean usage = false;
+        outer:
+        for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+            for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                Matcher matcher = icplaceholder.getKeyword().matcher(message);
+                if (matcher.find()) {
+                    int start = matcher.start();
+                    if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                        usage = true;
+                        break outer;
+                    }
+                }
+            }
+        }
+
         if (newMessage.startsWith("/")) {
-            if (hasInteractiveChat) {
+            if (usage && hasInteractiveChat) {
                 for (String parsecommand : InteractiveChatBungee.parseCommands) {
-                    //getProxy().getConsole().sendMessage(new TextComponent(parsecommand));
                     if (newMessage.matches(parsecommand)) {
                         String command = newMessage.trim();
-                        String uuidmatch = " <cmd=" + uuid.toString() + ">";
-                        int totalLength = command.length() + uuidmatch.length();
-                        if (totalLength > 256) {
-                            command = command.substring(0, 256 - uuidmatch.length());
+                        outer:
+                        for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                            for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                                Pattern placeholder = icplaceholder.getKeyword();
+                                Matcher matcher = placeholder.matcher(command);
+                                if (matcher.find()) {
+                                    int start = matcher.start();
+                                    if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
+                                        String uuidmatch = "<cmd=" + uuid + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                        command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
+                                        if (command.length() > 256) {
+                                            command = command.substring(0, 256);
+                                        }
+                                        event.setMessage(command);
+                                        break outer;
+                                    }
+                                }
+                            }
                         }
-                        command += uuidmatch;
-                        event.setMessage(command);
                         break;
                     }
                 }
             }
         } else {
-            if (InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
-                String uuidmatch = " <chat=" + uuid.toString() + ">";
-                int totalLength = message.length() + uuidmatch.length();
-                if (totalLength > 256) {
-                    message = message.substring(0, 256 - uuidmatch.length());
+            if (usage && InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
+                outer:
+                for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                    for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                        Pattern placeholder = icplaceholder.getKeyword();
+                        Matcher matcher = placeholder.matcher(message);
+                        if (matcher.find()) {
+                            int start = matcher.start();
+                            if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                                String uuidmatch = "<chat=" + uuid + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                                message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
+                                if (message.length() > 256) {
+                                    message = message.substring(0, 256);
+                                }
+                                event.setMessage(message);
+                                break outer;
+                            }
+                        }
+                    }
                 }
-                message += uuidmatch;
-                event.setMessage(message);
             }
 
             ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {

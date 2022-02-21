@@ -149,7 +149,7 @@ public class Events implements Listener {
                         if (matcher.find()) {
                             int start = matcher.start();
                             if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
-                                String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                                 command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
                                 event.setMessage(command);
                                 break;
@@ -252,7 +252,7 @@ public class Events implements Listener {
                     if (matcher.find()) {
                         int start = matcher.start();
                         if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
-                            String uuidmatch = "<chat=" + event.getPlayer().getUniqueId() + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                            String uuidmatch = "<chat=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                             message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
                             break;
                         }
@@ -282,20 +282,21 @@ public class Events implements Listener {
         PlayerData data = InteractiveChat.playerDataManager.getPlayerData(sender);
         if (InteractiveChat.allowMention && (data == null || !data.isMentionDisabled())) {
             String processedMessage;
-            if (!InteractiveChat.disableEveryone && (processedMessage = checkMentionEveryone(message, sender)) != null) {
+            if (!InteractiveChat.disableEveryone && (processedMessage = checkMentionEveryone("chat", message, sender)) != null) {
                 return processedMessage;
             }
-            if (!InteractiveChat.disableHere && (processedMessage = checkMentionHere(message, sender)) != null) {
+            if (!InteractiveChat.disableHere && (processedMessage = checkMentionHere("chat", message, sender)) != null) {
                 return processedMessage;
             }
-            if ((processedMessage = checkMentionPlayers(message, sender)) != null) {
+            if ((processedMessage = checkMentionPlayers("chat", message, sender)) != null) {
                 return processedMessage;
             }
         }
         return message;
     }
 
-    private String checkMentionPlayers(String message, Player sender) {
+    private String checkMentionPlayers(String senderTagType, String message, Player sender) {
+        boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.player", false, 200)) {
             Map<String, UUID> playernames = new HashMap<>();
             for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
@@ -313,7 +314,13 @@ public class Events implements Listener {
                 UUID uuid = entry.getValue();
                 int index = message.toLowerCase().indexOf(name.toLowerCase());
                 if (index >= 0) {
-                    message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                    if (senderTagged) {
+                        message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                    } else {
+                        String tagStyle = Registry.MENTION_TAG_CONVERTER.getTagStyle(name);
+                        String uuidmatch = "<" + senderTagType + "=" + sender.getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(tagStyle).replaceAll("\\>") + ":>";
+                        message = message.replace(name, uuidmatch);
+                    }
                     if (!uuid.equals(sender.getUniqueId())) {
                         InteractiveChat.mentionPair.add(new MentionPair(sender.getUniqueId(), uuid));
                         if (InteractiveChat.bungeecordMode) {
@@ -331,12 +338,19 @@ public class Events implements Listener {
         return null;
     }
 
-    private String checkMentionHere(String message, Player sender) {
+    private String checkMentionHere(String senderTagType, String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.here", false, 200)) {
+            boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
             String name = InteractiveChat.mentionPrefix + "here";
             int index = message.toLowerCase().indexOf(name.toLowerCase());
             if (index >= 0) {
-                message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                if (senderTagged) {
+                    message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                } else {
+                    String tagStyle = Registry.MENTION_TAG_CONVERTER.getTagStyle(name);
+                    String uuidmatch = "<" + senderTagType + "=" + sender.getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(tagStyle).replaceAll("\\>") + ":>";
+                    message = message.replace(name, uuidmatch);
+                }
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     UUID uuid = player.getUniqueId();
                     if (!uuid.equals(sender.getUniqueId())) {
@@ -356,12 +370,19 @@ public class Events implements Listener {
         return null;
     }
 
-    private String checkMentionEveryone(String message, Player sender) {
+    private String checkMentionEveryone(String senderTagType, String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.everyone", false, 200)) {
+            boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
             String name = InteractiveChat.mentionPrefix + "everyone";
             int index = message.toLowerCase().indexOf(name.toLowerCase());
             if (index >= 0) {
-                message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                if (senderTagged) {
+                    message = Registry.MENTION_TAG_CONVERTER.convertToTag(name, message);
+                } else {
+                    String tagStyle = Registry.MENTION_TAG_CONVERTER.getTagStyle(name);
+                    String uuidmatch = "<" + senderTagType + "=" + sender.getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(tagStyle).replaceAll("\\>") + ":>";
+                    message = message.replace(name, uuidmatch);
+                }
                 List<UUID> players = new ArrayList<>();
                 ICPlayerFactory.getOnlineICPlayers().forEach(each -> players.add(each.getUniqueId()));
                 for (UUID uuid : players) {

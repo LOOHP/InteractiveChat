@@ -41,7 +41,7 @@ public class DiscordSRVEvents {
             return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
         })), Registry.ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
             String placeholder = result.group(4);
-            String replacement = placeholder == null ? "" : placeholder;
+            String replacement = placeholder == null ? "" : Registry.ID_UNESCAPE_PATTERN.matcher(placeholder).replaceAll(">");
             return LegacyComponentSerializer.legacySection().deserialize(replacement);
         })).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
             String escape = result.group(1);
@@ -71,7 +71,6 @@ public class DiscordSRVEvents {
         Component component = event.getMessageComponent();
         event.setMessageComponent(process(component));
     }
-
     /*
     @Subscribe(priority = ListenerPriority.LOWEST)
     public void onVentureChatBungeeToDiscord(VentureChatMessagePreProcessEvent event) {
@@ -79,5 +78,4 @@ public class DiscordSRVEvents {
         event.setMessageComponent(process(component));
     }
     */
-
 }

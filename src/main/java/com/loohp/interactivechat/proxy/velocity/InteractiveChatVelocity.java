@@ -511,7 +511,7 @@ public class InteractiveChatVelocity {
                                 Pattern placeholder = icplaceholder.getKeyword();
                                 Matcher matcher = placeholder.matcher(command);
                                 if (matcher.find()) {
-                                    String uuidmatch = "<cmd=" + uuid + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                    String uuidmatch = "<cmd=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                                     command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
                                     if (command.length() > 256) {
                                         command = command.substring(0, 256);
@@ -533,7 +533,7 @@ public class InteractiveChatVelocity {
                         Pattern placeholder = icplaceholder.getKeyword();
                         Matcher matcher = placeholder.matcher(message);
                         if (matcher.find()) {
-                            String uuidmatch = "<chat=" + uuid + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                            String uuidmatch = "<chat=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                             message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
                             if (message.length() > 256) {
                                 message = message.substring(0, 256);

@@ -21,10 +21,12 @@
 package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
+import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -32,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class ProcessAccurateSender {
 
-    public static final Pattern PATTERN_0 = Pattern.compile("(?:<chat=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.*)>)");
+    public static final Pattern PATTERN_0 = Pattern.compile("(?:<chat=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.*):>)");
     public static final Pattern PATTERN_1 = Pattern.compile("(?:<chat=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})>)");
 
     public static final Pattern COLOR_IGNORE_PATTERN = Pattern.compile("(?:(?:§.)*<(?:§.)*c(?:§.)*h(?:§.)*a(?:§.)*t(?:§.)*=((?:(?:§.)*[0-9a-f]){8}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){4}(?:§.)*-(?:(?:§.)*[0-9a-f]){12})(?:§.)*>)");
@@ -40,13 +42,18 @@ public class ProcessAccurateSender {
     public static ProcessSenderResult process(Component component) {
         String text = InteractiveChatComponentSerializer.plainText().serialize(component);
         UUID uuid = find(text);
-        String replacement = "";
         Matcher matcher0 = PATTERN_0.matcher(text);
         if (matcher0.find()) {
             uuid = UUID.fromString(matcher0.group(1));
-            replacement = ChatColorUtils.stripColor(matcher0.group(2));
         }
-        component = ComponentReplacing.replace(component, PATTERN_0.pattern(), Component.text(replacement));
+        component = ComponentReplacing.replace(component, PATTERN_0.pattern(), false, (result, matchedComponents) -> {
+            String replacement = result.group(2);
+            if (replacement == null) {
+                return Component.empty();
+            } else {
+                return LegacyComponentSerializer.legacySection().deserialize(Registry.ID_UNESCAPE_PATTERN.matcher(replacement).replaceAll(">"));
+            }
+        });
         if (uuid == null) {
             Matcher matcher1 = PATTERN_1.matcher(text);
             if (matcher1.find()) {

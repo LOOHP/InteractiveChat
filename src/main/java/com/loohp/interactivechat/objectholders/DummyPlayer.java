@@ -36,12 +36,12 @@ public abstract class DummyPlayer implements Player {
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(DummyPlayer.class);
         factory.setFilter(
-                new MethodFilter() {
-                    @Override
-                    public boolean isHandled(Method method) {
-                        return Modifier.isAbstract(method.getModifiers());
-                    }
+            new MethodFilter() {
+                @Override
+                public boolean isHandled(Method method) {
+                    return Modifier.isAbstract(method.getModifiers());
                 }
+            }
         );
         MethodHandler handler = new MethodHandler() {
             @Override

@@ -520,7 +520,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 if (matcher.find()) {
                                     int start = matcher.start();
                                     if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
-                                        String uuidmatch = "<cmd=" + uuid + ":" + command.substring(matcher.start(), matcher.end()) + ">";
+                                        String uuidmatch = "<cmd=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                                         command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
                                         if (command.length() > 256) {
                                             command = command.substring(0, 256);
@@ -545,7 +545,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         if (matcher.find()) {
                             int start = matcher.start();
                             if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
-                                String uuidmatch = "<chat=" + uuid + ":" + message.substring(matcher.start(), matcher.end()) + ">";
+                                String uuidmatch = "<chat=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
                                 message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
                                 if (message.length() > 256) {
                                     message = message.substring(0, 256);

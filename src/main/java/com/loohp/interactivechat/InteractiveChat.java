@@ -100,7 +100,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("deprecation")
 public class InteractiveChat extends JavaPlugin {
 
     public static final int BSTATS_PLUGIN_ID = 6747;
@@ -541,7 +540,7 @@ public class InteractiveChat extends JavaPlugin {
         nicknameManager.close();
         try {
             OutChatPacket.getAsyncChatSendingExecutor().close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
     }

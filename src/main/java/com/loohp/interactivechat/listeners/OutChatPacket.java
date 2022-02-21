@@ -52,12 +52,12 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatComponentType;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentModernizing;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.NMSUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 import net.kyori.adventure.text.Component;
@@ -69,7 +69,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -275,6 +274,9 @@ public class OutChatPacket implements Listener {
                     component = MentionDisplay.process(component, receiver, sender.get(), unix, true);
                 }
             }
+            component = ComponentReplacing.replace(component, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, (result, components) -> {
+                return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
+            });
 
             if (InteractiveChat.useItem) {
                 component = ItemDisplay.process(component, sender, receiver, unix);

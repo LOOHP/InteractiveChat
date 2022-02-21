@@ -153,9 +153,6 @@ public class MentionDisplay {
                 }
             }
         }
-        component = ComponentReplacing.replace(component, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
-            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
-        }));
         return component;
     }
 

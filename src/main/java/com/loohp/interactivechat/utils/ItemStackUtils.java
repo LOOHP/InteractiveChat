@@ -56,12 +56,22 @@ public class ItemStackUtils {
     }
 
     public static Component getDisplayName(ItemStack itemstack) {
+        return getDisplayName(itemstack, ChatColor.WHITE);
+    }
+
+    public static Component getDisplayName(ItemStack itemstack, ChatColor defaultRarityColor) {
         if (itemstack == null) {
             itemstack = AIR.clone();
         }
         XMaterial xMaterial = XMaterialUtils.matchXMaterial(itemstack);
         ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
-        Component component = Component.empty().color(ColorUtils.toNamedTextColor(rarityChatColor));
+        if (rarityChatColor.equals(ChatColor.WHITE)) {
+            rarityChatColor = defaultRarityColor;
+        }
+        Component component = Component.empty();
+        if (rarityChatColor != null) {
+            component = component.color(ColorUtils.toTextColor(rarityChatColor));
+        }
         if (!itemstack.getType().equals(Material.AIR) && NBTEditor.contains(itemstack, "display", "Name")) {
             String name = NBTEditor.getString(itemstack, "display", "Name");
             if (!InteractiveChat.version.isLegacy()) {

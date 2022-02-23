@@ -111,6 +111,9 @@ public class ColorUtils {
     }
 
     public static TextColor toTextColor(ChatColor color) {
+        if (color.toString().length() == 2) {
+            return toNamedTextColor(color);
+        }
         Color awtColor = getColor(color);
         return TextColor.color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }

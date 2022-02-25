@@ -24,6 +24,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
+import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -71,46 +72,56 @@ public class PlaceholderParser {
         return Pattern.compile("(?i)%(" + expansions.stream().map(each -> each.getIdentifier()).collect(Collectors.joining("|")) + ")_.*%");
     }
 
-    public static String parse(ICPlayer player, String str) {
-        if (InteractiveChat.parsePAPIOnMainThread) {
+    public static String parse(OfflineICPlayer offlineICPlayer, String str) {
+        if (InteractiveChat.parsePAPIOnMainThread && !Bukkit.isPrimaryThread()) {
             try {
                 CompletableFuture<String> future = new CompletableFuture<>();
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> future.complete(parse0(player, str)));
+                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> future.complete(parse0(offlineICPlayer, str)));
                 return future.get(1500, TimeUnit.MILLISECONDS);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 return "";
             } catch (TimeoutException e) {
-                if (player.isLocal()) {
-                    return PlaceholderAPI.setPlaceholders(player.getLocalPlayer(), str);
+                ICPlayer player = offlineICPlayer.getPlayer();
+                if (player == null) {
+                    return PlaceholderAPI.setPlaceholders(offlineICPlayer.getLocalOfflinePlayer(), str);
                 } else {
-                    return "";
+                    if (player.isLocal()) {
+                        return PlaceholderAPI.setPlaceholders(player.getLocalPlayer(), str);
+                    } else {
+                        return "";
+                    }
                 }
             }
         } else {
-            return parse0(player, str);
+            return parse0(offlineICPlayer, str);
         }
     }
 
-    private static String parse0(ICPlayer player, String str) {
-        if (player.isLocal()) {
-            if (InteractiveChat.bungeecordMode) {
-                List<ValuePairs<String, String>> pairs = new ArrayList<>();
-                for (Entry<String, String> entry : getAllPlaceholdersContained(player.getLocalPlayer(), str).entrySet()) {
-                    pairs.add(new ValuePairs<>(entry.getKey(), entry.getValue()));
-                }
-                try {
-                    BungeeMessageSender.forwardPlaceholders(System.currentTimeMillis(), player.getUniqueId(), pairs);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return PlaceholderAPI.setPlaceholders(player.getLocalPlayer(), str);
+    private static String parse0(OfflineICPlayer offlineICPlayer, String str) {
+        ICPlayer player = offlineICPlayer.getPlayer();
+        if (player == null) {
+            return PlaceholderAPI.setPlaceholders(offlineICPlayer.getLocalOfflinePlayer(), str);
         } else {
-            for (Entry<String, String> entry : player.getRemotePlaceholdersMapping().entrySet()) {
-                str = str.replace(entry.getKey(), entry.getValue());
+            if (player.isLocal()) {
+                if (InteractiveChat.bungeecordMode) {
+                    List<ValuePairs<String, String>> pairs = new ArrayList<>();
+                    for (Entry<String, String> entry : getAllPlaceholdersContained(player.getLocalPlayer(), str).entrySet()) {
+                        pairs.add(new ValuePairs<>(entry.getKey(), entry.getValue()));
+                    }
+                    try {
+                        BungeeMessageSender.forwardPlaceholders(System.currentTimeMillis(), player.getUniqueId(), pairs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return PlaceholderAPI.setPlaceholders(player.getLocalPlayer(), str);
+            } else {
+                for (Entry<String, String> entry : player.getRemotePlaceholdersMapping().entrySet()) {
+                    str = str.replace(entry.getKey(), entry.getValue());
+                }
+                return str;
             }
-            return str;
         }
     }
 

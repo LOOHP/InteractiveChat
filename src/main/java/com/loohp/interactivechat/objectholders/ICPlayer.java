@@ -45,8 +45,8 @@ public class ICPlayer extends OfflineICPlayer {
     private Set<String> remoteNicknames;
     private Map<String, String> remotePlaceholders;
 
-    protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
-        super(uuid, selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
+    protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest) {
+        super(uuid, selectedSlot, rightHanded, experienceLevel, inventory, enderchest);
         this.remoteServer = server;
         this.remoteName = name;
         this.remoteNicknames = new HashSet<>();
@@ -54,7 +54,7 @@ public class ICPlayer extends OfflineICPlayer {
     }
 
     protected ICPlayer(Player player) {
-        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), new ICPlayerEquipment(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
+        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
         this.remoteServer = EMPTY_SERVER_REPRESENTATION;
         this.remoteName = player.getName();
         this.remoteNicknames = new HashSet<>();
@@ -63,6 +63,11 @@ public class ICPlayer extends OfflineICPlayer {
 
     public boolean isLocal() {
         return Bukkit.getPlayer(uuid) != null;
+    }
+
+    @Override
+    public boolean isOnline() {
+        return true;
     }
 
     public boolean isValid() {
@@ -114,10 +119,6 @@ public class ICPlayer extends OfflineICPlayer {
 
     public void setRemoteRightHanded(boolean rightHanded) {
         this.rightHanded = rightHanded;
-    }
-
-    protected void setRemoteEquipment(ICPlayerEquipment equipment) {
-        this.remoteEquipment = equipment;
     }
 
     @Override

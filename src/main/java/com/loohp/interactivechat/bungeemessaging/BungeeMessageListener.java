@@ -136,7 +136,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             }
                         }
                         if (!localUUID.contains(uuid) && !ICPlayerFactory.getRemoteUUIDs().contains(uuid)) {
-                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
+                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
                         }
                         newSet.add(uuid);
                     }

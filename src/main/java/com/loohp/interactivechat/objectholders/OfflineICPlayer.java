@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.objectholders;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -42,28 +43,36 @@ public class OfflineICPlayer {
 
     private Map<String, Object> properties;
 
-    protected OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+    protected OfflineICPlayer(UUID uuid, String offlineName, int selectedSlot, boolean rightHanded, int experienceLevel, Inventory inventory, Inventory enderchest) {
         this.uuid = uuid;
         this.offlineName = offlineName;
         this.selectedSlot = selectedSlot;
         this.rightHanded = rightHanded;
         this.experienceLevel = experienceLevel;
-        this.remoteEquipment = equipment;
+        this.remoteEquipment = new ICPlayerEquipment(this);
         this.remoteInventory = inventory;
         this.remoteEnderchest = enderchest;
         this.properties = new HashMap<>();
     }
 
-    protected OfflineICPlayer(UUID uuid, int selectedSlot, boolean rightHanded, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
-        this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, rightHanded, experienceLevel, equipment, inventory, enderchest);
+    protected OfflineICPlayer(UUID uuid, int selectedSlot, boolean rightHanded, int experienceLevel, Inventory inventory, Inventory enderchest) {
+        this(uuid, Bukkit.getOfflinePlayer(uuid).getName(), selectedSlot, rightHanded, experienceLevel, inventory, enderchest);
     }
 
     protected OfflineICPlayer(UUID uuid) {
-        this(uuid, 0, true, 0, new ICPlayerEquipment(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
+        this(uuid, 0, true, 0, Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
     }
 
     public UUID getUniqueId() {
         return uuid;
+    }
+
+    public OfflinePlayer getLocalOfflinePlayer() {
+        return Bukkit.getOfflinePlayer(uuid);
+    }
+
+    public boolean isOnline() {
+        return getPlayer() != null;
     }
 
     protected void setEnderchest(Inventory remoteEnderchest) {

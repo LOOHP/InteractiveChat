@@ -109,12 +109,12 @@ public class ICPlayerFactory {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
     }
 
-    public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, ICPlayerEquipment equipment, Inventory inventory, Inventory enderchest) {
+    public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest) {
         synchronized (LOCK) {
             ICPlayer icplayer = getICPlayer(uuid);
             boolean newlyCreated;
             if (icplayer == null) {
-                icplayer = new ICPlayer(server, name, uuid, rightHanded, selectedSlot, experienceLevel, equipment, inventory, enderchest);
+                icplayer = new ICPlayer(server, name, uuid, rightHanded, selectedSlot, experienceLevel, inventory, enderchest);
                 ICPLAYERS.put(uuid, icplayer);
                 newlyCreated = true;
                 Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(icplayer, true));
@@ -124,7 +124,6 @@ public class ICPlayerFactory {
                 icplayer.setRemoteRightHanded(rightHanded);
                 icplayer.setRemoteSelectedSlot(selectedSlot);
                 icplayer.setRemoteExperienceLevel(experienceLevel);
-                icplayer.setRemoteEquipment(equipment);
                 icplayer.setRemoteInventory(inventory);
                 icplayer.setRemoteEnderChest(enderchest);
                 newlyCreated = false;
@@ -257,7 +256,6 @@ public class ICPlayerFactory {
             int selectedSlot = 0;
             boolean rightHanded = true;
             int xpLevel = 0;
-            ICPlayerEquipment equipment = new ICPlayerEquipment();
             Inventory inventory = Bukkit.createInventory(null, 45);
             Inventory enderchest = Bukkit.createInventory(null, 27);
             if (dat.exists()) {
@@ -271,16 +269,12 @@ public class ICPlayerFactory {
                     entry.remove("Slot");
                     ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
                     if (slot == 100) {
-                        equipment.setBoots(item);
                         slot = 36;
                     } else if (slot == 101) {
-                        equipment.setLeggings(item);
                         slot = 37;
                     } else if (slot == 102) {
-                        equipment.setChestplate(item);
                         slot = 38;
                     } else if (slot == 103) {
-                        equipment.setHelmet(item);
                         slot = 39;
                     } else if (slot == -106) {
                         slot = 40;
@@ -325,7 +319,7 @@ public class ICPlayerFactory {
             }
             OfflineICPlayer offlineICPlayer = getReferenced(uuid);
             if (offlineICPlayer == null) {
-                offlineICPlayer = new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, equipment, inventory, enderchest);
+                offlineICPlayer = new OfflineICPlayer(uuid, playerName, selectedSlot, rightHanded, xpLevel, inventory, enderchest);
                 OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
                 Bukkit.getPluginManager().callEvent(event);
                 REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
@@ -334,7 +328,6 @@ public class ICPlayerFactory {
                 offlineICPlayer.setSelectedSlot(selectedSlot);
                 offlineICPlayer.setRightHanded(rightHanded);
                 offlineICPlayer.setExperienceLevel(xpLevel);
-                offlineICPlayer.setEquipment(equipment);
                 offlineICPlayer.setInventory(inventory);
                 offlineICPlayer.setEnderchest(enderchest);
                 OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);

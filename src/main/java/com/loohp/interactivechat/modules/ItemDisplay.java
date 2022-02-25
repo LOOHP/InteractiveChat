@@ -27,6 +27,7 @@ import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
@@ -65,7 +66,7 @@ import java.util.Optional;
 public class ItemDisplay {
 
     @SuppressWarnings("deprecation")
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.itemPlaceholder.matcher(plain).find()) {
             String regex = InteractiveChat.itemPlaceholder.pattern();
@@ -91,7 +92,7 @@ public class ItemDisplay {
                     if (!InteractiveChat.itemHover && !InteractiveChat.itemAlternativeHoverMessage.isEmpty()) {
                         alternativeHover = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.itemAlternativeHoverMessage);
                     }
-                    Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, reciever, component, unix, InteractiveChat.itemHover, alternativeHover));
+                    Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, receiver, component, unix, InteractiveChat.itemHover, alternativeHover));
                     component = ComponentReplacing.replace(component, regex, true, itemComponent);
                 }
             } else {
@@ -110,11 +111,8 @@ public class ItemDisplay {
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }
-
-            return component;
-        } else {
-            return component;
         }
+        return component;
     }
 
     public static boolean useInventoryView(ItemStack item) {
@@ -134,7 +132,7 @@ public class ItemDisplay {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         return false;
     }
@@ -154,14 +152,14 @@ public class ItemDisplay {
         Bukkit.getPluginManager().callEvent(event);
         item = event.getItemStack();
 
-        return createItemDisplay(player, item, showHover, alternativeHover);
+        return createItemDisplay(player, item, InteractiveChat.itemTitle, showHover, alternativeHover);
     }
 
-    public static Component createItemDisplay(ICPlayer player, ItemStack item) throws Exception {
-        return createItemDisplay(player, item, true, null);
+    public static Component createItemDisplay(OfflineICPlayer player, ItemStack item) throws Exception {
+        return createItemDisplay(player, item, InteractiveChat.itemTitle, true, null);
     }
 
-    public static Component createItemDisplay(ICPlayer player, ItemStack item, boolean showHover, Component alternativeHover) throws Exception {
+    public static Component createItemDisplay(OfflineICPlayer player, ItemStack item, String rawTitle, boolean showHover, Component alternativeHover) throws Exception {
         boolean trimmed = false;
         boolean isAir = item.getType().equals(Material.AIR);
 
@@ -201,7 +199,7 @@ public class ItemDisplay {
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
         String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
         HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(tag == null ? ShowItem.of(key, item.getAmount()) : ShowItem.of(key, item.getAmount(), BinaryTagHolder.of(tag)));
-        String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.itemTitle));
+        String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, rawTitle));
         String sha1 = HashUtils.createSha1(title, item);
 
         boolean isMapView = false;

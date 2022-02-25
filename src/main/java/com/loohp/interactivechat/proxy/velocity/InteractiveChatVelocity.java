@@ -44,6 +44,7 @@ import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
@@ -468,7 +469,7 @@ public class InteractiveChatVelocity {
         }
     }
 
-    @Subscribe
+    @Subscribe(order = PostOrder.LATE)
     public void onBungeeChat(PlayerChatEvent event) {
         if (!event.getResult().isAllowed()) {
             return;

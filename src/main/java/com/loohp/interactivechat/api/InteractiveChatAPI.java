@@ -33,6 +33,7 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.ValueTrios;
+import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 import net.kyori.adventure.text.Component;
@@ -58,6 +59,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -132,6 +134,37 @@ public class InteractiveChatAPI {
      */
     public static void sendMessage(CommandSender receiver, Component component) {
         InteractiveChat.sendMessage(receiver, component);
+    }
+
+    /**
+     * Marks a message with a tag that InteractiveChat understands which identifies the sender of the message.<br>
+     * Only have an effect if UseAccurateSenderParser is enabled in the config.
+     *
+     * @param message
+     * @param sender The {@link UUID} of the {@link Player} or {@link ICPlayer}
+     * @return the sender marked message
+     *
+     * @throws IllegalStateException if a sender is already marked in the given message
+     */
+    public static String markSender(String message, UUID sender) {
+        if (InteractiveChat.useAccurateSenderFinder) {
+            if (Registry.ID_PATTERN.matcher(message).find()) {
+                throw new IllegalStateException("Sender is already marked in the given message: " + message);
+            }
+            for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+                Pattern placeholder = icplaceholder.getKeyword();
+                Matcher matcher = placeholder.matcher(message);
+                if (matcher.find()) {
+                    int start = matcher.start();
+                    if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                        String uuidmatch = "<chat=" + sender + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
+                        message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
+                        break;
+                    }
+                }
+            }
+        }
+        return message;
     }
 
     /**
@@ -445,7 +478,8 @@ public class InteractiveChatAPI {
     /**
      * Get all plugin provided nicknames of the provided player, can return an empty {@link List}
      *
-     * @param uuid, predicate
+     * @param uuid
+     * @param predicate
      * @return A list of nicknames
      */
     public static List<String> getNicknames(UUID uuid, Predicate<String> predicate) {

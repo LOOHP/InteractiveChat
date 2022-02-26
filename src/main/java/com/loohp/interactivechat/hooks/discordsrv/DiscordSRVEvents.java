@@ -29,6 +29,7 @@ import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.GameChatMessagePreProcessEvent;
+import github.scarsz.discordsrv.api.events.VentureChatMessagePreProcessEvent;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.Component;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.TextReplacementConfig;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -71,11 +72,10 @@ public class DiscordSRVEvents {
         Component component = event.getMessageComponent();
         event.setMessageComponent(process(component));
     }
-    /*
+
     @Subscribe(priority = ListenerPriority.LOWEST)
     public void onVentureChatBungeeToDiscord(VentureChatMessagePreProcessEvent event) {
         Component component = event.getMessageComponent();
         event.setMessageComponent(process(component));
     }
-    */
 }

@@ -143,7 +143,6 @@ public class InteractiveChatAPI {
      * @param message
      * @param sender The {@link UUID} of the {@link Player} or {@link ICPlayer}
      * @return the sender marked message
-     *
      * @throws IllegalStateException if a sender is already marked in the given message
      */
     public static String markSender(String message, UUID sender) {
@@ -371,7 +370,7 @@ public class InteractiveChatAPI {
      * Add an inventory to the shared inventory list
      *
      * @param type
-     * @param hash      key
+     * @param hash key
      * @param inventory
      * @return The hashed key which can be used to retrieve the inventory
      * @throws Exception

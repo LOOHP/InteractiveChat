@@ -24,6 +24,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
+import com.loohp.interactivechat.utils.ComponentReplacing;
 import net.essentialsx.api.v2.events.discord.DiscordChatMessageEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -36,20 +37,28 @@ public class EssentialsDiscord implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDiscordChatMessage(DiscordChatMessageEvent event) {
-        Component component = LegacyComponentSerializer.legacySection().deserialize(event.getMessage());
-        component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build()).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
+        Component icComponent = LegacyComponentSerializer.legacySection().deserialize(event.getMessage());
+        icComponent = ComponentReplacing.replace(icComponent, Registry.ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
+            String placeholder = result.group(4);
+            String replacement = placeholder == null ? "" : Registry.ID_UNESCAPE_PATTERN.matcher(placeholder).replaceAll(">");
+            return LegacyComponentSerializer.legacySection().deserialize(replacement);
+        });
+        icComponent = ComponentReplacing.replace(icComponent, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
+            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
+        }));
+        icComponent = icComponent.replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
             String escape = result.group(1);
             String replacement = escape == null ? "" : escape;
             return builder.content(replacement);
         }).build());
         if (InteractiveChat.fontTags) {
-            component = component.replaceText(TextReplacementConfig.builder().match(ComponentFont.FONT_TAG_PATTERN).replacement((result, builder) -> {
-                String escape = result.group(1);
+            icComponent = icComponent.replaceText(TextReplacementConfig.builder().match(ComponentFont.FONT_TAG_PATTERN).replacement((result, builder) -> {
+                String escape = result.group(2);
                 String replacement = escape == null ? "" : escape;
                 return builder.content(replacement);
             }).build());
         }
-        event.setMessage(LegacyComponentSerializer.legacySection().serialize(component));
+        event.setMessage(LegacyComponentSerializer.legacySection().serialize(icComponent));
     }
 
 }

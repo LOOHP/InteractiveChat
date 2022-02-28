@@ -26,6 +26,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -63,21 +65,22 @@ public enum ChatComponentType {
         return InteractiveChatComponentSerializer.gson().serialize((Component) object);
     });
 
-    private static final ChatComponentType[] BY_PRIORITY = new ChatComponentType[] {AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent};
+    private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent));
 
-    public static ChatComponentType[] byPriority() {
-        return Arrays.copyOf(BY_PRIORITY, BY_PRIORITY.length);
+    public static List<ChatComponentType> byPriority() {
+        return BY_PRIORITY;
     }
+
     private final String regex;
     private final Function<Object, Component> converterFrom;
     private final BiFunction<Component, Boolean, Object> converterTo;
-    private final Function<Object, String> toString;
+    private final Function<Object, String> toJsonString;
 
     ChatComponentType(String regex, Function<Object, Component> converterFrom, BiFunction<Component, Boolean, Object> converterTo, Function<Object, String> toString) {
         this.regex = regex;
         this.converterFrom = converterFrom;
         this.converterTo = converterTo;
-        this.toString = toString;
+        this.toJsonString = toString;
     }
 
     public String getMatchingRegex() {
@@ -98,11 +101,15 @@ public enum ChatComponentType {
         return converterTo.apply(component, legacyRGB);
     }
 
-    public String toString(Object object) {
+    public String toJsonString(Object object) {
         if (object == null) {
             return null;
         }
-        return toString.apply(object);
+        return toJsonString.apply(object);
+    }
+
+    public String toString(Object object) {
+        return toJsonString(object);
     }
 
 }

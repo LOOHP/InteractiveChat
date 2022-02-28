@@ -86,6 +86,8 @@ Settings:
     - "(?i)/pm .*"
     - "(?i)/tell .*"
     - "(?i)/r .*"
+    - "(?i)/cmi msg .*"
+    - "(?i)/reply .*"
   #A list of chat messages to ignore
   #This list is in REGEX, so you can do some more advanced matches.
   MessagesToIgnore:

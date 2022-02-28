@@ -31,32 +31,35 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.GameChatMessagePreProcessEvent;
 import github.scarsz.discordsrv.api.events.VentureChatMessagePreProcessEvent;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.Component;
-import github.scarsz.discordsrv.dependencies.kyori.adventure.text.TextReplacementConfig;
 import github.scarsz.discordsrv.dependencies.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class DiscordSRVEvents {
 
     public static Component process(Component component) {
-        component = convert(ComponentReplacing.replace(ComponentReplacing.replace(convert(component), Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
-            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
-        })), Registry.ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
+        net.kyori.adventure.text.Component icComponent = convert(component);
+        icComponent = ComponentReplacing.replace(icComponent, Registry.ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
             String placeholder = result.group(4);
             String replacement = placeholder == null ? "" : Registry.ID_UNESCAPE_PATTERN.matcher(placeholder).replaceAll(">");
             return LegacyComponentSerializer.legacySection().deserialize(replacement);
-        })).replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
+        });
+        icComponent = ComponentReplacing.replace(icComponent, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
+            return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
+        }));
+        icComponent = icComponent.replaceText(TextReplacementConfig.builder().match(ChatColorUtils.COLOR_TAG_PATTERN).replacement((result, builder) -> {
             String escape = result.group(1);
             String replacement = escape == null ? "" : escape;
             return builder.content(replacement);
         }).build());
         if (InteractiveChat.fontTags) {
-            component = component.replaceText(TextReplacementConfig.builder().match(ComponentFont.FONT_TAG_PATTERN).replacement((result, builder) -> {
+            icComponent = icComponent.replaceText(TextReplacementConfig.builder().match(ComponentFont.FONT_TAG_PATTERN).replacement((result, builder) -> {
                 String escape = result.group(2);
                 String replacement = escape == null ? "" : escape;
                 return builder.content(replacement);
             }).build());
         }
-        return component;
+        return convert(icComponent);
     }
 
     public static Component convert(net.kyori.adventure.text.Component component) {

@@ -73,7 +73,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OutChatPacket implements Listener {
 
@@ -82,7 +81,7 @@ public class OutChatPacket implements Listener {
 
     static {
         PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
-        List<String> matches = Stream.of(ChatComponentType.byPriority()).map(each -> each.getMatchingRegex()).collect(Collectors.toList());
+        List<String> matches = ChatComponentType.byPriority().stream().map(each -> each.getMatchingRegex()).collect(Collectors.toList());
 
         for (chatFieldsSize = 1; chatFieldsSize < packet.getModifier().size(); chatFieldsSize++) {
             String clazz = packet.getModifier().getField(chatFieldsSize).getType().getName();
@@ -189,9 +188,7 @@ public class OutChatPacket implements Listener {
                 return;
             }
 
-            @SuppressWarnings("unused")
             boolean isCommand = false;
-            @SuppressWarnings("unused")
             boolean isChat = false;
 
             Optional<ICPlayer> sender = Optional.empty();
@@ -207,6 +204,7 @@ public class OutChatPacket implements Listener {
                 ICPlayer icplayer = ICPlayerFactory.getICPlayer(commandSender.getSender());
                 if (icplayer != null) {
                     sender = Optional.of(icplayer);
+                    //noinspection UnusedAssignment
                     isCommand = true;
                 }
             }
@@ -218,6 +216,7 @@ public class OutChatPacket implements Listener {
                         ICPlayer icplayer = ICPlayerFactory.getICPlayer(chatSender.getSender());
                         if (icplayer != null) {
                             sender = Optional.of(icplayer);
+                            //noinspection UnusedAssignment
                             isChat = true;
                         }
                     }
@@ -339,13 +338,15 @@ public class OutChatPacket implements Listener {
 
             if (sendEvent.isCancelled()) {
                 if (sendEvent.sendOriginalIfCancelled()) {
+                    if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+                        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + receiver.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet), sending original unmodified message instead! [THIS IS NOT A BUG]");
+                    }
                     PacketContainer originalPacketModified = sendEvent.getOriginal();
                     service.send(originalPacketModified, receiver, messageUUID);
                     return;
-                } else {
-                    if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + receiver.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
-                    }
+                }
+                if (longerThanMaxLength && InteractiveChat.cancelledMessage) {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Cancelled a chat packet bounded to " + receiver.getName() + " that is " + json.length() + " characters long (Longer than maximum allowed in a chat packet) [THIS IS NOT A BUG]");
                 }
                 service.discard(receiver.getUniqueId(), messageUUID);
                 return;

@@ -23,6 +23,8 @@ package com.loohp.interactivechat.utils;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,9 +34,11 @@ public class ChatColorUtils {
     public static final char COLOR_CHAR = '\u00a7';
     public static final Pattern COLOR_TAG_PATTERN = Pattern.compile("(?i)(?:(?<!\\\\)(\\\\)\\\\|(?<!\\\\))\\[color=(#[0-9a-fA-F]{6})\\]");
     public static final Pattern COLOR_TAG_ESCAPE = Pattern.compile("(?i)\\\\(\\[color=#[0-9a-fA-F]{6}\\])");
+    public static final Pattern RGB_HEX_COLOR = Pattern.compile("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
     public static final Pattern RGB_HEX_COLOR_1 = Pattern.compile("(?:&|" + COLOR_CHAR + ")x(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])(?:&|" + COLOR_CHAR + ")([0-9a-fA-F])");
     public static final Pattern RGB_HEX_COLOR_2 = Pattern.compile("(?:&|" + COLOR_CHAR + ")#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
     public static final Pattern STANDARD_COLOR_CODE = Pattern.compile("&([0-9A-Fa-fk-or])");
+    public static final List<ChatColor> FORMATTING_CODES = Collections.unmodifiableList(Arrays.asList(ChatColor.MAGIC, ChatColor.BOLD, ChatColor.ITALIC, ChatColor.UNDERLINE, ChatColor.STRIKETHROUGH));
 
     public static String stripColor(String string) {
         return string.replaceAll("\u00a7[0-9A-Fa-fk-orx]", "");
@@ -106,13 +110,7 @@ public class ChatColorUtils {
     }
 
     public static boolean isColor(ChatColor color) {
-        List<ChatColor> format = new ArrayList<ChatColor>();
-        format.add(ChatColor.MAGIC);
-        format.add(ChatColor.BOLD);
-        format.add(ChatColor.ITALIC);
-        format.add(ChatColor.UNDERLINE);
-        format.add(ChatColor.STRIKETHROUGH);
-        return !format.contains(color) && !color.equals(ChatColor.RESET);
+        return !FORMATTING_CODES.contains(color) && !color.equals(ChatColor.RESET);
     }
 
     public static boolean isLegal(String color) {
@@ -160,7 +158,7 @@ public class ChatColorUtils {
         if (hex == null) {
             return hex;
         }
-        Matcher matcher = RGB_HEX_COLOR_1.matcher(hex);
+        Matcher matcher = RGB_HEX_COLOR.matcher(hex);
         if (matcher.matches()) {
             return COLOR_CHAR + "x" + COLOR_CHAR + matcher.group(1) + COLOR_CHAR + matcher.group(2) + COLOR_CHAR + matcher.group(3) + COLOR_CHAR + matcher.group(4) + COLOR_CHAR + matcher.group(5) + COLOR_CHAR + matcher.group(6);
         } else {

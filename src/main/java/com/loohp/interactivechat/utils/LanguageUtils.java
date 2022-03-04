@@ -93,7 +93,7 @@ public class LanguageUtils {
             while (lock.get()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(1);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             }
             lock.set(true);

@@ -39,7 +39,7 @@ public class RarityUtils {
     private static Method getItemRarityMethod;
     private static Field getItemRarityColorField;
 
-    public static void setupRarity() {
+    static {
         try {
             craftItemStackClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftItemStack");
             nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");

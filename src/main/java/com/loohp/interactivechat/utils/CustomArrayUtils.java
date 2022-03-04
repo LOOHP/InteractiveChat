@@ -34,7 +34,7 @@ public class CustomArrayUtils {
         int start = 0;
         for (int i = 0; i < ret.length; i++) {
             int end = start + chunksize;
-            ret[i] = Arrays.copyOfRange(source, start, end > source.length ? source.length : end);
+            ret[i] = Arrays.copyOfRange(source, start, Math.min(end, source.length));
             start += chunksize;
         }
         return ret;

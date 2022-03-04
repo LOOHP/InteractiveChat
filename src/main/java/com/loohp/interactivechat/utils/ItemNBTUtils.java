@@ -31,7 +31,8 @@ import java.lang.reflect.Method;
 
 public class ItemNBTUtils {
 
-    private static final BiMap<String, Integer> enchantmentIds = HashBiMap.create();
+    private static final BiMap<String, Integer> ENCHANTMENT_IDS = HashBiMap.create();
+
     private static Class<?> craftItemStackClass;
     private static Class<?> nmsItemStackClass;
     private static Method asNMSCopyMethod;
@@ -52,68 +53,68 @@ public class ItemNBTUtils {
             nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
             asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
             nmsNbtTagCompoundClass = NMSUtils.getNMSClass("net.minecraft.server.%s.NBTTagCompound", "net.minecraft.nbt.NBTTagCompound");
-            try {
-                saveNmsItemStackMethod = nmsItemStackClass.getMethod("save", nmsNbtTagCompoundClass);
-            } catch (Exception e) {
-                saveNmsItemStackMethod = nmsItemStackClass.getMethod("b", nmsNbtTagCompoundClass);
-            }
+            saveNmsItemStackMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsItemStackClass.getMethod("save", nmsNbtTagCompoundClass);
+            }, () -> {
+                return nmsItemStackClass.getMethod("b", nmsNbtTagCompoundClass);
+            });
             nbtTagCompoundConstructor = nmsNbtTagCompoundClass.getConstructor();
             nmsMojangsonParserClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MojangsonParser", "net.minecraft.nbt.MojangsonParser");
-            try {
-                parseMojangsonMethod = nmsMojangsonParserClass.getMethod("parse", String.class);
-            } catch (Exception e) {
-                parseMojangsonMethod = nmsMojangsonParserClass.getMethod("a", String.class);
-            }
+            parseMojangsonMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsMojangsonParserClass.getMethod("parse", String.class);
+            }, () -> {
+                return nmsMojangsonParserClass.getMethod("a", String.class);
+            });
             if (InteractiveChat.version.isOld()) {
                 nmsItemStackFromTagMethod = nmsItemStackClass.getMethod("createStack", nmsNbtTagCompoundClass);
             } else {
                 nmsItemStackFromTagConstructor = nmsItemStackClass.getDeclaredConstructor(nmsNbtTagCompoundClass);
             }
             asBukkitCopyMethod = craftItemStackClass.getMethod("asBukkitCopy", nmsItemStackClass);
-            try {
-                nbtTagCompoundGetStringMethod = nmsNbtTagCompoundClass.getMethod("getString", String.class);
-            } catch (Exception e) {
-                nbtTagCompoundGetStringMethod = nmsNbtTagCompoundClass.getMethod("l", String.class);
-            }
-            try {
-                nbtTagCompoundGetMethod = nmsNbtTagCompoundClass.getMethod("get", String.class);
-            } catch (Exception e) {
-                nbtTagCompoundGetMethod = nmsNbtTagCompoundClass.getMethod("c", String.class);
-            }
+            nbtTagCompoundGetStringMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsNbtTagCompoundClass.getMethod("getString", String.class);
+            }, () -> {
+                return nmsNbtTagCompoundClass.getMethod("l", String.class);
+            });
+            nbtTagCompoundGetMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsNbtTagCompoundClass.getMethod("get", String.class);
+            }, () -> {
+                return nmsNbtTagCompoundClass.getMethod("c", String.class);
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        enchantmentIds.put("protection", 0);
-        enchantmentIds.put("fire_protection", 1);
-        enchantmentIds.put("feather_falling", 2);
-        enchantmentIds.put("blast_protection", 3);
-        enchantmentIds.put("projectile_protection", 4);
-        enchantmentIds.put("respiration", 5);
-        enchantmentIds.put("aqua_affinity", 6);
-        enchantmentIds.put("thorns", 7);
-        enchantmentIds.put("depth_strider", 8);
-        enchantmentIds.put("frost_walker", 9);
-        enchantmentIds.put("binding_curse", 10);
-        enchantmentIds.put("sharpness", 16);
-        enchantmentIds.put("smite", 17);
-        enchantmentIds.put("bane_of_arthropods", 18);
-        enchantmentIds.put("knockback", 19);
-        enchantmentIds.put("fire_aspect", 20);
-        enchantmentIds.put("looting", 21);
-        enchantmentIds.put("sweeping", 22);
-        enchantmentIds.put("efficiency", 32);
-        enchantmentIds.put("silk_touch", 33);
-        enchantmentIds.put("unbreaking", 34);
-        enchantmentIds.put("fortune", 35);
-        enchantmentIds.put("power", 48);
-        enchantmentIds.put("punch", 49);
-        enchantmentIds.put("flame", 50);
-        enchantmentIds.put("infinity", 51);
-        enchantmentIds.put("luck_of_the_sea", 61);
-        enchantmentIds.put("lure", 62);
-        enchantmentIds.put("mending", 70);
-        enchantmentIds.put("vanishing_curse", 71);
+        ENCHANTMENT_IDS.put("protection", 0);
+        ENCHANTMENT_IDS.put("fire_protection", 1);
+        ENCHANTMENT_IDS.put("feather_falling", 2);
+        ENCHANTMENT_IDS.put("blast_protection", 3);
+        ENCHANTMENT_IDS.put("projectile_protection", 4);
+        ENCHANTMENT_IDS.put("respiration", 5);
+        ENCHANTMENT_IDS.put("aqua_affinity", 6);
+        ENCHANTMENT_IDS.put("thorns", 7);
+        ENCHANTMENT_IDS.put("depth_strider", 8);
+        ENCHANTMENT_IDS.put("frost_walker", 9);
+        ENCHANTMENT_IDS.put("binding_curse", 10);
+        ENCHANTMENT_IDS.put("sharpness", 16);
+        ENCHANTMENT_IDS.put("smite", 17);
+        ENCHANTMENT_IDS.put("bane_of_arthropods", 18);
+        ENCHANTMENT_IDS.put("knockback", 19);
+        ENCHANTMENT_IDS.put("fire_aspect", 20);
+        ENCHANTMENT_IDS.put("looting", 21);
+        ENCHANTMENT_IDS.put("sweeping", 22);
+        ENCHANTMENT_IDS.put("efficiency", 32);
+        ENCHANTMENT_IDS.put("silk_touch", 33);
+        ENCHANTMENT_IDS.put("unbreaking", 34);
+        ENCHANTMENT_IDS.put("fortune", 35);
+        ENCHANTMENT_IDS.put("power", 48);
+        ENCHANTMENT_IDS.put("punch", 49);
+        ENCHANTMENT_IDS.put("flame", 50);
+        ENCHANTMENT_IDS.put("infinity", 51);
+        ENCHANTMENT_IDS.put("luck_of_the_sea", 61);
+        ENCHANTMENT_IDS.put("lure", 62);
+        ENCHANTMENT_IDS.put("mending", 70);
+        ENCHANTMENT_IDS.put("vanishing_curse", 71);
     }
 
     public static ItemStack getItemFromNBTJson(String json) {

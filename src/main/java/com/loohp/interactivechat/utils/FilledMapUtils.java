@@ -93,7 +93,7 @@ public class FilledMapUtils {
 
     public static boolean isFilledMap(ItemStack itemStack) {
         try {
-            return (itemStack != null) && (itemStack.getItemMeta() != null) && (itemStack.getItemMeta() instanceof MapMeta);
+            return itemStack != null && itemStack.getItemMeta() != null && itemStack.getItemMeta() instanceof MapMeta;
         } catch (Exception e) {
             return false;
         }
@@ -151,7 +151,7 @@ public class FilledMapUtils {
     public static List<MapCursor> getCursors(MapView mapView, Player player) {
         try {
             Object renderData = craftMapViewClassRenderMethod.invoke(craftMapViewClass.cast(mapView), craftPlayerClass.cast(player));
-            return (ArrayList<MapCursor>) craftRenderDataClassCursorsField.get(renderData);
+            return (List<MapCursor>) craftRenderDataClassCursorsField.get(renderData);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

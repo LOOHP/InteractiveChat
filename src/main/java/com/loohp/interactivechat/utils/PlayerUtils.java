@@ -27,7 +27,6 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -66,13 +65,7 @@ public class PlayerUtils implements Listener {
                 if (map == null || map.isEmpty()) {
                     itr0.remove();
                 } else {
-                    Iterator<PermissionCache> itr1 = map.values().iterator();
-                    while (itr1.hasNext()) {
-                        PermissionCache permissionCache = itr1.next();
-                        if (permissionCache.getTime() + 180000 < now) {
-                            itr1.remove();
-                        }
-                    }
+                    map.values().removeIf(permissionCache -> permissionCache.getTime() + 180000 < now);
                 }
             }
         }, 0, 600);
@@ -182,7 +175,7 @@ public class PlayerUtils implements Listener {
         int protocolVersion = -1;
         if (InteractiveChat.viaVersionHook) {
             protocolVersion = us.myles.ViaVersion.api.Via.getAPI().getPlayerVersion(player.getUniqueId());
-        } else if (InteractiveChat.procotcolSupportHook) {
+        } else if (InteractiveChat.protocolSupportHook) {
             protocolVersion = protocolsupport.api.ProtocolSupportAPI.getProtocolVersion(player).getId();
         } else {
             protocolVersion = InteractiveChat.protocolManager.getProtocolVersion(player);

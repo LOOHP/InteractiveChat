@@ -60,8 +60,6 @@ import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import com.loohp.interactivechat.utils.PotionUtils;
-import com.loohp.interactivechat.utils.RarityUtils;
 import com.loohp.yamlconfiguration.YamlConfiguration;
 import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
@@ -113,6 +111,7 @@ public class InteractiveChat extends JavaPlugin {
 
     public static String language = "en_us";
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static Optional<Character> chatAltColorCode = Optional.empty();
 
     public static Boolean essentialsHook = false;
@@ -124,7 +123,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean discordSrvHook = false;
     public static Boolean dynmapHook = false;
     public static Boolean viaVersionHook = false;
-    public static Boolean procotcolSupportHook = false;
+    public static Boolean protocolSupportHook = false;
     public static Boolean ecoHook = false;
     public static Boolean luckPermsHook = false;
     public static Boolean mysqlPDBHook = false;
@@ -325,6 +324,11 @@ public class InteractiveChat extends JavaPlugin {
         }
     }
 
+    public static boolean isPluginEnabled(String name) {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
+        return plugin != null && plugin.isEnabled();
+    }
+
     public ProcessExternalMessage externalProcessor;
 
     @Override
@@ -403,79 +407,77 @@ public class InteractiveChat extends JavaPlugin {
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
 
-        if (getServer().getPluginManager().getPlugin("SuperVanish") != null || getServer().getPluginManager().getPlugin("PremiumVanish") != null) {
+        if (isPluginEnabled("SuperVanish") || isPluginEnabled("PremiumVanish")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into SuperVanish/PremiumVanish!");
             vanishHook = true;
         }
-        if (getServer().getPluginManager().getPlugin("CMI") != null) {
+        if (isPluginEnabled("CMI")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into CMI!");
             cmiHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("Essentials") != null) {
+        if (isPluginEnabled("Essentials")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
             essentialsHook = true;
             getServer().getPluginManager().registerEvents(new EssentialsNicknames(), this);
             EssentialsNicknames._init_();
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("EssentialsDiscord") != null) {
+        if (isPluginEnabled("EssentialsDiscord")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EssentialsDiscord!");
             essentialsDiscordHook = true;
             getServer().getPluginManager().registerEvents(new EssentialsDiscord(), this);
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("ChatManager") != null) {
+        if (isPluginEnabled("ChatManager")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatManager!");
             chatManagerHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+        if (isPluginEnabled("DiscordSRV")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
             DiscordSRV.api.subscribe(new DiscordSRVEvents());
             discordSrvHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("ViaVersion") != null) {
+        if (isPluginEnabled("ViaVersion")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ViaVersion!");
             viaVersionHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolSupport") != null) {
+        if (isPluginEnabled("ProtocolSupport")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ProtocolSupport!");
-            procotcolSupportHook = true;
+            protocolSupportHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into eco (core)!");
+        if (isPluginEnabled("eco")) {
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Eco (Core)!");
             ecoHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+        if (isPluginEnabled("LuckPerms")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into LuckPerms!");
             new LuckPermsEvents(this);
             luckPermsHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("MysqlPlayerDataBridge") != null) {
+        if (isPluginEnabled("MysqlPlayerDataBridge")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MysqlPlayerDataBridge!");
             mysqlPDBHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("VentureChat") != null) {
+        if (isPluginEnabled("VentureChat")) {
             VentureChatInjection._init_();
             getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
             ventureChatHook = true;
         }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("dynmap") != null) {
+        if (isPluginEnabled("dynmap")) {
             getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into Dynmap!");
             DynmapListener._init_();
             dynmapHook = true;
         }
 
-        RarityUtils.setupRarity();
-        PotionUtils.setupPotions();
         PlayernameDisplay.setup();
 
         Charts.setup(metrics);

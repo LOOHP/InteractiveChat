@@ -32,13 +32,13 @@ import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 public class ComponentStyling {
 
-    private static final Map<TextDecoration, TextDecoration.State> DECORATIONS_ALL_NOT_SET = new HashMap<>();
+    private static final Map<TextDecoration, TextDecoration.State> DECORATIONS_ALL_NOT_SET = new EnumMap<>(TextDecoration.class);
 
     static {
         for (TextDecoration decoration : TextDecoration.values()) {

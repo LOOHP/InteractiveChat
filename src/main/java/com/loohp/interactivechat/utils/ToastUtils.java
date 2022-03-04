@@ -68,7 +68,7 @@ public class ToastUtils {
     private static Method nmsAdvancementProgressGetCriterionProgressMethod;
     private static Method nmsAdvancementProgressGetCriterionProgressBMethod;
     private static Class<?> nmsPacketPlayOutAdvancementsClass;
-    private static Constructor<?> nmsPacketPlayOutAdvancementsConstuctor;
+    private static Constructor<?> nmsPacketPlayOutAdvancementsConstructor;
 
     static {
         try {
@@ -93,19 +93,20 @@ public class ToastUtils {
             nmsAdvancementProgressClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementProgress", "net.minecraft.advancements.AdvancementProgress");
             nmsAdvancementProgressConstructor = nmsAdvancementProgressClass.getConstructor();
             nmsAdvancementProgressAMethod = nmsAdvancementProgressClass.getMethod("a", Map.class, String[][].class);
-            try {
-                nmsAdvancementProgressGetCriterionProgressMethod = nmsAdvancementProgressClass.getMethod("getCriterionProgress", String.class);
-            } catch (Exception e) {
-                nmsAdvancementProgressGetCriterionProgressMethod = nmsAdvancementProgressClass.getMethod("c", String.class);
-            }
+            nmsAdvancementProgressGetCriterionProgressMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsAdvancementProgressClass.getMethod("getCriterionProgress", String.class);
+            }, () -> {
+                return nmsAdvancementProgressClass.getMethod("c", String.class);
+            });
             nmsAdvancementProgressGetCriterionProgressBMethod = nmsAdvancementProgressGetCriterionProgressMethod.getReturnType().getMethod("b");
             nmsPacketPlayOutAdvancementsClass = NMSUtils.getNMSClass("net.minecraft.server.%s.PacketPlayOutAdvancements", "net.minecraft.network.protocol.game.PacketPlayOutAdvancements");
-            nmsPacketPlayOutAdvancementsConstuctor = nmsPacketPlayOutAdvancementsClass.getConstructor(boolean.class, Collection.class, Set.class, Map.class);
+            nmsPacketPlayOutAdvancementsConstructor = nmsPacketPlayOutAdvancementsClass.getConstructor(boolean.class, Collection.class, Set.class, Map.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @SuppressWarnings({"SuspiciousToArrayCall", "ArraysAsListWithZeroOrOneArgument"})
     public static void mention(ICPlayer sender, Player pinged, String message, ItemStack icon) {
         try {
             Object minecraftKey = nmsMinecraftKeyConstructor.newInstance("interactivechat", "mentioned/" + sender.getUniqueId());
@@ -115,11 +116,10 @@ public class ToastUtils {
             Object advancementDisplay = nmsAdvancementDisplayConstructor.newInstance(ItemStackUtils.toNMSCopy(icon), componentTitle, componentSubtitle, null, nmsAdvancementFrameTypeEnums[2], true, false, true);
 
             Map<String, Object> advCriteria = new HashMap<>();
-            String[][] advRequirements = new String[][] {};
             advCriteria.put("for_free", nmsCriterionConstructor.newInstance(nmsCriterionTriggerImpossibleAConstructor.newInstance()));
             List<String[]> fixedRequirements = new ArrayList<>();
             fixedRequirements.add(new String[] {"for_free"});
-            advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);
+            String[][] advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);
 
             Object saveAdv = nmsAdvancementConstructor.newInstance(minecraftKey, null, advancementDisplay, advRewards, advCriteria, advRequirements);
 
@@ -129,13 +129,13 @@ public class ToastUtils {
             nmsAdvancementProgressGetCriterionProgressBMethod.invoke(nmsAdvancementProgressGetCriterionProgressMethod.invoke(advPrg, "for_free"));
             prg.put(minecraftKey, advPrg);
 
-            PacketContainer packet1 = PacketContainer.fromPacket(nmsPacketPlayOutAdvancementsConstuctor.newInstance(false, Arrays.asList(saveAdv), Collections.emptySet(), prg));
+            PacketContainer packet1 = PacketContainer.fromPacket(nmsPacketPlayOutAdvancementsConstructor.newInstance(false, Arrays.asList(saveAdv), Collections.emptySet(), prg));
             InteractiveChat.protocolManager.sendServerPacket(pinged, packet1);
 
             Set<Object> rm = new HashSet<>();
             rm.add(minecraftKey);
             prg.clear();
-            PacketContainer packet2 = PacketContainer.fromPacket(nmsPacketPlayOutAdvancementsConstuctor.newInstance(false, Collections.emptyList(), rm, prg));
+            PacketContainer packet2 = PacketContainer.fromPacket(nmsPacketPlayOutAdvancementsConstructor.newInstance(false, Collections.emptyList(), rm, prg));
             InteractiveChat.protocolManager.sendServerPacket(pinged, packet2);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();

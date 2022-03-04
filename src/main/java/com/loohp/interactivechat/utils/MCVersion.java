@@ -22,6 +22,7 @@ package com.loohp.interactivechat.utils;
 
 public enum MCVersion {
 
+    V1_18_2("1.18.2", 17),
     V1_18("1.18", 16),
     V1_17("1.17", 15),
     V1_16_4("1.16.4", 14),
@@ -42,7 +43,9 @@ public enum MCVersion {
     UNSUPPORTED("Unsupported", -1);
 
     public static MCVersion fromPackageName(String packageName) {
-        if (packageName.contains("1_18_R1")) {
+        if (packageName.contains("1_18_R2")) {
+            return V1_18_2;
+        } else if (packageName.contains("1_18_R1")) {
             return V1_18;
         } else if (packageName.contains("1_17_R1")) {
             return V1_17;
@@ -89,6 +92,7 @@ public enum MCVersion {
         }
         return UNSUPPORTED;
     }
+
     private final String name;
     private final int shortNum;
 

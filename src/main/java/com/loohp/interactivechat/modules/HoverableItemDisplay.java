@@ -56,7 +56,7 @@ import java.util.Optional;
 public class HoverableItemDisplay {
 
     @SuppressWarnings("deprecation")
-    public static Component process(Component component, Player reciever) throws Exception {
+    public static Component process(Component component, Player receiver) throws Exception {
         component = ComponentFlattening.flatten(component);
         List<Component> children = new ArrayList<>(component.children());
         for (int i = 0; i < children.size(); i++) {
@@ -72,7 +72,7 @@ public class HoverableItemDisplay {
                     String simpleNbt = "{id:\"" + key.asString() + "\", Count: " + count + "b}";
                     try {
                         itemstack = ItemNBTUtils.getItemFromNBTJson(simpleNbt);
-                    } catch (Throwable e) {
+                    } catch (Throwable ignored) {
                     }
                 } else {
                     Optional<XMaterial> optXMaterial = XMaterial.matchXMaterial(legacyId.getId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
@@ -84,11 +84,11 @@ public class HoverableItemDisplay {
                 if (itemstack != null && longNbt != null) {
                     try {
                         itemstack = Bukkit.getUnsafe().modifyItemStack(itemstack, longNbt);
-                    } catch (Throwable e) {
+                    } catch (Throwable ignored) {
                     }
                 }
                 if (itemstack != null) {
-                    ClickEvent clickEvent = createItemDisplay(itemstack.clone(), reciever);
+                    ClickEvent clickEvent = createItemDisplay(itemstack.clone(), receiver);
                     child = child.clickEvent(clickEvent);
                     children.set(i, child);
                 }
@@ -98,7 +98,7 @@ public class HoverableItemDisplay {
                 List<Component> withs = new ArrayList<>(trans.args());
                 for (int u = 0; u < withs.size(); u++) {
                     Component with = withs.get(u);
-                    withs.set(u, process(with, reciever));
+                    withs.set(u, process(with, receiver));
                 }
                 trans = trans.args(withs);
                 children.set(i, trans);

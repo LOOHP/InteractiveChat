@@ -22,6 +22,8 @@ package com.loohp.interactivechat.utils;
 
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.AccessibleObject;
+
 public class NMSUtils {
 
     public static Class<?> getNMSClass(String path, String... paths) throws ClassNotFoundException {
@@ -40,6 +42,31 @@ public class NMSUtils {
             }
         }
         throw error;
+    }
+
+    @SafeVarargs
+    public static <T extends AccessibleObject> T reflectiveLookup(Class<T> lookupType, ReflectionLookupSupplier<T> methodLookup, ReflectionLookupSupplier<T>... methodLookups) throws ReflectiveOperationException {
+        ReflectiveOperationException error = null;
+        try {
+            return methodLookup.lookup();
+        } catch (ReflectiveOperationException e) {
+            error = e;
+        }
+        for (ReflectionLookupSupplier<T> supplier : methodLookups) {
+            try {
+                return supplier.lookup();
+            } catch (ReflectiveOperationException e) {
+                error = e;
+            }
+        }
+        throw error;
+    }
+
+    @FunctionalInterface
+    public interface ReflectionLookupSupplier<T> {
+
+        T lookup() throws ReflectiveOperationException;
+
     }
 
 }

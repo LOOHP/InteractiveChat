@@ -55,11 +55,13 @@ public class SkinUtils {
             craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
             nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EntityPlayer", "net.minecraft.server.level.EntityPlayer");
             craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
-            try {
-                nmsEntityPlayerGetProfileMethod = nmsEntityPlayerClass.getMethod("getProfile");
-            } catch (Exception e) {
-                nmsEntityPlayerGetProfileMethod = nmsEntityPlayerClass.getMethod("fp");
-            }
+            nmsEntityPlayerGetProfileMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                return nmsEntityPlayerClass.getMethod("getProfile");
+            }, () -> {
+                return nmsEntityPlayerClass.getMethod("fp");
+            }, () -> {
+                return nmsEntityPlayerClass.getMethod("fq");
+            });
             craftSkullMetaClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftMetaSkull");
             craftSkullMetaProfileField = craftSkullMetaClass.getDeclaredField("profile");
         } catch (Exception e) {

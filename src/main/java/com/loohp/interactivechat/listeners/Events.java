@@ -164,9 +164,6 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void checkChat(AsyncPlayerChatEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
         if (InteractiveChat.chatManagerHook) {
             return;
         }
@@ -176,12 +173,7 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void checkChatForChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
-
         translateAltColorCode(event);
-
-        if (event.isCancelled()) {
-            return;
-        }
 
         String processedMessage = checkMention(event);
         event.setMessage(processedMessage);

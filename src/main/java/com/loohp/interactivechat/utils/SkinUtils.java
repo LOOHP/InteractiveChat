@@ -58,7 +58,11 @@ public class SkinUtils {
             nmsEntityPlayerGetProfileMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
                 return nmsEntityPlayerClass.getMethod("getProfile");
             }, () -> {
-                return nmsEntityPlayerClass.getMethod("fp");
+                Method method = nmsEntityPlayerClass.getMethod("fp");
+                if (!method.getReturnType().equals(GameProfile.class)) {
+                    throw new NoSuchMethodException();
+                }
+                return method;
             }, () -> {
                 return nmsEntityPlayerClass.getMethod("fq");
             });

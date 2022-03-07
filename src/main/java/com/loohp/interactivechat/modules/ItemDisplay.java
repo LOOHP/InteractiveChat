@@ -160,6 +160,10 @@ public class ItemDisplay {
     }
 
     public static Component createItemDisplay(OfflineICPlayer player, ItemStack item, String rawTitle, boolean showHover, Component alternativeHover) throws Exception {
+        if (item == null) {
+            item = new ItemStack(Material.AIR);
+        }
+
         boolean trimmed = false;
         boolean isAir = item.getType().equals(Material.AIR);
 

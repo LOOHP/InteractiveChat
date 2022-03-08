@@ -49,6 +49,15 @@ Settings:
   ItemTagMaxLength: 30767
   PacketStringMaxLength: 32767
   SendOriginalMessageIfExceedLengthLimit: true
+  #You might want to adjust this option if you have other plugins listening to the chat
+  #And it is interfering with InteractiveChat's placeholders
+  #Valid options are
+  #LOWEST, LOW, NORMAL, HIGH, HIGHEST, MONITOR
+  EventPriorities:
+    #Defaults to HIGH
+    Commands: HIGH
+    #Defaults to HIGH
+    Chat: HIGH
   FormattingTags:
     #Allow the use of "[color=#123456]" RGB tags (1.16+)
     AllowRGBTags: true

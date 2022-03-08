@@ -6,18 +6,20 @@ api-version: 1.13
 description: Make the chat interactive
 softdepend:
   - Essentials
+  - EssentialsDiscord
   - DeluxeChat
   - EssentialsChat
-  - DeathMessagesPrime
-  - ChatManager
   - CMI
   - SuperVanish
   - PremiumVanish
   - VentureChat
   - DiscordSRV
-  - Dynmap
   - dynmap
-  - EcoEnchants
+  - eco
+  - ViaVersion
+  - ProtocolSupport
+  - LuckPerms
+  - MysqlPlayerDataBridge
 depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

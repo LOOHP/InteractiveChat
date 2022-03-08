@@ -41,18 +41,22 @@ Replace `VERSION` with the version number.
 ## Soft Dependencies
 
 - [EssentialsX](https://www.spigotmc.org/resources/essentialsx.9089/)
+- [EssentialsXChat](https://www.spigotmc.org/resources/essentialsx.9089/)
+- [EssentialsXDiscord](https://www.spigotmc.org/resources/essentialsx.9089/)
 - [OpenInv](https://dev.bukkit.org/projects/openinv)
 - [SuperVanish](https://www.spigotmc.org/resources/supervanish-be-invisible.1331/)
 - [PremiumVanish](https://www.spigotmc.org/resources/premiumvanish-stay-hidden-bungee-support.14404/)
 - [CMI](https://www.spigotmc.org/resources/cmi-270-commands-insane-kits-portals-essentials-economy-mysql-sqlite-much-more.3742/) ([Public API](https://github.com/Zrips/CMI-API))
 - [DeluxeChat](https://www.spigotmc.org/resources/deluxechat.1277/)
-- [DeathMessagesPrime](https://www.spigotmc.org/resources/deathmessagesprime.3789/)
-- [ChatManager](https://www.spigotmc.org/resources/chat-manager-1-7-1-16-with-30-features-and-40-commands.52245/)
 - [VentureChat](https://www.spigotmc.org/resources/venturechat.771/)
 - [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/)
 - [Dynmap](https://www.spigotmc.org/resources/dynmap.274/)
 - [LuckPerms](https://luckperms.net/)
+- [Eco](https://github.com/Auxilor/eco)
+- [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/)
+- [ProtocolSupport](https://www.spigotmc.org/resources/protocolsupport.7201/)
+- [MysqlPlayerDataBridge](https://www.spigotmc.org/resources/mysql-player-data-bridge.8117/)
 
-## Addons
+## Official Addons
 
 - [InteractiveChat-DiscordSRV-Addon](https://www.spigotmc.org/resources/83917/) (Adds InteractiveChat functionalities to DiscordSRV)

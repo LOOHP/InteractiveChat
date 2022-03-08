@@ -20,7 +20,6 @@
 
 package com.loohp.interactivechat.listeners;
 
-import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
@@ -33,54 +32,126 @@ import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
-import com.loohp.interactivechat.utils.InventoryUtils;
-import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.TimeUtils;
-import com.loohp.interactivechat.utils.XMaterialUtils;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Events implements Listener {
+public class ChatEvents implements Listener {
 
-    private static final Set<InventoryClickEvent> cancelledInventory = new HashSet<>();
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onCommandLowest(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.LOWEST)) {
+            checkCommand(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onCommandLow(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.LOW)) {
+            checkCommand(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onCommandNormal(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.NORMAL)) {
+            checkCommand(event);
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onCommand(PlayerCommandPreprocessEvent event) {
+    public void onCommandHigh(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.HIGH)) {
+            checkCommand(event);
+        }
+    }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCommandHighest(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.HIGHEST)) {
+            checkCommand(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCommandMonitor(PlayerCommandPreprocessEvent event) {
+        if (InteractiveChat.commandsEventPriority.equals(EventPriority.MONITOR)) {
+            checkCommand(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onChatLowest(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.LOWEST)) {
+            checkChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onChatLow(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.LOW)) {
+            checkChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onChatNormal(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.NORMAL)) {
+            checkChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onChatHigh(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.HIGH)) {
+            checkChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onChatHighest(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.HIGHEST)) {
+            checkChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChatMonitor(AsyncPlayerChatEvent event) {
+        if (InteractiveChat.chatEventPriority.equals(EventPriority.MONITOR)) {
+            checkChat(event);
+        }
+    }
+
+    private void checkChat(AsyncPlayerChatEvent event) {
+        translateAltColorCode(event);
+
+        String processedMessage = checkMention(event);
+        event.setMessage(processedMessage);
+
+        checkChatMessage(event);
+    }
+
+    private void checkCommand(PlayerCommandPreprocessEvent event) {
         boolean flag = true;
         String command = event.getMessage();
         for (String parsecommand : InteractiveChat.commandList) {
@@ -160,29 +231,6 @@ public class Events implements Listener {
                 }
             }
         }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void checkChat(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatManagerHook) {
-            return;
-        }
-
-        checkChatMessage(event);
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void checkChatForChatManagerOrTranslateChatColor(AsyncPlayerChatEvent event) {
-        translateAltColorCode(event);
-
-        String processedMessage = checkMention(event);
-        event.setMessage(processedMessage);
-
-        if (!InteractiveChat.chatManagerHook) {
-            return;
-        }
-
-        checkChatMessage(event);
     }
 
     private void checkChatMessage(AsyncPlayerChatEvent event) {
@@ -421,133 +469,6 @@ public class Events implements Listener {
             }
         } else {
             event.setMessage(ChatColorUtils.escapeColorCharacters(InteractiveChat.chatAltColorCode.orElse(' '), event.getMessage()));
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == null) {
-            return;
-        }
-        if (event.getClickedInventory().getType().equals(InventoryType.CREATIVE)) {
-            return;
-        }
-        Player player = (Player) event.getWhoClicked();
-        String hash = InteractiveChat.viewingInv1.get(player.getUniqueId());
-        if (hash != null) {
-            Inventory fakeInv = InteractiveChat.inventoryDisplay1Lower.get(hash);
-            if (fakeInv == null) {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.closeInventory());
-            } else {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> InventoryUtils.sendFakePlayerInventory(player, fakeInv, true, false));
-            }
-        }
-        if (event.getView().getTopInventory() == null) {
-            return;
-        }
-        Inventory topInventory = event.getView().getTopInventory();
-        if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
-
-            event.setCancelled(true);
-            cancelledInventory.add(event);
-
-            if (event.getRawSlot() < event.getView().getTopInventory().getSize()) {
-                ItemStack item = event.getCurrentItem();
-                inventoryAction(item, player, topInventory);
-            } else if (InteractiveChat.viewingInv1.containsKey(player.getUniqueId())) {
-                ItemStack item;
-                if (event.getClickedInventory().equals(topInventory)) {
-                    item = event.getCurrentItem();
-                } else {
-                    int rawSlot = event.getRawSlot();
-                    int slot;
-                    if (rawSlot < 81) {
-                        slot = rawSlot - 45;
-                    } else {
-                        slot = rawSlot - 81;
-                    }
-                    Inventory bottomInventory = InteractiveChat.inventoryDisplay1Lower.get(hash);
-                    if (bottomInventory != null) {
-                        item = bottomInventory.getItem(slot);
-                    } else {
-                        item = null;
-                    }
-                }
-                inventoryAction(item, player, topInventory);
-            }
-        }
-    }
-
-    private void inventoryAction(ItemStack item, Player player, Inventory topInventory) {
-        if (item != null) {
-            XMaterial xmaterial = XMaterialUtils.matchXMaterial(item);
-            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_14)) {
-                if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
-                    player.openBook(item.clone());
-                } else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {
-                    ItemStack book = XMaterial.WRITTEN_BOOK.parseItem();
-                    if (book != null && book.getItemMeta() instanceof BookMeta) {
-                        BookMeta ori = (BookMeta) item.getItemMeta();
-                        BookMeta dis = (BookMeta) book.getItemMeta();
-                        List<BaseComponent[]> pages = new ArrayList<>(ori.spigot().getPages());
-                        if (pages.isEmpty()) {
-                            dis.setPages(" ");
-                        } else {
-                            dis.spigot().setPages(pages);
-                        }
-                        dis.setTitle("Temp Book");
-                        dis.setAuthor("InteractiveChat");
-                        book.setItemMeta(dis);
-                        player.openBook(book);
-                    }
-                }
-            }
-            if (!InteractiveChat.containerDisplay.contains(topInventory) && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
-                BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
-                if (bsm instanceof InventoryHolder) {
-                    Inventory container = ((InventoryHolder) bsm).getInventory();
-                    if ((container.getSize() % 9) == 0) {
-                        Inventory displayInventory = Bukkit.createInventory(null, container.getSize() + 9, InteractiveChat.containerViewTitle);
-                        ItemStack empty = InteractiveChat.itemFrame1.clone();
-                        if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-                            empty = InteractiveChat.itemFrame2.clone();
-                        }
-                        ItemMeta emptyMeta = empty.getItemMeta();
-                        emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-                        empty.setItemMeta(emptyMeta);
-                        for (int j = 0; j < 9; j++) {
-                            displayInventory.setItem(j, empty);
-                        }
-                        displayInventory.setItem(4, item);
-                        for (int i = 0; i < container.getSize(); i++) {
-                            ItemStack containerItem = container.getItem(i);
-                            displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
-                        }
-
-                        InteractiveChat.containerDisplay.add(displayInventory);
-                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.openInventory(displayInventory), 2);
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryClickHighest(InventoryClickEvent event) {
-        if (cancelledInventory.remove(event)) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        Inventory topInventory = event.getView().getTopInventory();
-        if (topInventory != null) {
-            InteractiveChat.containerDisplay.remove(topInventory);
-        }
-        Player player = (Player) event.getPlayer();
-        if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
-            InventoryUtils.restorePlayerInventory(player);
         }
     }
 

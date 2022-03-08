@@ -37,7 +37,8 @@ import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
-import com.loohp.interactivechat.listeners.Events;
+import com.loohp.interactivechat.listeners.ChatEvents;
+import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutChatPacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
@@ -74,6 +75,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -116,7 +118,6 @@ public class InteractiveChat extends JavaPlugin {
 
     public static Boolean essentialsHook = false;
     public static Boolean essentialsDiscordHook = false;
-    public static Boolean chatManagerHook = false;
     public static Boolean vanishHook = false;
     public static Boolean cmiHook = false;
     public static Boolean ventureChatHook = false;
@@ -131,6 +132,9 @@ public class InteractiveChat extends JavaPlugin {
     public static Permission perms = null;
 
     public static boolean t = true;
+
+    public static EventPriority chatEventPriority = EventPriority.HIGH;
+    public static EventPriority commandsEventPriority = EventPriority.HIGH;
 
     public static boolean useItem = true;
     public static boolean useInventory = true;
@@ -395,7 +399,8 @@ public class InteractiveChat extends JavaPlugin {
 
         placeholderCooldownManager = new PlaceholderCooldownManager();
 
-        getServer().getPluginManager().registerEvents(new Events(), this);
+        getServer().getPluginManager().registerEvents(new ChatEvents(), this);
+        getServer().getPluginManager().registerEvents(new InventoryEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new OutChatPacket(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
@@ -427,11 +432,6 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into EssentialsDiscord!");
             essentialsDiscordHook = true;
             getServer().getPluginManager().registerEvents(new EssentialsDiscord(), this);
-        }
-
-        if (isPluginEnabled("ChatManager")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatManager!");
-            chatManagerHook = true;
         }
 
         if (isPluginEnabled("DiscordSRV")) {

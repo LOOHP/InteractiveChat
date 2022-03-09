@@ -8,14 +8,14 @@ Options:
 Messages:
   NoPermission: "&cYou do not have permission to use that command!"
 
-  #After 5 minutes the [inv]/[ender] generated inventory view will expire
+  #After 5 minutes the shared item/inventory generated inventory view will expire
   InvExpired: "&cThis inventory view has expired!"
   ReloadPlugin: "&aInteractive Chat has been reloaded!"
 
   #The message to send when a message is cancelled due to the placeholder limit
   LimitReached: "&cPlease do not use an excessive amount of placeholders in one message!"
 
-  #Sent if a keyword placeholder on cooldown
+  #Sent if a keyword placeholder is on cooldown
   PlaceholderCooldown: "&cYou have to wait &e{Time} &cbefore you can use &e{Keyword} &cagain!"
   #Sent if the player is on universal cooldown
   UniversalCooldown: "&cYou have to wait &e{Time} &cbefore you can use keywords again!"
@@ -32,7 +32,7 @@ Messages:
   ListPlaceholdersHeader: "&eList of Chat Placeholders:"
   ListPlaceholdersBody: "&b{Order}. \"&f&l{Keyword}&b\" &6- &e{Description}"
 
-  #The messages sent when a player set their inventory display layouts
+  #The messages sent when a player set their inventory display layout
   SetInventoryDisplayLayout: "&aSet inventory display layout to Layout &e{Layout}"
 
   PlayerOnlyCommand: "&cThis command cannot be used in the console!"
@@ -104,7 +104,7 @@ Settings:
   #Maximum Placeholders that can be used in one message will be cancelled if the limit is reached
   #Put in -1 to disable the limit
   MaxPlaceholders: -1
-  #Settings for if the plugin is unable to fetch a placeholder
+  #Settings for situations where the plugin is unable to parse a placeholder
   PlayerNotFound:
     #Hover message settings
     Hover:
@@ -151,7 +151,6 @@ Commands:
   #RUN_COMMAND
   #SUGGEST_COMMAND
   Action: SUGGEST_COMMAND
-
   HoverMessage:
     - "&eClick to use command!"
 
@@ -167,10 +166,10 @@ Chat:
   DisableEveryone: false
 
   #The prefix to trigger a mention
-  #Can be an empty String
   MentionPrefix: "@"
 
   #The sound to play when a player is mentioned
+  #List of all sounds
   #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP
 
@@ -197,7 +196,7 @@ Chat:
   #Blank to disable
   MentionToast: "&3%player_name% &fmentioned you!"
 
-  #Use the bossbar to show a message (MC 1.9+)
+  #Use the bossbar to show a message (1.9+)
   MentionBossBar:
     #Blank to disable
     Text: "&3%player_name% &fmentioned you!"
@@ -271,7 +270,7 @@ ItemDisplay:
     Frame:
       Primary: BLACK_STAINED_GLASS_PANE
       Secondary: WHITE_STAINED_GLASS_PANE
-    #Whether to show shared maps or not
+    #Preview shared maps instead of showing the item itself
     PreviewMaps: true
     EmptyItemSettings:
       #Whether players are allowed to show an empty hand
@@ -279,7 +278,7 @@ ItemDisplay:
       #Message to send when AllowAir is false and a player tried to show nothing
       DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
     #This name is used to identify your placeholder
-    #It must be a non-regex form of your keyword and should satisfy your keyword
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[item]"
     #This description is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
@@ -302,10 +301,10 @@ ItemDisplay:
     InventoryTitle: "%player_name%'s Inventory"
     #Cooldown of this placeholder in seconds
     Cooldown: 0
-    #Which layout do you want to be shown
+    #Which inventory sharing layout do you want as default
     #Currently there is layout 0 and layout 1
     Layout: 0
-    #The item name of the skull
+    #The item display text of the skull
     SkullDisplayName: "&e%player_name%"
     #The item used for the frame of the Inventory GUI
     Frame:
@@ -315,7 +314,7 @@ ItemDisplay:
     HoverMessage:
       - "&bClick to view!"
     #This name is used to identify your placeholder
-    #It must be a non-regex form of your keyword and should satisfy your keyword
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[inv]"
     #This description is used when listing placeholders 
     Description: "&bShow your Inventory in the chat!"
@@ -335,7 +334,7 @@ ItemDisplay:
     HoverMessage:
       - "&bClick to view!"
     #This name is used to identify your placeholder
-    #It must be a non-regex form of your keyword and should satisfy your keyword
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[ender]"
     #This description is used when listing placeholders 
     Description: "&dShow your Ender Chest in the chat!"
@@ -385,11 +384,10 @@ TabCompletion:
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
 #Note that all settings have to be present even if they are set to false
-#Just copy everything and change each setting, so you won't miss anything
-#You can also use the CustomPlaceholderCreator tool by double-clicking this plugin jar
+#You can also use the CustomPlaceholderCreator tool by double-clicking the plugin jar
 CustomPlaceholders:
   '1':
-    #Should the placeholders be parsed with the message sender or the receiver
+    #Should the placeholders be parsed as the message sender or the message receiver
     #Either 'sender' or 'viewer'
     ParsePlayer: sender
     #The keyword to look for in the chat (in regex)
@@ -429,7 +427,7 @@ CustomPlaceholders:
       #The text to replace the keyword
       ReplaceText: "[%player_name%'s Balance]"
     #This name is used to identify your placeholder
-    #It must be a non-regex form of your keyword and should satisfy your keyword
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[money]"
     #This description is used when listing placeholders 
     Description: "&eShow the amount of money you have in the chat!"

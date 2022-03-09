@@ -7,7 +7,7 @@ Settings:
 
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
-  #This list is in REGEX so you can do some more advanced matches.
+  #This list is in REGEX, so you can do some more advanced matches.
   CommandsToParse:
     - "(?i)/emsg .*"
     - "(?i)/msg .*"

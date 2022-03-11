@@ -114,7 +114,7 @@ public class OutChatPacket implements Listener {
 
                 PacketContainer packetOriginal = event.getPacket();
 
-                if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
                     ChatType type = packetOriginal.getChatTypes().read(0);
                     if (type == null || type.equals(ChatType.GAME_INFO)) {
                         return;

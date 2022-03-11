@@ -33,7 +33,7 @@ public class Registry {
     public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InteractiveChatBungeePing";
     public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 11;
 
-    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 25;
+    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 26;
 
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");

@@ -66,6 +66,7 @@ public class ICPlayerFactory {
     private static final Map<UUID, ICPlayer> ICPLAYERS = new ConcurrentHashMap<>();
     private static final Map<UUID, ICPlayer> LOGGING_IN = new ConcurrentHashMap<>();
     private static final Map<UUID, WeakReference<OfflineICPlayer>> REFERENCED_OFFLINE_PLAYERS = new ConcurrentHashMap<>();
+    private static final Unsafe UNSAFE = new Unsafe();
 
     static {
         Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -351,6 +352,29 @@ public class ICPlayerFactory {
             return null;
         }
         return ref.get();
+    }
+
+    @Deprecated
+    public static Unsafe getUnsafe() {
+        return UNSAFE;
+    }
+
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
+    public static class Unsafe {
+
+        private Unsafe() {
+        }
+
+        @Deprecated
+        public OfflineICPlayer getOfflineICPPlayerWithoutInitialization(UUID uuid) {
+            ICPlayer icplayer = getICPlayer(uuid);
+            if (icplayer != null) {
+                return icplayer;
+            }
+            return new OfflineICPlayer(uuid);
+        }
+
     }
 
     public static class RemotePlayerCreateResult {

@@ -321,4 +321,11 @@ public class BungeeMessageSender {
         return forwardData(time, 0x11, out.toByteArray());
     }
 
+    public static boolean requestParsedPlaceholders(long time, UUID player, String placeholders) throws Exception {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        DataTypeIO.writeUUID(out, player);
+        DataTypeIO.writeString(out, placeholders, StandardCharsets.UTF_8);
+        return forwardData(time, 0x12, out.toByteArray());
+    }
+
 }

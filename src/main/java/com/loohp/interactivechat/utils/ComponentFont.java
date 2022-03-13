@@ -37,24 +37,19 @@ public class ComponentFont {
 
     public static Component parseFont(Component component) {
         component = ComponentFlattening.flatten(component);
-        List<Component> children = new ArrayList<>(component.children());
-        Key currentFont = null;
-        for (int i = 0; i < children.size(); i++) {
-            Component child = children.get(i);
+        List<Component> children = new ArrayList<>();
+        for (Component child : component.children()) {
             if (child instanceof TextComponent) {
-                TextComponent text = (TextComponent) child.style(child.style().toBuilder().merge(Style.style().font(currentFont).build()).build());
+                TextComponent text = (TextComponent) child;
                 Component parsed = parseTags(text.content(), text.style());
-                List<Component> converted = ComponentFlattening.flatten(parsed).children();
-                text = text.children(converted).content("");
-                currentFont = converted.get(converted.size() - 1).style().font();
-                children.set(i, text);
+                children.addAll(ComponentFlattening.flatten(parsed).children());
             }
         }
         return ComponentCompacting.optimize(component.children(children));
     }
 
     private static Component parseTags(String content, Style style) {
-        Component component = Component.text("");
+        Component component = Component.empty();
         Matcher matcher = FONT_TAG_PATTERN.matcher(content);
         int start = 0;
         while (matcher.find()) {

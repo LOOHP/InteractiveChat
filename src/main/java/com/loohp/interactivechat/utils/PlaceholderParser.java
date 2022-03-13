@@ -27,13 +27,10 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,20 +41,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class PlaceholderParser {
 
-    private static volatile Pattern expansionRegex = getExpansionPattern();
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("[%]([^%]+)[%]");
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             if (InteractiveChat.bungeecordMode) {
-                if (InteractiveChat.parsePAPIOnMainThread) {
-                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> expansionRegex = getExpansionPattern());
-                } else {
-                    expansionRegex = getExpansionPattern();
-                }
                 if (InteractiveChat.useTooltipOnTab) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         parse(ICPlayerFactory.getICPlayer(player), InteractiveChat.tabTooltip);
@@ -65,11 +56,6 @@ public class PlaceholderParser {
                 }
             }
         }, 100, 100);
-    }
-
-    private static Pattern getExpansionPattern() {
-        Collection<PlaceholderExpansion> expansions = PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().getExpansions();
-        return Pattern.compile("(?i)%(" + expansions.stream().map(each -> each.getIdentifier()).collect(Collectors.joining("|")) + ")_.*%");
     }
 
     public static String parse(OfflineICPlayer offlineICPlayer, String str) {
@@ -127,8 +113,7 @@ public class PlaceholderParser {
 
     public static Map<String, String> getAllPlaceholdersContained(Player player, String str) {
         Map<String, String> matchingPlaceholders = new HashMap<>();
-        Pattern regex = expansionRegex;
-        Matcher matcher = regex.matcher(str);
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(str);
         while (matcher.find()) {
             String matching = matcher.group();
             matchingPlaceholders.put(matching, PlaceholderAPI.setPlaceholders(player, matching));

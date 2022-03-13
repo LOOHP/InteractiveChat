@@ -26,8 +26,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ProxyCustomDataRecievedEvent;
-import com.loohp.interactivechat.api.events.ICPlayerJoinEvent;
-import com.loohp.interactivechat.api.events.ICPlayerQuitEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
@@ -39,12 +37,11 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.objectholders.ICPlayerEquipment;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
-import com.loohp.interactivechat.objectholders.ICPlayerFactory.RemotePlayerCreateResult;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
+import com.loohp.interactivechat.utils.PlaceholderParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -67,10 +64,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BungeeMessageListener implements PluginMessageListener {
 
     private final InteractiveChat plugin;
-    private final Map<Integer, byte[]> incomming = new HashMap<>();
+    private final Map<Integer, byte[]> incoming = new HashMap<>();
     private final Map<UUID, CompletableFuture<?>> toComplete = new ConcurrentHashMap<>();
 
     public BungeeMessageListener(InteractiveChat instance) {
@@ -103,7 +101,7 @@ public class BungeeMessageListener implements PluginMessageListener {
         byte[] data = new byte[bytes.length - 7];
         in.readFully(data);
 
-        byte[] chain = incomming.remove(packetNumber);
+        byte[] chain = incoming.remove(packetNumber);
         if (chain != null) {
             ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
             buff.put(chain);
@@ -112,7 +110,7 @@ public class BungeeMessageListener implements PluginMessageListener {
         }
 
         if (!isEnding) {
-            incomming.put(packetNumber, data);
+            incoming.put(packetNumber, data);
             return;
         }
 
@@ -343,12 +341,13 @@ public class BungeeMessageListener implements PluginMessageListener {
                 case 0x10:
                     UUID requestUUID = DataTypeIO.readUUID(input);
                     int requestType2 = input.readByte();
+                    //noinspection SwitchStatementWithTooFewBranches
                     switch (requestType2) {
                         case 0:
                             List<ValueTrios<UUID, String, Integer>> playerlist = new ArrayList<>();
                             int playerListSize = input.readInt();
                             for (int i = 0; i < playerListSize; i++) {
-                                playerlist.add(new ValueTrios<UUID, String, Integer>(DataTypeIO.readUUID(input), DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readInt()));
+                                playerlist.add(new ValueTrios<>(DataTypeIO.readUUID(input), DataTypeIO.readString(input, StandardCharsets.UTF_8), input.readInt()));
                             }
                             @SuppressWarnings("unchecked")
                             CompletableFuture<List<ValueTrios<UUID, String, Integer>>> future = (CompletableFuture<List<ValueTrios<UUID, String, Integer>>>) toComplete.remove(requestUUID);
@@ -370,6 +369,14 @@ public class BungeeMessageListener implements PluginMessageListener {
                     ICPlayer icPlayer = ICPlayerFactory.getICPlayer(playerUUID3);
                     if (icPlayer != null) {
                         icPlayer.setRemoteNicknames(remotePlaceholder);
+                    }
+                    break;
+                case 0x12:
+                    UUID playerUUID4 = DataTypeIO.readUUID(input);
+                    String placeholders = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                    ICPlayer icPlayer1 = ICPlayerFactory.getICPlayer(playerUUID4);
+                    if (icPlayer1 != null && icPlayer1.isLocal()) {
+                        PlaceholderParser.parse(icPlayer1, placeholders);
                     }
                     break;
                 case 0xFF:

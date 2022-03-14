@@ -38,11 +38,24 @@ public class ComponentFont {
     public static Component parseFont(Component component) {
         component = ComponentFlattening.flatten(component);
         List<Component> children = new ArrayList<>();
+        Key currentFont = null;
         for (Component child : component.children()) {
             if (child instanceof TextComponent) {
                 TextComponent text = (TextComponent) child;
-                Component parsed = parseTags(text.content(), text.style());
-                children.addAll(ComponentFlattening.flatten(parsed).children());
+                Style style = text.style();
+                if (style.font() == null) {
+                    style = style.font(currentFont);
+                }
+                Component parsed = parseTags(text.content(), style);
+                List<Component> sections = ComponentFlattening.flatten(parsed).children();
+                children.addAll(sections);
+                currentFont = sections.get(sections.size() - 1).font();
+            } else {
+                if (child.font() == null) {
+                    children.add(child.font(currentFont));
+                } else {
+                    children.add(child);
+                }
             }
         }
         return ComponentCompacting.optimize(component.children(children));

@@ -97,6 +97,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -312,6 +313,18 @@ public class InteractiveChat extends JavaPlugin {
         }
     }
 
+    public static void closeInventoryViews(Inventory inventory) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Inventory topInventory = player.getOpenInventory().getTopInventory();
+            if (topInventory.equals(inventory)) {
+                player.closeInventory();
+                if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
+                    InventoryUtils.restorePlayerInventory(player);
+                }
+            }
+        }
+    }
+
     public static void sendMessage(CommandSender sender, Component component) {
         if (InteractiveChat.version.isLegacyRGB()) {
             try {
@@ -392,6 +405,27 @@ public class InteractiveChat extends JavaPlugin {
                 }
             }, 0, 100);
         }
+
+        BiConsumer<String, Inventory> inventoryRemovalListener = (hash, inv) -> {
+            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> closeInventoryViews(inv));
+        };
+        itemDisplay.registerRemovalListener(inventoryRemovalListener);
+        inventoryDisplay.registerRemovalListener(inventoryRemovalListener);
+        inventoryDisplay1Upper.registerRemovalListener(inventoryRemovalListener);
+        inventoryDisplay1Lower.registerRemovalListener(inventoryRemovalListener);
+        enderDisplay.registerRemovalListener(inventoryRemovalListener);
+
+        mapDisplay.registerRemovalListener((hash, item) -> {
+            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    boolean removed = MapViewer.MAP_VIEWERS.remove(player, item);
+                    if (removed) {
+                        //noinspection deprecation
+                        player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                    }
+                }
+            });
+        });
 
         YamlConfiguration storage = ConfigManager.getStorageConfig();
         database = new Database(false, getDataFolder(), storage.getString("StorageType"), storage.getString("MYSQL.Host"), storage.getString("MYSQL.Database"), storage.getString("MYSQL.Username"), storage.getString("MYSQL.Password"), storage.getInt("MYSQL.Port"));

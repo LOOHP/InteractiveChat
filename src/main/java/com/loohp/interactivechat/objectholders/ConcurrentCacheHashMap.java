@@ -20,14 +20,18 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
 
@@ -37,12 +41,14 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
     private final ConcurrentHashMap<K, Long> insertionTime;
     private long timeout;
     private BiPredicate<K, V> removeCondition;
+    private List<BiConsumer<K, V>> expireRemovalListeners;
 
     public ConcurrentCacheHashMap(long timeout) {
         this.timeout = timeout;
         this.mapping = new ConcurrentHashMap<>();
         this.insertionTime = new ConcurrentHashMap<>();
         this.removeCondition = (k, y) -> true;
+        this.expireRemovalListeners = new ArrayList<>();
     }
 
     public ConcurrentCacheHashMap(long timeout, int initialCapacity) {
@@ -63,6 +69,15 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         this.mapping = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
         this.insertionTime = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
         this.removeCondition = (k, y) -> true;
+        this.expireRemovalListeners = new ArrayList<>();
+    }
+
+    public void registerRemovalListener(BiConsumer<K, V> expireRemovalListener) {
+        expireRemovalListeners.add(expireRemovalListener);
+    }
+
+    public void unregisterRemovalListener(BiConsumer<K, V> expireRemovalListener) {
+        expireRemovalListeners.remove(expireRemovalListener);
     }
 
     public void setRemoveCondition(BiPredicate<K, V> removeCondition) {
@@ -101,6 +116,7 @@ public class ConcurrentCacheHashMap<K, V> implements ConcurrentMap<K, V> {
         V value = mapping.get(key);
         Long expireTime = insertionTime.get(key);
         if (value == null || expireTime == null || (now() > expireTime && removeCondition.test((K) key, value))) {
+            expireRemovalListeners.forEach(each -> each.accept((K) key, value));
             mapping.remove(key);
             insertionTime.remove(key);
             return null;

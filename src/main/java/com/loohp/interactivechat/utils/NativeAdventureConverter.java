@@ -182,7 +182,7 @@ public class NativeAdventureConverter {
             int amount = (int) nativeShowItemGetCountMethod.invoke(showItem);
             Object nbtObject = nativeShowItemGetNbtMethod.invoke(showItem);
             String nbt = nbtObject == null ? null : nativeBinaryTagHolderStringMethod.invoke(nbtObject).toString();
-            return ShowItem.of(Key.key(key), amount, nbt == null ? null : BinaryTagHolder.of(nbt));
+            return ShowItem.of(Key.key(key), amount, nbt == null ? null : BinaryTagHolder.binaryTagHolder(nbt));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             printError(e);
         }

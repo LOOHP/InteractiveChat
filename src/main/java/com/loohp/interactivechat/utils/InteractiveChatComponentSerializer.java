@@ -187,7 +187,7 @@ public class InteractiveChatComponentSerializer {
             }
 
             byte count = item.getByte("Count", (byte) 1);
-            return ShowItem.of(key, count, isTagEmpty ? null : BinaryTagHolder.of(TagStringIO.get().asString(tag)));
+            return ShowItem.of(key, count, isTagEmpty ? null : BinaryTagHolder.binaryTagHolder(TagStringIO.get().asString(tag)));
         }
 
         @Override

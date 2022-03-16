@@ -202,7 +202,7 @@ public class ItemDisplay {
         amountString = String.valueOf(item.getAmount());
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
         String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
-        HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(tag == null ? ShowItem.of(key, item.getAmount()) : ShowItem.of(key, item.getAmount(), BinaryTagHolder.of(tag)));
+        HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(tag == null ? ShowItem.of(key, item.getAmount()) : ShowItem.of(key, item.getAmount(), BinaryTagHolder.binaryTagHolder(tag)));
         String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, rawTitle));
         String sha1 = HashUtils.createSha1(title, item);
 

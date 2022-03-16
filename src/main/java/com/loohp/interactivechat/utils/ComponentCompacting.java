@@ -23,15 +23,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ComponentCompacting {
-
-    private static final TextDecoration[] DECORATIONS = TextDecoration.values();
 
     public static Component optimize(Component component) {
         return optimizeEvents(component).compact();
@@ -44,18 +41,17 @@ public class ComponentCompacting {
             return component;
         }
         List<Component> optimized = new ArrayList<>();
-        Component currentComponent = children.get(0);
-        HoverEvent<?> hoverEvent = currentComponent.hoverEvent();
-        ClickEvent clickEvent = currentComponent.clickEvent();
-        for (int i = 1; i < children.size(); i++) {
-            Component child = children.get(i);
+        HoverEvent<?> hoverEvent = null;
+        ClickEvent clickEvent = null;
+        Component currentComponent = Component.empty().hoverEvent(hoverEvent).clickEvent(clickEvent);
+        for (Component child : children) {
             if ((Objects.equals(child.hoverEvent(), hoverEvent) && Objects.equals(child.clickEvent(), clickEvent)) || (child instanceof TextComponent && ((TextComponent) child).content().isEmpty())) {
                 currentComponent = currentComponent.append(child.hoverEvent(null).clickEvent(null));
             } else {
                 optimized.add(currentComponent);
-                currentComponent = child;
                 hoverEvent = child.hoverEvent();
                 clickEvent = child.clickEvent();
+                currentComponent = Component.empty().hoverEvent(hoverEvent).clickEvent(clickEvent).append(child.hoverEvent(null).clickEvent(null));
             }
         }
         optimized.add(currentComponent);

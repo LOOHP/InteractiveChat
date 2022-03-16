@@ -31,7 +31,7 @@ public class MentionTagConverter {
 
     public MentionTagConverter(String style) {
         this.style = style;
-        this.reverse = Pattern.compile(CustomStringUtils.escapeMetaCharacters(style).replace("\\%s", "(.*)"));
+        this.reverse = Pattern.compile(CustomStringUtils.escapeMetaCharacters(style).replace("\\%s", "(.*?)"));
     }
 
     public String convertToTag(String find, String input) {

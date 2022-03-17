@@ -32,9 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.json.simple.JSONObject;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unchecked")
@@ -77,13 +75,7 @@ public class ServerPingListener implements Listener {
         });
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
-            Iterator<Entry<Player, Long>> itr = REQUESTS.entrySet().iterator();
-            while (itr.hasNext()) {
-                Entry<Player, Long> entry = itr.next();
-                if (System.currentTimeMillis() > entry.getValue()) {
-                    itr.remove();
-                }
-            }
+            REQUESTS.entrySet().removeIf(entry -> System.currentTimeMillis() > entry.getValue());
         }, 0, 20);
     }
 

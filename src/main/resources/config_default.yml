@@ -162,6 +162,10 @@ Chat:
   #Enable the mention title and sound
   AllowMention: true
 
+  #Time until a player can be mentioned by the same player again
+  #In seconds
+  MentionCooldown: 3
+
   DisableHere: false
   DisableEveryone: false
 

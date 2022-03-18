@@ -87,8 +87,8 @@ public class ConfigManager {
 
     @SuppressWarnings("deprecation")
     public static void loadConfig() {
-        InteractiveChat.commandsEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Commands"));
-        InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat"));
+        InteractiveChat.commandsEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Commands").toUpperCase());
+        InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat").toUpperCase());
 
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
@@ -313,9 +313,24 @@ public class ConfigManager {
         List<String> stringList3 = getConfig().getStringList("Chat.MentionHoverText");
         InteractiveChat.mentionHover = String.join("\n", stringList3);
         InteractiveChat.mentionDuration = getConfig().getDouble("Chat.MentionedTitleDuration");
+        InteractiveChat.mentionCooldown = (long) (getConfig().getDouble("Chat.MentionCooldown") * 1000);
 
         InteractiveChat.mentionEnable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.EnableMentions"));
         InteractiveChat.mentionDisable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.DisableMentions"));
+
+        InteractiveChat.mentionTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionedTitle"));
+        InteractiveChat.mentionSubtitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionSubtitle"));
+        InteractiveChat.mentionActionbar = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionActionbar"));
+        InteractiveChat.mentionToast = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionToast"));
+        InteractiveChat.mentionBossBarText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Text"));
+        InteractiveChat.mentionBossBarColorName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Color"));
+        InteractiveChat.mentionBossBarOverlayName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Overlay"));
+
+        InteractiveChat.mentionSound = getConfig().getString("Chat.MentionedSound");
+
+        InteractiveChat.mentionTitleDuration = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionedTitleDuration") * 20);
+        InteractiveChat.mentionBossBarDuration = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.Duration") * 20);
+        InteractiveChat.mentionBossBarRemoveDelay = (int) Math.round(ConfigManager.getConfig().getDouble("Chat.MentionBossBar.RemoveDelay") * 20);
 
         InteractiveChat.updaterEnabled = getConfig().getBoolean("Options.Updater");
         InteractiveChat.cancelledMessage = getConfig().getBoolean("Options.ShowCancelledNotice");

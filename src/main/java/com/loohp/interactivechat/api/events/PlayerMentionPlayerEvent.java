@@ -54,9 +54,10 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     private String toast;
     private Optional<BossBar> bossbar;
     private Sound sound;
+    private boolean silent;
     private boolean cancel;
 
-    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean cancel) {
+    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean silent, boolean cancel) {
         super(async);
         this.reciever = receiver;
         this.sender = sender;
@@ -66,6 +67,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         this.toast = toast;
         this.bossbar = bossbar;
         this.sound = sound;
+        this.silent = silent;
         this.cancel = cancel;
     }
 
@@ -133,6 +135,14 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 
     public void setMentionSound(Sound sound) {
         this.sound = sound;
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     public HandlerList getHandlers() {

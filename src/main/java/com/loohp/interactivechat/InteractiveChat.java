@@ -44,6 +44,7 @@ import com.loohp.interactivechat.listeners.OutChatPacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
+import com.loohp.interactivechat.modules.MentionDisplay;
 import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.ConcurrentCacheHashMap;
@@ -250,12 +251,25 @@ public class InteractiveChat extends JavaPlugin {
     public static String limitReachMessage = "&cPlease do now use excessive amount of placeholders in one message!";
 
     public static List<MentionPair> mentionPair = Collections.synchronizedList(new ArrayList<>());
+    public static Map<UUID, Map<UUID, Long>> lastNonSilentMentionTime = new ConcurrentHashMap<>();
     public static String mentionPrefix = "@";
     public static String mentionHighlight = "&e{MentionedPlayer}";
     public static String mentionHover = "&e{MentionedPlayer}";
     public static double mentionDuration = 2;
+    public static long mentionCooldown = 3000;
     public static String mentionEnable = "";
     public static String mentionDisable = "";
+    public static String mentionTitle = "";
+    public static String mentionSubtitle = "";
+    public static String mentionActionbar = "";
+    public static String mentionToast = "";
+    public static String mentionBossBarText = "";
+    public static String mentionBossBarColorName = "";
+    public static String mentionBossBarOverlayName = "";
+    public static String mentionSound = "";
+    public static int mentionTitleDuration = 0;
+    public static int mentionBossBarDuration = 0;
+    public static int mentionBossBarRemoveDelay = 0;
 
     public static List<String> commandList = new ArrayList<>();
 
@@ -513,6 +527,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         PlayernameDisplay.setup();
+        MentionDisplay.setup();
 
         Charts.setup(metrics);
 

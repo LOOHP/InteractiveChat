@@ -120,6 +120,7 @@ public class InteractiveChatVelocity {
     public static List<String> parseCommands = new ArrayList<>();
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
+    public static boolean tagEveryIdentifiableMessage = false;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
     public static ProxyServer proxyServer;
@@ -288,6 +289,7 @@ public class InteractiveChatVelocity {
 
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
+        tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
     }
 
     private void addFilters() {

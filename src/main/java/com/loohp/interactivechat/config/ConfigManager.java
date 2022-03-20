@@ -95,6 +95,7 @@ public class ConfigManager {
 
         InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
         InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
+        InteractiveChat.tagEveryIdentifiableMessage = getConfig().getBoolean("Settings.TagEveryIdentifiableMessage");
 
         String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");
         InteractiveChat.chatAltColorCode = colorCodeString.length() == 1 ? Optional.of(colorCodeString.charAt(0)) : Optional.empty();

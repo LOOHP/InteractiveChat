@@ -213,21 +213,27 @@ public class ChatEvents implements Listener {
                     return;
                 }
 
-                if (!Registry.ID_PATTERN.matcher(command).find()) {
-                    for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                        Pattern placeholder = icplaceholder.getKeyword();
-                        Matcher matcher = placeholder.matcher(command);
-                        if (matcher.find()) {
-                            int start = matcher.start();
-                            if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
-                                String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
-                                command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
-                                event.setMessage(command);
-                                break;
+                if (InteractiveChat.tagEveryIdentifiableMessage) {
+                    String uuidmatch = " <cmd=" + event.getPlayer().getUniqueId() + ">";
+                    event.setMessage(command + uuidmatch);
+                    break;
+                } else {
+                    if (!Registry.ID_PATTERN.matcher(command).find()) {
+                        for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+                            Pattern placeholder = icplaceholder.getKeyword();
+                            Matcher matcher = placeholder.matcher(command);
+                            if (matcher.find()) {
+                                int start = matcher.start();
+                                if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
+                                    String uuidmatch = "<cmd=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
+                                    command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
+                                    event.setMessage(command);
+                                    break;
+                                }
                             }
                         }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -284,17 +290,22 @@ public class ChatEvents implements Listener {
             String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.limitReachMessage));
             event.getPlayer().sendMessage(cancelmessage);
             return;
-        } else if (count > 0) {
-            if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !Registry.ID_PATTERN.matcher(message).find()) {
-                for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
-                    Pattern placeholder = icplaceholder.getKeyword();
-                    Matcher matcher = placeholder.matcher(message);
-                    if (matcher.find()) {
-                        int start = matcher.start();
-                        if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
-                            String uuidmatch = "<chat=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
-                            message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
-                            break;
+        } else {
+            if (InteractiveChat.tagEveryIdentifiableMessage) {
+                String uuidmatch = " <chat=" + event.getPlayer().getUniqueId() + ">";
+                message = message + uuidmatch;
+            } else if (count > 0) {
+                if (InteractiveChat.useAccurateSenderFinder && !message.startsWith("/") && !Registry.ID_PATTERN.matcher(message).find()) {
+                    for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {
+                        Pattern placeholder = icplaceholder.getKeyword();
+                        Matcher matcher = placeholder.matcher(message);
+                        if (matcher.find()) {
+                            int start = matcher.start();
+                            if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                                String uuidmatch = "<chat=" + event.getPlayer().getUniqueId() + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
+                                message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
+                                break;
+                            }
                         }
                     }
                 }

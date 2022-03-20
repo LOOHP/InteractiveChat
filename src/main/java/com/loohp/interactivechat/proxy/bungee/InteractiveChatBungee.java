@@ -120,6 +120,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static List<String> parseCommands = new ArrayList<>();
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
+    public static boolean tagEveryIdentifiableMessage = false;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
     protected static Random random = new Random();
@@ -177,6 +178,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
+        tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
     }
 
     public static void sendMessage(CommandSender sender, Component component) {
@@ -513,21 +515,30 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 for (String parsecommand : InteractiveChatBungee.parseCommands) {
                     if (newMessage.matches(parsecommand)) {
                         String command = newMessage.trim();
-                        outer:
-                        for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
-                            for (ICPlaceholder icplaceholder : serverPlaceholders) {
-                                Pattern placeholder = icplaceholder.getKeyword();
-                                Matcher matcher = placeholder.matcher(command);
-                                if (matcher.find()) {
-                                    int start = matcher.start();
-                                    if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
-                                        String uuidmatch = "<cmd=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
-                                        command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
-                                        if (command.length() > 256) {
-                                            command = command.substring(0, 256);
+                        if (tagEveryIdentifiableMessage) {
+                            String uuidmatch = " <cmd=" + uuid + ">";
+                            if (command.length() > 256 - uuidmatch.length()) {
+                                command = command.substring(0, 256 - uuidmatch.length());
+                            }
+                            command = command + uuidmatch;
+                            event.setMessage(command);
+                        } else {
+                            outer:
+                            for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                                for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                                    Pattern placeholder = icplaceholder.getKeyword();
+                                    Matcher matcher = placeholder.matcher(command);
+                                    if (matcher.find()) {
+                                        int start = matcher.start();
+                                        if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
+                                            String uuidmatch = "<cmd=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(command.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
+                                            command = command.substring(0, matcher.start()) + uuidmatch + command.substring(matcher.end());
+                                            if (command.length() > 256) {
+                                                command = command.substring(0, 256);
+                                            }
+                                            event.setMessage(command);
+                                            break outer;
                                         }
-                                        event.setMessage(command);
-                                        break outer;
                                     }
                                 }
                             }
@@ -537,22 +548,31 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 }
             }
         } else {
-            if (usage && InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
-                outer:
-                for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
-                    for (ICPlaceholder icplaceholder : serverPlaceholders) {
-                        Pattern placeholder = icplaceholder.getKeyword();
-                        Matcher matcher = placeholder.matcher(message);
-                        if (matcher.find()) {
-                            int start = matcher.start();
-                            if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
-                                String uuidmatch = "<chat=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
-                                message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
-                                if (message.length() > 256) {
-                                    message = message.substring(0, 256);
+            if (usage && useAccurateSenderFinder && hasInteractiveChat) {
+                if (tagEveryIdentifiableMessage) {
+                    String uuidmatch = " <cmd=" + uuid + ">";
+                    if (message.length() > 256 - uuidmatch.length()) {
+                        message = message.substring(0, 256 - uuidmatch.length());
+                    }
+                    message = message + uuidmatch;
+                    event.setMessage(message);
+                } else {
+                    outer:
+                    for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
+                        for (ICPlaceholder icplaceholder : serverPlaceholders) {
+                            Pattern placeholder = icplaceholder.getKeyword();
+                            Matcher matcher = placeholder.matcher(message);
+                            if (matcher.find()) {
+                                int start = matcher.start();
+                                if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
+                                    String uuidmatch = "<chat=" + uuid + ":" + Registry.ID_ESCAPE_PATTERN.matcher(message.substring(matcher.start(), matcher.end())).replaceAll("\\>") + ":>";
+                                    message = message.substring(0, matcher.start()) + uuidmatch + message.substring(matcher.end());
+                                    if (message.length() > 256) {
+                                        message = message.substring(0, 256);
+                                    }
+                                    event.setMessage(message);
+                                    break outer;
                                 }
-                                event.setMessage(message);
-                                break outer;
                             }
                         }
                     }

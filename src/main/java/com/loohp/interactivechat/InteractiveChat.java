@@ -298,6 +298,7 @@ public class InteractiveChat extends JavaPlugin {
     public static ItemStack unknownReplaceItem;
 
     public static boolean useAccurateSenderFinder = true;
+    public static boolean tagEveryIdentifiableMessage = false;
 
     public static boolean useBukkitDisplayName = true;
     public static boolean useEssentialsNicknames = true;

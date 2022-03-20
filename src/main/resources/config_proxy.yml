@@ -5,6 +5,8 @@ Settings:
   #Make sure this setting is the same on all servers in your network
   UseAccurateSenderParser: true
 
+  TagEveryIdentifiableMessage: false
+
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
   #This list is in REGEX, so you can do some more advanced matches.

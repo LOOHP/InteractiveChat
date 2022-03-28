@@ -101,6 +101,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class InteractiveChat extends JavaPlugin {
 
@@ -539,7 +540,7 @@ public class InteractiveChat extends JavaPlugin {
         ClientSettingPacket.clientSettingsListener();
 
         playerDataManager = new PlayerDataManager(this, database);
-        nicknameManager = new NicknameManager(uuid -> InteractiveChatAPI.getNicknames(uuid), () -> InteractiveChatAPI.getOnlineUUIDs(), 5000, (uuid, nicknames) -> {
+        nicknameManager = new NicknameManager(uuid -> InteractiveChatAPI.getNicknames(uuid), () -> InteractiveChatAPI.getOnlineICPlayers().stream().filter(each -> each.isLocal()).map(each -> each.getUniqueId()).collect(Collectors.toSet()), 5000, (uuid, nicknames) -> {
             if (InteractiveChat.bungeecordMode) {
                 Player bukkitPlayer = Bukkit.getPlayer(uuid);
                 if (bukkitPlayer != null) {

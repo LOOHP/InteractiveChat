@@ -362,13 +362,13 @@ public class BungeeMessageListener implements PluginMessageListener {
                 case 0x11:
                     UUID playerUUID3 = DataTypeIO.readUUID(input);
                     int nicknameSize = input.readInt();
-                    Set<String> remotePlaceholder = new HashSet<>();
+                    Set<String> remoteNicknames = new HashSet<>();
                     for (int i = 0; i < nicknameSize; i++) {
-                        remotePlaceholder.add(DataTypeIO.readString(input, StandardCharsets.UTF_8));
+                        remoteNicknames.add(DataTypeIO.readString(input, StandardCharsets.UTF_8));
                     }
                     ICPlayer icPlayer = ICPlayerFactory.getICPlayer(playerUUID3);
                     if (icPlayer != null) {
-                        icPlayer.setRemoteNicknames(remotePlaceholder);
+                        icPlayer.setRemoteNicknames(remoteNicknames);
                     }
                     break;
                 case 0x12:

@@ -32,6 +32,7 @@ import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
+import com.loohp.interactivechat.utils.ComponentModernizing;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -291,6 +292,8 @@ public class ProcessExternalMessage {
         } else {
             server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
+
+        component = ComponentModernizing.modernize(component);
 
         component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Component.empty());
 

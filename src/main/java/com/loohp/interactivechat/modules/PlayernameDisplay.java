@@ -21,7 +21,6 @@
 package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ReplaceTextBundle;
@@ -79,6 +78,7 @@ public class PlayernameDisplay implements Listener {
         if (names == null) {
             names = getNames();
         }
+
         for (ReplaceTextBundle entry : names) {
             component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, unix);
         }
@@ -158,13 +158,10 @@ public class PlayernameDisplay implements Listener {
             }
         });
 
-        CollectionUtils.filter(names, each -> each.getPlaceholder().length() > 2);
-        Collections.sort(names, Collections.reverseOrder());
+        CollectionUtils.filter(names, each -> !each.getPlaceholder().isEmpty());
+        names.sort(Collections.reverseOrder());
 
         return new LinkedHashSet<>(names);
-    }
-
-    private PlayernameDisplay() {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

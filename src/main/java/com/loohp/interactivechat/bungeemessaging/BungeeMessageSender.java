@@ -51,6 +51,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BungeeMessageSender {
 
     public static final Pattern VALID_CUSTOM_CHANNEL = Pattern.compile("[a-z]+:[a-z0-9_]+");

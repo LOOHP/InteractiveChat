@@ -16,3 +16,14 @@ Settings:
     - "(?i)/pm .*"
     - "(?i)/tell .*"
     - "(?i)/r .*"
+
+  #You might want to adjust this option if you have other plugins listening to the chat
+  #And it is interfering with InteractiveChat's placeholders
+  #Valid options are
+  #.
+  #For bungeecord:
+  #LOWEST, LOW, NORMAL, HIGH/DEFAULT, HIGHEST
+  #.
+  #For Velocity:
+  #FIRST, EARLY, NORMAL, LATE/DEFAULT, LAST
+  ChatEventPriority: DEFAULT

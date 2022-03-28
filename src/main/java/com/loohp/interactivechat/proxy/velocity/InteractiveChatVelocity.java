@@ -34,7 +34,6 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
-import com.loohp.interactivechat.proxy.bungee.InteractiveChatBungee;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
@@ -52,7 +51,6 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent.ForwardResult
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -83,6 +81,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -121,6 +120,7 @@ public class InteractiveChatVelocity {
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
+    public static PostOrder chatEventPostOrder = PostOrder.LATE;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
     public static ProxyServer proxyServer;
@@ -290,6 +290,11 @@ public class InteractiveChatVelocity {
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
+        String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
+        if (chatEventPriorityString.equals("DEFAULT")) {
+            chatEventPriorityString = "LATE";
+        }
+        chatEventPostOrder = PostOrder.valueOf(chatEventPriorityString);
     }
 
     private void addFilters() {
@@ -409,8 +414,8 @@ public class InteractiveChatVelocity {
                             int size1 = input.readInt();
                             List<ICPlaceholder> list = new ArrayList<>(size1);
                             for (int i = 0; i < size1; i++) {
-                                boolean isBulitIn = input.readBoolean();
-                                if (isBulitIn) {
+                                boolean isBuiltIn = input.readBoolean();
+                                if (isBuiltIn) {
                                     String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                     String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                     String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
@@ -471,8 +476,42 @@ public class InteractiveChatVelocity {
         }
     }
 
+    @Subscribe(order = PostOrder.FIRST)
+    public void onVelocityChatFirst(PlayerChatEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.FIRST)) {
+            handleChat(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.EARLY)
+    public void onVelocityChatEarly(PlayerChatEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.EARLY)) {
+            handleChat(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.NORMAL)
+    public void onVelocityChatNormal(PlayerChatEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.NORMAL)) {
+            handleChat(event);
+        }
+    }
+
     @Subscribe(order = PostOrder.LATE)
-    public void onBungeeChat(PlayerChatEvent event) {
+    public void onVelocityChatLate(PlayerChatEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.LATE)) {
+            handleChat(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.LAST)
+    public void onVelocityChatLast(PlayerChatEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.LAST)) {
+            handleChat(event);
+        }
+    }
+
+    private void handleChat(PlayerChatEvent event) {
         if (!event.getResult().isAllowed()) {
             return;
         }
@@ -529,7 +568,7 @@ public class InteractiveChatVelocity {
                 }
             }
         } else {
-            if (usage && InteractiveChatBungee.useAccurateSenderFinder && hasInteractiveChat) {
+            if (usage && InteractiveChatVelocity.useAccurateSenderFinder && hasInteractiveChat) {
                 outer:
                 for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
                     for (ICPlaceholder icplaceholder : serverPlaceholders) {
@@ -546,6 +585,13 @@ public class InteractiveChatVelocity {
                         }
                     }
                 }
+            }
+            try {
+                Field messageField = event.getClass().getDeclaredField("message");
+                messageField.setAccessible(true);
+                messageField.set(event, message);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
             }
 
             proxyServer.getScheduler().buildTask(plugin, () -> {
@@ -564,6 +610,53 @@ public class InteractiveChatVelocity {
     @Subscribe
     public void onServerConnected(ServerPostConnectEvent event) {
         Player player = event.getPlayer();
+        RegisteredServer to = player.getCurrentServer().get().getServer();
+        UUID uuid = player.getUniqueId();
+        if (!placeholderList.containsKey(to.getServerInfo().getName())) {
+            try {
+                PluginMessageSendingVelocity.requestPlaceholderList(to);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            PluginMessageSendingVelocity.sendPlayerListData();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
+        if (universalTime >= 0) {
+            try {
+                PluginMessageSendingVelocity.sendPlayerUniversalCooldown(to, uuid, universalTime);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        List<ICPlaceholder> placeholders = placeholderList.get(to.getServerInfo().getName());
+        if (placeholders != null) {
+            for (ICPlaceholder placeholder : placeholders) {
+                long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getInternalId());
+                if (placeholderTime >= 0) {
+                    try {
+                        PluginMessageSendingVelocity.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            try {
+                PluginMessageSendingVelocity.sendDelayAndScheme();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).schedule();
+        proxyServer.getScheduler().buildTask(plugin, () -> {
+            if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
+                sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
+            }
+        }).delay(100, TimeUnit.MILLISECONDS).schedule();
 
         VelocityServerConnection serverConnection = ((ConnectedPlayer) event.getPlayer()).getConnectedServer();
         ChannelPipeline pipeline = serverConnection.ensureConnected().getChannel().pipeline();
@@ -645,58 +738,6 @@ public class InteractiveChatVelocity {
                 super.write(channelHandlerContext, obj, channelPromise);
             }
         });
-    }
-
-    @Subscribe
-    public void onSwitch(ServerConnectedEvent event) {
-        RegisteredServer to = event.getServer();
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        if (!placeholderList.containsKey(to.getServerInfo().getName())) {
-            try {
-                PluginMessageSendingVelocity.requestPlaceholderList(to);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            PluginMessageSendingVelocity.sendPlayerListData();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        long universalTime = playerCooldownManager.getPlayerUniversalLastTimestamp(uuid);
-        if (universalTime >= 0) {
-            try {
-                PluginMessageSendingVelocity.sendPlayerUniversalCooldown(to, uuid, universalTime);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        List<ICPlaceholder> placeholders = placeholderList.get(to.getServerInfo().getName());
-        if (placeholders != null) {
-            for (ICPlaceholder placeholder : placeholders) {
-                long placeholderTime = playerCooldownManager.getPlayerPlaceholderLastTimestamp(uuid, placeholder.getInternalId());
-                if (placeholderTime >= 0) {
-                    try {
-                        PluginMessageSendingVelocity.sendPlayerPlaceholderCooldown(to, uuid, placeholder, placeholderTime);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        proxyServer.getScheduler().buildTask(plugin, () -> {
-            try {
-                PluginMessageSendingVelocity.sendDelayAndScheme();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).schedule();
-        proxyServer.getScheduler().buildTask(plugin, () -> {
-            if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
-                sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
-            }
-        }).delay(100, TimeUnit.MILLISECONDS).schedule();
     }
 
     @Subscribe

@@ -27,6 +27,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import net.md_5.bungee.api.ProxyServer;
@@ -43,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@SuppressWarnings("UnstableApiUsage")
 public class PluginMessageSendingBungee {
 
     public static void sendPlayerListData() throws IOException {
@@ -52,7 +54,11 @@ public class PluginMessageSendingBungee {
         List<PlayerListPlayerData> dataList = new ArrayList<>();
         for (ProxiedPlayer player : players) {
             if (player.getServer() != null) {
-                dataList.add(new PlayerListPlayerData(player.getServer().getInfo().getName(), player.getUniqueId(), player.getName()));
+                String server = player.getServer().getInfo().getName();
+                BackendInteractiveChatData info = InteractiveChatBungee.serverInteractiveChatInfo.get(server);
+                if (info != null && info.hasInteractiveChat()) {
+                    dataList.add(new PlayerListPlayerData(server, player.getUniqueId(), player.getName()));
+                }
             }
         }
 

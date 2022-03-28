@@ -121,6 +121,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
+    public static byte chatEventPriority = EventPriority.HIGH;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
     protected static Random random = new Random();
@@ -179,6 +180,19 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
+        String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
+        if (chatEventPriorityString.equals("DEFAULT")) {
+            chatEventPriorityString = "HIGH";
+        }
+        for (Field field : EventPriority.class.getFields()) {
+            if (field.getName().equals(chatEventPriorityString)) {
+                try {
+                    chatEventPriority = field.getByte(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static void sendMessage(CommandSender sender, Component component) {
@@ -476,8 +490,42 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBungeeChatLowest(ChatEvent event) {
+        if (chatEventPriority == EventPriority.LOWEST) {
+            handleChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBungeeChatLow(ChatEvent event) {
+        if (chatEventPriority == EventPriority.LOW) {
+            handleChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onBungeeChatNormal(ChatEvent event) {
+        if (chatEventPriority == EventPriority.NORMAL) {
+            handleChat(event);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBungeeChat(ChatEvent event) {
+    public void onBungeeChatHigh(ChatEvent event) {
+        if (chatEventPriority == EventPriority.HIGH) {
+            handleChat(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBungeeChatHighest(ChatEvent event) {
+        if (chatEventPriority == EventPriority.HIGHEST) {
+            handleChat(event);
+        }
+    }
+
+    private void handleChat(ChatEvent event) {
         if (event.isCancelled()) {
             return;
         }

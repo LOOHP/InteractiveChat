@@ -27,6 +27,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
+import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.velocitypowered.api.proxy.Player;
@@ -43,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@SuppressWarnings("UnstableApiUsage")
 public class PluginMessageSendingVelocity {
 
     private static ProxyServer getServer() {
@@ -56,7 +58,11 @@ public class PluginMessageSendingVelocity {
         List<PlayerListPlayerData> dataList = new ArrayList<>();
         for (Player player : players) {
             if (player.getCurrentServer().isPresent()) {
-                dataList.add(new PlayerListPlayerData(player.getCurrentServer().get().getServer().getServerInfo().getName(), player.getUniqueId(), player.getUsername()));
+                String server = player.getCurrentServer().get().getServer().getServerInfo().getName();
+                BackendInteractiveChatData info = InteractiveChatVelocity.serverInteractiveChatInfo.get(server);
+                if (info != null && info.hasInteractiveChat()) {
+                    dataList.add(new PlayerListPlayerData(server, player.getUniqueId(), player.getUsername()));
+                }
             }
         }
 

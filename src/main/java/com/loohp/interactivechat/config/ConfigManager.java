@@ -47,6 +47,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -146,7 +147,7 @@ public class ConfigManager {
         InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 
         InteractiveChat.itemHover = getConfig().getBoolean("ItemDisplay.Item.HoverEnabled");
-        InteractiveChat.itemAlternativeHoverMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getStringList("ItemDisplay.Item.AlternativeHoverMessage").stream().collect(Collectors.joining("\n")));
+        InteractiveChat.itemAlternativeHoverMessage = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("ItemDisplay.Item.AlternativeHoverMessage")));
         InteractiveChat.itemGUI = getConfig().getBoolean("ItemDisplay.Item.GUIEnabled");
         InteractiveChat.translateHoverableItems = getConfig().getBoolean("ItemDisplay.Item.HoverableItemsTranslation.Enabled");
         InteractiveChat.hoverableItemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.HoverableItemsTranslation.InventoryTitle"));
@@ -344,7 +345,7 @@ public class ConfigManager {
 
         InteractiveChat.sendOriginalIfTooLong = getConfig().getBoolean("Settings.SendOriginalMessageIfExceedLengthLimit");
 
-        InteractiveChat.messageToIgnore = getConfig().getStringList("Settings.MessagesToIgnore").stream().collect(Collectors.toSet());
+        InteractiveChat.messageToIgnore = new HashSet<>(getConfig().getStringList("Settings.MessagesToIgnore"));
 
         try {
             try {

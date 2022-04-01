@@ -47,6 +47,7 @@ public class FilledMapUtils {
 
     private static Class<?> craftMapViewClass;
     private static Class<?> craftPlayerClass;
+    private static Method craftMapViewIsContextualMethod;
     private static Method craftMapViewClassRenderMethod;
     private static Class<?> craftRenderDataClass;
     private static Field craftRenderDataClassBufferField;
@@ -58,6 +59,7 @@ public class FilledMapUtils {
     static {
         try {
             try {
+                //noinspection JavaReflectionMemberAccess
                 bukkitBukkitClassGetMapShortMethod = Bukkit.class.getMethod("getMap", short.class);
             } catch (NoSuchMethodException e1) {
                 bukkitBukkitClassGetMapShortMethod = null;
@@ -70,6 +72,7 @@ public class FilledMapUtils {
 
             craftMapViewClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.CraftMapView");
             craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+            craftMapViewIsContextualMethod = craftMapViewClass.getDeclaredMethod("isContextual");
             craftMapViewClassRenderMethod = craftMapViewClass.getMethod("render", craftPlayerClass);
             craftRenderDataClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.map.RenderData");
             craftRenderDataClassBufferField = craftRenderDataClass.getField("buffer");
@@ -124,7 +127,12 @@ public class FilledMapUtils {
             MapMeta map = (MapMeta) itemStack.getItemMeta();
             int mapId;
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_13_1)) {
-                mapId = map.getMapView().getId();
+                MapView mapView = map.getMapView();
+                if (mapView == null) {
+                    mapId = map.getMapId();
+                } else {
+                    mapId = mapView.getId();
+                }
             } else if (InteractiveChat.version.equals(MCVersion.V1_13)) {
                 mapId = (short) bukkitMapViewClassGetIdMethod.invoke(map);
             } else {
@@ -133,7 +141,18 @@ public class FilledMapUtils {
             return mapId;
         } catch (Exception e) {
             e.printStackTrace();
-            return -1;
+            return Integer.MIN_VALUE;
+        }
+    }
+
+    public static boolean isContextual(MapView mapView) {
+        try {
+            Object craftMapView = craftMapViewClass.cast(mapView);
+            craftMapViewIsContextualMethod.setAccessible(true);
+            return (boolean) craftMapViewIsContextualMethod.invoke(craftMapView);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -160,7 +179,7 @@ public class FilledMapUtils {
 
     @SuppressWarnings("deprecation")
     public static List<?> toNMSMapIconList(List<MapCursor> mapCursors) {
-        List<Object> nmsMapIconList = new ArrayList<>();
+        List<Object> nmsMapIconList = new ArrayList<>(mapCursors.size());
         try {
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_13)) {
                 for (MapCursor cursor : mapCursors) {

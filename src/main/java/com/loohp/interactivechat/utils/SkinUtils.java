@@ -24,6 +24,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -74,14 +75,17 @@ public class SkinUtils {
     }
 
     public static String getSkinJsonFromProfile(Player player) throws Exception {
+        return new String(Base64.getDecoder().decode(getSkinValue(player)));
+    }
+
+    public static String getSkinValue(Player player) throws Exception {
         Object playerNMS = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
         GameProfile profile = (GameProfile) nmsEntityPlayerGetProfileMethod.invoke(playerNMS);
         Collection<Property> textures = profile.getProperties().get("textures");
         if (textures == null || textures.isEmpty()) {
             return null;
         }
-        Property property = textures.iterator().next();
-        return new String(Base64.getDecoder().decode(property.getValue()));
+        return textures.iterator().next().getValue();
     }
 
     public static String getSkinValue(ItemMeta skull) {
@@ -109,21 +113,30 @@ public class SkinUtils {
     @SuppressWarnings("deprecation")
     public static ItemStack getSkull(UUID uuid) {
         ItemStack head = XMaterial.PLAYER_HEAD.parseItem();
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
 
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
         } else {
             meta.setOwner(uuid.toString());
         }
-
         head.setItemMeta(meta);
+
+        Player player = Bukkit.getPlayer(uuid);
+        try {
+            if (player != null) {
+                String base64 = getSkinValue(player);
+                head = NBTEditor.set(head, NBTEditor.getNBTCompound("{textures: [{Value: \"" + base64 + "\"}]}"), "SkullOwner", "Properties");
+            }
+        } catch (Throwable ignore) {
+        }
+
         return head;
     }
 
     public static String getSkinURLFromUUID(UUID uuid) throws Exception {
         JSONObject jsonResponse = HTTPRequestUtils.getJSONResponse(PLAYER_INFO_URL.replaceFirst("%s", uuid.toString()));
-        if (jsonResponse.containsKey("error")) {
+        if (jsonResponse.containsKey("errorMessage")) {
             throw new RuntimeException("Unable to retrieve skin url from Mojang servers for the player " + uuid);
         }
         JSONArray propertiesArray = (JSONArray) jsonResponse.get("properties");

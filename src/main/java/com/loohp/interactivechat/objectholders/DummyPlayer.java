@@ -56,6 +56,7 @@ public abstract class DummyPlayer implements Player {
         }
         return null;
     }
+
     private final String name;
     private final UUID uuid;
 

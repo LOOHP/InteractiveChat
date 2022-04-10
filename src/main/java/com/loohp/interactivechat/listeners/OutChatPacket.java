@@ -246,6 +246,8 @@ public class OutChatPacket implements Listener {
 
             component = ComponentModernizing.modernize(component);
 
+            component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
+
             UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
             PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(preEvent);
@@ -256,8 +258,6 @@ public class OutChatPacket implements Listener {
                 }
             }
             component = preEvent.getComponent();
-
-            component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
 
             if (InteractiveChat.translateHoverableItems && InteractiveChat.itemGUI) {
                 component = HoverableItemDisplay.process(component, receiver);

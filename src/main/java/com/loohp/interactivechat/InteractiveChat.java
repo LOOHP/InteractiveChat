@@ -358,8 +358,12 @@ public class InteractiveChat extends JavaPlugin {
     }
 
     public static boolean isPluginEnabled(String name) {
+        return isPluginEnabled(name, true);
+    }
+
+    public static boolean isPluginEnabled(String name, boolean checkRunning) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-        return plugin != null && plugin.isEnabled();
+        return plugin != null && (!checkRunning || plugin.isEnabled());
     }
 
     public ProcessExternalMessage externalProcessor;
@@ -466,7 +470,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into SuperVanish/PremiumVanish!");
             vanishHook = true;
         }
-        if (isPluginEnabled("CMI")) {
+        if (isPluginEnabled("CMI", false)) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into CMI!");
             cmiHook = true;
         }

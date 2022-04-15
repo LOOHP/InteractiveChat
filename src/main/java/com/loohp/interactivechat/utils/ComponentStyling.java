@@ -66,28 +66,28 @@ public class ComponentStyling {
     public static List<Component> splitAtLineBreaks(Component component) {
         List<Component> filtered = new ArrayList<>();
         component = ComponentFlattening.flatten(component);
-        List<Component> currentChildrens = new ArrayList<>();
+        List<Component> currentChildren = new ArrayList<>();
         for (Component child : component.children()) {
             if (child instanceof TextComponent) {
                 TextComponent textComponent = (TextComponent) child;
                 String[] parts = textComponent.content().split("\\R", -1);
                 if (parts.length > 1) {
-                    currentChildrens.add(textComponent.content(parts[0]));
-                    filtered.add(ComponentCompacting.optimize(component.children(currentChildrens)));
+                    currentChildren.add(textComponent.content(parts[0]));
+                    filtered.add(ComponentCompacting.optimize(component.children(currentChildren)));
                     for (int i = 1; i < parts.length - 1; i++) {
                         filtered.add(ComponentCompacting.optimize(component.children(Collections.emptyList()).append(textComponent.content(parts[i]))));
                     }
-                    currentChildrens = new ArrayList<>();
-                    currentChildrens.add(textComponent.content(parts[parts.length - 1]));
+                    currentChildren = new ArrayList<>();
+                    currentChildren.add(textComponent.content(parts[parts.length - 1]));
                 } else {
-                    currentChildrens.add(child);
+                    currentChildren.add(child);
                 }
             } else {
-                currentChildrens.add(child);
+                currentChildren.add(child);
             }
         }
-        if (currentChildrens.size() > 0) {
-            filtered.add(ComponentCompacting.optimize(component.children(currentChildrens)));
+        if (currentChildren.size() > 0) {
+            filtered.add(ComponentCompacting.optimize(component.children(currentChildren)));
         }
         return filtered;
     }

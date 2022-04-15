@@ -55,6 +55,7 @@ import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.NicknameManager;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -241,7 +242,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Set<Inventory> upperSharedInventory = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     public static Set<Inventory> lowerSharedInventory = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
-    public static Set<Inventory> containerDisplay = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    public static Map<Inventory, ValuePairs<Inventory, String>> containerDisplay = new ConcurrentHashMap<>();
 
     public static Map<UUID, String> viewingInv1 = new ConcurrentHashMap<>();
 
@@ -320,7 +321,7 @@ public class InteractiveChat extends JavaPlugin {
     public static void closeSharedInventoryViews() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Inventory topInventory = player.getOpenInventory().getTopInventory();
-            if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
+            if (InteractiveChat.containerDisplay.containsKey(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
                 player.closeInventory();
                 if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
                     InventoryUtils.restorePlayerInventory(player);

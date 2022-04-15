@@ -22,6 +22,7 @@ package com.loohp.interactivechat.listeners;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.XMaterialUtils;
@@ -74,7 +75,7 @@ public class InventoryEvents implements Listener {
             return;
         }
         Inventory topInventory = event.getView().getTopInventory();
-        if (InteractiveChat.containerDisplay.contains(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
+        if (InteractiveChat.containerDisplay.containsKey(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
 
             event.setCancelled(true);
             CANCELLED_INVENTORY.add(event);
@@ -126,11 +127,12 @@ public class InventoryEvents implements Listener {
                         dis.setTitle("Temp Book");
                         dis.setAuthor("InteractiveChat");
                         book.setItemMeta(dis);
+                        InteractiveChat.viewingInv1.remove(player.getUniqueId());
                         player.openBook(book);
                     }
                 }
             }
-            if (!InteractiveChat.containerDisplay.contains(topInventory) && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+            if (!InteractiveChat.containerDisplay.containsKey(topInventory) && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
                 BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
                 if (bsm instanceof InventoryHolder) {
                     Inventory container = ((InventoryHolder) bsm).getInventory();
@@ -152,8 +154,18 @@ public class InventoryEvents implements Listener {
                             displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
                         }
 
-                        InteractiveChat.containerDisplay.add(displayInventory);
-                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.openInventory(displayInventory), 2);
+                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                            ValuePairs<Inventory, String> opened;
+                            String hash = InteractiveChat.viewingInv1.remove(player.getUniqueId());
+                            if (hash != null) {
+                                InventoryUtils.restorePlayerInventory(player);
+                                opened = new ValuePairs<>(topInventory, hash);
+                            } else {
+                                opened = new ValuePairs<>(topInventory, null);
+                            }
+                            InteractiveChat.containerDisplay.put(displayInventory, opened);
+                            player.openInventory(displayInventory);
+                        }, 2);
                     }
                 }
             }
@@ -164,18 +176,32 @@ public class InventoryEvents implements Listener {
     public void onInventoryClickHighest(InventoryClickEvent event) {
         if (CANCELLED_INVENTORY.remove(event)) {
             event.setCancelled(true);
+            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> ((Player) event.getWhoClicked()).updateInventory(), 5);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClose(InventoryCloseEvent event) {
-        Inventory topInventory = event.getView().getTopInventory();
-        if (topInventory != null) {
-            InteractiveChat.containerDisplay.remove(topInventory);
-        }
         Player player = (Player) event.getPlayer();
         if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
             InventoryUtils.restorePlayerInventory(player);
+        }
+        Inventory topInventory = event.getView().getTopInventory();
+        if (topInventory != null) {
+            ValuePairs<Inventory, String> opened = InteractiveChat.containerDisplay.remove(topInventory);
+            if (opened != null) {
+                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                    player.openInventory(opened.getFirst());
+                    String hash = opened.getSecond();
+                    if (hash != null) {
+                        Inventory lowerInventory = InteractiveChat.inventoryDisplay1Lower.get(hash);
+                        if (lowerInventory != null) {
+                            InventoryUtils.sendFakePlayerInventory(player, lowerInventory, true, false);
+                            InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
+                        }
+                    }
+                }, 2);
+            }
         }
     }
 

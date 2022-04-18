@@ -515,6 +515,14 @@ public class InteractiveChatVelocity {
         if (!event.getResult().isAllowed()) {
             return;
         }
+        try {
+            Field messageField = event.getClass().getDeclaredField("message");
+            messageField.setAccessible(true);
+            messageField.set(event, Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         String message = event.getMessage();

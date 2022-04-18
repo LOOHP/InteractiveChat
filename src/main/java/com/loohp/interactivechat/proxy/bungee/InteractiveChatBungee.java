@@ -529,6 +529,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         if (event.isCancelled()) {
             return;
         }
+        event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
+
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
         UUID uuid = player.getUniqueId();
         String message = event.getMessage();

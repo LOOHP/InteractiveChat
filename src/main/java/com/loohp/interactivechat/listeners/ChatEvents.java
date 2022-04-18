@@ -143,6 +143,9 @@ public class ChatEvents implements Listener {
     }
 
     private void checkChat(AsyncPlayerChatEvent event) {
+        if (!InteractiveChat.bungeecordMode) {
+            event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
+        }
         translateAltColorCode(event);
 
         String processedMessage = checkMention(event);
@@ -152,6 +155,9 @@ public class ChatEvents implements Listener {
     }
 
     private void checkCommand(PlayerCommandPreprocessEvent event) {
+        if (!InteractiveChat.bungeecordMode) {
+            event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
+        }
         boolean flag = true;
         String command = event.getMessage();
         for (String parsecommand : InteractiveChat.commandList) {

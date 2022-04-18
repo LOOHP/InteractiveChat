@@ -126,9 +126,10 @@ public class OutChatPacket implements Listener {
                     }
                 }
 
+                boolean readOnly = event.isReadOnly();
                 event.setReadOnly(false);
                 event.setCancelled(true);
-                event.setReadOnly(false);
+                event.setReadOnly(readOnly);
 
                 Player receiver = event.getPlayer();
                 PacketContainer packet = packetOriginal.deepClone();

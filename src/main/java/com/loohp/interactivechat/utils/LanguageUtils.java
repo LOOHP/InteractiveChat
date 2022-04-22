@@ -359,6 +359,12 @@ public class LanguageUtils {
             }
         }
 
+        if (itemStack.getType().equals(Material.COMPASS)) {
+            if (CompassUtils.isLodestoneCompass(itemStack)) {
+                path = "item.minecraft.lodestone_compass";
+            }
+        }
+
         return path;
     }
 

@@ -44,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 
 public class AsyncChatSendingExecutor implements AutoCloseable {
 
@@ -137,18 +136,24 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     private void packetOrderSender() {
         new Thread(() -> {
             while (true) {
-                for (Entry<UUID, Map<UUID, OutboundPacket>> entry : waitingPackets.entrySet()) {
+                Iterator<Entry<UUID, Map<UUID, OutboundPacket>>> itr = waitingPackets.entrySet().iterator();
+                while (itr.hasNext()) {
+                    Entry<UUID, Map<UUID, OutboundPacket>> entry = itr.next();
                     long time = System.currentTimeMillis();
                     UUID playerUUID = entry.getKey();
+                    if (Bukkit.getPlayer(playerUUID) == null) {
+                        itr.remove();
+                        continue;
+                    }
                     Queue<MessageOrderInfo> orderingQueue = messagesOrder.get(playerUUID);
                     Map<UUID, OutboundPacket> playerWaitingPackets = entry.getValue();
                     MessageOrderInfo messageOrderInfo;
                     if (orderingQueue != null) {
                         if ((messageOrderInfo = orderingQueue.peek()) == null) {
-                            Iterator<Entry<UUID, OutboundPacket>> itr = playerWaitingPackets.entrySet().iterator();
-                            while (itr.hasNext()) {
-                                sendingQueue.add(itr.next().getValue());
-                                itr.remove();
+                            Iterator<Entry<UUID, OutboundPacket>> itr0 = playerWaitingPackets.entrySet().iterator();
+                            while (itr0.hasNext()) {
+                                sendingQueue.add(itr0.next().getValue());
+                                itr0.remove();
                             }
                         } else {
                             UUID id = messageOrderInfo.getId();
@@ -234,21 +239,8 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                     }
                 }
 
-                Iterator<Entry<UUID, Map<UUID, OutboundPacket>>> itr2 = waitingPackets.entrySet().iterator();
-                while (itr2.hasNext()) {
-                    Entry<UUID, Map<UUID, OutboundPacket>> entry = itr2.next();
-                    if (Bukkit.getPlayer(entry.getKey()) == null) {
-                        itr2.remove();
-                    }
-                }
-
-                Iterator<Entry<UUID, Long>> itr3 = lastSuccessfulCheck.entrySet().iterator();
-                while (itr3.hasNext()) {
-                    Entry<UUID, Long> entry = itr3.next();
-                    if (Bukkit.getPlayer(entry.getKey()) == null) {
-                        itr3.remove();
-                    }
-                }
+                waitingPackets.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
+                lastSuccessfulCheck.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
                 if (!isValid()) {
                     break;
                 }

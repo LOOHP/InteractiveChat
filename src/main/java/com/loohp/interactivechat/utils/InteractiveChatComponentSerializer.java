@@ -50,15 +50,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PatternValidation")
 public class InteractiveChatComponentSerializer {
 
     private static final InteractiveChatBungeecordAPILegacyComponentSerializer BUNGEECORD_CHAT_LEGACY;
     private static final GsonComponentSerializer GSON_SERIALIZER;
     private static final GsonComponentSerializer GSON_SERIALIZER_LEGACY;
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER;
-    //private static final LegacyComponentSerializer LEGACY_SERIALIZER_SPECIAL_HEX;
 
-    private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_([0-9]*)/damage_([0-9]*)$");
+    private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_(.*?)/damage_([0-9]*)$");
 
     private static final LegacyHoverEventSerializer LEGACY_HOVER_SERIALIZER;
 
@@ -68,7 +68,6 @@ public class InteractiveChatComponentSerializer {
         GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
         GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
-        //LEGACY_SERIALIZER_SPECIAL_HEX = new InteractiveChatLegacyComponentSerializer();
     }
 
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {
@@ -87,13 +86,12 @@ public class InteractiveChatComponentSerializer {
         return PLAIN_TEXT_SERIALIZER;
     }
 
-    /*
-    public static LegacyComponentSerializer legacySpecialHex() {
-        return LEGACY_SERIALIZER_SPECIAL_HEX;
-    }
-    */
     public static Key legacyIdToInteractiveChatKey(byte id, short damage) {
         return Key.key("interactivechat", "legacy_hover/id_" + id + "/damage_" + damage);
+    }
+
+    public static Key legacyIdToInteractiveChatKey(String id, short damage) {
+        return Key.key("interactivechat", "legacy_hover/id_" + id.replace(":", "-") + "/damage_" + damage);
     }
 
     public static LegacyIdKey interactiveChatKeyToLegacyId(Key key) {
@@ -104,6 +102,9 @@ public class InteractiveChatComponentSerializer {
                 short damage = Short.parseShort(matcher.group(2));
                 return new LegacyIdKey(id, damage);
             } catch (NumberFormatException e) {
+                String id = matcher.group(1).replace("-", ":");
+                short damage = Short.parseShort(matcher.group(2));
+                return new LegacyIdKey(id, damage);
             }
         }
         return null;
@@ -138,9 +139,7 @@ public class InteractiveChatComponentSerializer {
                 component = translated;
             }
             List<Component> children = new ArrayList<>(component.children());
-            for (int i = 0; i < children.size(); i++) {
-                children.set(i, translate(children.get(i), language));
-            }
+            children.replaceAll(c -> translate(c, language));
             return component.children(children);
         }
 
@@ -183,7 +182,14 @@ public class InteractiveChatComponentSerializer {
                 isTagEmpty = false;
                 key = legacyIdToInteractiveChatKey(idAsByte, damage);
             } else {
-                key = Key.key(idIfString);
+                short damage = item.getShort("Damage", Short.MIN_VALUE);
+                if (damage == Short.MIN_VALUE) {
+                    key = Key.key(idIfString);
+                } else {
+                    tag = tag.putInt("Damage", damage);
+                    isTagEmpty = false;
+                    key = legacyIdToInteractiveChatKey(idIfString, damage);
+                }
             }
 
             byte count = item.getByte("Count", (byte) 1);
@@ -206,12 +212,16 @@ public class InteractiveChatComponentSerializer {
         }
 
         @Override
-        public @NonNull Component serializeShowItem(HoverEvent.@NonNull ShowItem input) throws IOException {
+        public @NonNull Component serializeShowItem(HoverEvent.@NonNull ShowItem input) {
             CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().putByte("Count", (byte) input.count());
 
             LegacyIdKey legacyId = interactiveChatKeyToLegacyId(input.item());
             if (legacyId != null) {
-                builder.putByte("id", legacyId.getId());
+                if (legacyId.hasByteId()) {
+                    builder.putByte("id", legacyId.getByteId());
+                } else {
+                    builder.putString("id", legacyId.getStringId());
+                }
                 builder.putShort("Damage", legacyId.getDamage());
             } else {
                 builder.putString("id", input.item().asString());
@@ -267,11 +277,11 @@ public class InteractiveChatComponentSerializer {
                     TranslatableComponent translatable = (TranslatableComponent) children;
                     sb.append(translatable.key());
                     if (!translatable.args().isEmpty()) {
-                        sb.append("(" + translatable.args().stream().map(each -> {
+                        sb.append("(").append(translatable.args().stream().map(each -> {
                             StringBuilder csb = new StringBuilder();
                             serialize(csb, each);
                             return csb.toString();
-                        }).collect(Collectors.joining(";")) + ")");
+                        }).collect(Collectors.joining(";"))).append(")");
                     }
                 } else {
                     sb.append(PlainTextComponentSerializer.plainText().serialize(children));
@@ -280,43 +290,5 @@ public class InteractiveChatComponentSerializer {
         }
 
     }
-	/*
-	public static class InteractiveChatLegacyComponentSerializer implements LegacyComponentSerializer {
-		
-		private static final LegacyComponentSerializer DESERIALIZER = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat().hexColors().hexCharacter(SECTION_CHAR).character(SECTION_CHAR).build();
-		private static final LegacyComponentSerializer SERILAIZER = LegacyComponentSerializer.legacySection();
-		private static final Map<Pattern, Function<MatchResult, String>> LIST_OF_COLOR_PATTERNS = new LinkedHashMap<>();
-		
-		static {
-			LIST_OF_COLOR_PATTERNS.put(Pattern.compile(ChatColorUtils.COLOR_CHAR + "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"), result -> {
-				return ChatColorUtils.COLOR_CHAR + "x" + ChatColorUtils.COLOR_CHAR + result.group(1) + ChatColorUtils.COLOR_CHAR + result.group(2) + ChatColorUtils.COLOR_CHAR + result.group(3) + ChatColorUtils.COLOR_CHAR + result.group(4) + ChatColorUtils.COLOR_CHAR + result.group(5) + ChatColorUtils.COLOR_CHAR + result.group(6);
-			});
-		}
 
-		@Override
-		public @NotNull Builder toBuilder() {
-			throw new UnsupportedOperationException("The InteractiveChatLegacyComponentSerializer cannot be turned into a builder");
-		}
-
-		@Override
-		public @NotNull TextComponent deserialize(@NotNull String input) {
-			for (Entry<Pattern, Function<MatchResult, String>> entry : LIST_OF_COLOR_PATTERNS.entrySet()) {
-				Matcher matcher = entry.getKey().matcher(input);
-				StringBuffer sb = new StringBuffer();
-				while (matcher.find()) {
-					matcher.appendReplacement(sb, entry.getValue().apply(matcher));
-				}
-				matcher.appendTail(sb);
-				input = sb.toString();
-			}
-			return DESERIALIZER.deserialize(input);
-		}
-
-		@Override
-		public @NotNull String serialize(@NotNull Component component) {
-			return SERILAIZER.serialize(component);
-		}
-		
-	}
-	*/
 }

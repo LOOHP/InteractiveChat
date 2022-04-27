@@ -22,28 +22,38 @@ package com.loohp.interactivechat.objectholders;
 
 public class LegacyIdKey {
 
-    private byte id;
+    private String stringId;
+    private byte byteId;
     private short damage;
 
-    public LegacyIdKey(byte id, short damage) {
-        this.id = id;
+    public LegacyIdKey(byte byteId, short damage) {
+        this.byteId = byteId;
         this.damage = damage;
     }
 
-    public byte getId() {
-        return id;
+    public LegacyIdKey(String stringId, short damage) {
+        this.stringId = stringId;
+        this.damage = damage;
     }
 
-    public void setId(byte id) {
-        this.id = id;
+    public byte getByteId() {
+        return byteId;
+    }
+
+    public boolean hasByteId() {
+        return stringId == null;
+    }
+
+    public String getStringId() {
+        return stringId;
+    }
+
+    public boolean hasStringId() {
+        return stringId != null;
     }
 
     public short getDamage() {
         return damage;
-    }
-
-    public void setDamage(short damage) {
-        this.damage = damage;
     }
 
     public boolean isDamageDataValue() {

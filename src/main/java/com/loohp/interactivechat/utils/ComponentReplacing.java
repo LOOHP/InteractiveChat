@@ -69,9 +69,7 @@ public class ComponentReplacing {
             if (child instanceof TranslatableComponent) {
                 TranslatableComponent translatable = (TranslatableComponent) child;
                 List<Component> args = new ArrayList<>(translatable.args());
-                for (int u = 0; u < args.size(); u++) {
-                    args.set(u, replace(args.get(u), regexOriginal, escaping, replaceFunction));
-                }
+                args.replaceAll(c -> replace(c, regexOriginal, escaping, replaceFunction));
                 translatable = translatable.args(args);
                 children.set(i, translatable);
             }

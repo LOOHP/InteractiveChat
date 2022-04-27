@@ -150,6 +150,37 @@ public class ProcessExternalMessage {
 
         Component component = LegacyComponentSerializer.legacySection().deserialize(message);
 
+        for (ICPlaceholder placeholder : InteractiveChatAPI.getICPlaceholderList()) {
+            if (!placeholder.isBuildIn()) {
+                CustomPlaceholder customP = (CustomPlaceholder) placeholder;
+                if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
+                    if (customP.getKeyword().matcher(message).find()) {
+                        if (customP.getReplace().isEnabled()) {
+                            String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+                            component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
+                                String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
+                                return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        if (InteractiveChat.t && WebData.getInstance() != null) {
+            for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
+                if (customP.getKeyword().matcher(message).find()) {
+                    if (customP.getReplace().isEnabled()) {
+                        String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+                        component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
+                            String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
+                            return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+                        });
+                    }
+                }
+            }
+        }
+
         if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
             Pattern placeholder = InteractiveChat.itemPlaceholder;
             if (placeholder.matcher(message).find()) {
@@ -189,37 +220,6 @@ public class ProcessExternalMessage {
             if (placeholder.matcher(message).find()) {
                 String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
                 component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
-            }
-        }
-
-        for (ICPlaceholder placeholder : InteractiveChatAPI.getICPlaceholderList()) {
-            if (!placeholder.isBuildIn()) {
-                CustomPlaceholder customP = (CustomPlaceholder) placeholder;
-                if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
-                    if (customP.getKeyword().matcher(message).find()) {
-                        if (customP.getReplace().isEnabled()) {
-                            String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
-                            component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
-                                String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
-                                return LegacyComponentSerializer.legacySection().deserialize(replaceString);
-                            });
-                        }
-                    }
-                }
-            }
-        }
-
-        if (InteractiveChat.t && WebData.getInstance() != null) {
-            for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
-                if (customP.getKeyword().matcher(message).find()) {
-                    if (customP.getReplace().isEnabled()) {
-                        String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
-                        component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
-                            String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
-                            return LegacyComponentSerializer.legacySection().deserialize(replaceString);
-                        });
-                    }
-                }
             }
         }
 
@@ -311,6 +311,12 @@ public class ProcessExternalMessage {
             return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
         });
 
+        Collection<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
+        if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
+            serverPlaceholderList = InteractiveChat.placeholderList.values();
+        }
+        component = CustomPlaceholderDisplay.process(component, sender, receiver, serverPlaceholderList, unix);
+
         if (InteractiveChat.useItem) {
             component = ItemDisplay.process(component, sender, receiver, unix);
         }
@@ -322,12 +328,6 @@ public class ProcessExternalMessage {
         if (InteractiveChat.useEnder) {
             component = EnderchestDisplay.process(component, sender, receiver, unix);
         }
-
-        Collection<ICPlaceholder> serverPlaceholderList = InteractiveChat.remotePlaceholderList.get(server);
-        if (server.equals(ICPlayer.LOCAL_SERVER_REPRESENTATION) || serverPlaceholderList == null) {
-            serverPlaceholderList = InteractiveChat.placeholderList.values();
-        }
-        component = CustomPlaceholderDisplay.process(component, sender, receiver, serverPlaceholderList, unix);
 
         if (InteractiveChat.clickableCommands) {
             component = CommandsDisplay.process(component);

@@ -278,6 +278,8 @@ public class OutChatPacket implements Listener {
                 return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
             });
 
+            component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
+
             if (InteractiveChat.useItem) {
                 component = ItemDisplay.process(component, sender, receiver, unix);
             }
@@ -289,8 +291,6 @@ public class OutChatPacket implements Listener {
             if (InteractiveChat.useEnder) {
                 component = EnderchestDisplay.process(component, sender, receiver, unix);
             }
-
-            component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
 
             if (InteractiveChat.clickableCommands) {
                 component = CommandsDisplay.process(component);

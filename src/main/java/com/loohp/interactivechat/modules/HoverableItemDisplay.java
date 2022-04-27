@@ -75,9 +75,22 @@ public class HoverableItemDisplay {
                     } catch (Throwable ignored) {
                     }
                 } else {
-                    Optional<XMaterial> optXMaterial = XMaterial.matchXMaterial(legacyId.getId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
-                    if (optXMaterial.isPresent()) {
-                        itemstack = optXMaterial.get().parseItem();
+                    Optional<XMaterial> optXMaterial;
+                    if (legacyId.hasByteId()) {
+                        optXMaterial = XMaterial.matchXMaterial(legacyId.getByteId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
+                        if (optXMaterial.isPresent()) {
+                            itemstack = optXMaterial.get().parseItem();
+                        }
+                    } else {
+                        String materialId = legacyId.getStringId();
+                        if (materialId.contains(":")) {
+                            materialId = materialId.substring(materialId.indexOf(":") + 1);
+                        }
+                        optXMaterial = XMaterial.matchXMaterial(materialId.toUpperCase());
+                        if (optXMaterial.isPresent()) {
+                            itemstack = optXMaterial.get().parseItem();
+                            itemstack.setDurability(legacyId.getDamage());
+                        }
                     }
                 }
                 String longNbt = showItem.nbt() == null ? null : showItem.nbt().string();

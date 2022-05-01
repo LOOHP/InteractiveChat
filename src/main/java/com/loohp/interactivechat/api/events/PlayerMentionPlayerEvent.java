@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.api.events;
 
+import com.loohp.interactivechat.objectholders.Either;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -53,11 +54,11 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     private String actionbar;
     private String toast;
     private Optional<BossBar> bossbar;
-    private Sound sound;
+    private Either<Sound, String> sound;
     private boolean silent;
     private boolean cancel;
 
-    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Sound sound, boolean silent, boolean cancel) {
+    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Either<Sound, String> sound, boolean silent, boolean cancel) {
         super(async);
         this.reciever = receiver;
         this.sender = sender;
@@ -129,11 +130,11 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         this.bossbar = bossbar;
     }
 
-    public Sound getMentionSound() {
+    public Either<Sound, String> getMentionSound() {
         return sound;
     }
 
-    public void setMentionSound(Sound sound) {
+    public void setMentionSound(Either<Sound, String> sound) {
         this.sound = sound;
     }
 

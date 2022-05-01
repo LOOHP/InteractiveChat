@@ -24,6 +24,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.events.PlayerMentionPlayerEvent;
+import com.loohp.interactivechat.objectholders.Either;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.registry.Registry;
@@ -43,7 +44,6 @@ import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -55,6 +55,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,28 +104,30 @@ public class MentionDisplay implements Listener {
                 }
 
                 String settings = InteractiveChat.mentionSound;
-                Sound sound = null;
+                Either<Sound, String> sound;
                 float volume = 3.0F;
                 float pitch = 1.0F;
 
                 String[] settingsArgs = settings.split(":");
-                if (settingsArgs.length == 3) {
-                    settings = settingsArgs[0].toUpperCase();
+                if (settingsArgs.length >= 3) {
+                    settings = String.join("", Arrays.copyOfRange(settingsArgs, 0, settingsArgs.length - 2)).toUpperCase();
                     try {
-                        volume = Float.parseFloat(settingsArgs[1]);
+                        volume = Float.parseFloat(settingsArgs[settingsArgs.length - 2]);
                     } catch (Exception ignore) {
                     }
                     try {
-                        pitch = Float.parseFloat(settingsArgs[2]);
+                        pitch = Float.parseFloat(settingsArgs[settingsArgs.length - 1]);
                     } catch (Exception ignore) {
                     }
-                } else if (settingsArgs.length > 0) {
-                    settings = settingsArgs[0].toUpperCase();
+                } else {
+                    settings = settings.toUpperCase();
                 }
 
-                sound = SoundUtils.parseSound(settings);
-                if (sound == null) {
-                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid Sound: " + settings);
+                Sound bukkitSound = SoundUtils.parseSound(settings);
+                if (bukkitSound == null) {
+                    sound = Either.right(settings);
+                } else {
+                    sound = Either.left(bukkitSound);
                 }
 
                 boolean silent = false;
@@ -148,7 +151,15 @@ public class MentionDisplay implements Listener {
                         int time = InteractiveChat.mentionTitleDuration;
                         TitleUtils.sendTitle(receiver, title, subtitle, actionbar, 10, Math.max(time, 1), 20);
                         if (sound != null) {
-                            receiver.playSound(receiver.getLocation(), sound, volume, pitch);
+                            if (sound.isLeft()) {
+                                receiver.playSound(receiver.getLocation(), sound.getLeft(), volume, pitch);
+                            } else {
+                                String soundLocation = sound.getRight();
+                                if (!soundLocation.contains(":")) {
+                                    soundLocation = "minecraft:" + soundLocation;
+                                }
+                                receiver.playSound(receiver.getLocation(), soundLocation.toLowerCase(), volume, pitch);
+                            }
                         }
                         if (!mentionEvent.getToast().isEmpty() && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
                             ToastUtils.mention(sender, receiver, toast, WRITABLE_BOOK.clone());

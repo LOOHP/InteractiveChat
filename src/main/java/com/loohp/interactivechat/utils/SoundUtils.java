@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class SoundUtils {
 
-    public static boolean isValid(String string) {
+    public static boolean isMinecraftSound(String string) {
         Optional<XSound> opt = XSound.matchXSound(string);
         if (opt.isPresent()) {
             XSound xSound = opt.get();

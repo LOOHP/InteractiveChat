@@ -20,6 +20,10 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
 public class ValuePairs<F, S> {
 
     private final F first;
@@ -38,40 +42,29 @@ public class ValuePairs<F, S> {
         return second;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((first == null) ? 0 : first.hashCode());
-        result = prime * result + ((second == null) ? 0 : second.hashCode());
-        return result;
+    public <T> T product(BiFunction<F, S, T> function) {
+        return function.apply(first, second);
     }
 
-    @SuppressWarnings("rawtypes")
+    public void consume(BiConsumer<F, S> consumer) {
+        consumer.accept(first, second);
+    }
+
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ValuePairs other = (ValuePairs) obj;
-        if (first == null) {
-            if (other.first != null) {
-                return false;
-            }
-        } else if (!first.equals(other.first)) {
-            return false;
-        }
-        if (second == null) {
-            return other.second == null;
-        } else {
-            return second.equals(other.second);
-        }
+        ValuePairs<?, ?> that = (ValuePairs<?, ?>) o;
+        return Objects.equals(first, that.first) && Objects.equals(second, that.second);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(first, second);
     }
 
 }

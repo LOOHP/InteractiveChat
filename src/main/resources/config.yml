@@ -176,6 +176,9 @@ Chat:
   #The sound to play when a player is mentioned
   #List of all sounds
   #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  #.
+  #Alternatively you can use full resourceLocations on 1.13+
+  #Example: "minecraft:entity.player.levelup"
   MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP
 
   #The title to show when mentioned

@@ -47,11 +47,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayernameDisplay implements Listener {
@@ -79,14 +81,15 @@ public class PlayernameDisplay implements Listener {
             names = getNames();
         }
 
+        Set<HoverEvent<?>> doNotReplace = new HashSet<>();
         for (ReplaceTextBundle entry : names) {
-            component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, unix);
+            component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, doNotReplace, unix);
         }
 
         return ComponentCompacting.optimize(component);
     }
 
-    private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player receiver, Component component, long unix) {
+    private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player receiver, Component component, Set<HoverEvent<?>> doNotReplace, long unix) {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.usePlayerNameCaseSensitive) {
             if (!plain.contains(placeholder)) {
@@ -114,7 +117,12 @@ public class PlayernameDisplay implements Listener {
         String regex = InteractiveChat.usePlayerNameCaseSensitive ? CustomStringUtils.escapeMetaCharacters(placeholder) : "(?i)" + CustomStringUtils.escapeMetaCharacters(placeholder);
         component = ComponentReplacing.replace(component, regex, true, (result, replaced) -> {
             List<Component> children = new ArrayList<>();
+            boolean doNotReplaceFlag = false;
             for (Component c : replaced) {
+                if (doNotReplace.contains(c.hoverEvent())) {
+                    doNotReplaceFlag = true;
+                    break;
+                }
                 Component edited = c;
                 if (hoverEvent != null && (InteractiveChat.usePlayerNameOverrideHover || edited.hoverEvent() == null)) {
                     edited = edited.hoverEvent(hoverEvent);
@@ -124,6 +132,9 @@ public class PlayernameDisplay implements Listener {
                 }
                 children.add(edited);
             }
+            if (doNotReplaceFlag) {
+                return Component.empty().children(replaced);
+            }
             return Component.empty().children(children);
         });
         List<Component> children = new ArrayList<>(component.children());
@@ -132,14 +143,12 @@ public class PlayernameDisplay implements Listener {
             if (child instanceof TranslatableComponent) {
                 TranslatableComponent trans = (TranslatableComponent) child;
                 List<Component> withs = new ArrayList<>(trans.args());
-                for (int u = 0; u < withs.size(); u++) {
-                    Component with = withs.get(u);
-                    withs.set(u, processPlayer(placeholder, player, sender, receiver, with, unix));
-                }
+                withs.replaceAll(with -> processPlayer(placeholder, player, sender, receiver, with, doNotReplace, unix));
                 trans = trans.args(withs);
                 children.set(i, trans);
             }
         }
+        doNotReplace.add(hoverEvent);
         return ComponentCompacting.optimize(component.children(children));
     }
 
@@ -159,7 +168,7 @@ public class PlayernameDisplay implements Listener {
         });
 
         CollectionUtils.filter(names, each -> !each.getPlaceholder().isEmpty());
-        names.sort(Collections.reverseOrder());
+        names.sort(Comparator.reverseOrder());
 
         return new LinkedHashSet<>(names);
     }

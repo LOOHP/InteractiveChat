@@ -203,7 +203,7 @@ public class MentionDisplay implements Listener {
     public static Component processPlayer(String placeholder, Player receiver, ICPlayer sender, Component component, long unix) {
         String replacementText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlight.replace("{MentionedPlayer}", Registry.MENTION_TAG_CONVERTER.revertTags(placeholder)));
         Component replacement = LegacyComponentSerializer.legacySection().deserialize(replacementText);
-        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Reciever}", receiver.getDisplayName()).replace("{Receiver}", receiver.getDisplayName()));
+        String hoverText = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHover.replace("{Sender}", sender.getDisplayName()).replace("{Receiver}", receiver.getDisplayName()));
         HoverEvent<Component> hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText));
         replacement = replacement.hoverEvent(hoverEvent);
         return ComponentReplacing.replace(component, CustomStringUtils.escapeMetaCharacters(Registry.MENTION_TAG_CONVERTER.getTagStyle(placeholder)), true, replacement);

@@ -28,12 +28,21 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.ListTag;
+import net.querz.nbt.tag.StringTag;
+import net.querz.nbt.tag.Tag;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ItemStackUtils {
 
@@ -108,6 +117,40 @@ public class ItemStackUtils {
             }
         }
         return component;
+    }
+
+    public static List<Component> getLore(ItemStack itemstack) {
+        if (!itemstack.hasItemMeta()) {
+            return null;
+        }
+        ItemMeta meta = itemstack.getItemMeta();
+        if (!meta.hasLore()) {
+            return null;
+        }
+        if (meta.getLore().isEmpty()) {
+            return Collections.emptyList();
+        }
+        try {
+            List<Component> loreLines = new ArrayList<>();
+            ListTag<?> loreTag = ((CompoundTag) NBTParsingUtils.fromSNBT(ItemNBTUtils.getNMSItemStackJson(itemstack))).getCompoundTag("tag").getCompoundTag("display").getListTag("Lore");
+            for (Tag<?> each : loreTag) {
+                if (each instanceof StringTag) {
+                    String line = ((StringTag) each).getValue();
+                    try {
+                        if (JsonUtils.isValid(line)) {
+                            loreLines.add(InteractiveChatComponentSerializer.gson().deserialize(line));
+                        } else {
+                            loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
+                        }
+                    } catch (Throwable e) {
+                        loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
+                    }
+                }
+            }
+            return loreLines;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static boolean isArmor(ItemStack itemStack) {

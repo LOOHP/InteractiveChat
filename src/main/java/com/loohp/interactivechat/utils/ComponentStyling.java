@@ -22,44 +22,21 @@ package com.loohp.interactivechat.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.Style.Merge;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 public class ComponentStyling {
-
-    private static final Map<TextDecoration, TextDecoration.State> DECORATIONS_ALL_NOT_SET = new EnumMap<>(TextDecoration.class);
-
-    static {
-        for (TextDecoration decoration : TextDecoration.values()) {
-            DECORATIONS_ALL_NOT_SET.put(decoration, TextDecoration.State.NOT_SET);
-        }
-    }
-
-    public static Style colorOverrideMerge(Style from, Style to, Merge.Strategy strategy) {
-        if (to.color() != null) {
-            return to.merge(from.decorations(DECORATIONS_ALL_NOT_SET), strategy);
-        } else {
-            return to.merge(from, strategy);
-        }
-    }
 
     public static Component stripColor(Component component) {
         component = component.color(null);
         List<Component> children = new ArrayList<>(component.children());
-        for (int i = 0; i < children.size(); i++) {
-            children.set(i, stripColor(children.get(i)));
-        }
+        children.replaceAll(each -> ComponentStyling.stripColor(each));
         return component.children(children);
     }
 

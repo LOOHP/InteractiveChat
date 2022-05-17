@@ -32,7 +32,6 @@ import java.util.List;
 public class ComponentModernizing {
 
     public static Component modernize(Component component) {
-        LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
         component = ComponentFlattening.flatten(component);
         List<Component> children = new ArrayList<>(component.children());
         for (int i = 0; i < children.size(); i++) {
@@ -40,7 +39,7 @@ public class ComponentModernizing {
             if (child instanceof TextComponent) {
                 TextComponent text = (TextComponent) child;
                 String content = text.content();
-                TextComponent modern = serializer.deserialize(content);
+                TextComponent modern = LegacyComponentSerializer.legacySection().deserialize(content);
                 modern = modern.style(modern.style().merge(text.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
                 children.set(i, modern);
             } else if (child instanceof TranslatableComponent) {

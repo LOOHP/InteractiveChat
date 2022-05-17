@@ -24,7 +24,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.Style.Merge;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
@@ -161,13 +160,7 @@ public class ComponentReplacing {
                 }
 
                 Component replace = ComponentFlattening.flatten(replaceFunction.apply(matcher, Collections.unmodifiableList(matchedComponents)));
-                List<Component> replacementChildren = new ArrayList<>(replace.children());
-                for (int u = 0; u < replacementChildren.size(); u++) {
-                    Component replacementChild = replacementChildren.get(u);
-                    replacementChild = replacementChild.style(ComponentStyling.colorOverrideMerge(style, replacementChild.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
-                    replacementChildren.set(u, replacementChild);
-                }
-                children.add(insertPos, replace.children(replacementChildren));
+                children.add(insertPos, replace);
 
                 component = ComponentCompacting.optimize(component.children(children));
                 component = ComponentFlattening.flatten(component);

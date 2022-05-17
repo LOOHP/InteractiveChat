@@ -85,7 +85,6 @@ public class PlayernameDisplay implements Listener {
         for (ReplaceTextBundle entry : names) {
             component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, doNotReplace, unix);
         }
-
         return ComponentCompacting.optimize(component);
     }
 

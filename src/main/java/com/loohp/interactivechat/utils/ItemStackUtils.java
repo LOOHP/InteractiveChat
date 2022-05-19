@@ -23,21 +23,17 @@ package com.loohp.interactivechat.utils;
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
+import io.github.bananapuncher714.nbteditor.NBTEditor.NBTCompound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
-import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.ListTag;
-import net.querz.nbt.tag.StringTag;
-import net.querz.nbt.tag.Tag;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -127,30 +123,25 @@ public class ItemStackUtils {
         if (!meta.hasLore()) {
             return null;
         }
-        if (meta.getLore().isEmpty()) {
+        int size = meta.getLore().size();
+        if (size <= 0) {
             return Collections.emptyList();
         }
-        try {
-            List<Component> loreLines = new ArrayList<>();
-            ListTag<?> loreTag = ((CompoundTag) NBTParsingUtils.fromSNBT(ItemNBTUtils.getNMSItemStackJson(itemstack))).getCompoundTag("tag").getCompoundTag("display").getListTag("Lore");
-            for (Tag<?> each : loreTag) {
-                if (each instanceof StringTag) {
-                    String line = ((StringTag) each).getValue();
-                    try {
-                        if (JsonUtils.isValid(line)) {
-                            loreLines.add(InteractiveChatComponentSerializer.gson().deserialize(line));
-                        } else {
-                            loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
-                        }
-                    } catch (Throwable e) {
-                        loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
-                    }
+        NBTCompound loreNbt = NBTEditor.getNBTCompound(itemstack, "tag", "display", "Lore");
+        List<Component> loreLines = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            String line = NBTEditor.getString(loreNbt, i);
+            try {
+                if (JsonUtils.isValid(line)) {
+                    loreLines.add(InteractiveChatComponentSerializer.gson().deserialize(line));
+                } else {
+                    loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
                 }
+            } catch (Throwable e) {
+                loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
             }
-            return loreLines;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+        return loreLines;
     }
 
     public static boolean isArmor(ItemStack itemStack) {

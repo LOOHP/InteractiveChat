@@ -129,9 +129,6 @@ public class OutMessagePacket implements Listener {
                 } else {
                     component = type.convertFrom(packet.getModifier().read(positionOfSignedContent));
                 }
-                for (int i = 0; i < packet.getModifier().size(); i++) {
-                    System.out.println("read " + i + " = " + packet.getModifier().read(i));
-                }
                 return new PacketAccessorResult(component, type, field, false);
             }, (packet, component, type, field, sender) -> {
                 boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
@@ -147,9 +144,6 @@ public class OutMessagePacket implements Listener {
                 }
                 if (packet.getUUIDs().size() > 0) {
                     packet.getUUIDs().write(0, sender);
-                }
-                for (int i = 0; i < packet.getModifier().size(); i++) {
-                    System.out.println("write " + i + " = " + packet.getModifier().read(i));
                 }
                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
             }));

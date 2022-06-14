@@ -63,9 +63,17 @@ public enum ChatComponentType {
         return component;
     }, object -> {
         return InteractiveChatComponentSerializer.gson().serialize((Component) object);
+    }),
+
+    JsonString(".*java\\.lang\\.String.*", object -> {
+        return InteractiveChatComponentSerializer.gson().deserialize((String) object);
+    }, (component, legacyRGB) -> {
+        return legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+    }, object -> {
+        return (String) object;
     });
 
-    private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent));
+    private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(JsonString, AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent));
 
     public static List<ChatComponentType> byPriority() {
         return BY_PRIORITY;

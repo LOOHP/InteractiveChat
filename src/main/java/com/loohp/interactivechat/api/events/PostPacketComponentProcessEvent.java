@@ -42,19 +42,19 @@ public class PostPacketComponentProcessEvent extends Event {
         return HANDLERS;
     }
 
-    private final Player reciever;
+    private final Player receiver;
     private final UUID sender;
     private Component component;
 
-    public PostPacketComponentProcessEvent(boolean async, Player reciever, Component component, UUID sender) {
+    public PostPacketComponentProcessEvent(boolean async, Player receiver, Component component, UUID sender) {
         super(async);
-        this.reciever = reciever;
+        this.receiver = receiver;
         this.component = component;
         this.sender = sender;
     }
 
-    public Player getReciver() {
-        return reciever;
+    public Player getReceiver() {
+        return receiver;
     }
 
     public UUID getSender() {

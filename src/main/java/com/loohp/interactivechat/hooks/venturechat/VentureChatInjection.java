@@ -20,7 +20,6 @@
 
 package com.loohp.interactivechat.hooks.venturechat;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.ListeningWhitelist;
 import com.comphenix.protocol.events.PacketEvent;
@@ -42,10 +41,9 @@ public class VentureChatInjection implements Listener {
         InteractiveChat.protocolManager.getPacketListeners().forEach(each -> {
             if (each.getPlugin().getName().equals("VentureChat")) {
                 ListeningWhitelist whitelist = each.getSendingWhitelist();
-                if (whitelist.getTypes().contains(PacketType.Play.Server.CHAT)) {
+                if (whitelist.getTypes().stream().anyMatch(type -> {String name = type.name(); return name.equals("CHAT") || name.equals("SYSTEM_CHAT") || name.equals("CHAT_PREVIEW");})) {
                     if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
                         InteractiveChat.protocolManager.removePacketListener(each);
-                        return;
                     }
                 }
             }

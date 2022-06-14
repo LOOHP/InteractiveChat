@@ -20,8 +20,6 @@
 
 package com.loohp.interactivechat.utils;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.loohp.interactivechat.InteractiveChat;
 import net.kyori.adventure.key.Key;
 import org.bukkit.inventory.ItemStack;
@@ -30,8 +28,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class ItemNBTUtils {
-
-    private static final BiMap<String, Integer> ENCHANTMENT_IDS = HashBiMap.create();
 
     private static Class<?> craftItemStackClass;
     private static Class<?> nmsItemStackClass;
@@ -84,37 +80,6 @@ public class ItemNBTUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        ENCHANTMENT_IDS.put("protection", 0);
-        ENCHANTMENT_IDS.put("fire_protection", 1);
-        ENCHANTMENT_IDS.put("feather_falling", 2);
-        ENCHANTMENT_IDS.put("blast_protection", 3);
-        ENCHANTMENT_IDS.put("projectile_protection", 4);
-        ENCHANTMENT_IDS.put("respiration", 5);
-        ENCHANTMENT_IDS.put("aqua_affinity", 6);
-        ENCHANTMENT_IDS.put("thorns", 7);
-        ENCHANTMENT_IDS.put("depth_strider", 8);
-        ENCHANTMENT_IDS.put("frost_walker", 9);
-        ENCHANTMENT_IDS.put("binding_curse", 10);
-        ENCHANTMENT_IDS.put("sharpness", 16);
-        ENCHANTMENT_IDS.put("smite", 17);
-        ENCHANTMENT_IDS.put("bane_of_arthropods", 18);
-        ENCHANTMENT_IDS.put("knockback", 19);
-        ENCHANTMENT_IDS.put("fire_aspect", 20);
-        ENCHANTMENT_IDS.put("looting", 21);
-        ENCHANTMENT_IDS.put("sweeping", 22);
-        ENCHANTMENT_IDS.put("efficiency", 32);
-        ENCHANTMENT_IDS.put("silk_touch", 33);
-        ENCHANTMENT_IDS.put("unbreaking", 34);
-        ENCHANTMENT_IDS.put("fortune", 35);
-        ENCHANTMENT_IDS.put("power", 48);
-        ENCHANTMENT_IDS.put("punch", 49);
-        ENCHANTMENT_IDS.put("flame", 50);
-        ENCHANTMENT_IDS.put("infinity", 51);
-        ENCHANTMENT_IDS.put("luck_of_the_sea", 61);
-        ENCHANTMENT_IDS.put("lure", 62);
-        ENCHANTMENT_IDS.put("mending", 70);
-        ENCHANTMENT_IDS.put("vanishing_curse", 71);
     }
 
     public static ItemStack getItemFromNBTJson(String json) {
@@ -166,45 +131,5 @@ public class ItemNBTUtils {
             return null;
         }
     }
-	/*
-	@SuppressWarnings("deprecation")
-	public static String convertToVersion(XMaterial material, String jsonNbt, MCVersion version) {
-		try {
-			PacketDataSerializer data = new PacketDataSerializer(Unpooled.buffer());
-			data.a(MojangsonParser.parse(jsonNbt));
-			CompoundTag nbt = (CompoundTag) new NBTInputStream(new ByteArrayInputStream(data.array())).readRawTag(512);
-			if (version.isLegacy()) {
-				if (InteractiveChat.version.isLegacy()) {
-					nbt.putInt("id", material.parseMaterial().getId());
-					nbt.putShort("Damage", material.getData());
-				} else {
-					nbt.putInt("id", ((Material) toLegacyMethod.invoke(null, material.parseMaterial())).getId());
-					nbt.putShort("Damage", material.getData());
-				}
-				if (nbt.containsKey("tag") && nbt.getCompoundTag("tag").containsKey("Enchantments")) {
-					String ench = SNBTUtil.toSNBT(nbt.getCompoundTag("tag").getCompoundTag("Enchantments"));
-					nbt.getCompoundTag("tag").remove("Enchantments");
-					for (Entry<String, Integer> entry : enchantmentIds.entrySet()) {
-						ench = ench.replace("id:\"minecraft:" + entry.getKey() + "\"", "id:\"" + entry.getValue() + "s\"");
-					}
-					nbt.getCompoundTag("tag").put("ench", SNBTUtil.fromSNBT(ench));
-				}
-				if (nbt.containsKey("tag") && nbt.getCompoundTag("tag").containsKey("StoredEnchantments")) {
-					String ench = SNBTUtil.toSNBT(nbt.getCompoundTag("tag").getCompoundTag("StoredEnchantments"));
-					nbt.getCompoundTag("tag").remove("StoredEnchantments");
-					for (Entry<String, Integer> entry : enchantmentIds.entrySet()) {
-						ench = ench.replace("id:\"minecraft:" + entry.getKey() + "\"", "id:\"" + entry.getValue() + "s\"");
-					}
-					nbt.getCompoundTag("tag").put("ench", SNBTUtil.fromSNBT(ench));
-				}
-				return SNBTUtil.toSNBT(nbt);
-			} else {
-				return "{}";
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-	        return "{}";
-	    }
-	}
-	*/
+
 }

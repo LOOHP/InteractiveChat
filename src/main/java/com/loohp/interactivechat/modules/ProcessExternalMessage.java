@@ -93,14 +93,14 @@ public class ProcessExternalMessage {
         }
     }
 
-    public static String processAndRespond(Player receiver, String component) throws Exception {
+    public static String processAndRespond(Player receiver, String component, boolean preview) throws Exception {
         if (initPlugin.isEnabled()) {
-            return initPlugin.externalProcessor.processAndRespond0(receiver, component);
+            return initPlugin.externalProcessor.processAndRespond0(receiver, component, preview);
         } else {
             try {
                 Object obj = getInstance();
-                Method processAndRespond0Method = obj.getClass().getMethod("processAndRespond0", Player.class, String.class);
-                return (String) processAndRespond0Method.invoke(obj, receiver, component);
+                Method processAndRespond0Method = obj.getClass().getMethod("processAndRespond0", Player.class, String.class, boolean.class);
+                return (String) processAndRespond0Method.invoke(obj, receiver, component, preview);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -226,7 +226,7 @@ public class ProcessExternalMessage {
         return LegacyComponentSerializer.builder().character(ChatColorUtils.COLOR_CHAR).hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(component);
     }
 
-    public String processAndRespond0(Player receiver, String json) throws Exception {
+    public String processAndRespond0(Player receiver, String json, boolean preview) throws Exception {
         Component component = InteractiveChatComponentSerializer.gson().deserialize(json);
         Component originalComponent = component;
 
@@ -318,15 +318,15 @@ public class ProcessExternalMessage {
         component = CustomPlaceholderDisplay.process(component, sender, receiver, serverPlaceholderList, unix);
 
         if (InteractiveChat.useItem) {
-            component = ItemDisplay.process(component, sender, receiver, unix);
+            component = ItemDisplay.process(component, sender, receiver, preview, unix);
         }
 
         if (InteractiveChat.useInventory) {
-            component = InventoryDisplay.process(component, sender, receiver, unix);
+            component = InventoryDisplay.process(component, sender, receiver, preview, unix);
         }
 
         if (InteractiveChat.useEnder) {
-            component = EnderchestDisplay.process(component, sender, receiver, unix);
+            component = EnderchestDisplay.process(component, sender, receiver, preview, unix);
         }
 
         if (InteractiveChat.clickableCommands) {

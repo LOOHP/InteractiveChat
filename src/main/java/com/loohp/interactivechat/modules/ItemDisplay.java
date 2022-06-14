@@ -66,7 +66,7 @@ import java.util.Optional;
 public class ItemDisplay {
 
     @SuppressWarnings("deprecation")
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.itemPlaceholder.matcher(plain).find()) {
             String regex = InteractiveChat.itemPlaceholder.pattern();
@@ -92,7 +92,7 @@ public class ItemDisplay {
                     if (!InteractiveChat.itemHover && !InteractiveChat.itemAlternativeHoverMessage.isEmpty()) {
                         alternativeHover = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.itemAlternativeHoverMessage);
                     }
-                    Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, receiver, component, unix, InteractiveChat.itemHover, alternativeHover));
+                    Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, receiver, component, unix, InteractiveChat.itemHover, alternativeHover, preview));
                     component = ComponentReplacing.replace(component, regex, true, itemComponent);
                 }
             } else {
@@ -137,11 +137,11 @@ public class ItemDisplay {
         return false;
     }
 
-    public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent) throws Exception {
-        return createItemDisplay(player, receiver, component, timeSent, true, null);
+    public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean preview) throws Exception {
+        return createItemDisplay(player, receiver, component, timeSent, true, null, preview);
     }
 
-    public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover, Component alternativeHover) throws Exception {
+    public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover, Component alternativeHover, boolean preview) throws Exception {
         ItemStack item = PlayerUtils.getHeldItem(player);
 
         if (!item.getType().equals(Material.AIR) && InteractiveChat.ecoHook) {
@@ -152,14 +152,14 @@ public class ItemDisplay {
         Bukkit.getPluginManager().callEvent(event);
         item = event.getItemStack();
 
-        return createItemDisplay(player, item, InteractiveChat.itemTitle, showHover, alternativeHover);
+        return createItemDisplay(player, item, InteractiveChat.itemTitle, showHover, alternativeHover, preview);
     }
 
     public static Component createItemDisplay(OfflineICPlayer player, ItemStack item) throws Exception {
-        return createItemDisplay(player, item, InteractiveChat.itemTitle, true, null);
+        return createItemDisplay(player, item, InteractiveChat.itemTitle, true, null, false);
     }
 
-    public static Component createItemDisplay(OfflineICPlayer player, ItemStack item, String rawTitle, boolean showHover, Component alternativeHover) throws Exception {
+    public static Component createItemDisplay(OfflineICPlayer player, ItemStack item, String rawTitle, boolean showHover, Component alternativeHover, boolean preview) throws Exception {
         if (item == null) {
             item = new ItemStack(Material.AIR);
         }
@@ -206,53 +206,19 @@ public class ItemDisplay {
         String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, rawTitle));
         String sha1 = HashUtils.createSha1(title, item);
 
+        String command = null;
         boolean isMapView = false;
-        if (InteractiveChat.itemMapPreview && FilledMapUtils.isFilledMap(item)) {
-            isMapView = true;
-            if (!InteractiveChat.mapDisplay.containsKey(sha1)) {
-                InteractiveChatAPI.addMapToMapSharedList(sha1, item);
-            }
-        } else if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
-            if (useInventoryView(item)) {
-                Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
-                Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
-                ItemStack empty = InteractiveChat.itemFrame1.clone();
-                if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-                    empty = InteractiveChat.itemFrame2.clone();
+
+        if (!preview) {
+            if (InteractiveChat.itemMapPreview && FilledMapUtils.isFilledMap(item)) {
+                isMapView = true;
+                if (!InteractiveChat.mapDisplay.containsKey(sha1)) {
+                    InteractiveChatAPI.addMapToMapSharedList(sha1, item);
                 }
-                if (empty.hasItemMeta()) {
-                    ItemMeta emptyMeta = empty.getItemMeta();
-                    emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-                    empty.setItemMeta(emptyMeta);
-                }
-                for (int j = 0; j < 9; j++) {
-                    inv.setItem(j, empty);
-                }
-                inv.setItem(4, isAir ? null : originalItem);
-                for (int j = 0; j < container.getSize(); j++) {
-                    ItemStack shulkerItem = container.getItem(j);
-                    if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
-                        inv.setItem(j + 9, shulkerItem == null ? null : shulkerItem.clone());
-                    }
-                }
-                InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
-            } else {
-                if (InteractiveChat.version.isOld()) {
-                    Inventory inv = Bukkit.createInventory(null, 27, title);
-                    ItemStack empty = InteractiveChat.itemFrame1.clone();
-                    if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
-                        empty = InteractiveChat.itemFrame2.clone();
-                    }
-                    ItemMeta emptyMeta = empty.getItemMeta();
-                    emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
-                    empty.setItemMeta(emptyMeta);
-                    for (int j = 0; j < inv.getSize(); j++) {
-                        inv.setItem(j, empty);
-                    }
-                    inv.setItem(13, isAir ? null : originalItem);
-                    InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
-                } else {
-                    Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
+            } else if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
+                if (useInventoryView(item)) {
+                    Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
+                    Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
                     ItemStack empty = InteractiveChat.itemFrame1.clone();
                     if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                         empty = InteractiveChat.itemFrame2.clone();
@@ -262,16 +228,53 @@ public class ItemDisplay {
                         emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
                         empty.setItemMeta(emptyMeta);
                     }
-                    for (int j = 0; j < inv.getSize(); j++) {
+                    for (int j = 0; j < 9; j++) {
                         inv.setItem(j, empty);
                     }
                     inv.setItem(4, isAir ? null : originalItem);
+                    for (int j = 0; j < container.getSize(); j++) {
+                        ItemStack shulkerItem = container.getItem(j);
+                        if (shulkerItem != null && !shulkerItem.getType().equals(Material.AIR)) {
+                            inv.setItem(j + 9, shulkerItem == null ? null : shulkerItem.clone());
+                        }
+                    }
                     InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
+                } else {
+                    if (InteractiveChat.version.isOld()) {
+                        Inventory inv = Bukkit.createInventory(null, 27, title);
+                        ItemStack empty = InteractiveChat.itemFrame1.clone();
+                        if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+                            empty = InteractiveChat.itemFrame2.clone();
+                        }
+                        ItemMeta emptyMeta = empty.getItemMeta();
+                        emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+                        empty.setItemMeta(emptyMeta);
+                        for (int j = 0; j < inv.getSize(); j++) {
+                            inv.setItem(j, empty);
+                        }
+                        inv.setItem(13, isAir ? null : originalItem);
+                        InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
+                    } else {
+                        Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
+                        ItemStack empty = InteractiveChat.itemFrame1.clone();
+                        if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
+                            empty = InteractiveChat.itemFrame2.clone();
+                        }
+                        if (empty.hasItemMeta()) {
+                            ItemMeta emptyMeta = empty.getItemMeta();
+                            emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
+                            empty.setItemMeta(emptyMeta);
+                        }
+                        for (int j = 0; j < inv.getSize(); j++) {
+                            inv.setItem(j, empty);
+                        }
+                        inv.setItem(4, isAir ? null : originalItem);
+                        InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
+                    }
                 }
             }
+            command = isMapView ? "/interactivechat viewmap " + sha1 : "/interactivechat viewitem " + sha1;
         }
-
-        String command = isMapView ? "/interactivechat viewmap " + sha1 : "/interactivechat viewitem " + sha1;
 
         if (trimmed && InteractiveChat.cancelledMessage) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
@@ -284,7 +287,7 @@ public class ItemDisplay {
         } else if (alternativeHover != null) {
             itemDisplayComponent = itemDisplayComponent.hoverEvent(HoverEvent.showText(alternativeHover));
         }
-        if (!isAir && (isMapView || (!isMapView && InteractiveChat.itemGUI))) {
+        if (command != null && !isAir && (isMapView || (!isMapView && InteractiveChat.itemGUI))) {
             itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
         }
 

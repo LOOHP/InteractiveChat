@@ -60,7 +60,7 @@ public class ConfigManager {
     private static final String STORAGE_CONFIG = "storage";
 
     public static void setup() throws IOException {
-        Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config_default.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true, config -> ConfigDataFixer.update(config));
+        Config.loadConfig(MAIN_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("config.yml"), true, config -> ConfigDataFixer.update(config), path -> !path.startsWith("CustomPlaceholders."));
         Config.loadConfig(STORAGE_CONFIG, new File(InteractiveChat.plugin.getDataFolder(), "storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), InteractiveChat.class.getClassLoader().getResourceAsStream("storage.yml"), true);
         loadConfig();
     }
@@ -93,6 +93,9 @@ public class ConfigManager {
 
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
+
+        InteractiveChat.chatListener = getConfig().getBoolean("Settings.PacketsToListen.Chat");
+        InteractiveChat.titleListener = getConfig().getBoolean("Settings.PacketsToListen.Title");
 
         InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
         InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");

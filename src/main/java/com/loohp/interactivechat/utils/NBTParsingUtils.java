@@ -22,6 +22,7 @@ package com.loohp.interactivechat.utils;
 
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
 
 import java.io.ByteArrayOutputStream;
@@ -57,11 +58,21 @@ public class NBTParsingUtils {
 
     public static Tag<?> fromSNBT(String snbt) throws IOException {
         try {
+            boolean isList = snbt.trim().startsWith("[");
+            if (isList) {
+                snbt = "{List:" + snbt + "}";
+            }
             Object nbt = parseMojangsonMethod.invoke(null, snbt);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             streamNBTCompoundMethod.invoke(null, nbt, new DataOutputStream(out));
             NamedTag namedTag = new NBTDeserializer(false).fromBytes(out.toByteArray());
-            return namedTag == null ? null : namedTag.getTag();
+            if (namedTag == null) {
+                return null;
+            }
+            if (isList) {
+                return ((CompoundTag) namedTag.getTag()).getListTag("List");
+            }
+            return namedTag.getTag();
         } catch (InvocationTargetException | IllegalAccessException | IOException e) {
             throw new IOException("Unable to parse SNBT: " + snbt, e);
         }

@@ -45,6 +45,10 @@ Settings:
   Bungeecord: false
   UseAccurateSenderParser: true
   TagEveryIdentifiableMessage: false
+  #In which packets should InteractiveChat listen to and modify
+  PacketsToListen:
+    Chat: true
+    Title: false
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
   ItemTagMaxLength: 30767
@@ -288,7 +292,7 @@ ItemDisplay:
     #This name is used to identify your placeholder
     #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[item]"
-    #This description is used when listing placeholders
+    #This description is used when listing placeholders 
     Description: "&aShow the Item you are holding in the chat!"
 
     HoverableItemsTranslation:
@@ -324,7 +328,7 @@ ItemDisplay:
     #This name is used to identify your placeholder
     #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[inv]"
-    #This description is used when listing placeholders
+    #This description is used when listing placeholders 
     Description: "&bShow your Inventory in the chat!"
 
   EnderChest:
@@ -344,7 +348,7 @@ ItemDisplay:
     #This name is used to identify your placeholder
     #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
     Name: "[ender]"
-    #This description is used when listing placeholders
+    #This description is used when listing placeholders 
     Description: "&dShow your Ender Chest in the chat!"
 
 Player:
@@ -393,4 +397,154 @@ TabCompletion:
 
 #Note that all settings have to be present even if they are set to false
 #You can also use the CustomPlaceholderCreator tool by double-clicking the plugin jar
-CustomPlaceholders: []
+CustomPlaceholders:
+  '1':
+    #Should the placeholders be parsed as the message sender or the message receiver
+    #Either 'sender' or 'viewer'
+    ParsePlayer: sender
+    #The keyword to look for in the chat (in regex)
+    Keyword: "(?i)\\[money\\]|\\[m\\]"
+    #Whether to parse placeholders in the keyword text
+    ParseKeyword: false
+    #Cooldown of this placeholder in seconds
+    Cooldown: 0
+    #Hover message settings
+    Hover:
+      #Add a hover message
+      Enable: true
+      #Text for the hover message
+      #Supports multiple lines
+      Text:
+        - "&6%player_name%'s Balance: \\$%vault_eco_balance_commas%"
+    #Click action settings
+    Click:
+      #Add a click action
+      Enable: true
+      #The action to do when clicked
+      #List of actions:
+      #OPEN_URL
+      #OPEN_FILE
+      #RUN_COMMAND
+      #SUGGEST_COMMAND
+      #CHANGE_PAGE
+      #COPY_TO_CLIPBOARD
+      Action: SUGGEST_COMMAND
+      #The value for the action above
+      #for example '/say yellow is her fav color' for the action RUN_COMMAND
+      Value: "/pay %player_name% "
+    #Replace keyword settings
+    Replace:
+      #Whether the keyword should be replaced with another text
+      Enable: true
+      #The text to replace the keyword
+      ReplaceText: "[%player_name%'s Balance]"
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
+    Name: "[money]"
+    #This description is used when listing placeholders 
+    Description: "&eShow the amount of money you have in the chat!"
+  '2':
+    ParsePlayer: viewer
+    Keyword: "(?i)\\[loohpjames\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: true
+      Text:
+        - "&eVisit the author's website!"
+        - "&bClick me!"
+    Click:
+      Enable: true
+      Action: OPEN_URL
+      Value: "https://loohpjames.com"
+    Replace:
+      Enable: true
+      ReplaceText: "&3&lLoohp&6&lJames"
+    Name: "[loohpjames]"
+    Description: "&eLink to author's website!"
+  '3':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[gametime\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ""
+      Value: ""
+    Replace:
+      Enable: true
+      ReplaceText: "%player_world_time_24%"
+    Name: "[gametime]"
+    Description: "&eShows the current time of the world you are in!"
+  '4':
+    ParsePlayer: viewer
+    Keyword: "(?i)\\[match: *([^\\[\\]]*)\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: true
+      Text:
+        - "&b$1"
+    Click:
+      Enable: true
+      Action: RUN_COMMAND
+      Value: "/me $1"
+    Replace:
+      Enable: true
+      ReplaceText: "&b[&e$1&b]"
+    Name: "[match:<Text>]"
+    Description: "&eExample of using Regex matching groups Text"
+  '5':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[time\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+    Name: "[time]"
+    Description: "&eShows the current time of the server in the real world!"
+  '6':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[pos\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
+    Name: "[pos]"
+    Description: "&eShows your current position!"
+  '7':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[ping\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%player_colored_ping% &bms'
+    Name: "[ping]"
+    Description: "&eShows your current ping!"

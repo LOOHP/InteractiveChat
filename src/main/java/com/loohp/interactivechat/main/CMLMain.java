@@ -171,7 +171,7 @@ public class CMLMain {
             folder = new File("InteractiveChat", "generated");
             FileUtils.removeFolderRecursively(folder);
             folder.mkdirs();
-            FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("config_default.yml"), new File(folder, "config.yml"));
+            FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("config.yml"), new File(folder, "config.yml"));
             FileUtils.copy(CMLMain.class.getClassLoader().getResourceAsStream("storage.yml"), new File(folder, "storage.yml"));
         } else if (input.equals("2")) {
             folder = new File("InteractiveChatBungee", "generated");

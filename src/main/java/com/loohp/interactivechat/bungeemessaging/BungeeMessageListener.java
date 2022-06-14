@@ -256,9 +256,10 @@ public class BungeeMessageListener implements PluginMessageListener {
                         break;
                     }
                     String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                    boolean preview = input.readBoolean();
                     Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
                         try {
-                            String processed = ProcessExternalMessage.processAndRespond(bukkitplayer1, component);
+                            String processed = ProcessExternalMessage.processAndRespond(bukkitplayer1, component, preview);
                             BungeeMessageSender.respondProcessedMessage(System.currentTimeMillis(), processed, messageId);
                         } catch (Exception e) {
                             e.printStackTrace();

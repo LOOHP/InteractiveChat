@@ -27,7 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class RarityUtils {
 
@@ -46,8 +46,8 @@ public class RarityUtils {
             nmsEnumItemRarityClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EnumItemRarity", "net.minecraft.world.item.EnumItemRarity");
             nmsEnumChatFormatClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EnumChatFormat", "net.minecraft.EnumChatFormat");
             asNMSCopyMethod = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
-            getItemRarityMethod = Stream.of(nmsItemStackClass.getMethods()).filter(each -> each.getReturnType().equals(nmsEnumItemRarityClass)).findFirst().orElse(null);
-            getItemRarityColorField = Stream.of(nmsEnumItemRarityClass.getFields()).filter(each -> each.getType().equals(nmsEnumChatFormatClass)).findFirst().orElse(null);
+            getItemRarityMethod = Arrays.stream(nmsItemStackClass.getMethods()).filter(each -> each.getReturnType().equals(nmsEnumItemRarityClass)).findFirst().orElse(null);
+            getItemRarityColorField = Arrays.stream(nmsEnumItemRarityClass.getFields()).filter(each -> each.getType().equals(nmsEnumChatFormatClass)).findFirst().orElse(null);
         } catch (Exception e) {
             e.printStackTrace();
         }

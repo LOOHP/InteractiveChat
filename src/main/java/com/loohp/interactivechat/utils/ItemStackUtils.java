@@ -128,7 +128,7 @@ public class ItemStackUtils {
             return Collections.emptyList();
         }
         NBTCompound loreNbt = NBTEditor.getNBTCompound(itemstack, "tag", "display", "Lore");
-        List<Component> loreLines = new ArrayList<>();
+        List<Component> loreLines = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             String line = NBTEditor.getString(loreNbt, i);
             try {

@@ -40,7 +40,7 @@ import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.ChatEvents;
 import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
-import com.loohp.interactivechat.listeners.OutChatPacket;
+import com.loohp.interactivechat.listeners.OutMessagePacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
@@ -136,6 +136,9 @@ public class InteractiveChat extends JavaPlugin {
     public static Permission perms = null;
 
     public static boolean t = true;
+
+    public static boolean chatListener = true;
+    public static boolean titleListener = false;
 
     public static EventPriority chatEventPriority = EventPriority.HIGH;
     public static EventPriority commandsEventPriority = EventPriority.HIGH;
@@ -457,9 +460,9 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatEvents(), this);
         getServer().getPluginManager().registerEvents(new InventoryEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
-        getServer().getPluginManager().registerEvents(new OutChatPacket(), this);
+        getServer().getPluginManager().registerEvents(new OutMessagePacket(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
-        OutChatPacket.chatMessageListener();
+        OutMessagePacket.messageListeners();
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();
         }
@@ -597,7 +600,7 @@ public class InteractiveChat extends JavaPlugin {
         closeSharedInventoryViews();
         nicknameManager.close();
         try {
-            OutChatPacket.getAsyncChatSendingExecutor().close();
+            OutMessagePacket.getAsyncChatSendingExecutor().close();
         } catch (Exception ignored) {
         }
         getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");

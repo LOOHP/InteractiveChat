@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Config {
 
@@ -52,7 +53,7 @@ public class Config {
         }
     }
 
-    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException {
+    public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments, Consumer<Config> dataFixer, Predicate<String> copyDefaultFilter) throws IOException {
         if (CONFIGS.containsKey(id)) {
             throw new IllegalArgumentException("Duplicate config id");
         }
@@ -61,13 +62,13 @@ public class Config {
             FileUtils.copy(ifNotFound, file);
         }
 
-        Config config = new Config(file, def, refreshComments, dataFixer);
+        Config config = new Config(file, def, refreshComments, dataFixer, copyDefaultFilter);
         CONFIGS.put(id, config);
         return config;
     }
 
     public static Config loadConfig(String id, File file, InputStream ifNotFound, InputStream def, boolean refreshComments) throws IOException {
-        return loadConfig(id, file, ifNotFound, def, refreshComments, null);
+        return loadConfig(id, file, ifNotFound, def, refreshComments, null, path -> true);
     }
 
     public static Config loadConfig(String id, File file) throws IOException {
@@ -103,7 +104,7 @@ public class Config {
     private YamlConfiguration defConfig;
     private YamlConfiguration config;
 
-    private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer) throws IOException {
+    private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer, Predicate<String> copyDefaultFilter) throws IOException {
         this.file = file;
 
         defConfig = new YamlConfiguration(def);
@@ -119,7 +120,7 @@ public class Config {
                 if (refreshComments) {
                     config.setAboveComment(path, defConfig.getAboveComment(path));
                 }
-            } else if (!defConfig.isConfigurationSection(path)) {
+            } else if (copyDefaultFilter.test(path) && !defConfig.isConfigurationSection(path)) {
                 config.set(path, defConfig.get(path));
                 config.setAboveComment(path, defConfig.getAboveComment(path));
             }

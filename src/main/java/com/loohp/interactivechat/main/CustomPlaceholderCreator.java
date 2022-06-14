@@ -82,7 +82,6 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CustomPlaceholderCreator extends JFrame {
 
@@ -189,7 +188,7 @@ public class CustomPlaceholderCreator extends JFrame {
 
         buttonDefaultExamples.addActionListener(e -> {
             try {
-                YamlConfiguration yaml = new YamlConfiguration(getClass().getClassLoader().getResourceAsStream("config_default.yml"));
+                YamlConfiguration yaml = new YamlConfiguration(getClass().getClassLoader().getResourceAsStream("config.yml"));
                 loadFromYaml(yaml);
             } catch (IOException ex) {
                 Toolkit.getDefaultToolkit().beep();
@@ -265,7 +264,7 @@ public class CustomPlaceholderCreator extends JFrame {
         if (regexCheckBox.isSelected()) {
             keyword = validRegex(textFieldKeyword.getText()) == null ? Pattern.compile(textFieldKeyword.getText()) : IMPOSSIBLE_PATTERN;
         } else {
-            String joined = Stream.of(textFieldKeyword.getText().split(",")).map(each -> CustomStringUtils.escapeMetaCharacters(each)).collect(Collectors.joining("|"));
+            String joined = Arrays.stream(textFieldKeyword.getText().split(",")).map(each -> CustomStringUtils.escapeMetaCharacters(each)).collect(Collectors.joining("|"));
             keyword = Pattern.compile(joined);
         }
         boolean parseKeyword = checkBoxParseKeyword.isSelected();

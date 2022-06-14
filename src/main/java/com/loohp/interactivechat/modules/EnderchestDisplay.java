@@ -50,7 +50,7 @@ import java.util.Optional;
 
 public class EnderchestDisplay {
 
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.enderPlaceholder.matcher(plain).find()) {
             String regex = InteractiveChat.enderPlaceholder.pattern();
@@ -62,7 +62,7 @@ public class EnderchestDisplay {
                     String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.enderTitle));
                     String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 
-                    if (!InteractiveChat.enderDisplay.containsKey(sha1)) {
+                    if (!preview && !InteractiveChat.enderDisplay.containsKey(sha1)) {
                         int size = player.getEnderChest().getSize();
                         Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
                         for (int j = 0; j < size; j++) {

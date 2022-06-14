@@ -53,7 +53,7 @@ public class DynmapCoreChatListener implements ChatEventListener {
             } else {
                 try {
                     String component = InteractiveChatComponentSerializer.gson().serialize(LegacyComponentSerializer.legacySection().deserialize(msg));
-                    String processed = PlainTextComponentSerializer.plainText().serialize(InteractiveChatComponentSerializer.gson().deserialize(ProcessExternalMessage.processAndRespond(bukkitplayer, component)));
+                    String processed = PlainTextComponentSerializer.plainText().serialize(InteractiveChatComponentSerializer.gson().deserialize(ProcessExternalMessage.processAndRespond(bukkitplayer, component, false)));
                     core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), processed, p.getName()));
                 } catch (Exception e) {
                     e.printStackTrace();

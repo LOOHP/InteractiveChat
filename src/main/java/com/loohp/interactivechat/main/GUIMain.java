@@ -30,11 +30,8 @@ import org.json.simple.JSONObject;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -44,7 +41,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -229,7 +225,7 @@ public class GUIMain {
             folder = new File("InteractiveChat", "generated");
             FileUtils.removeFolderRecursively(folder);
             folder.mkdirs();
-            FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("config_default.yml"), new File(folder, "config.yml"));
+            FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("config.yml"), new File(folder, "config.yml"));
             FileUtils.copy(GUIMain.class.getClassLoader().getResourceAsStream("storage.yml"), new File(folder, "storage.yml"));
         } else if (input == 1) {
             folder = new File("InteractiveChatBungee", "generated");

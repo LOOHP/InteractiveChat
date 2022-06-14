@@ -27,8 +27,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class TitleUtils {
 
     @SuppressWarnings("deprecation")
@@ -75,21 +73,17 @@ public class TitleUtils {
             packet5.getIntegers().write(1, stay);
             packet5.getIntegers().write(2, fadeOut);
 
-            try {
-                InteractiveChat.protocolManager.sendServerPacket(player, packet1);
-                if (packet2 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet2);
-                }
-                if (packet3 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet3);
-                }
-                if (packet4 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet4);
-                }
-                InteractiveChat.protocolManager.sendServerPacket(player, packet5);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
+            InteractiveChat.protocolManager.sendServerPacket(player, packet1);
+            if (packet2 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet2);
             }
+            if (packet3 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet3);
+            }
+            if (packet4 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet4);
+            }
+            InteractiveChat.protocolManager.sendServerPacket(player, packet5);
         } else {
             PacketContainer packet1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.TITLE);
             packet1.getTitleActions().write(0, TitleAction.RESET);
@@ -136,21 +130,17 @@ public class TitleUtils {
             packet5.getIntegers().write(1, stay);
             packet5.getIntegers().write(2, fadeOut);
 
-            try {
-                InteractiveChat.protocolManager.sendServerPacket(player, packet1);
-                if (packet2 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet2);
-                }
-                if (packet3 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet3);
-                }
-                if (packet4 != null) {
-                    InteractiveChat.protocolManager.sendServerPacket(player, packet4);
-                }
-                InteractiveChat.protocolManager.sendServerPacket(player, packet5);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
+            InteractiveChat.protocolManager.sendServerPacket(player, packet1);
+            if (packet2 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet2);
             }
+            if (packet3 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet3);
+            }
+            if (packet4 != null) {
+                InteractiveChat.protocolManager.sendServerPacket(player, packet4);
+            }
+            InteractiveChat.protocolManager.sendServerPacket(player, packet5);
         }
     }
 

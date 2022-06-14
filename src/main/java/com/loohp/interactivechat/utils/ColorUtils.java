@@ -27,7 +27,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 
 import java.awt.Color;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class ColorUtils {
 
@@ -53,7 +53,7 @@ public class ColorUtils {
         colors.put(ChatColor.YELLOW, new Color(0xFFFF55));
         colors.put(ChatColor.WHITE, new Color(0xFFFFFF));
 
-        chatColorHasGetColor = Stream.of(ChatColor.class.getMethods()).anyMatch(each -> each.getName().equalsIgnoreCase("getColor") && each.getReturnType().equals(Color.class));
+        chatColorHasGetColor = Arrays.stream(ChatColor.class.getMethods()).anyMatch(each -> each.getName().equalsIgnoreCase("getColor") && each.getReturnType().equals(Color.class));
     }
 
     public static ChatColor toChatColor(String str) {

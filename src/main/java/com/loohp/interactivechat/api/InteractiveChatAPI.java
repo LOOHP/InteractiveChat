@@ -46,7 +46,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,21 +105,24 @@ public class InteractiveChatAPI {
     public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, Component component) {
         String json = InteractiveChatComponentSerializer.gson().serialize(component);
         if (sender instanceof Player) {
-            PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
-            if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
-                packet.getChatTypes().write(0, ChatType.SYSTEM);
+            PacketContainer packet;
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
+                packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SYSTEM_CHAT);
+                packet.getStrings().write(0, json);
+                packet.getIntegers().write(0, 1);
             } else {
-                packet.getBytes().write(0, (byte) 1);
+                packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
+                if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
+                    packet.getChatTypes().write(0, ChatType.SYSTEM);
+                } else {
+                    packet.getBytes().write(0, (byte) 1);
+                }
+                packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+                if (packet.getUUIDs().size() > 0) {
+                    packet.getUUIDs().write(0, uuid);
+                }
             }
-            packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-            if (packet.getUUIDs().size() > 0) {
-                packet.getUUIDs().write(0, uuid);
-            }
-            try {
-                InteractiveChat.protocolManager.sendServerPacket((Player) sender, packet, false);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            InteractiveChat.protocolManager.sendServerPacket((Player) sender, packet, false);
         } else {
             sender.spigot().sendMessage(ComponentSerializer.parse(json));
         }

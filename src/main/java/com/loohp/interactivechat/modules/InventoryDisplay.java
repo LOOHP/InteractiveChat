@@ -65,7 +65,7 @@ public class InventoryDisplay {
 
     public static final List<Integer> LAYOUTS = Stream.of(0, 1).collect(Collectors.toList());
 
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.invPlaceholder.matcher(plain).find()) {
             String regex = InteractiveChat.invPlaceholder.pattern();
@@ -77,7 +77,7 @@ public class InventoryDisplay {
                     String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
                     String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
 
-                    if (!InteractiveChat.inventoryDisplay.containsKey(sha1)) {
+                    if (!preview && !InteractiveChat.inventoryDisplay.containsKey(sha1)) {
                         layout0(player, sha1, title, reciever, component, unix);
                         layout1(player, sha1, title, reciever, component, unix);
                     }
@@ -110,11 +110,8 @@ public class InventoryDisplay {
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }
-
-            return component;
-        } else {
-            return component;
         }
+        return component;
     }
 
     public static String getLevelTranslation(int level) {

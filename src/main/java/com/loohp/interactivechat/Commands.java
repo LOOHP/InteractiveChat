@@ -311,13 +311,13 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 component = PlayernameDisplay.process(component, icplayer, player, unix);
                             }
                             if (InteractiveChat.useItem) {
-                                component = ItemDisplay.process(component, icplayer, player, unix);
+                                component = ItemDisplay.process(component, icplayer, player, false, unix);
                             }
                             if (InteractiveChat.useInventory) {
-                                component = InventoryDisplay.process(component, icplayer, player, unix);
+                                component = InventoryDisplay.process(component, icplayer, player, false, unix);
                             }
                             if (InteractiveChat.useEnder) {
-                                component = EnderchestDisplay.process(component, icplayer, player, unix);
+                                component = EnderchestDisplay.process(component, icplayer, player, false, unix);
                             }
                             component = CustomPlaceholderDisplay.process(component, icplayer, player, InteractiveChat.placeholderList.values(), unix);
                             if (InteractiveChat.clickableCommands) {
@@ -356,11 +356,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                         PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Client.CHAT);
                         packet.getStrings().write(0, message);
-                        try {
-                            InteractiveChat.protocolManager.recieveClientPacket((Player) sender, packet);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
+                        InteractiveChat.protocolManager.receiveClientPacket((Player) sender, packet);
                     } else {
                         sender.sendMessage(InteractiveChat.noConsoleMessage);
                     }

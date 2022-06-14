@@ -36,7 +36,6 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class InventoryUtils {
@@ -91,16 +90,8 @@ public class InventoryUtils {
         packet2.getIntegers().write(1, -1);
         packet2.getItemModifier().write(0, ITEMSTACK_AIR);
 
-        try {
-            InteractiveChat.protocolManager.sendServerPacket(player, packet1);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        try {
-            InteractiveChat.protocolManager.sendServerPacket(player, packet2);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        InteractiveChat.protocolManager.sendServerPacket(player, packet1);
+        InteractiveChat.protocolManager.sendServerPacket(player, packet2);
     }
 
     public static String toBase64(Inventory inventory) throws IllegalStateException {

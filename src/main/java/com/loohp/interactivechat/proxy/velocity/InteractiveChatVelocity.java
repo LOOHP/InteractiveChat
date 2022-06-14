@@ -35,6 +35,8 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
+import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
 import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
@@ -63,7 +65,17 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
-import com.velocitypowered.proxy.protocol.packet.Chat;
+import com.velocitypowered.proxy.protocol.MinecraftPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.LegacyChat;
+import com.velocitypowered.proxy.protocol.packet.chat.PlayerChat;
+import com.velocitypowered.proxy.protocol.packet.chat.ServerChatPreview;
+import com.velocitypowered.proxy.protocol.packet.chat.ServerPlayerChat;
+import com.velocitypowered.proxy.protocol.packet.chat.SystemChat;
+import com.velocitypowered.proxy.protocol.packet.title.GenericTitlePacket.ActionType;
+import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
+import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
+import com.velocitypowered.proxy.protocol.packet.title.TitleSubtitlePacket;
+import com.velocitypowered.proxy.protocol.packet.title.TitleTextPacket;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -71,6 +83,7 @@ import io.netty.channel.ChannelPromise;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.json.simple.JSONObject;
@@ -95,6 +108,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,7 +139,7 @@ public class InteractiveChatVelocity {
     public static ProxyPlayerCooldownManager playerCooldownManager;
     public static ProxyServer proxyServer;
     protected static Random random = new Random();
-    protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
+    protected static Map<UUID, Set<ForwardedMessageData>> forwardedMessages = new ConcurrentHashMap<>();
     protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
@@ -228,18 +242,75 @@ public class InteractiveChatVelocity {
             proxyServer.getScheduler().buildTask(plugin, () -> {
                 try {
                     if (player != null && server != null) {
-                        PluginMessageSendingVelocity.requestMessageProcess(player, server.getServer(), component, info.getId());
+                        PluginMessageSendingVelocity.requestMessageProcess(player, server.getServer(), component, info.getId(), info.getType().isPreview());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }).delay(delay + 50, TimeUnit.MILLISECONDS).schedule();
         }, (info, component) -> {
-            Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition(), null);
+            MinecraftPacket packet;
+            switch (info.getType()) {
+                case LEGACY_CHAT:
+                    packet = new LegacyChat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition(), null);
+                    break;
+                case SYSTEM_CHAT:
+                    packet = new SystemChat(GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")), info.getPosition());
+                    break;
+                case PLAYER_CHAT:
+                    packet = new ServerPlayerChat();
+                    try {
+                        Field[] fields = packet.getClass().getDeclaredFields();
+                        for (Field field : fields) {
+                            field.setAccessible(true);
+                            field.set(packet, field.get(info.getOriginalPacket()));
+                        }
+                        fields[1].set(packet, GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")));
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case CHAT_PREVIEW:
+                    ServerChatPreview serverChatPreview = (ServerChatPreview) info.getOriginalPacket();
+                    packet = new ServerChatPreview();
+                    try {
+                        Field[] fields = packet.getClass().getDeclaredFields();
+                        fields[0].setAccessible(true);
+                        fields[0].set(packet, serverChatPreview.getId());
+                        fields[1].setAccessible(true);
+                        fields[1].set(packet, GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")));
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                case LEGACY_TITLE:
+                    LegacyTitlePacket originalTitlePacket = (LegacyTitlePacket) info.getOriginalPacket();
+                    LegacyTitlePacket legacyTitlePacket = new LegacyTitlePacket();
+                    legacyTitlePacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    legacyTitlePacket.setAction(originalTitlePacket.getAction());
+                    packet = legacyTitlePacket;
+                    break;
+                case TITLE:
+                    TitleTextPacket titleTextPacket = new TitleTextPacket();
+                    titleTextPacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    packet = titleTextPacket;
+                    break;
+                case SUBTITLE:
+                    TitleSubtitlePacket titleSubtitlePacket = new TitleSubtitlePacket();
+                    titleSubtitlePacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    packet = titleSubtitlePacket;
+                    break;
+                case ACTION_BAR:
+                    TitleActionbarPacket titleActionbarPacket = new TitleActionbarPacket();
+                    titleActionbarPacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    packet = titleActionbarPacket;
+                    break;
+                default:
+                    throw new IllegalStateException("Unable to send packet of type " + info.getType());
+            }
             Optional<Player> optplayer = getServer().getPlayer(info.getPlayer());
             if (optplayer.isPresent()) {
                 ConnectedPlayer userConnection = (ConnectedPlayer) optplayer.get();
-                userConnection.getConnection().getChannel().write(chatPacket);
+                userConnection.getConnection().getChannel().write(packet);
             }
         }, uuid -> {
             return proxyServer.getPlayer(uuid).isPresent();
@@ -318,10 +389,10 @@ public class InteractiveChatVelocity {
             }
 
             long now = System.currentTimeMillis();
-            for (Map<String, Long> list : forwardedMessages.values()) {
-                Iterator<Long> itr = list.values().iterator();
+            for (Set<ForwardedMessageData> list : forwardedMessages.values()) {
+                Iterator<ForwardedMessageData> itr = list.iterator();
                 while (itr.hasNext()) {
-                    long time = itr.next();
+                    long time = itr.next().getTimeStamp();
                     if (time - 5000 > now) {
                         itr.remove();
                     }
@@ -603,8 +674,8 @@ public class InteractiveChatVelocity {
             }
 
             proxyServer.getScheduler().buildTask(plugin, () -> {
-                Map<String, Long> messages = forwardedMessages.get(uuid);
-                if (messages != null && messages.remove(newMessage) != null) {
+                Set<ForwardedMessageData> messages = forwardedMessages.get(uuid);
+                if (messages != null && messages.removeIf(each -> each.getMessage().equals(newMessage))) {
                     try {
                         PluginMessageSendingVelocity.sendMessagePair(uuid, newMessage);
                     } catch (IOException e) {
@@ -673,16 +744,22 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat) {
-                        Chat packet = (Chat) obj;
+                    if (obj instanceof LegacyChat) {
+                        LegacyChat packet = (LegacyChat) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
                         byte position = packet.getType();
                         if ((position == 0 || position == 1) && uuid != null && message != null) {
-                            Map<String, Long> list = forwardedMessages.get(uuid);
+                            Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
                             if (list != null) {
-                                list.put(message, System.currentTimeMillis());
+                                list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
                             }
+                        }
+                    } else if (obj instanceof PlayerChat) {
+                        PlayerChat packet = (PlayerChat) obj;
+                        Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
+                        if (list != null) {
+                            list.add(new ForwardedMessageData(packet.getMessage(), ChatPacketType.CLIENT_CHAT, System.currentTimeMillis()));
                         }
                     }
                 } catch (Throwable e) {
@@ -701,7 +778,7 @@ public class InteractiveChatVelocity {
 
         Player player = event.getPlayer();
 
-        forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
+        forwardedMessages.put(player.getUniqueId(), Collections.newSetFromMap(new ConcurrentHashMap<>()));
 
         if (player.hasPermission("interactivechat.backendinfo")) {
             String proxyVersion = getDescription().getVersion();
@@ -723,8 +800,8 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat) {
-                        Chat packet = (Chat) obj;
+                    if (obj instanceof LegacyChat) {
+                        LegacyChat packet = (LegacyChat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getType();
                         if ((position == 0 || position == 1) && message != null) {
@@ -735,7 +812,122 @@ public class InteractiveChatVelocity {
                                 }
                                 packet.setMessage(message);
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof SystemChat) {
+                        SystemChat packet = (SystemChat) obj;
+                        String message = GsonComponentSerializer.gson().serialize(packet.getComponent());
+                        int position = packet.getType();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                Field messageField = packet.getClass().getDeclaredField("component");
+                                messageField.setAccessible(true);
+                                messageField.set(packet, GsonComponentSerializer.gson().deserialize(message));
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.SYSTEM_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof ServerPlayerChat) {
+                        ServerPlayerChat packet = (ServerPlayerChat) obj;
+                        Field unsignedContentField = packet.getClass().getDeclaredField("unsignedComponent");
+                        unsignedContentField.setAccessible(true);
+                        String message = GsonComponentSerializer.gson().serializeOrNull((Component) unsignedContentField.get(packet));
+                        int position = packet.getType();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                unsignedContentField.set(packet, GsonComponentSerializer.gson().deserialize(message));
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.PLAYER_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof ServerChatPreview) {
+                        ServerChatPreview packet = (ServerChatPreview) obj;
+                        String message = GsonComponentSerializer.gson().serializeOrNull(packet.getPreview());
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                Field messageField = packet.getClass().getDeclaredField("preview");
+                                messageField.setAccessible(true);
+                                messageField.set(packet, GsonComponentSerializer.gson().deserialize(message));
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.PLAYER_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof LegacyTitlePacket) {
+                        LegacyTitlePacket packet = (LegacyTitlePacket) obj;
+                        String message = packet.getComponent();
+                        if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
+                            if (message != null) {
+                                if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                    message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                    if (Registry.ID_PATTERN.matcher(message).find()) {
+                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    }
+                                    packet.setComponent(message);
+                                } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                    messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.LEGACY_TITLE, packet);
+                                    return;
+                                }
+                            }
+                        }
+                    } else if (obj instanceof TitleTextPacket) {
+                        TitleTextPacket packet = (TitleTextPacket) obj;
+                        String message = packet.getComponent();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setComponent(message);
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.TITLE, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof TitleSubtitlePacket) {
+                        TitleSubtitlePacket packet = (TitleSubtitlePacket) obj;
+                        String message = packet.getComponent();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setComponent(message);
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.SUBTITLE, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof TitleActionbarPacket) {
+                        TitleActionbarPacket packet = (TitleActionbarPacket) obj;
+                        String message = packet.getComponent();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setComponent(message);
+                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.ACTION_BAR, packet);
                                 return;
                             }
                         }

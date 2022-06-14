@@ -68,17 +68,17 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
         monitor();
     }
 
-    public synchronized void processMessage(UUID player, String message, byte position) {
+    public synchronized void processMessage(UUID player, String message, int position, ChatPacketType type, Object originalPacket) {
         UUID messageId = UUID.randomUUID();
         if (hasInteractiveChatOnConnectedServer.test(player)) {
             messageOrder.putIfAbsent(player, new ConcurrentLinkedQueue<>());
             Queue<ForwardMessageInfo> queue = messageOrder.get(player);
-            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
+            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, type, System.currentTimeMillis(), originalPacket);
             messageData.put(messageId, forwardMessageInfo);
             queue.add(forwardMessageInfo);
             forwardForProcessing.accept(forwardMessageInfo, message);
         } else {
-            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, System.currentTimeMillis());
+            ForwardMessageInfo forwardMessageInfo = new ForwardMessageInfo(messageId, player, position, type, System.currentTimeMillis(), originalPacket);
             sendToPlayer.accept(forwardMessageInfo, message);
         }
     }
@@ -132,13 +132,7 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
                 for (Queue<ForwardMessageInfo> queue : messageOrder.values()) {
                     queue.removeIf(each -> each.getTime() + executionWaitTime.getAsLong() < time);
                 }
-                Iterator<ForwardMessageInfo> itr0 = messageData.values().iterator();
-                while (itr0.hasNext()) {
-                    ForwardMessageInfo id = itr0.next();
-                    if (id.getTime() + executionWaitTime.getAsLong() < time) {
-                        itr0.remove();
-                    }
-                }
+                messageData.values().removeIf(id -> id.getTime() + executionWaitTime.getAsLong() < time);
 
                 for (UUID player : messageOrder.keySet()) {
                     if (!isPlayerOnline.test(player)) {
@@ -216,14 +210,18 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
 
         private final UUID id;
         private final UUID player;
-        private final byte position;
+        private final int position;
+        private final ChatPacketType type;
         private final long time;
+        private final Object originalPacket;
 
-        public ForwardMessageInfo(UUID id, UUID player, byte position, long time) {
+        public ForwardMessageInfo(UUID id, UUID player, int position, ChatPacketType type, long time, Object originalPacket) {
             this.id = id;
             this.player = player;
             this.position = position;
+            this.type = type;
             this.time = time;
+            this.originalPacket = originalPacket;
         }
 
         public UUID getId() {
@@ -234,12 +232,20 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
             return player;
         }
 
-        public byte getPosition() {
+        public int getPosition() {
             return position;
+        }
+
+        public ChatPacketType getType() {
+            return type;
         }
 
         public long getTime() {
             return time;
+        }
+
+        public Object getOriginalPacket() {
+            return originalPacket;
         }
 
     }

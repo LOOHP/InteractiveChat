@@ -251,12 +251,13 @@ public class PluginMessageSendingVelocity {
         }
     }
 
-    public static void requestMessageProcess(Player player, RegisteredServer server, String component, UUID messageId) throws IOException {
+    public static void requestMessageProcess(Player player, RegisteredServer server, String component, UUID messageId, boolean preview) throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
         DataTypeIO.writeUUID(output, messageId);
         DataTypeIO.writeUUID(output, player.getUniqueId());
         DataTypeIO.writeString(output, component, StandardCharsets.UTF_8);
+        output.writeBoolean(preview);
 
         int packetNumber = InteractiveChatVelocity.random.nextInt();
         int packetId = 0x08;

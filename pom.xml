@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.1.4.17</version>
+	<version>4.2.0.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -295,7 +295,7 @@
 		<dependency>
 			<groupId>com.github.cryptomorin</groupId>
 			<artifactId>XSeries</artifactId>
-			<version>8.7.1</version>
+			<version>8.8.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -343,7 +343,7 @@
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib</artifactId>
-			<version>4.8.0</version>
+			<version>5.0.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -392,21 +392,21 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.18.2-R0.1-SNAPSHOT</version>
+			<version>1.19-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
-			<version>1.18.2-R0.1-SNAPSHOT</version>
+			<version>1.19-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</groupId>
-			<artifactId>bungeecord-proxy-1.16-R0.5-SNAPSHOT</artifactId>
+			<groupId>bungeecord-proxy-1.19-R0.1-SNAPSHOT</groupId>
+			<artifactId>bungeecord-proxy-1.19-R0.1-SNAPSHOT</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/bungeecord-proxy-1.16-R0.5-SNAPSHOT.jar</systemPath>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.19-R0.1-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>Dynmap-3.3-beta-1-spigot</groupId>
@@ -437,14 +437,14 @@
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.18-R0.1-SNAPSHOT</version>
+			<version>1.19-R0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.18-R0.1-SNAPSHOT</version>
+			<version>1.19-R0.1-SNAPSHOT</version>
 			<type>javadoc</type>
 			<scope>provided</scope>
 		</dependency>
@@ -515,11 +515,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>velocity-3.0.0</groupId>
-			<artifactId>velocity-3.0.0</artifactId>
+			<groupId>velocity-3.1.2-SNAPSHOT-153</groupId>
+			<artifactId>velocity-3.1.2-SNAPSHOT-153</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/velocity-3.0.0.jar</systemPath>
+			<systemPath>${basedir}/lib/velocity-3.1.2-SNAPSHOT-153.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.luckperms</groupId>
@@ -542,7 +542,7 @@
 		<dependency>
 			<groupId>io.github.bananapuncher714</groupId>
 			<artifactId>nbteditor</artifactId>
-			<version>7.18.1</version>
+			<version>7.18.3</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>

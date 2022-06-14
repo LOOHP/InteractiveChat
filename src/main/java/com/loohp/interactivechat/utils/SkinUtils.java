@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -52,25 +53,27 @@ public class SkinUtils {
     private static Field craftSkullMetaProfileField;
 
     static {
-        try {
-            craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
-            nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EntityPlayer", "net.minecraft.server.level.EntityPlayer");
-            craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
-            nmsEntityPlayerGetProfileMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
-                return nmsEntityPlayerClass.getMethod("getProfile");
-            }, () -> {
-                Method method = nmsEntityPlayerClass.getMethod("fp");
-                if (!method.getReturnType().equals(GameProfile.class)) {
-                    throw new NoSuchMethodException();
-                }
-                return method;
-            }, () -> {
-                return nmsEntityPlayerClass.getMethod("fq");
-            });
-            craftSkullMetaClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftMetaSkull");
-            craftSkullMetaProfileField = craftSkullMetaClass.getDeclaredField("profile");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (InteractiveChat.version.isOlderThan(MCVersion.V1_19)) {
+            try {
+                craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+                nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.%s.EntityPlayer", "net.minecraft.server.level.EntityPlayer");
+                craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
+                nmsEntityPlayerGetProfileMethod = NMSUtils.reflectiveLookup(Method.class, () -> {
+                    return nmsEntityPlayerClass.getMethod("getProfile");
+                }, () -> {
+                    Method method = nmsEntityPlayerClass.getMethod("fp");
+                    if (!method.getReturnType().equals(GameProfile.class)) {
+                        throw new NoSuchMethodException();
+                    }
+                    return method;
+                }, () -> {
+                    return nmsEntityPlayerClass.getMethod("fq");
+                });
+                craftSkullMetaClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftMetaSkull");
+                craftSkullMetaProfileField = craftSkullMetaClass.getDeclaredField("profile");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -79,34 +82,63 @@ public class SkinUtils {
     }
 
     public static String getSkinValue(Player player) throws Exception {
-        Object playerNMS = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
-        GameProfile profile = (GameProfile) nmsEntityPlayerGetProfileMethod.invoke(playerNMS);
-        Collection<Property> textures = profile.getProperties().get("textures");
-        if (textures == null || textures.isEmpty()) {
-            return null;
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            PlayerProfile playerProfile = player.getPlayerProfile();
+            Method craftPlayerProfileGetPropertyMethod = playerProfile.getClass().getDeclaredMethod("getProperty", String.class);
+            craftPlayerProfileGetPropertyMethod.setAccessible(true);
+            Property property = (Property) craftPlayerProfileGetPropertyMethod.invoke(playerProfile, "textures");
+            if (property == null) {
+                return null;
+            }
+            return property.getValue();
+        } else {
+            Object playerNMS = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+            GameProfile profile = (GameProfile) nmsEntityPlayerGetProfileMethod.invoke(playerNMS);
+            Collection<Property> textures = profile.getProperties().get("textures");
+            if (textures == null || textures.isEmpty()) {
+                return null;
+            }
+            return textures.iterator().next().getValue();
         }
-        return textures.iterator().next().getValue();
     }
 
     public static String getSkinValue(ItemMeta skull) {
         SkullMeta meta = (SkullMeta) skull;
-        GameProfile profile = null;
 
-        try {
-            craftSkullMetaProfileField.setAccessible(true);
-            profile = (GameProfile) craftSkullMetaProfileField.get(meta);
-        } catch (SecurityException | IllegalAccessException ex) {
-            ex.printStackTrace();
-        }
-
-        if (profile != null && !profile.getProperties().get("textures").isEmpty()) {
-            for (Property property : profile.getProperties().get("textures")) {
-                if (!property.getValue().isEmpty()) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            if (meta.hasOwner()) {
+                try {
+                    PlayerProfile playerProfile = meta.getOwnerProfile();
+                    Method craftPlayerProfileGetPropertyMethod = playerProfile.getClass().getDeclaredMethod("getProperty", String.class);
+                    craftPlayerProfileGetPropertyMethod.setAccessible(true);
+                    Property property = (Property) craftPlayerProfileGetPropertyMethod.invoke(playerProfile, "textures");
+                    if (property == null) {
+                        return null;
+                    }
                     return property.getValue();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        }
+        } else {
+            GameProfile profile = null;
 
+            try {
+                craftSkullMetaProfileField.setAccessible(true);
+                profile = (GameProfile) craftSkullMetaProfileField.get(meta);
+            } catch (SecurityException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            if (profile != null && !profile.getProperties().get("textures").isEmpty()) {
+                for (Property property : profile.getProperties().get("textures")) {
+                    if (!property.getValue().isEmpty()) {
+                        return property.getValue();
+                    }
+                }
+            }
+
+        }
         return null;
     }
 

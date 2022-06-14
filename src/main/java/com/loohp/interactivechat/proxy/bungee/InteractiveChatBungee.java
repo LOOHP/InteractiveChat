@@ -23,7 +23,6 @@ package com.loohp.interactivechat.proxy.bungee;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.Config;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
@@ -36,18 +35,17 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.proxy.bungee.metrics.Charts;
 import com.loohp.interactivechat.proxy.bungee.metrics.Metrics;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
+import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
 import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
 import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
-import com.loohp.interactivechat.utils.PlayerUtils;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -72,8 +70,14 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
-import org.bukkit.Material;
+import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.PlayerChat;
+import net.md_5.bungee.protocol.packet.Subtitle;
+import net.md_5.bungee.protocol.packet.SystemChat;
+import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.Title.Action;
 import us.myles.ViaVersion.api.Via;
 
 import java.io.File;
@@ -92,6 +96,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,7 +130,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
     protected static Random random = new Random();
-    protected static Map<UUID, Map<String, Long>> forwardedMessages = new ConcurrentHashMap<>();
+    protected static Map<UUID, Set<ForwardedMessageData>> forwardedMessages = new ConcurrentHashMap<>();
     protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
     private static volatile boolean filtersAdded = false;
     private static ProxyMessageForwardingHandler messageForwardingHandler;
@@ -255,14 +260,42 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
                 try {
                     if (player != null && server != null) {
-                        PluginMessageSendingBungee.requestMessageProcess(player, server.getInfo(), component, info.getId());
+                        PluginMessageSendingBungee.requestMessageProcess(player, server.getInfo(), component, info.getId(), info.getType().isPreview());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }, delay + 50, TimeUnit.MILLISECONDS);
         }, (info, component) -> {
-            Chat chatPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
+            DefinedPacket definedPacket;
+            switch (info.getType()) {
+                case LEGACY_CHAT:
+                    definedPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition());
+                    break;
+                case SYSTEM_CHAT:
+                    definedPacket = new SystemChat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
+                    break;
+                case PLAYER_CHAT:
+                    PlayerChat originalChat = (PlayerChat) info.getOriginalPacket();
+                    definedPacket = new PlayerChat(originalChat.getSignedContent(), component + "<QUxSRUFEWVBST0NFU1NFRA==>", originalChat.getSender(), info.getPosition(), originalChat.getDisplayName(), originalChat.getTeamName(), originalChat.getTimestamp(), originalChat.getSalt(), originalChat.getSignature());
+                    break;
+                case TITLE:
+                    Title originalTitle = (Title) info.getOriginalPacket();
+                    Title title = new Title();
+                    title.setText(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    if (originalTitle.getAction() != null) {
+                        title.setAction(originalTitle.getAction());
+                    }
+                    definedPacket = title;
+                    break;
+                case SUBTITLE:
+                    Subtitle subtitle = new Subtitle();
+                    subtitle.setText(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    definedPacket = subtitle;
+                    break;
+                default:
+                    throw new IllegalStateException("Unable to send packet of type " + info.getType());
+            }
             UserConnection userConnection = (UserConnection) ProxyServer.getInstance().getPlayer(info.getPlayer());
             ChannelWrapper channelWrapper;
             Field channelField = null;
@@ -280,7 +313,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                     channelField.setAccessible(false);
                 }
             }
-            channelWrapper.write(chatPacket);
+            channelWrapper.write(definedPacket);
         }, uuid -> {
             return ProxyServer.getInstance().getPlayer(uuid) != null;
         }, uuid -> {
@@ -338,10 +371,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
 
             long now = System.currentTimeMillis();
-            for (Map<String, Long> list : forwardedMessages.values()) {
-                Iterator<Long> itr = list.values().iterator();
+            for (Set<ForwardedMessageData> list : forwardedMessages.values()) {
+                Iterator<ForwardedMessageData> itr = list.iterator();
                 while (itr.hasNext()) {
-                    long time = itr.next();
+                    long time = itr.next().getTimeStamp();
                     if (time - 5000 > now) {
                         itr.remove();
                     }
@@ -630,8 +663,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
 
             ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
-                Map<String, Long> messages = forwardedMessages.get(uuid);
-                if (messages != null && messages.remove(newMessage) != null) {
+                Set<ForwardedMessageData> messages = forwardedMessages.get(uuid);
+                if (messages != null && messages.removeIf(each -> each.getMessage().equals(newMessage))) {
                     try {
                         PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
                     } catch (IOException e) {
@@ -672,12 +705,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         Chat packet = (Chat) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
-                        byte position = packet.getPosition();
-                        if ((position == 0 || position == 1) && uuid != null && message != null) {
-                            Map<String, Long> list = forwardedMessages.get(uuid);
+                        if (uuid != null && message != null) {
+                            Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
                             if (list != null) {
-                                list.put(message, System.currentTimeMillis());
+                                list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
                             }
+                        }
+                    } else if (obj instanceof ClientChat) {
+                        ClientChat packet = (ClientChat) obj;
+                        Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
+                        if (list != null) {
+                            list.add(new ForwardedMessageData(packet.getMessage(), ChatPacketType.CLIENT_CHAT, System.currentTimeMillis()));
                         }
                     }
                 } catch (Throwable e) {
@@ -696,7 +734,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
         ProxiedPlayer player = event.getPlayer();
 
-        forwardedMessages.put(player.getUniqueId(), new ConcurrentHashMap<>());
+        forwardedMessages.put(player.getUniqueId(), Collections.newSetFromMap(new ConcurrentHashMap<>()));
 
         if (player.hasPermission("interactivechat.backendinfo")) {
             String proxyVersion = plugin.getDescription().getVersion();
@@ -737,7 +775,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         Chat packet = (Chat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getPosition();
-                        if ((position == 0 || position == 1) && message != null) {
+                        if (message != null) {
                             if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
@@ -745,11 +783,76 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 }
                                 packet.setMessage(message);
                             } else if (hasInteractiveChat(player.getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position);
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof SystemChat) {
+                        SystemChat packet = (SystemChat) obj;
+                        String message = packet.getMessage();
+                        int position = packet.getPosition();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setMessage(message);
+                            } else if (hasInteractiveChat(player.getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.SYSTEM_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof PlayerChat) {
+                        PlayerChat packet = (PlayerChat) obj;
+                        String message = packet.getUnsignedContent();
+                        int position = packet.getTypeId();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setUnsignedContent(message);
+                            } else if (hasInteractiveChat(player.getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.PLAYER_CHAT, packet);
+                                return;
+                            }
+                        }
+                    } else if (obj instanceof Title) {
+                        Title packet = (Title) obj;
+                        String message = packet.getText();
+                        if (packet.getAction() == null || packet.getAction().equals(Action.TITLE) || packet.getAction().equals(Action.SUBTITLE) || packet.getAction().equals(Action.ACTIONBAR)) {
+                            if (message != null) {
+                                if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                    message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                    if (Registry.ID_PATTERN.matcher(message).find()) {
+                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    }
+                                    packet.setText(message);
+                                } else if (hasInteractiveChat(player.getServer())) {
+                                    messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.TITLE, packet);
+                                    return;
+                                }
+                            }
+                        }
+                    } else if (obj instanceof Subtitle) {
+                        Subtitle packet = (Subtitle) obj;
+                        String message = packet.getText();
+                        if (message != null) {
+                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                if (Registry.ID_PATTERN.matcher(message).find()) {
+                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                }
+                                packet.setText(message);
+                            } else if (hasInteractiveChat(player.getServer())) {
+                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.SUBTITLE, packet);
                                 return;
                             }
                         }
                     }
+                    //TO-DO Chat Preview
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

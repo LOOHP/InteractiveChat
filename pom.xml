@@ -491,12 +491,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.velocitypowered</groupId>
-			<artifactId>velocity-api</artifactId>
-			<version>1.1.4</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.discordsrv</groupId>
 			<artifactId>discordsrv</artifactId>
 			<version>1.25.0</version>

@@ -164,6 +164,15 @@ public class NativeAdventureConverter {
         return null;
     }
 
+    public static Object jsonStringToNative(String json) {
+        try {
+            return nativeGsonComponentDeserializeMethod.invoke(nativeGsonComponentSerializerObject, json);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            printError(e);
+        }
+        return null;
+    }
+
     public static Object showItemToNative(ShowItem showItem) {
         String key = showItem.item().asString();
         int amount = showItem.count();

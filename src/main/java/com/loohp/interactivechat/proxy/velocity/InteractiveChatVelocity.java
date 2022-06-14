@@ -842,7 +842,6 @@ public class InteractiveChatVelocity {
                                 Field messageField = packet.getClass().getDeclaredField("component");
                                 messageField.setAccessible(true);
                                 messageField.set(packet, NativeAdventureConverter.jsonStringToNative(message));
-                                System.out.println(NativeAdventureConverter.jsonStringFromNative(NativeAdventureConverter.jsonStringToNative(message)));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.SYSTEM_CHAT, packet);
                                 return;

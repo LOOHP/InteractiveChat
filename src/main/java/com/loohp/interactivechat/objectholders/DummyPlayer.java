@@ -20,41 +20,50 @@
 
 package com.loohp.interactivechat.objectholders;
 
-import javassist.util.proxy.MethodFilter;
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyFactory;
+import com.comphenix.net.bytebuddy.description.method.MethodDescription;
+import com.comphenix.net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy.Default;
+import com.comphenix.net.bytebuddy.implementation.MethodDelegation;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.AllArguments;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.Origin;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.This;
+import com.comphenix.net.bytebuddy.matcher.ElementMatcher;
+import com.comphenix.net.bytebuddy.matcher.ElementMatchers;
+import com.comphenix.protocol.utility.ByteBuddyFactory;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.UUID;
 
 public abstract class DummyPlayer implements Player {
 
-    public static DummyPlayer newInstance(String name, UUID uuid) {
-        ProxyFactory factory = new ProxyFactory();
-        factory.setSuperclass(DummyPlayer.class);
-        factory.setFilter(
-            new MethodFilter() {
-                @Override
-                public boolean isHandled(Method method) {
-                    return Modifier.isAbstract(method.getModifiers());
-                }
+    private static final Constructor<? extends DummyPlayer> CONSTRUCTOR = setupProxyPlayerConstructor();
+
+    private static Constructor<? extends DummyPlayer> setupProxyPlayerConstructor() {
+        MethodDelegation implementation = MethodDelegation.to(new Object() {
+            @RuntimeType
+            public Object delegate(@This Object obj, @Origin Method method, @AllArguments Object... args) {
+                throw new UnsupportedOperationException("This operation is unsupported for DummyPlayer");
             }
-        );
-        MethodHandler handler = new MethodHandler() {
-            @Override
-            public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-                throw new UnsupportedOperationException();
-            }
-        };
+        });
+        ElementMatcher.Junction<MethodDescription> callbackFilter = ElementMatchers.not(ElementMatchers.isAbstract());
+
         try {
-            return (DummyPlayer) factory.create(new Class[] {String.class, UUID.class}, new Object[] {name, uuid}, handler);
-        } catch (NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            return ByteBuddyFactory.getInstance().createSubclass(DummyPlayer.class, Default.DEFAULT_CONSTRUCTOR).name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler").implement(new Type[]{Player.class}).method(callbackFilter).intercept(implementation).make().load(ByteBuddyFactory.getInstance().getClassLoader(), com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION).getLoaded().getDeclaredConstructor(String.class, UUID.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Failed to find DummyPlayer constructor!", e);
         }
-        return null;
+    }
+
+    public static DummyPlayer newInstance(String name, UUID uuid) {
+        try {
+            return CONSTRUCTOR.newInstance(name, uuid);
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final String name;

@@ -37,8 +37,6 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -77,7 +75,7 @@ public class GUIMain {
             messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
             main: while (true) {
-                int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Custom Placeholder Creator", "Visit Links"}, null);
+                int input = JOptionPane.showOptionDialog(null, messageLabel, title, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, new Object[] {"Check for Updates", "Validate Plugin Configs", "Generate Default Configs", "Visit Links"}, null);
                 switch (input) {
                     case 0:
                         checkForUpdates(title, icon, version);
@@ -89,14 +87,6 @@ public class GUIMain {
                         generateDefaultConfigs(title, icon);
                         break;
                     case 3:
-                        BufferedImage resizedIcon = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
-                        Graphics2D g = resizedIcon.createGraphics();
-                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                        g.drawImage(image, 0, 0, 32, 32, null);
-                        g.dispose();
-                        customPlaceholderCreator(title, resizedIcon, icon);
-                        break main;
-                    case 4:
                         visitLinks(title, icon);
                         break;
                     default:
@@ -236,10 +226,6 @@ public class GUIMain {
         if (folder != null) {
             JOptionPane.showMessageDialog(null, createLabel("Files saved at: " + folder.getAbsolutePath(), 15), title, JOptionPane.INFORMATION_MESSAGE, icon);
         }
-    }
-
-    protected static void customPlaceholderCreator(String title, BufferedImage image, Icon icon) {
-        new CustomPlaceholderCreator(title + " - Custom Placeholder Creator", image, icon);
     }
 
     protected static JLabel createLabel(String message, float fontSize) {

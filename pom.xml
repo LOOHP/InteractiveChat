@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.2.0.0</version>
+	<version>4.2.1.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -77,12 +77,20 @@
 									<shadedPattern>com.loohp.interactivechat.libs.com.cryptomorin.xseries</shadedPattern>
 								</relocation>
 								<relocation>
-									<pattern>org.apache.commons</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons</shadedPattern>
+									<pattern>org.apache.commons.text</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.text</shadedPattern>
 								</relocation>
 								<relocation>
-									<pattern>javassist</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.javassist</shadedPattern>
+									<pattern>org.apache.commons.lang3</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.lang3</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.apache.commons.io</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.io</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.apache.commons.compress</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.apache.commons.compress</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>org.json.simple</pattern>
@@ -99,10 +107,6 @@
 								<relocation>
 									<pattern>io.github.bananapuncher714.nbteditor</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.io.github.bananapuncher714.nbteditor</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>com.intellij</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.com.intellij</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>org.objectweb</pattern>
@@ -299,12 +303,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.intellij</groupId>
-			<artifactId>forms_rt</artifactId>
-			<version>7.0.3</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.9</version>
@@ -320,18 +318,6 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.11.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.28.0-GA</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -449,45 +435,39 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.8.9</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-gson</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-legacy</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-plain</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-api</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-nbt</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-minimessage</artifactId>
-			<version>4.10.1</version>
+			<version>4.11.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

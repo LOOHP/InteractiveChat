@@ -52,7 +52,7 @@ public abstract class DummyPlayer implements Player {
         ElementMatcher.Junction<MethodDescription> callbackFilter = ElementMatchers.not(ElementMatchers.isAbstract());
 
         try {
-            return ByteBuddyFactory.getInstance().createSubclass(DummyPlayer.class, Default.DEFAULT_CONSTRUCTOR).name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler").implement(new Type[]{Player.class}).method(callbackFilter).intercept(implementation).make().load(ByteBuddyFactory.getInstance().getClassLoader(), com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION).getLoaded().getDeclaredConstructor(String.class, UUID.class);
+            return ByteBuddyFactory.getInstance().createSubclass(DummyPlayer.class, Default.IMITATE_SUPER_CLASS).name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler").implement(new Type[]{Player.class}).method(callbackFilter).intercept(implementation).make().load(ByteBuddyFactory.getInstance().getClassLoader(), com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION).getLoaded().getDeclaredConstructor(String.class, UUID.class);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Failed to find DummyPlayer constructor!", e);
         }

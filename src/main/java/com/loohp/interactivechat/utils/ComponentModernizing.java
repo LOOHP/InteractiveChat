@@ -28,8 +28,11 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ComponentModernizing {
+
+    public static final Pattern COLOR_CODE_PATTERN = Pattern.compile("\u00a7.");
 
     public static Component modernize(Component component) {
         component = ComponentFlattening.flatten(component);
@@ -40,6 +43,8 @@ public class ComponentModernizing {
                 TextComponent text = (TextComponent) child;
                 String content = text.content();
                 TextComponent modern = LegacyComponentSerializer.legacySection().deserialize(content);
+                String modernContent = COLOR_CODE_PATTERN.matcher(modern.content()).replaceAll("");
+                modern = modern.content(modernContent);
                 modern = modern.style(modern.style().merge(text.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
                 children.set(i, modern);
             } else if (child instanceof TranslatableComponent) {

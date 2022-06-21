@@ -23,8 +23,8 @@ package com.loohp.interactivechat.hooks.venturechat;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.ListeningWhitelist;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.events.PacketListener;
 import com.loohp.interactivechat.InteractiveChat;
-import mineverse.Aust1n46.chat.listeners.PacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -43,6 +43,7 @@ public class VentureChatInjection implements Listener {
                 ListeningWhitelist whitelist = each.getSendingWhitelist();
                 if (whitelist.getTypes().stream().anyMatch(type -> {String name = type.name(); return name.equals("CHAT") || name.equals("SYSTEM_CHAT") || name.equals("CHAT_PREVIEW");})) {
                     if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
+                        packetListener = each;
                         InteractiveChat.protocolManager.removePacketListener(each);
                     }
                 }
@@ -52,10 +53,9 @@ public class VentureChatInjection implements Listener {
     }
 
     public static void firePacketListener(PacketEvent event) {
-        if (packetListener == null) {
-            packetListener = new PacketListener();
+        if (packetListener != null) {
+            packetListener.onPacketSending(event);
         }
-        packetListener.onPacketSending(event);
     }
 
     @EventHandler

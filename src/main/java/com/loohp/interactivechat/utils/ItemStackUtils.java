@@ -83,11 +83,7 @@ public class ItemStackUtils {
                 component = component.decorate(TextDecoration.ITALIC);
             }
             try {
-                if (JsonUtils.isValid(name)) {
-                    component = component.append(InteractiveChatComponentSerializer.gson().deserialize(name));
-                } else {
-                    component = component.append(LegacyComponentSerializer.legacySection().deserialize(name));
-                }
+                component = component.append(InteractiveChatComponentSerializer.gson().deserialize(name));
             } catch (Throwable e) {
                 component = component.append(LegacyComponentSerializer.legacySection().deserialize(name));
             }
@@ -132,11 +128,7 @@ public class ItemStackUtils {
         for (int i = 0; i < size; i++) {
             String line = NBTEditor.getString(loreNbt, i);
             try {
-                if (JsonUtils.isValid(line)) {
-                    loreLines.add(InteractiveChatComponentSerializer.gson().deserialize(line));
-                } else {
-                    loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
-                }
+                loreLines.add(InteractiveChatComponentSerializer.gson().deserialize(line));
             } catch (Throwable e) {
                 loreLines.add(LegacyComponentSerializer.legacySection().deserialize(line));
             }

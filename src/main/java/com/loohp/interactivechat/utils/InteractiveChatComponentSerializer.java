@@ -20,6 +20,9 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -41,11 +44,13 @@ import net.kyori.adventure.util.Codec.Decoder;
 import net.kyori.adventure.util.Codec.Encoder;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,8 +70,8 @@ public class InteractiveChatComponentSerializer {
     static {
         LEGACY_HOVER_SERIALIZER = new InteractiveChatLegacyHoverEventSerializer();
         BUNGEECORD_CHAT_LEGACY = new InteractiveChatBungeecordAPILegacyComponentSerializer();
-        GSON_SERIALIZER = GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
-        GSON_SERIALIZER_LEGACY = GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build();
+        GSON_SERIALIZER = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
+        GSON_SERIALIZER_LEGACY = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
     }
 
@@ -287,6 +292,62 @@ public class InteractiveChatComponentSerializer {
                     sb.append(PlainTextComponentSerializer.plainText().serialize(children));
                 }
             }
+        }
+
+    }
+
+    public static class InteractiveChatGsonComponentSerializer implements GsonComponentSerializer {
+
+        private final GsonComponentSerializer instance;
+
+        private InteractiveChatGsonComponentSerializer(GsonComponentSerializer instance) {
+            this.instance = instance;
+        }
+
+        @Override
+        public @NotNull Gson serializer() {
+            return instance.serializer();
+        }
+
+        @Override
+        public @NotNull UnaryOperator<GsonBuilder> populator() {
+            return instance.populator();
+        }
+
+        @Override
+        public @NotNull Component deserializeFromTree(@NotNull JsonElement input) {
+            return instance.deserializeFromTree(input);
+        }
+
+        @Override
+        public @NotNull JsonElement serializeToTree(@NotNull Component component) {
+            return instance.serializeToTree(component);
+        }
+
+        @Override
+        public @NotNull Component deserialize(@NotNull String input) {
+            if (input.startsWith("\"") && input.endsWith("\"")) {
+                return Component.text(input.substring(1, input.length() - 1));
+            }
+            return instance.deserialize(input);
+        }
+
+        @Override
+        public @Nullable Component deserializeOr(@Nullable String input, @Nullable Component fallback) {
+            if (input != null && input.startsWith("\"") && input.endsWith("\"")) {
+                return Component.text(input.substring(1, input.length() - 1));
+            }
+            return instance.deserializeOr(input, fallback);
+        }
+
+        @Override
+        public @NotNull String serialize(@NotNull Component component) {
+            return instance.serialize(component);
+        }
+
+        @Override
+        public @NotNull Builder toBuilder() {
+            throw new UnsupportedOperationException("The InteractiveChatGsonComponentSerializer cannot be turned into a builder");
         }
 
     }

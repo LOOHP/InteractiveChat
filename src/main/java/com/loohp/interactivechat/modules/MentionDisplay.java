@@ -125,6 +125,10 @@ public class MentionDisplay implements Listener {
 
                 Sound bukkitSound = SoundUtils.parseSound(settings);
                 if (bukkitSound == null) {
+                    settings = settings.toLowerCase();
+                    if (!settings.contains(":")) {
+                        settings = "minecraft:" + settings;
+                    }
                     sound = Either.right(settings);
                 } else {
                     sound = Either.left(bukkitSound);

@@ -159,7 +159,9 @@ public class ComponentReplacing {
                     }
                 }
 
-                Component replace = ComponentFlattening.flatten(replaceFunction.apply(matcher, Collections.unmodifiableList(matchedComponents)));
+                Component replace = replaceFunction.apply(matcher, Collections.unmodifiableList(matchedComponents));
+                replace = replace.applyFallbackStyle(matchedComponents.get(matchedComponents.size() - 1).style());
+                replace = ComponentFlattening.flatten(replace);
                 children.add(insertPos, replace);
 
                 component = ComponentCompacting.optimize(component.children(children));

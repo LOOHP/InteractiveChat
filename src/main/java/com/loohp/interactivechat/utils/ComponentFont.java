@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -46,10 +47,11 @@ public class ComponentFont {
                 if (style.font() == null) {
                     style = style.font(currentFont);
                 }
-                Component parsed = parseTags(text.content(), style);
+                ValuePairs<Component, Key> result = parseTags(text.content(), style);
+                Component parsed = result.getFirst();
                 List<Component> sections = ComponentFlattening.flatten(parsed).children();
                 children.addAll(sections);
-                currentFont = sections.get(sections.size() - 1).font();
+                currentFont = result.getSecond();
             } else {
                 if (child.font() == null) {
                     children.add(child.font(currentFont));
@@ -61,21 +63,22 @@ public class ComponentFont {
         return ComponentCompacting.optimize(component.children(children));
     }
 
-    private static Component parseTags(String content, Style style) {
+    private static ValuePairs<Component, Key> parseTags(String content, Style style) {
         Component component = Component.empty();
+        Key lastTagKey = null;
         Matcher matcher = FONT_TAG_PATTERN.matcher(content);
         int start = 0;
         while (matcher.find()) {
             String escape = matcher.group(1);
             String font = matcher.group(2);
-            Key key = font.isEmpty() ? null : Key.key(font);
+            lastTagKey = font.isEmpty() ? null : Key.key(font);
             int end = matcher.start();
             String section = content.substring(start, end);
             if (escape != null) {
                 section += escape;
             }
             component = component.append(Component.text(section).style(style));
-            style = style.font(key);
+            style = style.font(lastTagKey);
             start = matcher.end();
         }
         String section = content.substring(start);
@@ -100,7 +103,7 @@ public class ComponentFont {
             }
         }
 
-        return ComponentCompacting.optimize(component.children(children));
+        return new ValuePairs<>(ComponentCompacting.optimize(component.children(children)), lastTagKey);
     }
 
 }

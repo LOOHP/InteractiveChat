@@ -91,5 +91,8 @@ permissions:
     description: Allows you to use font formatting code
     default: true
   interactivechat.update:
-    description: Allows you to recieve update notifications
+    description: Allows you to receive update notifications
+    default: op
+  interactivechat.dumpnbt:
+    description: Debug command, allows you to display the item of the item in your hand
     default: op

@@ -355,31 +355,35 @@ public class OutMessagePacket implements Listener {
         InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PACKET_HANDLERS.keySet())) {
             @Override
             public void onPacketSending(PacketEvent event) {
-                if (event.isPlayerTemporary() || !event.isFiltered() || event.isCancelled()) {
-                    return;
-                }
-                PacketHandler packetHandler = PACKET_HANDLERS.get(event.getPacketType());
-                if (!packetHandler.getPreFilter().test(event)) {
-                    return;
-                }
-                if (InteractiveChat.ventureChatHook) {
-                    VentureChatInjection.firePacketListener(event);
-                }
-                InteractiveChat.messagesCounter.getAndIncrement();
-                PacketContainer packetOriginal = event.getPacket();
-                boolean readOnly = event.isReadOnly();
-                event.setReadOnly(false);
-                event.setCancelled(true);
-                event.setReadOnly(readOnly);
-                Player receiver = event.getPlayer();
-                PacketContainer packet = packetOriginal.deepClone();
-                UUID messageUUID = UUID.randomUUID();
+                try {
+                    if (event.isPlayerTemporary() || !event.isFiltered() || event.isCancelled()) {
+                        return;
+                    }
+                    PacketHandler packetHandler = PACKET_HANDLERS.get(event.getPacketType());
+                    if (!packetHandler.getPreFilter().test(event)) {
+                        return;
+                    }
+                    if (InteractiveChat.ventureChatHook) {
+                        VentureChatInjection.firePacketListener(event);
+                    }
+                    InteractiveChat.messagesCounter.getAndIncrement();
+                    PacketContainer packetOriginal = event.getPacket();
+                    boolean readOnly = event.isReadOnly();
+                    event.setReadOnly(false);
+                    event.setCancelled(true);
+                    event.setReadOnly(readOnly);
+                    Player receiver = event.getPlayer();
+                    PacketContainer packet = packetOriginal.deepClone();
+                    UUID messageUUID = UUID.randomUUID();
 
-                ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);
+                    ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);
 
-                SERVICE.execute(() -> {
-                    processPacket(receiver, determinedSender, packet, messageUUID, event.isFiltered(), packetHandler);
-                }, receiver, messageUUID);
+                    SERVICE.execute(() -> {
+                        processPacket(receiver, determinedSender, packet, messageUUID, event.isFiltered(), packetHandler);
+                    }, receiver, messageUUID);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

@@ -42,6 +42,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.InventoryUtils;
+import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -49,6 +50,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -57,7 +59,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -360,6 +361,29 @@ public class Commands implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(InteractiveChat.noConsoleMessage);
                     }
+                }
+            } else {
+                sender.sendMessage(InteractiveChat.noPermissionMessage);
+            }
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("dumpnbt")) {
+            if (sender.hasPermission("interactivechat.dumpnbt")) {
+                if (sender instanceof Player) {
+                    ItemStack itemStack = ((Player) sender).getEquipment().getItemInHand();
+                    if (itemStack == null) {
+                        itemStack = new ItemStack(Material.AIR);
+                    }
+                    String nbt = ItemNBTUtils.getNMSItemStackJson(itemStack);
+                    if (args.length > 1) {
+                        String colorReplacement = args[1];
+                        nbt = nbt.replace(String.valueOf(ChatColorUtils.COLOR_CHAR), colorReplacement);
+                    }
+                    InteractiveChatAPI.sendMessageUnprocessed(sender, nbt);
+                    Bukkit.getConsoleSender().sendMessage(nbt);
+                } else {
+                    sender.sendMessage(InteractiveChat.noConsoleMessage);
                 }
             } else {
                 sender.sendMessage(InteractiveChat.noPermissionMessage);

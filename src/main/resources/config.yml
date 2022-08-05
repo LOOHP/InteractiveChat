@@ -45,6 +45,8 @@ Settings:
   Bungeecord: false
   UseAccurateSenderParser: true
   TagEveryIdentifiableMessage: false
+  #This option is only effective on Minecraft 1.19.1+
+  ForceUnsignedChatPackets: false
   #In which packets should InteractiveChat listen to and modify
   PacketsToListen:
     Chat: true
@@ -63,6 +65,8 @@ Settings:
     Commands: HIGH
     #Defaults to HIGH
     Chat: HIGH
+    #Defaults to HIGH
+    Preview: HIGH
   FormattingTags:
     #Allow the use of "[color=#123456]" RGB tags (1.16+)
     AllowRGBTags: true

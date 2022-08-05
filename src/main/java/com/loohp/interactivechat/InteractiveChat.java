@@ -22,6 +22,7 @@ package com.loohp.interactivechat;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.utility.MinecraftVersion;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
@@ -36,12 +37,14 @@ import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
-import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.ChatEvents;
+import com.loohp.interactivechat.listeners.ClientSettingPacket;
+import com.loohp.interactivechat.listeners.RedispatchSignedPacket;
 import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutMessagePacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
+import com.loohp.interactivechat.listeners.PlayerEvents;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.MentionDisplay;
@@ -55,6 +58,7 @@ import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.NicknameManager;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
+import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.updater.Updater;
@@ -315,11 +319,15 @@ public class InteractiveChat extends JavaPlugin {
     public static int itemTagMaxLength = 32767;
     public static int packetStringMaxLength = 32767;
 
+    public static boolean forceUnsignedChatPackets = false;
+
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;
     public static PlaceholderCooldownManager placeholderCooldownManager;
     public static NicknameManager nicknameManager;
     public static Database database;
+
+    public static Map<UUID, List<SignedMessageModificationData>> signedMessageModificationData = new ConcurrentHashMap<>();
 
     public static void closeSharedInventoryViews() {
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -368,6 +376,10 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean isPluginEnabled(String name, boolean checkRunning) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
         return plugin != null && (!checkRunning || plugin.isEnabled());
+    }
+
+    public static boolean hasChatSigning() {
+        return MinecraftVersion.getCurrentVersion().compareTo(new MinecraftVersion(1, 19, 1)) >= 0;
     }
 
     public ProcessExternalMessage externalProcessor;
@@ -458,11 +470,15 @@ public class InteractiveChat extends JavaPlugin {
         placeholderCooldownManager = new PlaceholderCooldownManager();
 
         getServer().getPluginManager().registerEvents(new ChatEvents(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEvents(), this);
         getServer().getPluginManager().registerEvents(new InventoryEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new OutMessagePacket(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
         OutMessagePacket.messageListeners();
+        if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            RedispatchSignedPacket.commandChatPacketListener();
+        }
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();
         }

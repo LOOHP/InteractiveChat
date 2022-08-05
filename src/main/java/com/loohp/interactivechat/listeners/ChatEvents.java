@@ -29,6 +29,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
@@ -49,6 +50,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,6 +62,7 @@ public class ChatEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandLowest(PlayerCommandPreprocessEvent event) {
+        checkSignedModificationsFromProxy(event);
         if (InteractiveChat.commandsEventPriority.equals(EventPriority.LOWEST)) {
             checkCommand(event);
         }
@@ -102,6 +105,7 @@ public class ChatEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChatLowest(AsyncPlayerChatEvent event) {
+        checkSignedModificationsFromProxy(event);
         if (InteractiveChat.chatEventPriority.equals(EventPriority.LOWEST)) {
             checkChat(event);
         }
@@ -142,7 +146,38 @@ public class ChatEvents implements Listener {
         }
     }
 
-    private void checkChat(AsyncPlayerChatEvent event) {
+    public static void checkSignedModificationsFromProxy(AsyncPlayerChatEvent event) {
+        event.setMessage(checkSignedModificationsFromProxy(event.getPlayer().getUniqueId(), event.getMessage()));
+    }
+
+    public static void checkSignedModificationsFromProxy(PlayerCommandPreprocessEvent event) {
+        event.setMessage(checkSignedModificationsFromProxy(event.getPlayer().getUniqueId(), event.getMessage()));
+    }
+
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    public static String checkSignedModificationsFromProxy(UUID uuid, String originalMessage) {
+        List<SignedMessageModificationData> data = InteractiveChat.signedMessageModificationData.get(uuid);
+        if (data != null) {
+            long now = System.currentTimeMillis();
+            synchronized (data) {
+                Iterator<SignedMessageModificationData> itr = data.iterator();
+                while (itr.hasNext()) {
+                    SignedMessageModificationData modificationData = itr.next();
+                    if (now - modificationData.getTime() > 5000) {
+                        itr.remove();
+                        continue;
+                    }
+                    if (modificationData.getOriginalMessage().equals(originalMessage)) {
+                        itr.remove();
+                        return modificationData.getModifiedMessage();
+                    }
+                }
+            }
+        }
+        return originalMessage;
+    }
+
+    public static void checkChat(AsyncPlayerChatEvent event) {
         if (!InteractiveChat.bungeecordMode) {
             event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
         }
@@ -154,7 +189,7 @@ public class ChatEvents implements Listener {
         checkChatMessage(event);
     }
 
-    private void checkCommand(PlayerCommandPreprocessEvent event) {
+    public static void checkCommand(PlayerCommandPreprocessEvent event) {
         if (!InteractiveChat.bungeecordMode) {
             event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
         }
@@ -245,7 +280,7 @@ public class ChatEvents implements Listener {
         }
     }
 
-    private void checkChatMessage(AsyncPlayerChatEvent event) {
+    public static void checkChatMessage(AsyncPlayerChatEvent event) {
         String message = event.getMessage();
         Player player = event.getPlayer();
 
@@ -333,7 +368,7 @@ public class ChatEvents implements Listener {
         }
     }
 
-    private String checkMention(AsyncPlayerChatEvent event) {
+    public static String checkMention(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
         String message = event.getMessage();
         PlayerData data = InteractiveChat.playerDataManager.getPlayerData(sender);
@@ -352,7 +387,7 @@ public class ChatEvents implements Listener {
         return message;
     }
 
-    private String checkMentionPlayers(String senderTagType, String message, Player sender) {
+    public static String checkMentionPlayers(String senderTagType, String message, Player sender) {
         boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.player", false, 200)) {
             Map<String, UUID> playernames = new HashMap<>();
@@ -395,7 +430,7 @@ public class ChatEvents implements Listener {
         return null;
     }
 
-    private String checkMentionHere(String senderTagType, String message, Player sender) {
+    public static String checkMentionHere(String senderTagType, String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.here", false, 200)) {
             boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
             String name = InteractiveChat.mentionPrefix + "here";
@@ -427,7 +462,7 @@ public class ChatEvents implements Listener {
         return null;
     }
 
-    private String checkMentionEveryone(String senderTagType, String message, Player sender) {
+    public static String checkMentionEveryone(String senderTagType, String message, Player sender) {
         if (PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.mention.everyone", false, 200)) {
             boolean senderTagged = Registry.ID_PATTERN.matcher(message).find();
             String name = InteractiveChat.mentionPrefix + "everyone";
@@ -460,7 +495,7 @@ public class ChatEvents implements Listener {
         return null;
     }
 
-    private void translateAltColorCode(AsyncPlayerChatEvent event) {
+    public static void translateAltColorCode(AsyncPlayerChatEvent event) {
         if (event.isCancelled()) {
             return;
         }
@@ -474,7 +509,7 @@ public class ChatEvents implements Listener {
         }
     }
 
-    private void translateAltColorCode(PlayerCommandPreprocessEvent event) {
+    public static void translateAltColorCode(PlayerCommandPreprocessEvent event) {
         if (event.isCancelled()) {
             return;
         }

@@ -60,12 +60,14 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.proxy.messages.ChannelMessageSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.ChatBuilder;
 import com.velocitypowered.proxy.protocol.packet.chat.LegacyChat;
 import com.velocitypowered.proxy.protocol.packet.chat.PlayerChat;
 import com.velocitypowered.proxy.protocol.packet.chat.ServerChatPreview;
@@ -127,7 +129,7 @@ public class InteractiveChatVelocity {
     public static final int BSTATS_PLUGIN_ID = 10945;
     public static final String CONFIG_ID = "config";
     private static final boolean filtersAdded = false;
-    private static final Map<Integer, byte[]> incomming = new HashMap<>();
+    private static final Map<Integer, byte[]> incoming = new HashMap<>();
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static InteractiveChatVelocity plugin = null;
     public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
@@ -259,12 +261,27 @@ public class InteractiveChatVelocity {
                     break;
                 case SYSTEM_CHAT:
                     packet = new SystemChat();
+                    ChatBuilder.ChatType chatType;
+                    switch (info.getPosition()) {
+                        case 0:
+                            chatType = ChatBuilder.ChatType.CHAT;
+                            break;
+                        case 1:
+                            chatType = ChatBuilder.ChatType.SYSTEM;
+                            break;
+                        case 2:
+                            chatType = ChatBuilder.ChatType.GAME_INFO;
+                            break;
+                        default:
+                            chatType = ChatBuilder.ChatType.CHAT;
+                            break;
+                    }
                     try {
                         Field[] fields = packet.getClass().getDeclaredFields();
                         fields[0].setAccessible(true);
                         fields[0].set(packet, NativeAdventureConverter.componentToNative(GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")), legacyRGB));
                         fields[1].setAccessible(true);
-                        fields[1].setInt(packet, info.getPosition());
+                        fields[1].set(packet, chatType);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
@@ -440,7 +457,7 @@ public class InteractiveChatVelocity {
             byte[] data = new byte[packet.length - 7];
             in.readFully(data);
 
-            byte[] chain = incomming.remove(packetNumber);
+            byte[] chain = incoming.remove(packetNumber);
             if (chain != null) {
                 ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
                 buff.put(chain);
@@ -449,7 +466,7 @@ public class InteractiveChatVelocity {
             }
 
             if (!isEnding) {
-                incomming.put(packetNumber, data);
+                incoming.put(packetNumber, data);
                 return;
             }
 
@@ -598,23 +615,24 @@ public class InteractiveChatVelocity {
         if (!event.getResult().isAllowed()) {
             return;
         }
-        try {
-            Field messageField = event.getClass().getDeclaredField("message");
-            messageField.setAccessible(true);
-            messageField.set(event, Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
 
         Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        String message = event.getMessage();
 
         if (!player.getCurrentServer().isPresent()) {
             return;
         }
 
-        String newMessage = event.getMessage();
+        UUID uuid = player.getUniqueId();
+        String message = event.getMessage();
+
+        String newMessage = Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll("");
+        try {
+            Field messageField = event.getClass().getDeclaredField("message");
+            messageField.setAccessible(true);
+            messageField.set(event, newMessage);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         boolean hasInteractiveChat = false;
         BackendInteractiveChatData data = serverInteractiveChatInfo.get(player.getCurrentServer().get().getServerInfo().getName());
@@ -649,7 +667,7 @@ public class InteractiveChatVelocity {
                                     if (command.length() > 256) {
                                         command = command.substring(0, 256);
                                     }
-                                    event.setResult(ChatResult.message(command));
+                                    newMessage = command;
                                     break outer;
                                 }
                             }
@@ -671,7 +689,7 @@ public class InteractiveChatVelocity {
                             if (message.length() > 256) {
                                 message = message.substring(0, 256);
                             }
-                            event.setResult(ChatResult.message(message));
+                            newMessage = message;
                             break outer;
                         }
                     }
@@ -685,16 +703,29 @@ public class InteractiveChatVelocity {
                 e.printStackTrace();
             }
 
+            String finalNewMessage = newMessage;
             proxyServer.getScheduler().buildTask(plugin, () -> {
                 Set<ForwardedMessageData> messages = forwardedMessages.get(uuid);
-                if (messages != null && messages.removeIf(each -> each.getMessage().equals(newMessage))) {
+                if (messages != null && messages.removeIf(each -> each.getMessage().equals(finalNewMessage))) {
                     try {
-                        PluginMessageSendingVelocity.sendMessagePair(uuid, newMessage);
+                        PluginMessageSendingVelocity.sendMessagePair(uuid, finalNewMessage);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }).delay(100, TimeUnit.MILLISECONDS).schedule();
+        }
+
+        if (!event.getMessage().equals(newMessage)) {
+            if (player.getIdentifiedKey().getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
+                try {
+                    PluginMessageSendingVelocity.forwardSignedChatEventChange(uuid, event.getMessage(), newMessage, System.currentTimeMillis());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                event.setResult(ChatResult.message(newMessage));
+            }
         }
     }
 
@@ -832,7 +863,7 @@ public class InteractiveChatVelocity {
                         SystemChat packet = (SystemChat) obj;
                         Method getComponentMethod = packet.getClass().getMethod("getComponent");
                         String message = NativeAdventureConverter.jsonStringFromNative(getComponentMethod.invoke(packet));
-                        int position = packet.getType();
+                        int position = packet.getType().getId();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
@@ -847,6 +878,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
+                    /*
                     } else if (obj instanceof ServerPlayerChat) {
                         ServerPlayerChat packet = (ServerPlayerChat) obj;
                         Field unsignedContentField = packet.getClass().getDeclaredField("unsignedComponent");
@@ -866,6 +898,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
+                    */
                     } else if (obj instanceof ServerChatPreview) {
                         ServerChatPreview packet = (ServerChatPreview) obj;
                         String message = packet.getPreview() == null ? null : NativeAdventureConverter.jsonStringFromNative(packet.getPreview());

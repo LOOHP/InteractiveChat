@@ -39,6 +39,7 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.PlaceholderParser;
@@ -51,8 +52,10 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -378,6 +381,21 @@ public class BungeeMessageListener implements PluginMessageListener {
                     ICPlayer icPlayer1 = ICPlayerFactory.getICPlayer(playerUUID4);
                     if (icPlayer1 != null && icPlayer1.isLocal()) {
                         PlaceholderParser.parse(icPlayer1, placeholders);
+                    }
+                    break;
+                case 0x13:
+                    UUID senderUUID = DataTypeIO.readUUID(input);
+                    String originalMessage = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                    String modifiedMessage = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                    long time = input.readLong();
+                    ICPlayer senderPlayer = ICPlayerFactory.getICPlayer(senderUUID);
+                    if (senderPlayer != null && senderPlayer.isLocal()) {
+                        List<SignedMessageModificationData> modData = InteractiveChat.signedMessageModificationData.get(senderUUID);
+                        if (modData == null) {
+                            InteractiveChat.signedMessageModificationData.putIfAbsent(senderUUID, Collections.synchronizedList(new LinkedList<>()));
+                            modData = InteractiveChat.signedMessageModificationData.get(senderUUID);
+                        }
+                        modData.add(new SignedMessageModificationData(senderUUID, time, originalMessage, modifiedMessage));
                     }
                     break;
                 case 0xFF:

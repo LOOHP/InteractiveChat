@@ -34,6 +34,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -463,6 +464,38 @@ public class PluginMessageSendingBungee {
 
             server.sendData("interchat:main", out.toByteArray());
             InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+        }
+    }
+
+    public static void forwardSignedChatEventChange(UUID sender, String originalMessage, String modifiedMessage, long time) throws IOException {
+        ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+        DataTypeIO.writeUUID(output, sender);
+        DataTypeIO.writeString(output, originalMessage, StandardCharsets.UTF_8);
+        DataTypeIO.writeString(output, modifiedMessage, StandardCharsets.UTF_8);
+        output.writeLong(time);
+
+        int packetNumber = InteractiveChatBungee.random.nextInt();
+        int packetId = 0x13;
+        byte[] data = output.toByteArray();
+
+        byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
+
+        for (int i = 0; i < dataArray.length; i++) {
+            byte[] chunk = dataArray[i];
+
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeInt(packetNumber);
+
+            out.writeShort(packetId);
+            out.writeBoolean(i == (dataArray.length - 1));
+
+            out.write(chunk);
+
+            for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+                server.sendData("interchat:main", out.toByteArray());
+                InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+            }
         }
     }
 

@@ -73,7 +73,6 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientChat;
-import net.md_5.bungee.protocol.packet.PlayerChat;
 import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.Title;
@@ -116,7 +115,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
     public static final int BSTATS_PLUGIN_ID = 8839;
     public static final String CONFIG_ID = "config";
-    private static final Map<Integer, byte[]> incomming = new HashMap<>();
+    private static final Map<Integer, byte[]> incoming = new HashMap<>();
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static boolean viaVersionHook = false;
     public static InteractiveChatBungee plugin;
@@ -275,10 +274,12 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 case SYSTEM_CHAT:
                     definedPacket = new SystemChat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
                     break;
+                /*
                 case PLAYER_CHAT:
                     PlayerChat originalChat = (PlayerChat) info.getOriginalPacket();
                     definedPacket = new PlayerChat(originalChat.getSignedContent(), component + "<QUxSRUFEWVBST0NFU1NFRA==>", originalChat.getSender(), info.getPosition(), originalChat.getDisplayName(), originalChat.getTeamName(), originalChat.getTimestamp(), originalChat.getSalt(), originalChat.getSignature());
                     break;
+                */
                 case TITLE:
                     Title originalTitle = (Title) info.getOriginalPacket();
                     Title title = new Title();
@@ -404,7 +405,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             byte[] data = new byte[packet.length - 7];
             in.readFully(data);
 
-            byte[] chain = incomming.remove(packetNumber);
+            byte[] chain = incoming.remove(packetNumber);
             if (chain != null) {
                 ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
                 buff.put(chain);
@@ -413,7 +414,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
 
             if (!isEnding) {
-                incomming.put(packetNumber, data);
+                incoming.put(packetNumber, data);
                 return;
             }
 
@@ -604,7 +605,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 command = command.substring(0, 256 - uuidmatch.length());
                             }
                             command = command + uuidmatch;
-                            event.setMessage(command);
+                            newMessage = command;
                         } else {
                             outer:
                             for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
@@ -619,7 +620,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                             if (command.length() > 256) {
                                                 command = command.substring(0, 256);
                                             }
-                                            event.setMessage(command);
+                                            newMessage = command;
                                             break outer;
                                         }
                                     }
@@ -638,7 +639,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         message = message.substring(0, 256 - uuidmatch.length());
                     }
                     message = message + uuidmatch;
-                    event.setMessage(message);
+                    newMessage = message;
                 } else {
                     outer:
                     for (List<ICPlaceholder> serverPlaceholders : placeholderList.values()) {
@@ -653,7 +654,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                     if (message.length() > 256) {
                                         message = message.substring(0, 256);
                                     }
-                                    event.setMessage(message);
+                                    newMessage = message;
                                     break outer;
                                 }
                             }
@@ -662,16 +663,28 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 }
             }
 
+            String finalNewMessage = newMessage;
             ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
                 Set<ForwardedMessageData> messages = forwardedMessages.get(uuid);
-                if (messages != null && messages.removeIf(each -> each.getMessage().equals(newMessage))) {
+                if (messages != null && messages.removeIf(each -> each.getMessage().equals(finalNewMessage))) {
                     try {
-                        PluginMessageSendingBungee.sendMessagePair(uuid, newMessage);
+                        PluginMessageSendingBungee.sendMessagePair(uuid, finalNewMessage);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }, 100, TimeUnit.MILLISECONDS);
+        }
+
+        if (!event.getMessage().equals(newMessage)) {
+            if (((ProxiedPlayer) event.getSender()).getPendingConnection().getVersion() >= Registry.MINECRAFT_1_19_1_PROTOCOL_VERSION) {
+                try {
+                    PluginMessageSendingBungee.forwardSignedChatEventChange(uuid, event.getMessage(), newMessage, System.currentTimeMillis());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            event.setMessage(newMessage);
         }
     }
 
@@ -803,6 +816,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 return;
                             }
                         }
+                    /*
                     } else if (obj instanceof PlayerChat) {
                         PlayerChat packet = (PlayerChat) obj;
                         String message = packet.getUnsignedContent();
@@ -819,6 +833,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 return;
                             }
                         }
+                    */
                     } else if (obj instanceof Title) {
                         Title packet = (Title) obj;
                         String message = packet.getText();

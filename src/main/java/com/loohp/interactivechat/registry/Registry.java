@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class Registry {
 
     public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InteractiveChatBungeePing";
-    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 13;
+    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 14;
 
     public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 35;
 
@@ -42,6 +42,7 @@ public class Registry {
     public static final MentionTagConverter MENTION_TAG_CONVERTER = new MentionTagConverter("<IC#%s>");
 
     public static final int MINECRAFT_1_16_PROTOCOL_VERSION = 735;
+    public static final int MINECRAFT_1_19_1_PROTOCOL_VERSION = 760;
 
     public static final Set<Integer> PROXY_PASSTHROUGH_RELAY_PACKETS;
 

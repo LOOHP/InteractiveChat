@@ -91,6 +91,8 @@ public class ConfigManager {
         InteractiveChat.commandsEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Commands").toUpperCase());
         InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat").toUpperCase());
 
+        InteractiveChat.forceUnsignedChatPackets = getConfig().getBoolean("Settings.ForceUnsignedChatPackets");
+
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
 

@@ -156,20 +156,22 @@ public class ChatEvents implements Listener {
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static String checkSignedModificationsFromProxy(UUID uuid, String originalMessage) {
-        List<SignedMessageModificationData> data = InteractiveChat.signedMessageModificationData.get(uuid);
-        if (data != null) {
-            long now = System.currentTimeMillis();
-            synchronized (data) {
-                Iterator<SignedMessageModificationData> itr = data.iterator();
-                while (itr.hasNext()) {
-                    SignedMessageModificationData modificationData = itr.next();
-                    if (now - modificationData.getTime() > 5000) {
-                        itr.remove();
-                        continue;
-                    }
-                    if (modificationData.getOriginalMessage().equals(originalMessage)) {
-                        itr.remove();
-                        return modificationData.getModifiedMessage();
+        if (InteractiveChat.bungeecordMode) {
+            List<SignedMessageModificationData> data = InteractiveChat.signedMessageModificationData.get(uuid);
+            if (data != null) {
+                long now = System.currentTimeMillis();
+                synchronized (data) {
+                    Iterator<SignedMessageModificationData> itr = data.iterator();
+                    while (itr.hasNext()) {
+                        SignedMessageModificationData modificationData = itr.next();
+                        if (now - modificationData.getTime() > 5000) {
+                            itr.remove();
+                            continue;
+                        }
+                        if (modificationData.getOriginalMessage().equals(originalMessage)) {
+                            itr.remove();
+                            return modificationData.getModifiedMessage();
+                        }
                     }
                 }
             }

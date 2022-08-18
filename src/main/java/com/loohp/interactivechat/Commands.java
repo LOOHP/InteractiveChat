@@ -20,8 +20,6 @@
 
 package com.loohp.interactivechat;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
@@ -355,9 +353,9 @@ public class Commands implements CommandExecutor, TabCompleter {
                 if (args.length > 1) {
                     if (sender instanceof Player) {
                         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                        PacketContainer packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Client.CHAT);
-                        packet.getStrings().write(0, message);
-                        InteractiveChat.protocolManager.receiveClientPacket((Player) sender, packet);
+                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                            ((Player) sender).chat(message);
+                        });
                     } else {
                         sender.sendMessage(InteractiveChat.noConsoleMessage);
                     }
@@ -371,6 +369,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         if (args[0].equalsIgnoreCase("dumpnbt")) {
             if (sender.hasPermission("interactivechat.dumpnbt")) {
                 if (sender instanceof Player) {
+                    @SuppressWarnings("deprecation")
                     ItemStack itemStack = ((Player) sender).getEquipment().getItemInHand();
                     if (itemStack == null) {
                         itemStack = new ItemStack(Material.AIR);

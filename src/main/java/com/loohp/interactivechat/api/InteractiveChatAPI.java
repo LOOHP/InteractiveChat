@@ -109,7 +109,11 @@ public class InteractiveChatAPI {
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
                 packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SYSTEM_CHAT);
                 packet.getStrings().write(0, json);
-                packet.getIntegers().write(0, 1);
+                if (packet.getBooleans().size() > 0) {
+                    packet.getBooleans().write(0, false);
+                } else {
+                    packet.getIntegers().write(0, 1);
+                }
             } else {
                 packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
                 if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {

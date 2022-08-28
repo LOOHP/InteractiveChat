@@ -39,12 +39,12 @@ import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
 import com.loohp.interactivechat.listeners.ClientSettingPacket;
-import com.loohp.interactivechat.listeners.RedispatchSignedPacket;
 import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutMessagePacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
 import com.loohp.interactivechat.listeners.PlayerEvents;
+import com.loohp.interactivechat.listeners.RedispatchSignedPacket;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.MentionDisplay;
@@ -56,6 +56,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.objectholders.MentionPair;
+import com.loohp.interactivechat.objectholders.ModernChatCompletionTask;
 import com.loohp.interactivechat.objectholders.NicknameManager;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
@@ -478,6 +479,9 @@ public class InteractiveChat extends JavaPlugin {
         OutMessagePacket.messageListeners();
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
             RedispatchSignedPacket.commandChatPacketListener();
+            if (ModernChatCompletionTask.isSupported()) {
+                new ModernChatCompletionTask();
+            }
         }
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();

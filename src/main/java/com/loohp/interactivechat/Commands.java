@@ -481,6 +481,24 @@ public class Commands implements CommandExecutor, TabCompleter {
                     }
                 }
             }
+            for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
+                if (!player.getUniqueId().equals(((Player) sender).getUniqueId())) {
+                    String name = InteractiveChat.mentionPrefix + player.getName();
+                    if (name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+                        tab.add(name);
+                    }
+                    String displayName = InteractiveChat.mentionPrefix + player.getDisplayName();
+                    if (displayName.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+                        tab.add(displayName);
+                    }
+                    for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {
+                        String prefixedNickname = InteractiveChat.mentionPrefix + nickname;
+                        if (prefixedNickname.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+                            tab.add(prefixedNickname);
+                        }
+                    }
+                }
+            }
             return tab;
         }
 

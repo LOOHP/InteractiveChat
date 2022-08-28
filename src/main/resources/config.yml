@@ -51,6 +51,8 @@ Settings:
   PacketsToListen:
     Chat: true
     Title: false
+  #Should click and hover events be removed in chat previews on 1.19+
+  ChatPreviewRemoveClickAndHover: false
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
   ItemTagMaxLength: 30767

@@ -74,4 +74,10 @@ public class ComponentStyling {
         return chatColor == null ? null : ColorUtils.toTextColor(chatColor);
     }
 
+    public static Component stripEvents(Component component) {
+        List<Component> components = new ArrayList<>(ComponentFlattening.flatten(component).children());
+        components.replaceAll(part -> part.hoverEvent(null).clickEvent(null));
+        return ComponentCompacting.optimize(Component.empty().children(components));
+    }
+
 }

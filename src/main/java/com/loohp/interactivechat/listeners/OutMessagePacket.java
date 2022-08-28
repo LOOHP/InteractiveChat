@@ -200,6 +200,9 @@ public class OutMessagePacket implements Listener {
                 }
                 return new PacketAccessorResult(component, type, field, true);
             }, (packet, component, type, field, sender) -> {
+                if (InteractiveChat.chatPreviewRemoveClickAndHover) {
+                    component = ComponentStyling.stripEvents(component);
+                }
                 boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
                 String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
                 boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;

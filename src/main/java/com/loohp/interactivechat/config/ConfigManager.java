@@ -99,6 +99,8 @@ public class ConfigManager {
         InteractiveChat.chatListener = getConfig().getBoolean("Settings.PacketsToListen.Chat");
         InteractiveChat.titleListener = getConfig().getBoolean("Settings.PacketsToListen.Title");
 
+        InteractiveChat.chatPreviewRemoveClickAndHover = getConfig().getBoolean("Settings.ChatPreviewRemoveClickAndHover");
+
         InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
         InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
         InteractiveChat.tagEveryIdentifiableMessage = getConfig().getBoolean("Settings.TagEveryIdentifiableMessage");

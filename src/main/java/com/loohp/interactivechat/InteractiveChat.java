@@ -145,6 +145,8 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean chatListener = true;
     public static boolean titleListener = false;
 
+    public static boolean chatPreviewRemoveClickAndHover = false;
+
     public static EventPriority chatEventPriority = EventPriority.HIGH;
     public static EventPriority commandsEventPriority = EventPriority.HIGH;
 

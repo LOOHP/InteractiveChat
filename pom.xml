@@ -240,8 +240,8 @@
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
-			<id>ess-repo</id>
-			<url>https://ci.ender.zone/plugin/repository/everything/</url>
+			<id>essentials-releases</id>
+			<url>https://repo.essentialsx.net/releases/</url>
 		</repository>
 		<repository>
 			<id>essentials-snapshots</id>

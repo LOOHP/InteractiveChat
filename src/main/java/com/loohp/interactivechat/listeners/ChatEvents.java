@@ -106,42 +106,42 @@ public class ChatEvents implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChatLowest(AsyncPlayerChatEvent event) {
         checkSignedModificationsFromProxy(event);
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.LOWEST)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.LOWEST)) {
             checkChat(event);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onChatLow(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.LOW)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.LOW)) {
             checkChat(event);
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onChatNormal(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.NORMAL)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.NORMAL)) {
             checkChat(event);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onChatHigh(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.HIGH)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.HIGH)) {
             checkChat(event);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChatHighest(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.HIGHEST)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.HIGHEST)) {
             checkChat(event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChatMonitor(AsyncPlayerChatEvent event) {
-        if (InteractiveChat.chatEventPriority.equals(EventPriority.MONITOR)) {
+        if (!InteractiveChat.usePaperModernChatEvent && InteractiveChat.chatEventPriority.equals(EventPriority.MONITOR)) {
             checkChat(event);
         }
     }

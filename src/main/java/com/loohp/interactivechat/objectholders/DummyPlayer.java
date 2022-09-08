@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.objectholders;
 
 import com.comphenix.net.bytebuddy.description.method.MethodDescription;
+import com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import com.comphenix.net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy.Default;
 import com.comphenix.net.bytebuddy.implementation.MethodDelegation;
 import com.comphenix.net.bytebuddy.implementation.bind.annotation.AllArguments;
@@ -35,14 +36,20 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.UUID;
 
 public abstract class DummyPlayer implements Player {
 
-    private static final Constructor<? extends DummyPlayer> CONSTRUCTOR = setupProxyPlayerConstructor();
+    private static final Constructor<? extends DummyPlayer> CONSTRUCTOR = setupProxyPlayerConstructor(true);
 
-    private static Constructor<? extends DummyPlayer> setupProxyPlayerConstructor() {
+    private static Constructor<? extends DummyPlayer> setupProxyPlayerConstructor(boolean init) {
+        if (init) {
+            try {
+                return setupProxyPlayerConstructor(false);
+            } catch (Throwable ignore) {
+            }
+        }
+
         MethodDelegation implementation = MethodDelegation.to(new Object() {
             @RuntimeType
             public Object delegate(@This Object obj, @Origin Method method, @AllArguments Object... args) {
@@ -52,7 +59,16 @@ public abstract class DummyPlayer implements Player {
         ElementMatcher.Junction<MethodDescription> callbackFilter = ElementMatchers.not(ElementMatchers.isAbstract());
 
         try {
-            return ByteBuddyFactory.getInstance().createSubclass(DummyPlayer.class, Default.IMITATE_SUPER_CLASS).name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler").implement(new Type[]{Player.class}).method(callbackFilter).intercept(implementation).make().load(ByteBuddyFactory.getInstance().getClassLoader(), com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION).getLoaded().getDeclaredConstructor(String.class, UUID.class);
+            return ByteBuddyFactory.getInstance()
+                    .createSubclass(DummyPlayer.class, Default.IMITATE_SUPER_CLASS)
+                    .name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler")
+                    .implement(Player.class)
+                    .method(callbackFilter)
+                    .intercept(implementation)
+                    .make()
+                    .load(ByteBuddyFactory.getInstance().getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded()
+                    .getDeclaredConstructor(String.class, UUID.class);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Failed to find DummyPlayer constructor!", e);
         }

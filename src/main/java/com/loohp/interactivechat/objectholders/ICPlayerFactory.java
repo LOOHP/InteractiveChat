@@ -223,6 +223,9 @@ public class ICPlayerFactory {
         boolean mysqlPDBEnderChestSync = false;
         boolean mysqlPDBExpSync = false;
         String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+        if (playerName == null) {
+            playerName = "";
+        }
         Player dummyPlayer = DummyPlayer.newInstance(playerName, uuid);
         if (InteractiveChat.mysqlPDBHook) {
             mysqlPDBInventorySync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareInventory");

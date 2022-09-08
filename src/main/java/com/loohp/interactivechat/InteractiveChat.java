@@ -43,6 +43,7 @@ import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutMessagePacket;
 import com.loohp.interactivechat.listeners.OutTabCompletePacket;
+import com.loohp.interactivechat.listeners.PaperChatEvents;
 import com.loohp.interactivechat.listeners.PlayerEvents;
 import com.loohp.interactivechat.listeners.RedispatchSignedPacket;
 import com.loohp.interactivechat.metrics.Charts;
@@ -144,6 +145,9 @@ public class InteractiveChat extends JavaPlugin {
 
     public static boolean chatListener = true;
     public static boolean titleListener = false;
+
+    public static boolean usePaperModernChatEvent = false;
+    public static boolean paperChatEventEditOriginalMessageField = true;
 
     public static boolean chatPreviewRemoveClickAndHover = false;
 
@@ -487,6 +491,13 @@ public class InteractiveChat extends JavaPlugin {
         }
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();
+        }
+        if (version.isNewerOrEqualTo(MCVersion.V1_17)) {
+            try {
+                Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
+                getServer().getPluginManager().registerEvents(new PaperChatEvents(), this);
+            } catch (ClassNotFoundException ignore) {
+            }
         }
 
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);

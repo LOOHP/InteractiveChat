@@ -55,7 +55,7 @@ public class NativeAdventureConverter {
     private static Method nativeKeyConstructionMethod;
     private static Method nativeKeyAsStringMethod;
     private static Class<?> nativeBinaryTagHolderClass;
-    private static Method nativeBinaryTagHolderContructionMethod;
+    private static Method nativeBinaryTagHolderConstructionMethod;
     private static Method nativeBinaryTagHolderStringMethod;
     private static Method nativeShowItemConstructionMethod;
     private static Method nativeShowItemGetItemMethod;
@@ -92,8 +92,8 @@ public class NativeAdventureConverter {
                 nativeKeyAsStringMethod = nativeKeyClass.getMethod("asString");
                 nativeKeyAsStringMethod.setAccessible(true);
                 nativeBinaryTagHolderClass = Class.forName(NATIVE_PACKAGE + ".nbt.api.BinaryTagHolder");
-                nativeBinaryTagHolderContructionMethod = nativeBinaryTagHolderClass.getMethod("of", String.class);
-                nativeBinaryTagHolderContructionMethod.setAccessible(true);
+                nativeBinaryTagHolderConstructionMethod = nativeBinaryTagHolderClass.getMethod("of", String.class);
+                nativeBinaryTagHolderConstructionMethod.setAccessible(true);
                 nativeBinaryTagHolderStringMethod = nativeBinaryTagHolderClass.getMethod("string");
                 nativeBinaryTagHolderStringMethod.setAccessible(true);
                 nativeShowItemConstructionMethod = nativeShowItemClass.getMethod("of", nativeKeyClass, int.class, nativeBinaryTagHolderClass);
@@ -178,7 +178,7 @@ public class NativeAdventureConverter {
         int amount = showItem.count();
         String nbt = showItem.nbt() == null ? null : showItem.nbt().string();
         try {
-            return nativeShowItemConstructionMethod.invoke(null, nativeKeyConstructionMethod.invoke(null, key), amount, nbt == null ? null : nativeBinaryTagHolderContructionMethod.invoke(null, nbt));
+            return nativeShowItemConstructionMethod.invoke(null, nativeKeyConstructionMethod.invoke(null, key), amount, nbt == null ? null : nativeBinaryTagHolderConstructionMethod.invoke(null, nbt));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             printError(e);
         }

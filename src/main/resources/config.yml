@@ -69,6 +69,12 @@ Settings:
     Chat: HIGH
     #Defaults to HIGH
     Preview: HIGH
+  #Do NOT set this to true unless you know what you are doing
+  #Does not do anything on or below 1.16.5
+  #Using PaperMC does NOT mean you need to set this to true
+  UsePaperModernChatEvent: false
+  #Only used if UsePaperModernChatEvent is true
+  PaperChatEventEditOriginalMessageField: true
   FormattingTags:
     #Allow the use of "[color=#123456]" RGB tags (1.16+)
     AllowRGBTags: true

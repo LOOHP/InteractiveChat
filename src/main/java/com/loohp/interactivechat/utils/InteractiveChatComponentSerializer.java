@@ -62,6 +62,7 @@ public class InteractiveChatComponentSerializer {
     private static final GsonComponentSerializer GSON_SERIALIZER;
     private static final GsonComponentSerializer GSON_SERIALIZER_LEGACY;
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER;
+    private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
 
     private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_(.*?)/damage_([0-9]*)$");
 
@@ -73,6 +74,7 @@ public class InteractiveChatComponentSerializer {
         GSON_SERIALIZER = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
         GSON_SERIALIZER_LEGACY = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
+        LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacySection().toBuilder().useUnusualXRepeatedCharacterHexFormat().build();
     }
 
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {
@@ -89,6 +91,10 @@ public class InteractiveChatComponentSerializer {
 
     public static PlainTextComponentSerializer plainText() {
         return PLAIN_TEXT_SERIALIZER;
+    }
+
+    public static LegacyComponentSerializer legacySection() {
+        return LEGACY_COMPONENT_SERIALIZER;
     }
 
     public static Key legacyIdToInteractiveChatKey(byte id, short damage) {

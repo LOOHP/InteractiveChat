@@ -525,7 +525,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new EssentialsDiscord(), this);
         }
 
-        if (isPluginEnabled("DiscordSRV")) {
+        if (isPluginEnabled("DiscordSRV", false)) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into DiscordSRV!");
             DiscordSRV.api.subscribe(new DiscordSRVEvents());
             discordSrvHook = true;

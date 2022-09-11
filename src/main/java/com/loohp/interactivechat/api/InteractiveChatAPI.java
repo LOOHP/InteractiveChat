@@ -32,6 +32,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -49,13 +50,17 @@ import org.bukkit.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -451,7 +456,7 @@ public class InteractiveChatAPI {
      * Get the nickname function provided by the provided plugin
      *
      * @param plugin
-     * @return The function which returns the list of plugins provided by this plugin
+     * @return The function which returns the list of nicknames provided by this plugin
      */
     public static Function<UUID, List<String>> getNicknameProvider(Plugin plugin) {
         return InteractiveChat.pluginNicknames.get(plugin);
@@ -506,6 +511,67 @@ public class InteractiveChatAPI {
             }
         }
         return nicks;
+    }
+
+    /**
+     * Register a function that the plugin will use to transform an item when displaying to chat<br>
+     * <b>ItemStack and UUID in the function CAN be null</b>
+     *
+     * @param plugin
+     * @param priority (higher priority runs first)
+     * @param provider
+     */
+    public static void registerItemStackTransformProvider(Plugin plugin, int priority, BiFunction<ItemStack, UUID, ItemStack> provider) {
+        InteractiveChat.itemStackTransformFunctions.put(plugin, new ValuePairs<>(priority, provider));
+    }
+
+    /**
+     * Unregister the item transform provider from the provided plugin
+     *
+     * @param plugin
+     */
+    public static void unregisterItemStackTransformProvider(Plugin plugin) {
+        InteractiveChat.itemStackTransformFunctions.remove(plugin);
+    }
+
+    /**
+     * Get the plugins registered to provide item transform functions
+     *
+     * @return A set of registered plugins
+     */
+    public static Set<Plugin> getRegisteredItemStackTransformProvider() {
+        return Collections.unmodifiableSet(InteractiveChat.itemStackTransformFunctions.keySet());
+    }
+
+    /**
+     * Get the item transform function provided by the provided plugin
+     *
+     * @param plugin
+     * @return The item transform function provided by this plugin
+     */
+    public static BiFunction<ItemStack, UUID, ItemStack> getItemStackTransformProvider(Plugin plugin) {
+        ValuePairs<Integer, BiFunction<ItemStack, UUID, ItemStack>> data = InteractiveChat.itemStackTransformFunctions.get(plugin);
+        return data == null ? null : data.getSecond();
+    }
+
+    /**
+     * Get the item transform function's priority provided by the provided plugin
+     *
+     * @param plugin
+     * @return The item transform function's priority provided by this plugin
+     */
+    public static OptionalInt getItemStackTransformProviderPriority(Plugin plugin) {
+        ValuePairs<Integer, BiFunction<ItemStack, UUID, ItemStack>> data = InteractiveChat.itemStackTransformFunctions.get(plugin);
+        return data == null ? OptionalInt.empty() : OptionalInt.of(data.getFirst());
+    }
+
+    public static ItemStack transformItemStack(ItemStack itemStack, UUID uuid) {
+        return InteractiveChat.itemStackTransformFunctions.values().stream()
+                .sorted(Comparator.comparing(each -> each.getFirst()))
+                .map(each -> each.getSecond())
+                .reduce((a, b) -> (i, u) -> b.apply(a.apply(i, u), u))
+                .map(function -> function.apply(itemStack, uuid))
+                .orElse(itemStack);
     }
 
     /**

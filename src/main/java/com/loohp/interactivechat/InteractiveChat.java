@@ -33,6 +33,7 @@ import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
 import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
 import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
+import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
@@ -106,6 +107,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -335,6 +337,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Database database;
 
     public static Map<UUID, List<SignedMessageModificationData>> signedMessageModificationData = new ConcurrentHashMap<>();
+    public static Map<Plugin, ValuePairs<Integer, BiFunction<ItemStack, UUID, ItemStack>>> itemStackTransformFunctions = new ConcurrentHashMap<>();
 
     public static void closeSharedInventoryViews() {
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -516,7 +519,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Essentials!");
             essentialsHook = true;
             getServer().getPluginManager().registerEvents(new EssentialsNicknames(), this);
-            EssentialsNicknames._init_();
+            EssentialsNicknames.init();
         }
 
         if (isPluginEnabled("EssentialsDiscord")) {
@@ -542,6 +545,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         if (isPluginEnabled("eco")) {
+            EcoHook.init();
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Eco (Core)!");
             ecoHook = true;
         }

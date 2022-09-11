@@ -47,7 +47,7 @@ public class EssentialsNicknames implements Listener {
     private static Essentials essen;
     private static String prefix;
 
-    public static void _init_() {
+    public static void init() {
         essen = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         prefix = essen.getConfig().getString("nickname-prefix");
 

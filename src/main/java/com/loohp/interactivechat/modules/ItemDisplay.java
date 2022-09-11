@@ -25,7 +25,6 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
-import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
@@ -144,9 +143,7 @@ public class ItemDisplay {
     public static Component createItemDisplay(ICPlayer player, Player receiver, Component component, long timeSent, boolean showHover, Component alternativeHover, boolean preview) throws Exception {
         ItemStack item = PlayerUtils.getHeldItem(player);
 
-        if (!item.getType().equals(Material.AIR) && InteractiveChat.ecoHook) {
-            item = EcoHook.setEcoLores(item, receiver);
-        }
+        item = InteractiveChatAPI.transformItemStack(item, receiver.getUniqueId());
 
         ItemPlaceholderEvent event = new ItemPlaceholderEvent(player, receiver, component, timeSent, item);
         Bukkit.getPluginManager().callEvent(event);

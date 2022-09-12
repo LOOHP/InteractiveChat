@@ -44,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -327,6 +328,16 @@ public class BungeeMessageSender {
         DataTypeIO.writeUUID(out, player);
         DataTypeIO.writeString(out, placeholders, StandardCharsets.UTF_8);
         return forwardData(time, 0x12, out.toByteArray());
+    }
+
+    public static boolean updatePlayersVanished(long time, Map<UUID, Boolean> data) throws Exception {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeInt(data.size());
+        for (Map.Entry<UUID, Boolean> entry : data.entrySet()) {
+            DataTypeIO.writeUUID(out, entry.getKey());
+            out.writeBoolean(entry.getValue());
+        }
+        return forwardData(time, 0x14, out.toByteArray());
     }
 
 }

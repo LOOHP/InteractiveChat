@@ -137,7 +137,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             }
                         }
                         if (!localUUID.contains(uuid) && !ICPlayerFactory.getRemoteUUIDs().contains(uuid)) {
-                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36));
+                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36), false);
                         }
                         newSet.add(uuid);
                     }
@@ -396,6 +396,17 @@ public class BungeeMessageListener implements PluginMessageListener {
                             modData = InteractiveChat.signedMessageModificationData.get(senderUUID);
                         }
                         modData.add(new SignedMessageModificationData(senderUUID, time, originalMessage, modifiedMessage));
+                    }
+                    break;
+                case 0x14:
+                    int size3 = input.readInt();
+                    for (int i = 0; i < size3; i++) {
+                        UUID player4 = DataTypeIO.readUUID(input);
+                        boolean vanished = input.readBoolean();
+                        ICPlayer icPlayer2 = ICPlayerFactory.getICPlayer(player4);
+                        if (icPlayer2 != null) {
+                            icPlayer2.setRemoteVanished(vanished);
+                        }
                     }
                     break;
                 case 0xFF:

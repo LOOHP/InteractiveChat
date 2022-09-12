@@ -130,7 +130,6 @@ public class InteractiveChat extends JavaPlugin {
 
     public static Boolean essentialsHook = false;
     public static Boolean essentialsDiscordHook = false;
-    public static Boolean vanishHook = false;
     public static Boolean cmiHook = false;
     public static Boolean ventureChatHook = false;
     public static Boolean discordSrvHook = false;
@@ -450,6 +449,22 @@ public class InteractiveChat extends JavaPlugin {
                     }
                 }
             }, 0, 100);
+
+            Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                Map<UUID, Boolean> vanishStates = new HashMap<>();
+                for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
+                    if (player.isLocal()) {
+                        vanishStates.put(player.getUniqueId(), player.isVanished());
+                    }
+                }
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        BungeeMessageSender.updatePlayersVanished(System.currentTimeMillis(), vanishStates);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }, 0, 40);
         }
 
         BiConsumer<String, Inventory> inventoryRemovalListener = (hash, inv) -> {
@@ -506,10 +521,6 @@ public class InteractiveChat extends JavaPlugin {
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
 
-        if (isPluginEnabled("SuperVanish") || isPluginEnabled("PremiumVanish")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into SuperVanish/PremiumVanish!");
-            vanishHook = true;
-        }
         if (isPluginEnabled("CMI", false)) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into CMI!");
             cmiHook = true;

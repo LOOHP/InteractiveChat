@@ -110,12 +110,12 @@ public class ICPlayerFactory {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
     }
 
-    public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest) {
+    public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest, boolean vanished) {
         synchronized (LOCK) {
             ICPlayer icplayer = getICPlayer(uuid);
             boolean newlyCreated;
             if (icplayer == null) {
-                icplayer = new ICPlayer(server, name, uuid, rightHanded, selectedSlot, experienceLevel, inventory, enderchest);
+                icplayer = new ICPlayer(server, name, uuid, rightHanded, selectedSlot, experienceLevel, inventory, enderchest, vanished);
                 ICPLAYERS.put(uuid, icplayer);
                 newlyCreated = true;
                 Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(icplayer, true));

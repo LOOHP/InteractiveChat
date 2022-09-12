@@ -31,7 +31,6 @@ import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
-import com.loohp.interactivechat.utils.VanishUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -154,7 +153,7 @@ public class PlayernameDisplay implements Listener {
     private static Collection<ReplaceTextBundle> getNames() {
         List<ReplaceTextBundle> names = new ArrayList<>();
         ICPlayerFactory.getOnlineICPlayers().forEach(each -> {
-            if (VanishUtils.isVanished(each.getUniqueId())) {
+            if (each.isVanished()) {
                 return;
             }
             names.add(new ReplaceTextBundle(ChatColorUtils.stripColor(each.getName()), each, each.getName()));

@@ -25,15 +25,14 @@ import com.loohp.interactivechat.objectholders.MentionTagConverter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 public class Registry {
 
     public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InteractiveChatBungeePing";
-    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 14;
+    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 15;
 
-    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 36;
+    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 37;
 
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");
@@ -59,6 +58,7 @@ public class Registry {
         set.add(0x0F);
         set.add(0x11);
         set.add(0x12);
+        set.add(0x14);
         set.add(0xFF);
         PROXY_PASSTHROUGH_RELAY_PACKETS = Collections.unmodifiableSet(set);
     }

@@ -44,13 +44,15 @@ public class ICPlayer extends OfflineICPlayer {
     private boolean rightHanded;
     private Set<String> remoteNicknames;
     private Map<String, String> remotePlaceholders;
+    private boolean remoteVanished;
 
-    protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest) {
+    protected ICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest, boolean remoteVanished) {
         super(uuid, selectedSlot, rightHanded, experienceLevel, inventory, enderchest);
         this.remoteServer = server;
         this.remoteName = name;
         this.remoteNicknames = new HashSet<>();
         this.remotePlaceholders = new HashMap<>();
+        this.remoteVanished = remoteVanished;
     }
 
     protected ICPlayer(Player player) {
@@ -106,6 +108,14 @@ public class ICPlayer extends OfflineICPlayer {
     @Override
     public UUID getUniqueId() {
         return uuid;
+    }
+
+    public boolean isVanished() {
+        return isLocal() ? getLocalPlayer().getMetadata("vanished").stream().anyMatch(each -> each.asBoolean()) : remoteVanished;
+    }
+
+    public void setRemoteVanished(boolean remoteVanished) {
+        this.remoteVanished = remoteVanished;
     }
 
     @Override

@@ -21,6 +21,7 @@
 package com.loohp.interactivechat;
 
 import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.api.events.InteractiveChatConfigReloadEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
@@ -91,6 +92,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         e.printStackTrace();
                     }
                 }
+                Bukkit.getPluginManager().callEvent(new InteractiveChatConfigReloadEvent());
                 sender.sendMessage(InteractiveChat.reloadPluginMessage);
             } else {
                 sender.sendMessage(InteractiveChat.noPermissionMessage);

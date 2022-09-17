@@ -45,47 +45,44 @@ public class CommandsBungee extends Command implements TabExecutor {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (args.length == 0) {
-                        defaultMessage(sender);
-                        return;
-                    }
-
-                    if (args[0].equalsIgnoreCase("backendinfo") && InteractiveChatBungee.hasPermission(sender, "interactivechat.backendinfo").get()) {
-                        InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Proxy -> InteractiveChat: " + InteractiveChatBungee.plugin.getDescription().getVersion() + " (PM Protocol: " + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")"));
-                        InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Expected latency: " + InteractiveChatBungee.delay + " ms"));
-                        InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Backends under this proxy:"));
-                        ProxyServer.getInstance().getServers().values().stream().sorted(Comparator.comparing(each -> each.getName())).forEach(server -> {
-                            String name = server.getName();
-                            BackendInteractiveChatData data = InteractiveChatBungee.serverInteractiveChatInfo.get(name);
-                            if (data == null) {
-                                InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
-                            } else {
-                                String minecraftVersion = data.getExactMinecraftVersion();
-                                if (data.isOnline()) {
-                                    if (!data.hasInteractiveChat()) {
-                                        InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED (PM Protocol: -1) | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
-                                    } else {
-                                        InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " (PM Protocol: " + data.getProtocolVersion() + ") | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
-                                    }
-                                } else {
-                                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Status: OFFLINE"));
-                                }
-
-                            }
-                        });
-                        return;
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+        ProxyServer.getInstance().getScheduler().runAsync(InteractiveChatBungee.plugin, () -> {
+            try {
+                if (args.length == 0) {
+                    defaultMessage(sender);
+                    return;
                 }
 
-                defaultMessage(sender);
+                if (args[0].equalsIgnoreCase("backendinfo") && InteractiveChatBungee.hasPermission(sender, "interactivechat.backendinfo").get()) {
+                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Proxy -> InteractiveChat: " + InteractiveChatBungee.plugin.getDescription().getVersion() + " (PM Protocol: " + Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION + ")"));
+                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Expected latency: " + InteractiveChatBungee.delay + " ms"));
+                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.AQUA + "Backends under this proxy:"));
+                    ProxyServer.getInstance().getServers().values().stream().sorted(Comparator.comparing(each -> each.getName())).forEach(server -> {
+                        String name = server.getName();
+                        BackendInteractiveChatData data = InteractiveChatBungee.serverInteractiveChatInfo.get(name);
+                        if (data == null) {
+                            InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Attempting to retrieve data from backend..."));
+                        } else {
+                            String minecraftVersion = data.getExactMinecraftVersion();
+                            if (data.isOnline()) {
+                                if (!data.hasInteractiveChat()) {
+                                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.YELLOW + name + " -> InteractiveChat: NOT INSTALLED (PM Protocol: -1) | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+                                } else {
+                                    InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.GREEN + name + " -> InteractiveChat: " + data.getVersion() + " (PM Protocol: " + data.getProtocolVersion() + ") | Minecraft: " + minecraftVersion + " | Ping: " + (data.getPing() < 0 ? "N/A" : (data.getPing() + " ms"))));
+                                }
+                            } else {
+                                InteractiveChatBungee.sendMessage(sender, LegacyComponentSerializer.legacySection().deserialize(ChatColor.RED + name + " -> Status: OFFLINE"));
+                            }
+
+                        }
+                    });
+                    return;
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
-        }).start();
+
+            defaultMessage(sender);
+        });
     }
 
     @Override

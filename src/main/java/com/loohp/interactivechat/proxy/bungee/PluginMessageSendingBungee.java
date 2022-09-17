@@ -34,7 +34,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,6 +46,9 @@ import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("UnstableApiUsage")
 public class PluginMessageSendingBungee {
+
+    private static final Object lastServerPingLock = new Object();
+    private static long lastServerPing = 0;
 
     public static void sendPlayerListData() throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
@@ -96,7 +98,21 @@ public class PluginMessageSendingBungee {
         }
     }
 
-    public static void sendDelayAndScheme() throws IOException {
+    public static void sendDelayAndScheme() {
+        sendDelayAndScheme(false);
+    }
+
+    public static void sendDelayAndScheme(boolean ignoreCooldown) {
+        if (!ignoreCooldown) {
+            synchronized (lastServerPingLock) {
+                long now = System.currentTimeMillis();
+                if (now - lastServerPing < 2000) {
+                    return;
+                }
+                lastServerPing = now;
+            }
+        }
+
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
         List<CompletableFuture<ServerPingBungee>> futures = new LinkedList<>();

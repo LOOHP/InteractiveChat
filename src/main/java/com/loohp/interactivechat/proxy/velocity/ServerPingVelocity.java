@@ -39,11 +39,14 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServerPingVelocity {
 
     public static final String UNKNOWN_VERSION = "unknown";
     public static final int UNKNOWN_PROTOCOL = -1;
+
+    private static final AtomicInteger THREAD_NUMBER_COUNTER = new AtomicInteger(0);
 
     @SuppressWarnings("deprecation")
     public static CompletableFuture<ServerPingVelocity> getPing(ServerInfo server) {
@@ -221,7 +224,7 @@ public class ServerPingVelocity {
                     }
                 }
             }
-        }).start();
+        }, "InteractiveChatVelocity Async Backend Server Ping Thread #" + THREAD_NUMBER_COUNTER.getAndIncrement()).start();
         return future;
     }
 

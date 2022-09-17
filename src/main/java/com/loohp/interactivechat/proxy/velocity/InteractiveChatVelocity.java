@@ -768,14 +768,10 @@ public class InteractiveChatVelocity {
             }
         }
         proxyServer.getScheduler().buildTask(plugin, () -> {
-            try {
-                PluginMessageSendingVelocity.sendDelayAndScheme();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            PluginMessageSendingVelocity.sendDelayAndScheme();
         }).schedule();
         proxyServer.getScheduler().buildTask(plugin, () -> {
-            if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEskakE")) {
+            if (event.getPlayer().getUsername().equals("LOOHP") || event.getPlayer().getUsername().equals("AppLEshakE")) {
                 sendMessage(event.getPlayer(), Component.text(TextColor.GOLD + "InteractiveChat (Velocity) " + getDescription().getVersion() + " is running!"));
             }
         }).delay(100, TimeUnit.MILLISECONDS).schedule();

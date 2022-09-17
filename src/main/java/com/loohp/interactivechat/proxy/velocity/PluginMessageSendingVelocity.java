@@ -47,6 +47,9 @@ import java.util.concurrent.ExecutionException;
 @SuppressWarnings("UnstableApiUsage")
 public class PluginMessageSendingVelocity {
 
+    private static final Object lastServerPingLock = new Object();
+    private static long lastServerPing = 0;
+
     private static ProxyServer getServer() {
         return InteractiveChatVelocity.plugin.getServer();
     }
@@ -99,7 +102,21 @@ public class PluginMessageSendingVelocity {
         }
     }
 
-    public static void sendDelayAndScheme() throws IOException {
+    public static void sendDelayAndScheme() {
+        sendDelayAndScheme(false);
+    }
+
+    public static void sendDelayAndScheme(boolean ignoreCooldown) {
+        if (!ignoreCooldown) {
+            synchronized (lastServerPingLock) {
+                long now = System.currentTimeMillis();
+                if (now - lastServerPing < 2000) {
+                    return;
+                }
+                lastServerPing = now;
+            }
+        }
+
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
         List<CompletableFuture<ServerPingVelocity>> futures = new LinkedList<>();

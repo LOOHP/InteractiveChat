@@ -194,7 +194,7 @@ public class ProxyMessageForwardingHandler implements AutoCloseable {
                     break;
                 }
             }
-        }).start();
+        }, "InteractiveChatProxy Async ChatPacket Ordered Sending Thread").start();
     }
 
     @Override

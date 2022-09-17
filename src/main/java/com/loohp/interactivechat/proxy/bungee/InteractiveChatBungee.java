@@ -915,14 +915,10 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
         ProxyServer.getInstance().getScheduler().runAsync(plugin, () -> {
-            try {
-                PluginMessageSendingBungee.sendDelayAndScheme();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            PluginMessageSendingBungee.sendDelayAndScheme();
         });
         ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
-            if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEskakE")) {
+            if (event.getPlayer().getName().equals("LOOHP") || event.getPlayer().getName().equals("AppLEshakE")) {
                 sendMessage(event.getPlayer(), LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "InteractiveChat (Bungeecord) " + plugin.getDescription().getVersion() + " is running!"));
             }
         }, 100, TimeUnit.MILLISECONDS);

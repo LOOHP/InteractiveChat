@@ -53,10 +53,14 @@ public class ComponentReplacing {
     }
 
     public static Component replace(Component component, String regex, boolean escaping, Function<MatchResult, Component> replaceFunction) {
-        return replace(component, regex, escaping, (result, replaced) -> replaceFunction.apply(result));
+        return replace(component, regex, escaping, (result, replaced) -> replaceFunction.apply(result), true);
     }
 
     public static Component replace(Component component, String regex, boolean escaping, BiFunction<MatchResult, List<Component>, Component> replaceFunction) {
+        return replace(component, regex, escaping, replaceFunction, false);
+    }
+
+    public static Component replace(Component component, String regex, boolean escaping, BiFunction<MatchResult, List<Component>, Component> replaceFunction, boolean applyFallbackStyle) {
         String regexOriginal = regex;
         if (escaping) {
             regex = ESCAPE_PREPEND_PATTERN + regex;
@@ -160,7 +164,9 @@ public class ComponentReplacing {
                 }
 
                 Component replace = replaceFunction.apply(matcher, Collections.unmodifiableList(matchedComponents));
-                replace = replace.applyFallbackStyle(matchedComponents.get(matchedComponents.size() - 1).style());
+                if (applyFallbackStyle) {
+                    replace = replace.applyFallbackStyle(matchedComponents.get(matchedComponents.size() - 1).style());
+                }
                 replace = ComponentFlattening.flatten(replace);
                 children.add(insertPos, replace);
 

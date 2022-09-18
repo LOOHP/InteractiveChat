@@ -116,6 +116,7 @@ public class PaperChatEvents implements Listener {
 
     public static void applyBukkitChatEvent(AsyncChatEvent event, AsyncPlayerChatEvent bukkitChatEvent) {
         setMessage(event, NativeAdventureConverter.componentToNative(InteractiveChatComponentSerializer.legacySection().deserialize(bukkitChatEvent.getMessage()), false));
+        event.setCancelled(bukkitChatEvent.isCancelled());
     }
 
     public static Object getMessage(AsyncChatEvent event) {

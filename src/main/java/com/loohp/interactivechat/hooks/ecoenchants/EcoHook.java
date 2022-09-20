@@ -39,6 +39,9 @@ public class EcoHook {
             if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
                 return itemStack;
             }
+            if (uuid == null) {
+                return setEcoLores(itemStack);
+            }
             ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
             if (icPlayer == null || !icPlayer.isLocal()) {
                 return setEcoLores(itemStack);

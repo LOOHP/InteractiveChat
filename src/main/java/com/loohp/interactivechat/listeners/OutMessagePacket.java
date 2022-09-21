@@ -538,7 +538,7 @@ public class OutMessagePacket implements Listener {
             }
             component = ComponentReplacing.replace(component, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, (result, components) -> {
                 return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
-            });
+            }, true);
 
             component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
 

@@ -271,6 +271,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Map<UUID, Map<UUID, Long>> lastNonSilentMentionTime = new ConcurrentHashMap<>();
     public static String mentionPrefix = "@";
     public static String mentionHighlight = "&e{MentionedPlayer}";
+    public static String mentionHighlightOthers = "&3{MentionedPlayer}";
     public static String mentionHover = "&e{MentionedPlayer}";
     public static double mentionDuration = 2;
     public static long mentionCooldown = 3000;

@@ -251,6 +251,9 @@ Chat:
   #Highlight the mentioned playername for the player mentioned
   #Use {MentionedPlayer} for the highlighted player name
   MentionHighlight: "&e{MentionedPlayer}"
+  #Highlight the mentioned playername for other players
+  #Use {MentionedPlayer} for the highlighted player name
+  MentionHighlightOthers: "&3{MentionedPlayer}"
 
   #The text to show when the player mentioned hover over the highlighted text
   #Use {Sender} and {Receiver}

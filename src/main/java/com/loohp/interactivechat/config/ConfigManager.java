@@ -321,6 +321,7 @@ public class ConfigManager {
 
         InteractiveChat.mentionPrefix = getConfig().getString("Chat.MentionPrefix");
         InteractiveChat.mentionHighlight = getConfig().getString("Chat.MentionHighlight");
+        InteractiveChat.mentionHighlightOthers = getConfig().getString("Chat.MentionHighlightOthers");
         List<String> stringList3 = getConfig().getStringList("Chat.MentionHoverText");
         InteractiveChat.mentionHover = String.join("\n", stringList3);
         InteractiveChat.mentionDuration = getConfig().getDouble("Chat.MentionedTitleDuration");

@@ -101,6 +101,10 @@
 									<shadedPattern>com.loohp.interactivechat.libs.org.simpleyaml</shadedPattern>
 								</relocation>
 								<relocation>
+									<pattern>org.yaml.snakeyaml</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.org.yaml.snakeyaml</shadedPattern>
+								</relocation>
+								<relocation>
 									<pattern>net.querz</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.net.querz</shadedPattern>
 								</relocation>

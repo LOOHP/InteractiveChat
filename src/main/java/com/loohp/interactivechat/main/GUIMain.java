@@ -23,9 +23,9 @@ package com.loohp.interactivechat.main;
 import com.loohp.interactivechat.updater.Version;
 import com.loohp.interactivechat.utils.FileUtils;
 import com.loohp.interactivechat.utils.HTTPRequestUtils;
-import com.loohp.yamlconfiguration.ConfigurationSection;
-import com.loohp.yamlconfiguration.YamlConfiguration;
 import org.json.simple.JSONObject;
+import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.file.YamlFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -40,12 +40,12 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,7 +58,9 @@ public class GUIMain {
         String title = "InteractiveChat Tools";
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            YamlConfiguration pluginYaml = new YamlConfiguration(GUIMain.class.getClassLoader().getResourceAsStream("plugin.yml"));
+            YamlFile pluginYaml = new YamlFile();
+            pluginYaml.options().useComments(true);
+            pluginYaml.load(GUIMain.class.getClassLoader().getResourceAsStream("plugin.yml"));
 
             String pluginName = pluginYaml.getString("name");
             String version = pluginYaml.getString("version");
@@ -166,7 +168,9 @@ public class GUIMain {
         for (File file : folder.listFiles()) {
             String fileName = file.getName();
             if (fileName.endsWith(".yml")) {
-                YamlConfiguration yaml = new YamlConfiguration(new FileInputStream(file));
+                YamlFile yaml = new YamlFile();
+                yaml.options().useComments(true);
+                yaml.load(Files.newInputStream(file.toPath()));
                 results.put(file, validateConfigurationSection("", yaml));
             }
         }

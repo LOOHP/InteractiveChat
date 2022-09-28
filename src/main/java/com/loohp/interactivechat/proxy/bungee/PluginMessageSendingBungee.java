@@ -294,7 +294,6 @@ public class PluginMessageSendingBungee {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, ServerInfo serverFrom) throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
@@ -311,7 +310,7 @@ public class PluginMessageSendingBungee {
                 output.writeLong(placeholder.getCooldown());
             } else {
                 CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
-                output.writeInt(customPlaceholder.getPosition());
+                DataTypeIO.writeString(output, customPlaceholder.getKey(), StandardCharsets.UTF_8);
                 output.writeByte(customPlaceholder.getParsePlayer().getOrder());
                 DataTypeIO.writeString(output, customPlaceholder.getKeyword().pattern(), StandardCharsets.UTF_8);
                 output.writeBoolean(customPlaceholder.getParseKeyword());

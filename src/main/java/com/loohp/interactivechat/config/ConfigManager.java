@@ -35,8 +35,6 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.XMaterialUtils;
-import com.loohp.yamlconfiguration.ConfigurationSection;
-import com.loohp.yamlconfiguration.YamlConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -44,11 +42,14 @@ import org.bukkit.Material;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,11 +66,11 @@ public class ConfigManager {
         loadConfig();
     }
 
-    public static YamlConfiguration getConfig() {
+    public static YamlFile getConfig() {
         return Config.getConfig(MAIN_CONFIG).getConfiguration();
     }
 
-    public static YamlConfiguration getStorageConfig() {
+    public static YamlFile getStorageConfig() {
         return Config.getConfig(STORAGE_CONFIG).getConfiguration();
     }
 
@@ -290,24 +291,30 @@ public class ConfigManager {
             ICPlaceholder enderPlaceholder = new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
             InteractiveChat.placeholderList.put(enderPlaceholder.getInternalId(), enderPlaceholder);
         }
-        for (int customNo = 1; ConfigManager.getConfig().contains("CustomPlaceholders." + customNo); customNo++) {
-            ConfigurationSection s = getConfig().getConfigurationSection("CustomPlaceholders." + customNo);
-            ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer"));
-            String placeholder = s.getString("Keyword");
-            boolean parseKeyword = s.getBoolean("ParseKeyword");
-            long cooldown = s.getLong("Cooldown") * 1000;
-            boolean hoverEnabled = s.getBoolean("Hover.Enable");
-            String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
-            boolean clickEnabled = s.getBoolean("Click.Enable");
-            String clickAction = s.getString("Click.Action").toUpperCase();
-            String clickValue = s.getString("Click.Value");
-            boolean replaceEnabled = s.getBoolean("Replace.Enable");
-            String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText"));
-            String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
-            String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
+        for (Map.Entry<String, Object> entry : getConfig().getConfigurationSection("CustomPlaceholders").getValues(false).entrySet()) {
+            String key = entry.getKey();
+            Object sectionObject = entry.getValue();
+            if (sectionObject instanceof ConfigurationSection) {
+                ConfigurationSection s = (ConfigurationSection) sectionObject;
+                ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer", "sender"));
+                String placeholder = s.getString("Keyword", "$^");
+                boolean parseKeyword = s.getBoolean("ParseKeyword", false);
+                long cooldown = s.getLong("Cooldown", 0) * 1000;
+                boolean hoverEnabled = s.getBoolean("Hover.Enable", false);
+                String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
+                boolean clickEnabled = s.getBoolean("Click.Enable", false);
+                String clickAction = s.getString("Click.Action", "SUGGEST_COMMAND").toUpperCase();
+                String clickValue = s.getString("Click.Value", "");
+                boolean replaceEnabled = s.getBoolean("Replace.Enable", false);
+                String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText", ""));
+                String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
+                String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
 
-            ICPlaceholder customPlaceholder = new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
-            InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
+                ICPlaceholder customPlaceholder = new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
+                InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
+            } else {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid custom placeholder in the config, keyed \"" + key + "\"");
+            }
         }
 
         if (InteractiveChat.bungeecordMode) {

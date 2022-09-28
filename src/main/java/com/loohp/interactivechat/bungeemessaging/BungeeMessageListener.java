@@ -274,8 +274,8 @@ public class BungeeMessageListener implements PluginMessageListener {
                     int size2 = input.readInt();
                     List<ICPlaceholder> list = new ArrayList<>(size2);
                     for (int i = 0; i < size2; i++) {
-                        boolean isBulitIn = input.readBoolean();
-                        if (isBulitIn) {
+                        boolean isBuiltIn = input.readBoolean();
+                        if (isBuiltIn) {
                             String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                             String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                             String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
@@ -283,7 +283,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             long cooldown = input.readLong();
                             list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
                         } else {
-                            int customNo = input.readInt();
+                            String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                             ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
                             String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                             boolean parseKeyword = input.readBoolean();
@@ -298,7 +298,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                             String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 
-                            list.add(new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
+                            list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
                         }
                     }
                     InteractiveChat.remotePlaceholderList.put(server, list);

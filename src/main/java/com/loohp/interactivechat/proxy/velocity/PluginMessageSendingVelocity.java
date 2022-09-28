@@ -298,7 +298,6 @@ public class PluginMessageSendingVelocity {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static void forwardPlaceholderList(List<ICPlaceholder> serverPlaceholderList, RegisteredServer serverFrom) throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
@@ -315,7 +314,7 @@ public class PluginMessageSendingVelocity {
                 output.writeLong(placeholder.getCooldown());
             } else {
                 CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
-                output.writeInt(customPlaceholder.getPosition());
+                DataTypeIO.writeString(output, customPlaceholder.getKey(), StandardCharsets.UTF_8);
                 output.writeByte(customPlaceholder.getParsePlayer().getOrder());
                 DataTypeIO.writeString(output, customPlaceholder.getKeyword().pattern(), StandardCharsets.UTF_8);
                 output.writeBoolean(customPlaceholder.getParseKeyword());

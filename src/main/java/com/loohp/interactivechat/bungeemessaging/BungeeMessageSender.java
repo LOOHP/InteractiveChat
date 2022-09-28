@@ -250,7 +250,7 @@ public class BungeeMessageSender {
                 out.writeLong(placeholder.getCooldown());
             } else {
                 CustomPlaceholder customPlaceholder = (CustomPlaceholder) placeholder;
-                out.writeInt(customPlaceholder.getPosition());
+                DataTypeIO.writeString(out, customPlaceholder.getKey(), StandardCharsets.UTF_8);
                 out.writeByte(customPlaceholder.getParsePlayer().getOrder());
                 DataTypeIO.writeString(out, customPlaceholder.getKeyword().pattern(), StandardCharsets.UTF_8);
                 out.writeBoolean(customPlaceholder.getParseKeyword());

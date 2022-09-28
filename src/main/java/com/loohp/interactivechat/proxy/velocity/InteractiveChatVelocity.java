@@ -523,7 +523,7 @@ public class InteractiveChatVelocity {
                                     long cooldown = input.readLong();
                                     list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
                                 } else {
-                                    int customNo = input.readInt();
+                                    String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                     ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
                                     String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                     boolean parseKeyword = input.readBoolean();
@@ -538,7 +538,7 @@ public class InteractiveChatVelocity {
                                     String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                     String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
 
-                                    list.add(new CustomPlaceholder(customNo, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
+                                    list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
                                 }
                             }
                             placeholderList.put(server.getServerInfo().getName(), list);

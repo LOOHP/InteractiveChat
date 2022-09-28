@@ -21,7 +21,8 @@
 package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.utils.FileUtils;
-import com.loohp.yamlconfiguration.YamlConfiguration;
+import org.simpleyaml.configuration.comments.CommentType;
+import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -101,36 +102,44 @@ public class Config {
     }
 
     private File file;
-    private YamlConfiguration defConfig;
-    private YamlConfiguration config;
+    private YamlFile defConfig;
+    private YamlFile config;
 
     private Config(File file, InputStream def, boolean refreshComments, Consumer<Config> dataFixer, Predicate<String> copyDefaultFilter) throws IOException {
         this.file = file;
 
-        defConfig = new YamlConfiguration(def);
-        config = new YamlConfiguration(file);
+        defConfig = new YamlFile();
+        defConfig.options().useComments(true);
+        defConfig.load(def);
+        config = new YamlFile();
+        config.options().useComments(true);
+        config.load(file);
+
 
         if (dataFixer != null) {
             dataFixer.accept(this);
-            config.reload();
+            reload();
         }
 
         for (String path : defConfig.getValues(true).keySet()) {
             if (config.contains(path)) {
                 if (refreshComments) {
-                    config.setAboveComment(path, defConfig.getAboveComment(path));
+                    config.setComment(path, defConfig.getComment(path, CommentType.BLOCK), CommentType.BLOCK);
                 }
             } else if (copyDefaultFilter.test(path) && !defConfig.isConfigurationSection(path)) {
                 config.set(path, defConfig.get(path));
-                config.setAboveComment(path, defConfig.getAboveComment(path));
+                config.setComment(path, defConfig.getComment(path, CommentType.BLOCK), CommentType.BLOCK);
             }
         }
 
         save();
+
     }
 
     private Config(File file) throws IOException {
-        config = new YamlConfiguration(file);
+        config = new YamlFile();
+        config.options().useComments(true);
+        config.load(file);
         save();
     }
 
@@ -143,14 +152,22 @@ public class Config {
     }
 
     public void save(File file) {
-        config.save(file);
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reload() {
-        config.reload();
+        try {
+            config.load(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public YamlConfiguration getConfiguration() {
+    public YamlFile getConfiguration() {
         return config;
     }
 

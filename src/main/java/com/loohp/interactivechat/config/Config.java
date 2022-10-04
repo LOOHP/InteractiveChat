@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -110,9 +111,11 @@ public class Config {
 
         defConfig = new YamlFile();
         defConfig.options().useComments(true);
+        defConfig.options().charset(StandardCharsets.UTF_8);
         defConfig.load(def);
         config = new YamlFile();
         config.options().useComments(true);
+        config.options().charset(StandardCharsets.UTF_8);
         config.load(file);
 
 

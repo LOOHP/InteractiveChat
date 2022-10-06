@@ -23,6 +23,7 @@ package com.loohp.interactivechat.config;
 import com.loohp.interactivechat.utils.FileUtils;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
+import org.simpleyaml.configuration.implementation.snakeyaml.SnakeYamlImplementation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -112,12 +113,13 @@ public class Config {
         defConfig = new YamlFile();
         defConfig.options().useComments(true);
         defConfig.options().charset(StandardCharsets.UTF_8);
+        ((SnakeYamlImplementation) defConfig.getImplementation()).getDumperOptions().setSplitLines(false);
         defConfig.load(def);
         config = new YamlFile();
         config.options().useComments(true);
         config.options().charset(StandardCharsets.UTF_8);
+        ((SnakeYamlImplementation) config.getImplementation()).getDumperOptions().setSplitLines(false);
         config.load(file);
-
 
         if (dataFixer != null) {
             dataFixer.accept(this);

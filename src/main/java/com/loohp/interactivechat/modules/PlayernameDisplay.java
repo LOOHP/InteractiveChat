@@ -34,8 +34,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,7 +88,7 @@ public class PlayernameDisplay implements Listener {
     }
 
     private static Component processPlayer(String placeholder, ICPlayer player, Optional<ICPlayer> sender, Player receiver, Component component, Set<HoverEvent<?>> doNotReplace, long unix) {
-        String plain = MiniMessage.miniMessage().serialize(component);
+        String plain = PlainTextComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.usePlayerNameCaseSensitive) {
             if (!plain.contains(placeholder)) {
                 return component;

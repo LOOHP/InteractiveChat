@@ -44,6 +44,13 @@ public class DiscordSRVEvents {
             String replacement = placeholder == null ? "" : Registry.ID_UNESCAPE_PATTERN.matcher(placeholder).replaceAll(">");
             return LegacyComponentSerializer.legacySection().deserialize(replacement);
         });
+        if (InteractiveChat.chatControlRedHook) {
+            icComponent = ComponentReplacing.replace(icComponent, Registry.CHR_ID_PATTERN.pattern(), false, (result, matchedComponents) -> {
+                String placeholder = result.group(4);
+                String replacement = placeholder == null ? "" : Registry.ID_UNESCAPE_PATTERN.matcher(placeholder).replaceAll(">");
+                return LegacyComponentSerializer.legacySection().deserialize(replacement);
+            });
+        }
         icComponent = ComponentReplacing.replace(icComponent, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, ((result, components) -> {
             return LegacyComponentSerializer.legacySection().deserialize(result.group(2));
         }));

@@ -139,6 +139,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean ecoHook = false;
     public static Boolean luckPermsHook = false;
     public static Boolean mysqlPDBHook = false;
+    public static Boolean chatControlRedHook = false;
 
     public static Permission perms = null;
 
@@ -571,6 +572,11 @@ public class InteractiveChat extends JavaPlugin {
         if (isPluginEnabled("MysqlPlayerDataBridge")) {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into MysqlPlayerDataBridge!");
             mysqlPDBHook = true;
+        }
+
+        if (isPluginEnabled("ChatControlRed", false)) {
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] ChatControlRed has hooked into ChatControlRed!");
+            chatControlRedHook = true;
         }
 
         if (isPluginEnabled("VentureChat")) {

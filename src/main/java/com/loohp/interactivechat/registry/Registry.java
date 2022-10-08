@@ -36,6 +36,7 @@ public class Registry {
     public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 40;
 
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
+    public static final Pattern CHR_ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\\\\:(.*?)\\\\:)?>)");
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");
     public static final Pattern ID_UNESCAPE_PATTERN = Pattern.compile("\\\\>");
 

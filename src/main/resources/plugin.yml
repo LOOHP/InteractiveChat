@@ -20,6 +20,7 @@ softdepend:
   - ProtocolSupport
   - LuckPerms
   - MysqlPlayerDataBridge
+  - ChatControlRed
 depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

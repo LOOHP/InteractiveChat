@@ -283,13 +283,17 @@ public class ICPlayerFactory {
                     } else if (slot == -106) {
                         slot = 40;
                     }
-                    inventory.setItem(slot, item);
+                    if (slot >= 0 && slot < inventory.getSize()) {
+                        inventory.setItem(slot, item);
+                    }
                 }
                 for (CompoundTag entry : rootTag.getListTag("EnderItems").asTypedList(CompoundTag.class)) {
                     int slot = entry.getByte("Slot");
                     entry.remove("Slot");
                     ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
-                    enderchest.setItem(slot, item);
+                    if (slot >= 0 && slot < enderchest.getSize()) {
+                        enderchest.setItem(slot, item);
+                    }
                 }
             }
             if (mysqlPDBInventorySync || mysqlPDBArmorSync) {

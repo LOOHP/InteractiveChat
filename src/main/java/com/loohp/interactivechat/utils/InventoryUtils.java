@@ -40,10 +40,15 @@ import java.util.Arrays;
 
 public class InventoryUtils {
 
-    private static final ItemStack ITEMSTACK_AIR = new ItemStack(Material.AIR);
+    private static final ItemStack ITEM_STACK_AIR = new ItemStack(Material.AIR);
+
+    public static int getDefaultEnderChestSize() {
+        return Math.min(54, Math.max(9, toMultipleOf9(InventoryType.ENDER_CHEST.getDefaultSize())));
+    }
 
     public static int toMultipleOf9(int num) {
-        return num % 9 == 0 ? num : (num / 9 + 1) * 9;
+        int remainder = num % 9;
+        return remainder == 0 ? num : num + (9 - remainder);
     }
 
     public static void restorePlayerInventory(Player player) {
@@ -55,28 +60,28 @@ public class InventoryUtils {
         packet1.getIntegers().write(0, 0);
 
         ItemStack[] items = new ItemStack[46];
-        Arrays.fill(items, ITEMSTACK_AIR);
+        Arrays.fill(items, ITEM_STACK_AIR);
         int u = 36;
         for (int i = 0; i < 9; i++) {
             ItemStack item = inventory.getItem(i);
-            items[u] = item == null ? ITEMSTACK_AIR : item.clone();
+            items[u] = item == null ? ITEM_STACK_AIR : item.clone();
             u++;
         }
         for (int i = 9; i < 36; i++) {
             ItemStack item = inventory.getItem(i);
-            items[i] = item == null ? ITEMSTACK_AIR : item.clone();
+            items[i] = item == null ? ITEM_STACK_AIR : item.clone();
         }
         if (armor) {
             u = 8;
             for (int i = 36; i < 40; i++) {
                 ItemStack item = inventory.getItem(i);
-                items[u] = item == null ? ITEMSTACK_AIR : item.clone();
+                items[u] = item == null ? ITEM_STACK_AIR : item.clone();
                 u--;
             }
         }
         if (offhand && !InteractiveChat.version.isOld()) {
             ItemStack item = inventory.getItem(40);
-            items[45] = item == null ? ITEMSTACK_AIR : item.clone();
+            items[45] = item == null ? ITEM_STACK_AIR : item.clone();
         }
 
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_11)) {
@@ -88,7 +93,7 @@ public class InventoryUtils {
         PacketContainer packet2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_SLOT);
         packet2.getIntegers().write(0, -1);
         packet2.getIntegers().write(1, -1);
-        packet2.getItemModifier().write(0, ITEMSTACK_AIR);
+        packet2.getItemModifier().write(0, ITEM_STACK_AIR);
 
         InteractiveChat.protocolManager.sendServerPacket(player, packet1);
         InteractiveChat.protocolManager.sendServerPacket(player, packet2);

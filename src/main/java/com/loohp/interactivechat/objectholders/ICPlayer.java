@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.objectholders;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -56,7 +57,7 @@ public class ICPlayer extends OfflineICPlayer {
     }
 
     protected ICPlayer(Player player) {
-        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
+        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize()));
         this.remoteServer = EMPTY_SERVER_REPRESENTATION;
         this.remoteName = player.getName();
         this.remoteNicknames = new HashSet<>();

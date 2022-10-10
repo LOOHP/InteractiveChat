@@ -25,6 +25,7 @@ import com.loohp.interactivechat.api.events.ICPlayerJoinEvent;
 import com.loohp.interactivechat.api.events.ICPlayerQuitEvent;
 import com.loohp.interactivechat.api.events.OfflineICPlayerCreationEvent;
 import com.loohp.interactivechat.api.events.OfflineICPlayerUpdateEvent;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import net.craftersland.data.bridge.PD;
 import net.craftersland.data.bridge.objects.DatabaseEnderchestData;
@@ -261,7 +262,7 @@ public class ICPlayerFactory {
             boolean rightHanded = true;
             int xpLevel = 0;
             Inventory inventory = Bukkit.createInventory(null, 45);
-            Inventory enderchest = Bukkit.createInventory(null, 27);
+            Inventory enderchest = Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize());
             if (dat.exists()) {
                 NamedTag nbtData = NBTUtil.read(dat);
                 CompoundTag rootTag = (CompoundTag) nbtData.getTag();

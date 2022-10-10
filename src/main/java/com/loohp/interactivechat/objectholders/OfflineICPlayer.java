@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import com.loohp.interactivechat.utils.InventoryUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.EntityEquipment;
@@ -60,7 +61,7 @@ public class OfflineICPlayer {
     }
 
     protected OfflineICPlayer(UUID uuid) {
-        this(uuid, 0, true, 0, Bukkit.createInventory(null, 54), Bukkit.createInventory(null, 18));
+        this(uuid, 0, true, 0, Bukkit.createInventory(null, 54), Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize()));
     }
 
     public UUID getUniqueId() {

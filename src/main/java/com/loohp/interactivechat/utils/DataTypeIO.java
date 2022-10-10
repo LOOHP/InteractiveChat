@@ -52,7 +52,7 @@ public class DataTypeIO {
                 int size = in.readInt();
                 Inventory inventory;
                 if (type.equals(InventoryType.CHEST)) {
-                    inventory = hasTitle ? Bukkit.createInventory(null, size + (size % 9), title) : Bukkit.createInventory(null, size + (size % 9));
+                    inventory = hasTitle ? Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title) : Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size));
                 } else {
                     inventory = hasTitle ? Bukkit.createInventory(null, type, title) : Bukkit.createInventory(null, type);
                 }

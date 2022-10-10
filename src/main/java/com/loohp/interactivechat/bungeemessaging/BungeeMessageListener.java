@@ -42,6 +42,7 @@ import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -137,7 +138,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             }
                         }
                         if (!localUUID.contains(uuid) && !ICPlayerFactory.getRemoteUUIDs().contains(uuid)) {
-                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, Bukkit.createInventory(null, 45), Bukkit.createInventory(null, 36), false);
+                            ICPlayerFactory.createOrUpdateRemoteICPlayer(server, name, uuid, true, 0, 0, Bukkit.createInventory(null, 45), Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize()), false);
                         }
                         newSet.add(uuid);
                     }

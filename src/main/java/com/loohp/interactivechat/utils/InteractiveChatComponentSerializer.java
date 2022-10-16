@@ -74,7 +74,7 @@ public class InteractiveChatComponentSerializer {
         GSON_SERIALIZER = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
         GSON_SERIALIZER_LEGACY = new InteractiveChatGsonComponentSerializer(GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER).build());
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
-        LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacySection().toBuilder().useUnusualXRepeatedCharacterHexFormat().build();
+        LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacySection().toBuilder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
     }
 
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {

@@ -291,29 +291,31 @@ public class ConfigManager {
             ICPlaceholder enderPlaceholder = new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
             InteractiveChat.placeholderList.put(enderPlaceholder.getInternalId(), enderPlaceholder);
         }
-        for (Map.Entry<String, Object> entry : getConfig().getConfigurationSection("CustomPlaceholders").getValues(false).entrySet()) {
-            String key = entry.getKey();
-            Object sectionObject = entry.getValue();
-            if (sectionObject instanceof ConfigurationSection) {
-                ConfigurationSection s = (ConfigurationSection) sectionObject;
-                ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer", "sender"));
-                String placeholder = s.getString("Keyword", "$^");
-                boolean parseKeyword = s.getBoolean("ParseKeyword", false);
-                long cooldown = s.getLong("Cooldown", 0) * 1000;
-                boolean hoverEnabled = s.getBoolean("Hover.Enable", false);
-                String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
-                boolean clickEnabled = s.getBoolean("Click.Enable", false);
-                String clickAction = s.getString("Click.Action", "SUGGEST_COMMAND").toUpperCase();
-                String clickValue = s.getString("Click.Value", "");
-                boolean replaceEnabled = s.getBoolean("Replace.Enable", false);
-                String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText", ""));
-                String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
-                String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
+        if (getConfig().isConfigurationSection("CustomPlaceholders")) {
+            for (Map.Entry<String, Object> entry : getConfig().getConfigurationSection("CustomPlaceholders").getValues(false).entrySet()) {
+                String key = entry.getKey();
+                Object sectionObject = entry.getValue();
+                if (sectionObject instanceof ConfigurationSection) {
+                    ConfigurationSection s = (ConfigurationSection) sectionObject;
+                    ParsePlayer parseplayer = ParsePlayer.fromString(s.getString("ParsePlayer", "sender"));
+                    String placeholder = s.getString("Keyword", "$^");
+                    boolean parseKeyword = s.getBoolean("ParseKeyword", false);
+                    long cooldown = s.getLong("Cooldown", 0) * 1000;
+                    boolean hoverEnabled = s.getBoolean("Hover.Enable", false);
+                    String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
+                    boolean clickEnabled = s.getBoolean("Click.Enable", false);
+                    String clickAction = s.getString("Click.Action", "SUGGEST_COMMAND").toUpperCase();
+                    String clickValue = s.getString("Click.Value", "");
+                    boolean replaceEnabled = s.getBoolean("Replace.Enable", false);
+                    String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText", ""));
+                    String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
+                    String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
 
-                ICPlaceholder customPlaceholder = new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
-                InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
-            } else {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid custom placeholder in the config, keyed \"" + key + "\"");
+                    ICPlaceholder customPlaceholder = new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
+                    InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
+                } else {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "You have an invalid custom placeholder in the config, keyed \"" + key + "\"");
+                }
             }
         }
 

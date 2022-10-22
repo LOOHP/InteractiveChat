@@ -47,6 +47,8 @@ Settings:
   TagEveryIdentifiableMessage: false
   #This option is only effective on Minecraft 1.19.1+
   ForceUnsignedChatPackets: false
+  #This option is only effective on Minecraft 1.19.1+
+  HideServerUnsignedStatus: true
   #In which packets should InteractiveChat listen to and modify
   PacketsToListen:
     Chat: true
@@ -404,6 +406,9 @@ Player:
     Value: "/msg %player_name% "
 
 TabCompletion:
+  #This option is only used on 1.19.1+
+  ChatTabCompletions:
+    Enabled: true
   #This only works on command tab completions
   #Doesn't work on chat tab completions or on versions on or below 1.12.2
   PlayerNameToolTip:

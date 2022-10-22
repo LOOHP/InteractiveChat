@@ -361,6 +361,7 @@ public class InteractiveChatVelocity {
         try {
             messageForwardingHandler.close();
             pluginMessageHandlingExecutor.shutdown();
+            ServerPingVelocity.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }

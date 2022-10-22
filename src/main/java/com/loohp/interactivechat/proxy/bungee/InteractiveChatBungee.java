@@ -334,6 +334,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         try {
             messageForwardingHandler.close();
             pluginMessageHandlingExecutor.shutdown();
+            ServerPingBungee.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }

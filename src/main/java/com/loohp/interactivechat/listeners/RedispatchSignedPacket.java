@@ -33,7 +33,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class RedispatchSignedPacket {
 
-    public static void commandChatPacketListener() {
+    public static void packetListener() {
         InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.CHAT_COMMAND, PacketType.Play.Client.CHAT)) {
             @Override
             public void onPacketSending(PacketEvent event) {
@@ -71,12 +71,36 @@ public class RedispatchSignedPacket {
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
                     if (InteractiveChat.forceUnsignedChatPackets) {
                         String message = packet.getStrings().read(0);
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                            player.chat(message);
-                        });
+                        event.setReadOnly(false);
+                        event.setCancelled(true);
+                        event.setReadOnly(true);
+                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat(message));
                     }
                 }
             }
+        });
+
+        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.HIGH).types(PacketType.Play.Server.SERVER_DATA)) {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                if (event.isPlayerTemporary() || event.isCancelled()) {
+                    return;
+                }
+                if (!InteractiveChat.hasChatSigning()) {
+                    return;
+                }
+
+                Player player = event.getPlayer();
+                PacketContainer packet = event.getPacket();
+                if (event.getPacketType().equals(PacketType.Play.Server.SERVER_DATA)) {
+                    if (InteractiveChat.hideServerUnsignedStatus) {
+                        if (packet.getBooleans().size() > 1) {
+                            packet.getBooleans().write(1, true);
+                        }
+                    }
+                }
+            }
+
         });
     }
 

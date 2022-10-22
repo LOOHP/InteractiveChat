@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.proxy.velocity;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataStreamIO;
@@ -38,7 +39,14 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServerPingVelocity {
@@ -47,11 +55,30 @@ public class ServerPingVelocity {
     public static final int UNKNOWN_PROTOCOL = -1;
 
     private static final AtomicInteger THREAD_NUMBER_COUNTER = new AtomicInteger(0);
+    private static final Map<ServerInfo, CompletableFuture<ServerPingVelocity>> ACTIVE_PING = new ConcurrentHashMap<>();
+
+    public static final ExecutorService SERVICE;
+
+    static {
+        ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChatVelocity Async Backend Server Ping Thread #%d").build();
+        SERVICE = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
+    }
+
+    public static void shutdown() {
+        SERVICE.shutdown();
+    }
 
     @SuppressWarnings("deprecation")
     public static CompletableFuture<ServerPingVelocity> getPing(ServerInfo server) {
+        {
+            CompletableFuture<ServerPingVelocity> future = ACTIVE_PING.get(server);
+            if (future != null) {
+                return future;
+            }
+        }
         CompletableFuture<ServerPingVelocity> future = new CompletableFuture<>();
-        new Thread(() -> {
+        ACTIVE_PING.put(server, future);
+        SERVICE.execute(() -> {
             try (Socket socket = new Socket()) {
                 InetSocketAddress address = server.getAddress();
                 socket.connect(new InetSocketAddress(address.getHostName(), address.getPort()), 1500);
@@ -224,7 +251,8 @@ public class ServerPingVelocity {
                     }
                 }
             }
-        }, "InteractiveChatVelocity Async Backend Server Ping Thread #" + THREAD_NUMBER_COUNTER.getAndIncrement()).start();
+            ACTIVE_PING.remove(server, future);
+        });
         return future;
     }
 

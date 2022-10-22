@@ -25,6 +25,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryType;
@@ -104,7 +105,7 @@ public class DataTypeIO {
                 return config.getItemStack("i", null);
             case 1:
                 if (in.readBoolean()) {
-                    XMaterial material = XMaterial.valueOf(readString(in, charset));
+                    ICMaterial material = ICMaterial.from(readString(in, charset));
                     ItemStack itemStack = material.parseItem();
                     if (itemStack == null) {
                         itemStack = InteractiveChat.unknownReplaceItem.clone();
@@ -166,7 +167,7 @@ public class DataTypeIO {
                     itemByte.writeBoolean(false);
                 } else {
                     itemByte.writeBoolean(true);
-                    XMaterial material = FilledMapUtils.isFilledMap(itemStack) ? XMaterial.FILLED_MAP : XMaterialUtils.matchXMaterial(itemStack);
+                    ICMaterial material = FilledMapUtils.isFilledMap(itemStack) ? ICMaterial.of(XMaterial.FILLED_MAP) : ICMaterial.from(itemStack);
                     writeString(itemByte, material.name(), charset);
                     itemByte.writeInt(itemStack.getAmount());
                     boolean isDamagable = itemStack.getType().getMaxDurability() > 0;

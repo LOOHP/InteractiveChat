@@ -22,6 +22,7 @@ package com.loohp.interactivechat.utils;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -49,7 +50,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -378,14 +378,14 @@ public class LanguageUtils {
         }
         Object nmsItemStackObject = asNMSCopyMethod.invoke(null, itemStack);
         String path = getRawItemTypeNameMethod.invoke(nmsItemStackObject).toString() + ".name";
-        XMaterial xMaterial = XMaterialUtils.matchXMaterial(itemStack);
-        if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+        ICMaterial icMaterial = ICMaterial.from(itemStack);
+        if (icMaterial.isMaterial(XMaterial.PLAYER_HEAD)) {
             String owner = NBTEditor.getString(itemStack, "SkullOwner", "Name");
             if (owner != null) {
                 path = "item.skull.player.name";
             }
-        } else if (xMaterial.isOneOf(Arrays.asList("CONTAINS:banner"))) {
-            String color = xMaterial.name().replace("_BANNER", "").toLowerCase();
+        } else if (icMaterial.isOneOf(Collections.singletonList("CONTAINS:banner"))) {
+            String color = icMaterial.name().replace("_BANNER", "").toLowerCase();
             Matcher matcher = Pattern.compile("_(.)").matcher(color);
             StringBuffer sb = new StringBuffer();
             while (matcher.find()) {

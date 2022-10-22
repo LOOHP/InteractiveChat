@@ -64,29 +64,31 @@ public class ModernChatCompletionTask {
 
     private void run() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
-            for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
-                List<String> tab = new ArrayList<>();
+            if (InteractiveChat.chatTabCompletionsEnabled) {
+                for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
+                    List<String> tab = new ArrayList<>();
 
-                for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
-                    if (tabCompleter.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
-                        tab.add(placeholder.getName());
-                    }
-                }
-                for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
-                    if (!player.getUniqueId().equals(tabCompleter.getUniqueId())) {
-                        tab.add(InteractiveChat.mentionPrefix + player.getName());
-                        tab.add(InteractiveChat.mentionPrefix + player.getDisplayName());
-                        for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {
-                            tab.add(InteractiveChat.mentionPrefix + nickname);
+                    for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
+                        if (tabCompleter.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
+                            tab.add(placeholder.getName());
                         }
                     }
+                    for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
+                        if (!player.getUniqueId().equals(tabCompleter.getUniqueId())) {
+                            tab.add(InteractiveChat.mentionPrefix + player.getName());
+                            tab.add(InteractiveChat.mentionPrefix + player.getDisplayName());
+                            for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {
+                                tab.add(InteractiveChat.mentionPrefix + nickname);
+                            }
+                        }
+                    }
+
+                    PacketContainer chatCompletionPacket = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
+                    chatCompletionPacket.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[2]);
+                    chatCompletionPacket.getModifier().write(1, tab);
+
+                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket);
                 }
-
-                PacketContainer chatCompletionPacket = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
-                chatCompletionPacket.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[2]);
-                chatCompletionPacket.getModifier().write(1, tab);
-
-                InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket);
             }
         }, 0, 10);
     }

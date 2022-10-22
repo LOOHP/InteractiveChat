@@ -29,12 +29,12 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderHoverEvent;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.XMaterialUtils;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -93,6 +93,7 @@ public class ConfigManager {
         InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat").toUpperCase());
 
         InteractiveChat.forceUnsignedChatPackets = getConfig().getBoolean("Settings.ForceUnsignedChatPackets");
+        InteractiveChat.hideServerUnsignedStatus = getConfig().getBoolean("Settings.HideServerUnsignedStatus");
 
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
@@ -175,7 +176,7 @@ public class ConfigManager {
                     InteractiveChat.itemFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Primary")), 1);
                 }
             } catch (Exception e) {
-                InteractiveChat.itemFrame1 = XMaterialUtils.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Primary")).parseItem();
+                InteractiveChat.itemFrame1 = ICMaterial.from(getConfig().getString("ItemDisplay.Item.Frame.Primary")).parseItem();
                 InteractiveChat.itemFrame1.setAmount(1);
             }
         } catch (Exception e) {
@@ -194,7 +195,7 @@ public class ConfigManager {
                     InteractiveChat.itemFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Item.Frame.Secondary")), 1);
                 }
             } catch (Exception e) {
-                InteractiveChat.itemFrame2 = XMaterialUtils.matchXMaterial(getConfig().getString("ItemDisplay.Item.Frame.Secondary")).parseItem();
+                InteractiveChat.itemFrame2 = ICMaterial.from(getConfig().getString("ItemDisplay.Item.Frame.Secondary")).parseItem();
                 InteractiveChat.itemFrame2.setAmount(1);
             }
         } catch (Exception e) {
@@ -213,7 +214,7 @@ public class ConfigManager {
                     InteractiveChat.invFrame1 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Inventory.Frame.Primary")), 1);
                 }
             } catch (Exception e) {
-                InteractiveChat.invFrame1 = XMaterialUtils.matchXMaterial(getConfig().getString("ItemDisplay.Inventory.Frame.Primary")).parseItem();
+                InteractiveChat.invFrame1 = ICMaterial.from(getConfig().getString("ItemDisplay.Inventory.Frame.Primary")).parseItem();
                 InteractiveChat.invFrame1.setAmount(1);
             }
         } catch (Exception e) {
@@ -232,7 +233,7 @@ public class ConfigManager {
                     InteractiveChat.invFrame2 = new ItemStack(Material.valueOf(getConfig().getString("ItemDisplay.Inventory.Frame.Secondary")), 1);
                 }
             } catch (Exception e) {
-                InteractiveChat.invFrame2 = XMaterialUtils.matchXMaterial(getConfig().getString("ItemDisplay.Inventory.Frame.Secondary")).parseItem();
+                InteractiveChat.invFrame2 = ICMaterial.from(getConfig().getString("ItemDisplay.Inventory.Frame.Secondary")).parseItem();
                 InteractiveChat.invFrame2.setAmount(1);
             }
         } catch (Exception e) {
@@ -260,6 +261,7 @@ public class ConfigManager {
         InteractiveChat.usePlayerNameClickValue = getConfig().getString("Player.Click.Value");
         InteractiveChat.usePlayerNameCaseSensitive = getConfig().getBoolean("Player.CaseSensitive");
 
+        InteractiveChat.chatTabCompletionsEnabled = getConfig().getBoolean("TabCompletion.ChatTabCompletions.Enabled");
         InteractiveChat.useTooltipOnTab = getConfig().getBoolean("TabCompletion.PlayerNameToolTip.Enabled");
         InteractiveChat.tabTooltip = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("TabCompletion.PlayerNameToolTip.ToolTip"));
 
@@ -387,7 +389,7 @@ public class ConfigManager {
                     InteractiveChat.unknownReplaceItem = unknown;
                 }
             } catch (Exception e) {
-                ItemStack unknown = XMaterialUtils.matchXMaterial(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem")).parseItem();
+                ItemStack unknown = ICMaterial.from(getConfig().getString("Settings.BungeecordUnknownItem.ReplaceItem")).parseItem();
                 unknown.setAmount(1);
                 ItemMeta meta = unknown.getItemMeta();
                 meta.setDisplayName(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.BungeecordUnknownItem.DisplayName")));

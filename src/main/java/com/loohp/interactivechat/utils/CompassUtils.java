@@ -21,13 +21,14 @@
 package com.loohp.interactivechat.utils;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.inventory.ItemStack;
 
 public class CompassUtils {
 
     public static boolean isLodestoneCompass(ItemStack itemStack) {
-        return XMaterialUtils.matchXMaterial(itemStack).equals(XMaterial.COMPASS) && (NBTEditor.contains(itemStack, "LodestoneDimension") || NBTEditor.contains(itemStack, "LodestonePos"));
+        return ICMaterial.from(itemStack).isMaterial(XMaterial.COMPASS) && (NBTEditor.contains(itemStack, "LodestoneDimension") || NBTEditor.contains(itemStack, "LodestonePos"));
     }
 
 }

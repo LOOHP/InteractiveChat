@@ -22,10 +22,10 @@ package com.loohp.interactivechat.listeners;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.XMaterialUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
@@ -109,11 +109,11 @@ public class InventoryEvents implements Listener {
 
     private void inventoryAction(ItemStack item, Player player, Inventory topInventory) {
         if (item != null) {
-            XMaterial xmaterial = XMaterialUtils.matchXMaterial(item);
+            ICMaterial icMaterial = ICMaterial.from(item);
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_14)) {
-                if (xmaterial.equals(XMaterial.WRITTEN_BOOK)) {
+                if (icMaterial.isMaterial(XMaterial.WRITTEN_BOOK)) {
                     player.openBook(item.clone());
-                } else if (xmaterial.equals(XMaterial.WRITABLE_BOOK)) {
+                } else if (icMaterial.isMaterial(XMaterial.WRITABLE_BOOK)) {
                     ItemStack book = XMaterial.WRITTEN_BOOK.parseItem();
                     if (book != null && book.getItemMeta() instanceof BookMeta) {
                         BookMeta ori = (BookMeta) item.getItemMeta();

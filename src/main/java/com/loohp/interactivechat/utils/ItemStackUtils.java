@@ -22,6 +22,7 @@ package com.loohp.interactivechat.utils;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICMaterial;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import io.github.bananapuncher714.nbteditor.NBTEditor.NBTCompound;
 import net.kyori.adventure.text.Component;
@@ -68,7 +69,7 @@ public class ItemStackUtils {
         if (itemstack == null) {
             itemstack = AIR.clone();
         }
-        XMaterial xMaterial = XMaterialUtils.matchXMaterial(itemstack);
+        ICMaterial icMaterial = ICMaterial.from(itemstack);
         ChatColor rarityChatColor = RarityUtils.getRarityColor(itemstack);
         if (rarityChatColor.equals(ChatColor.WHITE)) {
             rarityChatColor = defaultRarityColor;
@@ -99,7 +100,7 @@ public class ItemStackUtils {
             }
             if (!displayNameCompleted) {
                 TranslatableComponent translatableComponent = Component.translatable(LanguageUtils.getTranslationKey(itemstack));
-                if (xMaterial.equals(XMaterial.PLAYER_HEAD)) {
+                if (icMaterial.isMaterial(XMaterial.PLAYER_HEAD)) {
                     String owner = NBTEditor.getString(itemstack, "SkullOwner", "Name");
                     if (owner != null) {
                         translatableComponent = translatableComponent.args(Component.text(owner));

@@ -200,6 +200,7 @@ public class InteractiveChat extends JavaPlugin {
     public static String usePlayerNameClickValue = "";
     public static boolean usePlayerNameCaseSensitive = true;
 
+    public static boolean chatTabCompletionsEnabled = true;
     public static boolean useTooltipOnTab = true;
     public static String tabTooltip = "";
 
@@ -330,6 +331,7 @@ public class InteractiveChat extends JavaPlugin {
     public static int packetStringMaxLength = 32767;
 
     public static boolean forceUnsignedChatPackets = false;
+    public static boolean hideServerUnsignedStatus = true;
 
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;
@@ -504,7 +506,7 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
         OutMessagePacket.messageListeners();
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
-            RedispatchSignedPacket.commandChatPacketListener();
+            RedispatchSignedPacket.packetListener();
             if (ModernChatCompletionTask.isSupported()) {
                 new ModernChatCompletionTask();
             }

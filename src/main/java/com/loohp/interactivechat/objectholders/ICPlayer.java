@@ -68,13 +68,17 @@ public class ICPlayer extends OfflineICPlayer {
         return Bukkit.getPlayer(uuid) != null;
     }
 
+    public boolean isRemote() {
+        return remoteServer != null && !remoteServer.equals(EMPTY_SERVER_REPRESENTATION);
+    }
+
     @Override
     public boolean isOnline() {
-        return true;
+        return isLocal() || isRemote();
     }
 
     public boolean isValid() {
-        return isLocal() || (remoteServer != null);
+        return isOnline();
     }
 
     public Player getLocalPlayer() {

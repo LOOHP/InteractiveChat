@@ -46,7 +46,7 @@ Settings:
   UseAccurateSenderParser: true
   TagEveryIdentifiableMessage: false
   #This option is only effective on Minecraft 1.19.1+
-  ForceUnsignedChatPackets: false
+  ForceUnsignedChatPackets: true
   #This option is only effective on Minecraft 1.19.1+
   HideServerUnsignedStatus: true
   #In which packets should InteractiveChat listen to and modify

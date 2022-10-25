@@ -73,7 +73,8 @@ public class OfflineICPlayer {
     }
 
     public boolean isOnline() {
-        return getPlayer() != null;
+        ICPlayer icPlayer = getPlayer();
+        return icPlayer != null && icPlayer.isOnline();
     }
 
     protected void setEnderchest(Inventory remoteEnderchest) {

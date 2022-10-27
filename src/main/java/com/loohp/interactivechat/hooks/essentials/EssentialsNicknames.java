@@ -87,13 +87,12 @@ public class EssentialsNicknames implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEssentialsNickChange(NickChangeEvent event) {
         try {
             List<String> names = new ArrayList<>();
             names.add(prefix + event.getValue());
-            ESSENTIALS_NICK.put(event.getAffected().getBase().getUniqueId(), names);
+            ESSENTIALS_NICK.put(event.getController().getBase().getUniqueId(), names);
         } catch (Exception ignore) {
         }
     }

@@ -26,7 +26,16 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class Placeholders extends PlaceholderExpansion {
+
+    private static final List<String> PLACEHOLDERS = Collections.unmodifiableList(Arrays.asList(
+            "mentiontoggle",
+            "invdisplaylayout"
+    ));
 
     @Override
     public String getAuthor() {
@@ -40,7 +49,12 @@ public class Placeholders extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return "1.0.0";
+        return InteractiveChat.plugin.getDescription().getVersion();
+    }
+
+    @Override
+    public List<String> getPlaceholders() {
+        return PLACEHOLDERS;
     }
 
     @Override
@@ -55,7 +69,6 @@ public class Placeholders extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer offlineplayer, String identifier) {
-
         if (identifier.equals("mentiontoggle")) {
             PlayerData pd;
             if (offlineplayer.isOnline()) {
@@ -65,9 +78,7 @@ public class Placeholders extends PlaceholderExpansion {
                 pd = InteractiveChat.database.getPlayerInfo(offlineplayer.getUniqueId());
             }
             return pd == null ? "enabled" : (pd.isMentionDisabled() ? "disabled" : "enabled");
-        }
-
-        if (identifier.equals("invdisplaylayout")) {
+        } else if (identifier.equals("invdisplaylayout")) {
             PlayerData pd;
             if (offlineplayer.isOnline()) {
                 Player player = offlineplayer.getPlayer();
@@ -77,7 +88,6 @@ public class Placeholders extends PlaceholderExpansion {
             }
             return (pd == null ? InteractiveChat.invDisplayLayout : pd.getInventoryDisplayLayout()) + "";
         }
-
         return null;
     }
 

@@ -66,6 +66,10 @@ public class ItemStackUtils {
     }
 
     public static Component getDisplayName(ItemStack itemstack, ChatColor defaultRarityColor) {
+        return getDisplayName(itemstack, defaultRarityColor, true);
+    }
+
+    public static Component getDisplayName(ItemStack itemstack, ChatColor defaultRarityColor, boolean removeClickAndHover) {
         if (itemstack == null) {
             itemstack = AIR.clone();
         }
@@ -108,6 +112,9 @@ public class ItemStackUtils {
                 }
                 component = component.append(translatableComponent);
             }
+        }
+        if (removeClickAndHover) {
+            component = ComponentStyling.stripEvents(component);
         }
         return component;
     }

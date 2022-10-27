@@ -287,7 +287,6 @@ public class ItemDisplay {
         if (command != null && !isAir && (isMapView || (!isMapView && InteractiveChat.itemGUI))) {
             itemDisplayComponent = itemDisplayComponent.clickEvent(ClickEvent.runCommand(command));
         }
-
         return ComponentCompacting.optimize(itemDisplayComponent);
     }
 

@@ -24,6 +24,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.NMSUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -70,15 +71,15 @@ public class ModernChatCompletionTask {
 
                     for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
                         if (tabCompleter.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
-                            tab.add(placeholder.getName());
+                            tab.add(ChatColorUtils.stripColor(placeholder.getName()));
                         }
                     }
                     for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
                         if (!player.getUniqueId().equals(tabCompleter.getUniqueId())) {
-                            tab.add(InteractiveChat.mentionPrefix + player.getName());
-                            tab.add(InteractiveChat.mentionPrefix + player.getDisplayName());
+                            tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getName()));
+                            tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getDisplayName()));
                             for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {
-                                tab.add(InteractiveChat.mentionPrefix + nickname);
+                                tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + nickname));
                             }
                         }
                     }

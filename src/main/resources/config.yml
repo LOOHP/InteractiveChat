@@ -48,6 +48,7 @@ Settings:
   #This option is only effective on Minecraft 1.19.1+
   ForceUnsignedChatPackets: true
   #This option is only effective on Minecraft 1.19.1+
+  #If this is true then ForceUnsignedChatPackets should also be true
   HideServerUnsignedStatus: true
   #In which packets should InteractiveChat listen to and modify
   PacketsToListen:

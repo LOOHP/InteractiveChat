@@ -75,7 +75,7 @@ public class ModernChatCompletionTask {
                         }
                     }
                     for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
-                        if (!player.getUniqueId().equals(tabCompleter.getUniqueId())) {
+                        if (!player.isVanished() && !player.getUniqueId().equals(tabCompleter.getUniqueId())) {
                             tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getName()));
                             tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getDisplayName()));
                             for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {

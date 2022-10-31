@@ -33,7 +33,7 @@ import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
 import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
 import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
-import com.loohp.interactivechat.hooks.ecoenchants.EcoHook;
+import com.loohp.interactivechat.hooks.eco.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
@@ -332,6 +332,8 @@ public class InteractiveChat extends JavaPlugin {
 
     public static boolean forceUnsignedChatPackets = false;
     public static boolean hideServerUnsignedStatus = true;
+
+    public static boolean ecoSetLoreOnMainThread = false;
 
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;

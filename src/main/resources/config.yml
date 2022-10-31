@@ -157,6 +157,8 @@ Settings:
       #The text to replace the keyword
       #Use {Placeholder} for the name of the placeholder that was unable to be parsed
       ReplaceText: '&c{Placeholder}&r'
+  Hooks:
+    EcoSetLoreOnMainThread: false
 
 Commands:
   #Whether to make commands displayed in chat clickable

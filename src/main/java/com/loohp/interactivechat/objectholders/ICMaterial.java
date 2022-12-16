@@ -130,8 +130,8 @@ public class ICMaterial {
         return null;
     }
 
-    private XMaterial xMaterial;
-    private Material material;
+    private final XMaterial xMaterial;
+    private final Material material;
 
     private ICMaterial(XMaterial xMaterial, Material material) {
         if (xMaterial == null && material == null) {
@@ -168,10 +168,7 @@ public class ICMaterial {
     }
 
     public XMaterial parseXMaterial() {
-        if (xMaterial != null) {
-            return xMaterial;
-        }
-        return null;
+        return xMaterial;
     }
 
     public boolean isOneOf(Collection<String> materials) {

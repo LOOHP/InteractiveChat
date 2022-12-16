@@ -67,12 +67,10 @@ import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.ChatBuilder;
-import com.velocitypowered.proxy.protocol.packet.chat.LegacyChat;
-import com.velocitypowered.proxy.protocol.packet.chat.PlayerChat;
-import com.velocitypowered.proxy.protocol.packet.chat.ServerChatPreview;
-import com.velocitypowered.proxy.protocol.packet.chat.ServerPlayerChat;
+import com.velocitypowered.proxy.protocol.packet.chat.ChatType;
 import com.velocitypowered.proxy.protocol.packet.chat.SystemChat;
+import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChat;
+import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChat;
 import com.velocitypowered.proxy.protocol.packet.title.GenericTitlePacket.ActionType;
 import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
@@ -261,19 +259,19 @@ public class InteractiveChatVelocity {
                     break;
                 case SYSTEM_CHAT:
                     packet = new SystemChat();
-                    ChatBuilder.ChatType chatType;
+                    ChatType chatType;
                     switch (info.getPosition()) {
                         case 0:
-                            chatType = ChatBuilder.ChatType.CHAT;
+                            chatType = ChatType.CHAT;
                             break;
                         case 1:
-                            chatType = ChatBuilder.ChatType.SYSTEM;
+                            chatType = ChatType.SYSTEM;
                             break;
                         case 2:
-                            chatType = ChatBuilder.ChatType.GAME_INFO;
+                            chatType = ChatType.GAME_INFO;
                             break;
                         default:
-                            chatType = ChatBuilder.ChatType.CHAT;
+                            chatType = ChatType.CHAT;
                             break;
                     }
                     try {
@@ -286,8 +284,9 @@ public class InteractiveChatVelocity {
                         throw new RuntimeException(e);
                     }
                     break;
+                /*
                 case PLAYER_CHAT:
-                    packet = new ServerPlayerChat();
+                    packet = new SessionPlayerChat();
                     try {
                         Field[] fields = packet.getClass().getDeclaredFields();
                         for (Field field : fields) {
@@ -299,18 +298,10 @@ public class InteractiveChatVelocity {
                         throw new RuntimeException(e);
                     }
                     break;
+                */
                 case CHAT_PREVIEW:
-                    ServerChatPreview serverChatPreview = (ServerChatPreview) info.getOriginalPacket();
-                    packet = new ServerChatPreview();
-                    try {
-                        Field[] fields = packet.getClass().getDeclaredFields();
-                        fields[0].setAccessible(true);
-                        fields[0].set(packet, serverChatPreview.getId());
-                        fields[1].setAccessible(true);
-                        fields[1].set(packet, NativeAdventureConverter.componentToNative(GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")), legacyRGB));
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
+                    //IT'S REMOVED!
+                    return;
                 case LEGACY_TITLE:
                     LegacyTitlePacket originalTitlePacket = (LegacyTitlePacket) info.getOriginalPacket();
                     LegacyTitlePacket legacyTitlePacket = new LegacyTitlePacket();
@@ -795,8 +786,8 @@ public class InteractiveChatVelocity {
                                 list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
                             }
                         }
-                    } else if (obj instanceof PlayerChat) {
-                        PlayerChat packet = (PlayerChat) obj;
+                    } else if (obj instanceof SessionPlayerChat) {
+                        SessionPlayerChat packet = (SessionPlayerChat) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
                             list.add(new ForwardedMessageData(packet.getMessage(), ChatPacketType.CLIENT_CHAT, System.currentTimeMillis()));
@@ -896,23 +887,6 @@ public class InteractiveChatVelocity {
                             }
                         }
                     */
-                    } else if (obj instanceof ServerChatPreview) {
-                        ServerChatPreview packet = (ServerChatPreview) obj;
-                        String message = packet.getPreview() == null ? null : NativeAdventureConverter.jsonStringFromNative(packet.getPreview());
-                        if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
-                                }
-                                Field messageField = packet.getClass().getDeclaredField("preview");
-                                messageField.setAccessible(true);
-                                messageField.set(packet, NativeAdventureConverter.jsonStringToNative(message));
-                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.PLAYER_CHAT, packet);
-                                return;
-                            }
-                        }
                     } else if (obj instanceof LegacyTitlePacket) {
                         LegacyTitlePacket packet = (LegacyTitlePacket) obj;
                         String message = packet.getComponent();

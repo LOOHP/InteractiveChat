@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,6 +55,8 @@ public class PlayerUtils implements Listener {
     private static Class<?> craftPlayerClass;
     private static Method craftPlayerGetHandleMethod;
     private static Field nmsPlayerPingField;
+    private static Field nmsPlayerConnectionField;
+    private static Method nmsPlayerConnectionChatMethod;
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -73,8 +76,42 @@ public class PlayerUtils implements Listener {
         try {
             craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
             craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
-            nmsPlayerPingField = craftPlayerGetHandleMethod.getReturnType().getField("ping");
-        } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException ignored) {}
+            try {
+                nmsPlayerPingField = craftPlayerGetHandleMethod.getReturnType().getField("ping");
+            } catch (NoSuchFieldException ignore) {
+            }
+            nmsPlayerConnectionField = NMSUtils.reflectiveLookup(Field.class, () -> {
+                return craftPlayerGetHandleMethod.getReturnType().getField("playerConnection");
+            }, () -> {
+                return craftPlayerGetHandleMethod.getReturnType().getField("b");
+            });
+            nmsPlayerConnectionChatMethod = Arrays.stream(nmsPlayerConnectionField.getType().getMethods()).filter(each -> each.getName().equals("chat")).findFirst().orElseThrow(() -> new ReflectiveOperationException());
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void chatAsPlayer(Player player, String message) {
+        if (Bukkit.isPrimaryThread()) {
+            player.chat(message);
+            return;
+        }
+        try {
+            Object entityPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+            Object playerConnection = nmsPlayerConnectionField.get(entityPlayer);
+            switch (nmsPlayerConnectionChatMethod.getParameterCount()) {
+                case 2:
+                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, true);
+                    break;
+                case 3:
+                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, ModernChatSigningUtils.getNMSPlayerChatMessage(message), true);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + nmsPlayerConnectionChatMethod.getParameterCount());
+            }
+        } catch (IllegalAccessException | InvocationTargetException | IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     public static int getPing(Player player) {

@@ -36,10 +36,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class HTTPRequestUtils {
+
+    private static final AtomicLong NOP_ATOMIC_LONG = new AtomicLong();
 
     public static JSONObject getJSONResponse(String link) {
         try {
@@ -96,8 +99,11 @@ public class HTTPRequestUtils {
     }
 
     public static byte[] download(String link) {
+        return download(link, NOP_ATOMIC_LONG);
+    }
+
+    public static byte[] download(String link, AtomicLong progressUpdate) {
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             URLConnection connection = new URL(link).openConnection();
             connection.setUseCaches(false);
             connection.setDefaultUseCaches(false);
@@ -105,10 +111,13 @@ public class HTTPRequestUtils {
             connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
             connection.addRequestProperty("Pragma", "no-cache");
             InputStream is = connection.getInputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            progressUpdate.set(0);
             byte[] byteChunk = new byte[4096];
             int n;
             while ((n = is.read(byteChunk)) > 0) {
                 baos.write(byteChunk, 0, n);
+                progressUpdate.set(baos.size());
             }
             is.close();
             return baos.toByteArray();

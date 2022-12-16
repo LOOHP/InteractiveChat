@@ -23,6 +23,7 @@ package com.loohp.interactivechat.utils;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,13 +36,19 @@ public class ModernChatSigningUtils {
     private static Class<?> nmsChatMessageTypeBClass;
     private static Class<?> nmsPlayerChatMessageClass;
     private static Class<?> nmsArgumentSignaturesClass;
+    private static Class<?> nmsChatMessageContentClass;
+    private static Constructor<?> nmsChatMessageContentConstructor;
     private static Method nmsArgumentSignaturesEntries;
     private static Field nmsChatMessageTypeBChatTypeField;
+    private static Method nmsChatMessageWithChatMessageContentMethod;
+    private static Method nmsPlayerChatMessageFromStringMethod;
     private static Field nmsPlayerChatMessageUnsignedContentField;
     private static Method nmsPlayerChatMessageWithUnsignedContentMethod;
     private static Field nmsPlayerChatMessageSignedBodyField;
     private static Field nmsSignedMessageBodyChatMessageContentField;
     private static Field nmsChatMessageContentContentField;
+    private static Class<?> nmsSignedMessageBodyAClass;
+    private static Field nmsSignedMessageBodyAContentField;
 
     static {
         if (InteractiveChat.hasChatSigning()) {
@@ -50,13 +57,30 @@ public class ModernChatSigningUtils {
                 nmsChatMessageTypeBClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatMessageType$b");
                 nmsPlayerChatMessageClass = NMSUtils.getNMSClass("net.minecraft.network.chat.PlayerChatMessage");
                 nmsArgumentSignaturesClass = NMSUtils.getNMSClass("net.minecraft.commands.arguments.ArgumentSignatures");
+                if (InteractiveChat.version.isOlderThan(MCVersion.V1_19_3)) {
+                    nmsChatMessageContentClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatMessageContent");
+                    nmsChatMessageContentConstructor = nmsChatMessageContentClass.getConstructor(String.class);
+                    nmsChatMessageWithChatMessageContentMethod = nmsPlayerChatMessageClass.getMethod("a", nmsChatMessageContentClass);
+                } else {
+                    nmsPlayerChatMessageFromStringMethod = nmsPlayerChatMessageClass.getMethod("a", String.class);
+                }
                 nmsArgumentSignaturesEntries = nmsArgumentSignaturesClass.getMethod("a");
                 nmsChatMessageTypeBChatTypeField = nmsChatMessageTypeBClass.getDeclaredField("a");
                 nmsPlayerChatMessageUnsignedContentField = nmsPlayerChatMessageClass.getDeclaredField("f");
                 nmsPlayerChatMessageWithUnsignedContentMethod = nmsPlayerChatMessageClass.getMethod("a", nmsIChatBaseComponent);
-                nmsPlayerChatMessageSignedBodyField = nmsPlayerChatMessageClass.getDeclaredField("e");
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    nmsPlayerChatMessageSignedBodyField = nmsPlayerChatMessageClass.getDeclaredField("f");
+                } else {
+                    nmsPlayerChatMessageSignedBodyField = nmsPlayerChatMessageClass.getDeclaredField("e");
+                }
                 nmsSignedMessageBodyChatMessageContentField = nmsPlayerChatMessageSignedBodyField.getType().getDeclaredField("b");
-                nmsChatMessageContentContentField = nmsSignedMessageBodyChatMessageContentField.getType().getDeclaredField("b");
+                if (InteractiveChat.version.isOlderThan(MCVersion.V1_19_3)) {
+                    nmsChatMessageContentContentField = nmsSignedMessageBodyChatMessageContentField.getType().getDeclaredField("b");
+                }
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    nmsSignedMessageBodyAClass = NMSUtils.getNMSClass("net.minecraft.network.chat.SignedMessageBody$a");
+                    nmsSignedMessageBodyAContentField = nmsSignedMessageBodyAClass.getDeclaredField("a");
+                }
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -73,6 +97,20 @@ public class ModernChatSigningUtils {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static Object getNMSPlayerChatMessage(String message) {
+        try {
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                return nmsPlayerChatMessageFromStringMethod.invoke(null, message);
+            } else {
+                Object nmsChatMessageContentObject = nmsChatMessageContentConstructor.newInstance(message);
+                return nmsChatMessageWithChatMessageContentMethod.invoke(null, nmsChatMessageContentObject);
+            }
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Optional<?> getUnsignedContent(Object playerChatMessage) {
@@ -92,6 +130,9 @@ public class ModernChatSigningUtils {
         try {
             Object signedMessageBody = nmsPlayerChatMessageSignedBodyField.get(playerChatMessage);
             Object chatMessageContent = nmsSignedMessageBodyChatMessageContentField.get(signedMessageBody);
+            if (chatMessageContent instanceof String) {
+                return chatMessageContent;
+            }
             return nmsChatMessageContentContentField.get(chatMessageContent);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -116,6 +157,16 @@ public class ModernChatSigningUtils {
         try {
             return (List<?>) nmsArgumentSignaturesEntries.invoke(argumentSignatures);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getSignedMessageBodyAContent(Object signedMessageBodyA) {
+        try {
+            nmsSignedMessageBodyAContentField.setAccessible(true);
+            return (String) nmsSignedMessageBodyAContentField.get(signedMessageBodyA);
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;

@@ -27,9 +27,9 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
+import com.loohp.interactivechat.utils.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class RedispatchSignedPacket {
 
@@ -59,13 +59,7 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                                PlayerCommandPreprocessEvent playerCommandPreprocessEvent = new PlayerCommandPreprocessEvent(player, command);
-                                Bukkit.getPluginManager().callEvent(playerCommandPreprocessEvent);
-                                if (!playerCommandPreprocessEvent.isCancelled()) {
-                                    Bukkit.dispatchCommand(player, playerCommandPreprocessEvent.getMessage());
-                                }
-                            });
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat("/" + command));
                         }
                     }
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
@@ -74,7 +68,11 @@ public class RedispatchSignedPacket {
                         event.setReadOnly(false);
                         event.setCancelled(true);
                         event.setReadOnly(true);
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat(message));
+                        if (message.startsWith("/")) {
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat(message));
+                        } else {
+                            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> PlayerUtils.chatAsPlayer(player, message));
+                        }
                     }
                 }
             }

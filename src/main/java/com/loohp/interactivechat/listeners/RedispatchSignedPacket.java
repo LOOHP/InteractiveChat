@@ -26,6 +26,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import org.bukkit.Bukkit;
@@ -91,9 +92,17 @@ public class RedispatchSignedPacket {
                 Player player = event.getPlayer();
                 PacketContainer packet = event.getPacket();
                 if (event.getPacketType().equals(PacketType.Play.Server.SERVER_DATA)) {
-                    if (InteractiveChat.hideServerUnsignedStatus) {
-                        if (packet.getBooleans().size() > 1) {
-                            packet.getBooleans().write(1, true);
+                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                        if (InteractiveChat.hideServerUnsignedStatus) {
+                            if (packet.getBooleans().size() > 0) {
+                                packet.getBooleans().write(0, true);
+                            }
+                        }
+                    } else {
+                        if (InteractiveChat.hideServerUnsignedStatus) {
+                            if (packet.getBooleans().size() > 1) {
+                                packet.getBooleans().write(1, true);
+                            }
                         }
                     }
                 }

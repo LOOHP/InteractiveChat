@@ -104,7 +104,7 @@ public class PlayerUtils implements Listener {
                     nmsPlayerConnectionChatMethod.invoke(playerConnection, message, true);
                     break;
                 case 3:
-                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, ModernChatSigningUtils.getNMSPlayerChatMessage(message), true);
+                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, ModernChatSigningUtils.getPlayerChatMessage(message), true);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + nmsPlayerConnectionChatMethod.getParameterCount());

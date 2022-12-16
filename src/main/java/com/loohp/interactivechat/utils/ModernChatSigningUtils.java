@@ -22,6 +22,7 @@ package com.loohp.interactivechat.utils;
 
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
+import net.kyori.adventure.text.Component;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -42,6 +43,10 @@ public class ModernChatSigningUtils {
     private static Field nmsChatMessageTypeBChatTypeField;
     private static Method nmsChatMessageWithChatMessageContentMethod;
     private static Method nmsPlayerChatMessageFromStringMethod;
+    private static Class<?> nmsChatDecoratorResultClass;
+    private static Class<?> nmsChatDecoratorModernResultClass;
+    private static Constructor<?> nmsChatDecoratorModernResultConstructor;
+    private static Method nmsPlayerChatMessageWithResultMethod;
     private static Field nmsPlayerChatMessageUnsignedContentField;
     private static Method nmsPlayerChatMessageWithUnsignedContentMethod;
     private static Field nmsPlayerChatMessageSignedBodyField;
@@ -63,6 +68,14 @@ public class ModernChatSigningUtils {
                     nmsChatMessageWithChatMessageContentMethod = nmsPlayerChatMessageClass.getMethod("a", nmsChatMessageContentClass);
                 } else {
                     nmsPlayerChatMessageFromStringMethod = nmsPlayerChatMessageClass.getMethod("a", String.class);
+                    try {
+                        nmsChatDecoratorResultClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatDecorator$Result");
+                        nmsChatDecoratorModernResultClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatDecorator$ModernResult");
+                        nmsChatDecoratorModernResultConstructor = nmsChatDecoratorModernResultClass.getConstructor(nmsIChatBaseComponent, boolean.class, boolean.class);
+                        nmsPlayerChatMessageWithResultMethod = nmsPlayerChatMessageFromStringMethod.getReturnType().getMethod("withResult", nmsChatDecoratorResultClass);
+                    } catch (NoSuchMethodException e) {
+                        nmsPlayerChatMessageWithResultMethod = null;
+                    }
                 }
                 nmsArgumentSignaturesEntries = nmsArgumentSignaturesClass.getMethod("a");
                 nmsChatMessageTypeBChatTypeField = nmsChatMessageTypeBClass.getDeclaredField("a");
@@ -99,10 +112,16 @@ public class ModernChatSigningUtils {
         return 0;
     }
 
-    public static Object getNMSPlayerChatMessage(String message) {
+    public static Object getPlayerChatMessage(String message) {
         try {
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
-                return nmsPlayerChatMessageFromStringMethod.invoke(null, message);
+                Object nmsPlayerChatMessageObject =  nmsPlayerChatMessageFromStringMethod.invoke(null, message);
+                if (nmsPlayerChatMessageWithResultMethod == null) {
+                    return nmsPlayerChatMessageObject;
+                } else {
+                    Object nmsModernResult = nmsChatDecoratorModernResultConstructor.newInstance(ChatComponentType.IChatBaseComponent.convertTo(Component.text(message), false), true, false);
+                    return nmsPlayerChatMessageWithResultMethod.invoke(nmsPlayerChatMessageObject, nmsModernResult);
+                }
             } else {
                 Object nmsChatMessageContentObject = nmsChatMessageContentConstructor.newInstance(message);
                 return nmsChatMessageWithChatMessageContentMethod.invoke(null, nmsChatMessageContentObject);

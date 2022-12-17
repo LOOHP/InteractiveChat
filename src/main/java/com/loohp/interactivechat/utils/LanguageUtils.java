@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
 public class LanguageUtils {
 
     public static final String VERSION_MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-    public static final String RESOURCES_URL = "http://resources.download.minecraft.net/";
+    public static final String RESOURCES_URL = "https://resources.download.minecraft.net/";
     private static final Map<String, Map<String, String>> translations = new HashMap<>();
     private static final Map<Plugin, Map<String, Map<String, String>>> pluginTranslations = new ConcurrentHashMap<>();
     private static final AtomicBoolean lock = new AtomicBoolean(false);

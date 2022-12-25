@@ -73,7 +73,7 @@ public enum ChatComponentType {
         return (String) object;
     });
 
-    private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(JsonString, AdventureComponent, NativeAdventureComponent, BaseComponentArray, IChatBaseComponent));
+    private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(AdventureComponent, NativeAdventureComponent, JsonString, BaseComponentArray, IChatBaseComponent));
 
     public static List<ChatComponentType> byPriority() {
         return BY_PRIORITY;

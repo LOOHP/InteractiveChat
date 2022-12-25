@@ -51,6 +51,7 @@ public class SkinUtils {
     private static Method nmsEntityPlayerGetProfileMethod;
     private static Class<?> craftSkullMetaClass;
     private static Field craftSkullMetaProfileField;
+    private static Method playerGetPlayerProfileMethod;
 
     static {
         if (InteractiveChat.version.isOlderThan(MCVersion.V1_19)) {
@@ -74,6 +75,12 @@ public class SkinUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            try {
+                playerGetPlayerProfileMethod = Player.class.getMethod("getPlayerProfile");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -83,7 +90,7 @@ public class SkinUtils {
 
     public static String getSkinValue(Player player) throws Exception {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
-            PlayerProfile playerProfile = player.getPlayerProfile();
+            Object playerProfile = playerGetPlayerProfileMethod.invoke(player);
             Method craftPlayerProfileGetPropertyMethod = playerProfile.getClass().getDeclaredMethod("getProperty", String.class);
             craftPlayerProfileGetPropertyMethod.setAccessible(true);
             Property property = (Property) craftPlayerProfileGetPropertyMethod.invoke(playerProfile, "textures");

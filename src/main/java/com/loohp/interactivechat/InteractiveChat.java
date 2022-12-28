@@ -657,7 +657,9 @@ public class InteractiveChat extends JavaPlugin {
     @Override
     public void onDisable() {
         closeSharedInventoryViews();
-        nicknameManager.close();
+        if (nicknameManager != null) {
+            nicknameManager.close();
+        }
         try {
             OutMessagePacket.getAsyncChatSendingExecutor().close();
         } catch (Exception ignored) {

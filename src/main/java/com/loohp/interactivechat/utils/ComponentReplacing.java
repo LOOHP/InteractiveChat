@@ -193,7 +193,7 @@ public class ComponentReplacing {
         component = ComponentCompacting.optimize(component.children(children));
 
         if (escaping) {
-            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> Component.text(result.group(1)));
+            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> Component.text(result.group(1)), true);
         }
 
         return component;

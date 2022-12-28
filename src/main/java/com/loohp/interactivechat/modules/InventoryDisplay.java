@@ -67,8 +67,8 @@ public class InventoryDisplay {
 
     public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
-        if (InteractiveChat.invPlaceholder.matcher(plain).find()) {
-            String regex = InteractiveChat.invPlaceholder.pattern();
+        if (InteractiveChat.invPlaceholder.getKeyword().matcher(plain).find()) {
+            String regex = InteractiveChat.invPlaceholder.getKeyword().pattern();
             if (optplayer.isPresent()) {
                 ICPlayer player = optplayer.get();
                 if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {

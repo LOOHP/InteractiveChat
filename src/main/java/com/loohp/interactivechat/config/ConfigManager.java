@@ -141,9 +141,9 @@ public class ConfigManager {
 
         InteractiveChat.itemMapPreview = getConfig().getBoolean("ItemDisplay.Item.PreviewMaps");
 
-        InteractiveChat.itemPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Item.Keyword"));
-        InteractiveChat.invPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Inventory.Keyword"));
-        InteractiveChat.enderPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.EnderChest.Keyword"));
+        Pattern itemPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Item.Keyword"));
+        Pattern invPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Inventory.Keyword"));
+        Pattern enderPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.EnderChest.Keyword"));
 
         InteractiveChat.itemReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
         InteractiveChat.itemSingularReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.SingularText"));
@@ -280,20 +280,20 @@ public class ConfigManager {
         if (InteractiveChat.useItem) {
             String name = InteractiveChat.itemName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Name"));
             String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
-            ICPlaceholder itemPlaceholder = new BuiltInPlaceholder(InteractiveChat.itemPlaceholder, name, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
-            InteractiveChat.placeholderList.put(itemPlaceholder.getInternalId(), itemPlaceholder);
+            InteractiveChat.itemPlaceholder = new BuiltInPlaceholder(itemPlaceholder, name, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
+            InteractiveChat.placeholderList.put(InteractiveChat.itemPlaceholder.getInternalId(), InteractiveChat.itemPlaceholder);
         }
         if (InteractiveChat.useInventory) {
             String name = InteractiveChat.invName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Name"));
             String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
-            ICPlaceholder invPlaceholder = new BuiltInPlaceholder(InteractiveChat.invPlaceholder, name, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000);
-            InteractiveChat.placeholderList.put(invPlaceholder.getInternalId(), invPlaceholder);
+            InteractiveChat.invPlaceholder = new BuiltInPlaceholder(invPlaceholder, name, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000);
+            InteractiveChat.placeholderList.put(InteractiveChat.invPlaceholder.getInternalId(), InteractiveChat.invPlaceholder);
         }
         if (InteractiveChat.useEnder) {
             String name = InteractiveChat.enderName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Name"));
             String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
-            ICPlaceholder enderPlaceholder = new BuiltInPlaceholder(InteractiveChat.enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
-            InteractiveChat.placeholderList.put(enderPlaceholder.getInternalId(), enderPlaceholder);
+            InteractiveChat.enderPlaceholder = new BuiltInPlaceholder(enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
+            InteractiveChat.placeholderList.put(InteractiveChat.enderPlaceholder.getInternalId(), InteractiveChat.enderPlaceholder);
         }
         if (getConfig().isConfigurationSection("CustomPlaceholders")) {
             for (Map.Entry<String, Object> entry : getConfig().getConfigurationSection("CustomPlaceholders").getValues(false).entrySet()) {

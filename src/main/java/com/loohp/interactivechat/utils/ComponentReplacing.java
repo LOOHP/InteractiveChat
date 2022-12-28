@@ -20,11 +20,11 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.loohp.interactivechat.objectholders.Either;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,19 +48,15 @@ public class ComponentReplacing {
         return replace(component, regex, escaping, groups -> replace);
     }
 
-    public static Component replace(Component component, String regex, Function<MatchResult, Component> replaceFunction) {
+    public static Component replace(Component component, String regex, Function<ComponentMatchResult, Component> replaceFunction) {
         return replace(component, regex, false, replaceFunction);
     }
 
-    public static Component replace(Component component, String regex, boolean escaping, Function<MatchResult, Component> replaceFunction) {
-        return replace(component, regex, escaping, (result, replaced) -> replaceFunction.apply(result), true);
+    public static Component replace(Component component, String regex, boolean escaping, Function<ComponentMatchResult, Component> replaceFunction) {
+        return replace(component, regex, escaping, (result, replaced) -> replaceFunction.apply(result));
     }
 
-    public static Component replace(Component component, String regex, boolean escaping, BiFunction<MatchResult, List<Component>, Component> replaceFunction) {
-        return replace(component, regex, escaping, replaceFunction, false);
-    }
-
-    public static Component replace(Component component, String regex, boolean escaping, BiFunction<MatchResult, List<Component>, Component> replaceFunction, boolean applyFallbackStyle) {
+    public static Component replace(Component component, String regex, boolean escaping, BiFunction<ComponentMatchResult, List<Component>, Component> replaceFunction) {
         String regexOriginal = regex;
         if (escaping) {
             regex = ESCAPE_PREPEND_PATTERN + regex;
@@ -78,179 +74,129 @@ public class ComponentReplacing {
             }
         }
         component = component.children(children);
-        List<ComponentReplacingData> sections = getData(component);
-        children = new ArrayList<>(component.children());
-        int offset = 0;
+
+        List<Either<ValuePairs<String, List<Component>>, Component>> sections = breakdown(component);
         Pattern pattern = Pattern.compile(regex);
-        for (int i = 0; i < sections.size(); i++) {
-            ComponentReplacingData data = sections.get(i);
-            String text = data.getText();
-            Matcher matcher = pattern.matcher(text);
-            if (text.length() > offset && matcher.find(offset) && matcher.start() < matcher.end()) {
-                int start = matcher.start();
-                int end = matcher.end() - 1;
-                int childIndexOfStart = data.getChildIndexAt(start);
-                int childIndexOfEnd = data.getChildIndexAt(end);
-                Style style = children.get(childIndexOfStart).style();
-                int indexOfStartInStartChild = data.getPosWithinChild(start);
-                int indexOfEndInEndChild = data.getPosWithinChild(end);
-                int insertPos = indexOfStartInStartChild <= 0 ? childIndexOfStart : childIndexOfStart + 1;
-
-                List<Component> matchedComponents = new ArrayList<>();
-
-                if (childIndexOfStart == childIndexOfEnd) {
-                    TextComponent textComponent = (TextComponent) children.get(childIndexOfStart);
-                    String content = textComponent.content();
-                    if (indexOfStartInStartChild == 0 && indexOfEndInEndChild == content.length() - 1) {
-                        matchedComponents.add(children.remove(childIndexOfStart));
-                    } else if (indexOfStartInStartChild == 0) {
-                        String trailingContent = content.substring(indexOfEndInEndChild + 1);
-                        children.set(childIndexOfStart, textComponent.content(trailingContent));
-                        String matchedContent = content.substring(0, indexOfEndInEndChild + 1);
-                        matchedComponents.add(textComponent.content(matchedContent));
-                    } else if (indexOfEndInEndChild == content.length() - 1) {
-                        String leadingContent = content.substring(0, indexOfStartInStartChild);
-                        children.set(childIndexOfStart, textComponent.content(leadingContent));
-                        String matchedContent = content.substring(indexOfStartInStartChild);
-                        matchedComponents.add(textComponent.content(matchedContent));
-                    } else {
-                        String leadingContent = content.substring(0, indexOfStartInStartChild);
-                        String trailingContent = content.substring(indexOfEndInEndChild + 1);
-                        children.set(childIndexOfStart, textComponent.content(leadingContent));
-                        children.add(insertPos, textComponent.content(trailingContent));
-                        String matchedContent = content.substring(indexOfStartInStartChild, indexOfEndInEndChild + 1);
-                        matchedComponents.add(textComponent.content(matchedContent));
-                    }
-                } else {
-                    List<Component> middle = new ArrayList<>();
-                    for (; childIndexOfEnd > childIndexOfStart + 1; childIndexOfEnd--) {
-                        middle.add(children.remove(childIndexOfEnd - 1));
-                    }
-                    Collections.reverse(middle);
-                    TextComponent textComponentStart = (TextComponent) children.get(childIndexOfStart);
-                    TextComponent textComponentEnd = (TextComponent) children.get(childIndexOfEnd);
-                    String contentStart = textComponentStart.content();
-                    String contentEnd = textComponentEnd.content();
-                    if (indexOfStartInStartChild == 0 && indexOfEndInEndChild == contentEnd.length() - 1) {
-                        Component last = children.remove(childIndexOfEnd);
-                        matchedComponents.add(children.remove(childIndexOfStart));
-                        matchedComponents.addAll(middle);
-                        matchedComponents.add(last);
-                    } else if (indexOfStartInStartChild == 0) {
-                        String trailingContent = contentEnd.substring(indexOfEndInEndChild + 1);
-                        children.set(childIndexOfEnd, textComponentEnd.content(trailingContent));
-                        matchedComponents.add(children.remove(childIndexOfStart));
-                        matchedComponents.addAll(middle);
-                        String matchedContent = contentEnd.substring(0, indexOfEndInEndChild + 1);
-                        matchedComponents.add(textComponentEnd.content(matchedContent));
-                    } else if (indexOfEndInEndChild == contentEnd.length() - 1) {
-                        String leadingContent = contentStart.substring(0, indexOfStartInStartChild);
-                        children.set(childIndexOfStart, textComponentStart.content(leadingContent));
-                        String matchedContent = contentStart.substring(indexOfStartInStartChild);
-                        matchedComponents.add(textComponentStart.content(matchedContent));
-                        matchedComponents.addAll(middle);
-                        matchedComponents.add(children.remove(childIndexOfEnd));
-                    } else {
-                        String leadingContent = contentStart.substring(0, indexOfStartInStartChild);
-                        String trailingContent = contentEnd.substring(indexOfEndInEndChild + 1);
-                        children.set(childIndexOfStart, textComponentStart.content(leadingContent));
-                        children.set(childIndexOfEnd, textComponentEnd.content(trailingContent));
-                        String matchedContentFirst = contentStart.substring(indexOfStartInStartChild);
-                        String matchedContentLast = contentEnd.substring(0, indexOfEndInEndChild + 1);
-                        matchedComponents.add(textComponentStart.content(matchedContentFirst));
-                        matchedComponents.addAll(middle);
-                        matchedComponents.add(textComponentEnd.content(matchedContentLast));
-                    }
-                }
-
-                Component replace = replaceFunction.apply(matcher, Collections.unmodifiableList(matchedComponents));
-                if (applyFallbackStyle) {
-                    replace = replace.applyFallbackStyle(matchedComponents.get(matchedComponents.size() - 1).style());
-                }
-                replace = ComponentFlattening.flatten(replace);
-                children.add(insertPos, replace);
-
-                component = ComponentCompacting.optimize(component.children(children));
-                component = ComponentFlattening.flatten(component);
-                children = new ArrayList<>(component.children());
-                sections = getData(component);
-
-                int sectionsInReplace = getData(ComponentFlattening.flatten(replace)).size();
-                if (sectionsInReplace > 1) {
-                    offset = 0;
-                    if (sectionsInReplace > 2) {
-                        i += sectionsInReplace - 2;
-                    }
-                } else {
-                    i--;
-                    offset = start + PlainTextComponentSerializer.plainText().serialize(replace).length();
-                }
+        children = new ArrayList<>();
+        for (Either<ValuePairs<String, List<Component>>, Component> either : sections) {
+            if (either.isRight()) {
+                children.add(either.getRight());
             } else {
-                offset = 0;
+                ValuePairs<String, List<Component>> pair = either.getLeft();
+                List<Component> componentCharacters = pair.getSecond();
+                Matcher matcher = pattern.matcher(pair.getFirst());
+                int lastEnd = 0;
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = matcher.end();
+                    List<Component> componentGroup = Collections.unmodifiableList(componentCharacters.subList(start, end));
+                    int originalLength = componentGroup.size();
+                    Component result = replaceFunction.apply(new ComponentMatchResult(matcher, componentCharacters), componentGroup);
+                    children.addAll(componentCharacters.subList(lastEnd, start));
+                    children.add(result);
+                    lastEnd = end;
+                }
+                children.addAll(componentCharacters.subList(lastEnd, componentCharacters.size()));
             }
         }
 
         component = ComponentCompacting.optimize(component.children(children));
 
         if (escaping) {
-            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> Component.text(result.group(1)), true);
+            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> result.groupComponent(1));
         }
 
         return component;
     }
 
-    private static List<ComponentReplacingData> getData(Component component) {
-        List<ComponentReplacingData> sections = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        List<Integer> pos = new ArrayList<>();
-        int i = -1;
-        boolean lastIsTextComponent = false;
-        for (Component child : component.children()) {
-            i++;
-            if (child instanceof TextComponent) {
-                lastIsTextComponent = true;
-                String content = ((TextComponent) child).content();
-                current.append(content);
-                for (int u = 0; u < content.length(); u++) {
-                    pos.add(i);
+    private static List<Either<ValuePairs<String, List<Component>>, Component>> breakdown(Component component) {
+        List<Either<ValuePairs<String, List<Component>>, Component>> result = new ArrayList<>();
+        Component flatten = ComponentFlattening.flatten(component);
+        StringBuilder sb = new StringBuilder();
+        List<Component> components = new ArrayList<>();
+        for (Component c : flatten.children()) {
+            if (c instanceof TextComponent) {
+                TextComponent textComponent = (TextComponent) c;
+                String content = textComponent.content();
+                if (!content.isEmpty()) {
+                    for (int i = 0; i < content.length();) {
+                        int codePoint = content.codePointAt(i);
+                        String character = new String(Character.toChars(codePoint));
+                        i += character.length();
+                        components.add(textComponent.content(character));
+                        sb.append(character);
+                    }
                 }
             } else {
-                if (lastIsTextComponent) {
-                    lastIsTextComponent = false;
-                    sections.add(new ComponentReplacingData(current.toString(), pos));
-                    current = new StringBuilder();
-                    pos = new ArrayList<>();
+                if (!components.isEmpty()) {
+                    result.add(Either.left(new ValuePairs<>(sb.toString(), components)));
+                    sb = new StringBuilder();
+                    components = new ArrayList<>();
                 }
+                result.add(Either.right(c));
             }
         }
-        if (lastIsTextComponent) {
-            sections.add(new ComponentReplacingData(current.toString(), pos));
+        if (!components.isEmpty()) {
+            result.add(Either.left(new ValuePairs<>(sb.toString(), components)));
         }
-        return sections;
+        return result;
     }
 
-    private static class ComponentReplacingData {
+    public static final class ComponentMatchResult implements MatchResult {
 
-        private final String text;
-        private final List<Integer> pos;
+        private final MatchResult backingResult;
+        private final List<Component> componentCharacters;
 
-        private ComponentReplacingData(String text, List<Integer> pos) {
-            this.text = text;
-            this.pos = pos;
+        public ComponentMatchResult(MatchResult backingResult, List<Component> componentCharacters) {
+            this.backingResult = backingResult;
+            this.componentCharacters = componentCharacters;
         }
 
-        public String getText() {
-            return text;
+        @Override
+        public int start() {
+            return backingResult.start();
         }
 
-        public int getChildIndexAt(int pos) {
-            return this.pos.get(pos);
+        @Override
+        public int start(int group) {
+            return backingResult.start(group);
         }
 
-        public int getPosWithinChild(int pos) {
-            int index = getChildIndexAt(pos);
-            int first = this.pos.indexOf(index);
-            return pos - first;
+        @Override
+        public int end() {
+            return backingResult.end();
+        }
+
+        @Override
+        public int end(int group) {
+            return backingResult.end(group);
+        }
+
+        @Override
+        public String group() {
+            return backingResult.group();
+        }
+
+        @Override
+        public String group(int group) {
+            return backingResult.group(group);
+        }
+
+        public Component groupComponent() {
+            int start = backingResult.start();
+            int end = backingResult.end();
+            return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
+        }
+
+        public Component groupComponent(int group) {
+            int start = backingResult.start(group);
+            int end = backingResult.end(group);
+            return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
+        }
+
+        @Override
+        public int groupCount() {
+            return backingResult.groupCount();
         }
 
     }

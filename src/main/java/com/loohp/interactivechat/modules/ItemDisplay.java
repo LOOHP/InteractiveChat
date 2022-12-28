@@ -67,8 +67,8 @@ public class ItemDisplay {
     @SuppressWarnings("deprecation")
     public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
-        if (InteractiveChat.itemPlaceholder.matcher(plain).find()) {
-            String regex = InteractiveChat.itemPlaceholder.pattern();
+        if (InteractiveChat.itemPlaceholder.getKeyword().matcher(plain).find()) {
+            String regex = InteractiveChat.itemPlaceholder.getKeyword().pattern();
             if (InteractiveChat.bungeecordMode && optplayer.isPresent() && optplayer.get().isLocal()) {
                 ICPlayer player = optplayer.get();
                 ItemStack[] equipment;

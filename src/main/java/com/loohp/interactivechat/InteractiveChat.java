@@ -162,9 +162,9 @@ public class InteractiveChat extends JavaPlugin {
 
     public static boolean itemMapPreview = true;
 
-    public static Pattern itemPlaceholder = null;
-    public static Pattern invPlaceholder = null;
-    public static Pattern enderPlaceholder = null;
+    public static ICPlaceholder itemPlaceholder = null;
+    public static ICPlaceholder invPlaceholder = null;
+    public static ICPlaceholder enderPlaceholder = null;
 
     public static String itemName = "";
     public static String invName = "";

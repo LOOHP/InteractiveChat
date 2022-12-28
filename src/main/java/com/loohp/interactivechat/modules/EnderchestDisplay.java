@@ -52,8 +52,8 @@ public class EnderchestDisplay {
 
     public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
-        if (InteractiveChat.enderPlaceholder.matcher(plain).find()) {
-            String regex = InteractiveChat.enderPlaceholder.pattern();
+        if (InteractiveChat.enderPlaceholder.getKeyword().matcher(plain).find()) {
+            String regex = InteractiveChat.enderPlaceholder.getKeyword().pattern();
             if (optplayer.isPresent()) {
                 ICPlayer player = optplayer.get();
                 if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 5)) {

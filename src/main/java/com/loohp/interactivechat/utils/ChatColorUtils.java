@@ -245,7 +245,7 @@ public class ChatColorUtils {
     }
 
     public static String unescapeColorCharacters(String str) {
-        return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", ChatColor.COLOR_CHAR + "");
+        return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", COLOR_CHAR + "");
     }
 
 }

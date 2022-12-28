@@ -182,7 +182,7 @@ public class ProcessExternalMessage {
         }
 
         if (InteractiveChat.useItem && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.item", true, 250)) {
-            Pattern placeholder = InteractiveChat.itemPlaceholder;
+            Pattern placeholder = InteractiveChat.itemPlaceholder.getKeyword();
             if (placeholder.matcher(message).find()) {
                 ItemStack item = sender.getEquipment().getItemInHand();
                 if (item == null) {
@@ -208,7 +208,7 @@ public class ProcessExternalMessage {
         }
 
         if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
-            Pattern placeholder = InteractiveChat.invPlaceholder;
+            Pattern placeholder = InteractiveChat.invPlaceholder.getKeyword();
             if (placeholder.matcher(message).find()) {
                 String replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
                 component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
@@ -216,7 +216,7 @@ public class ProcessExternalMessage {
         }
 
         if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
-            Pattern placeholder = InteractiveChat.enderPlaceholder;
+            Pattern placeholder = InteractiveChat.enderPlaceholder.getKeyword();
             if (placeholder.matcher(message).find()) {
                 String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
                 component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));

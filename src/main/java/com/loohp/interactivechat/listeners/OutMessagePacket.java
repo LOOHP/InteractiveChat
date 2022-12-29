@@ -83,10 +83,29 @@ import java.util.stream.Collectors;
 
 public class OutMessagePacket implements Listener {
 
+    public static final UUID UUID_NIL = new UUID(0, 0);
+
     private static final Map<PacketType, PacketHandler> PACKET_HANDLERS = new HashMap<>();
     private static final AsyncChatSendingExecutor SERVICE;
 
     static {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+            PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(event -> {
+                return InteractiveChat.chatListener;
+            }, packet -> {
+                ChatComponentType type = ChatComponentType.IChatBaseComponent;
+                int field = 0;
+                Component component = type.convertFrom(packet.getModifier().read(field));
+                return new PacketAccessorResult(component, type, field, false);
+            }, (packet, component, type, field, sender) -> {
+                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            }));
+        }
+
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
             PACKET_HANDLERS.put(PacketType.Play.Server.CHAT, new PacketHandler(event -> {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
@@ -104,6 +123,14 @@ public class OutMessagePacket implements Listener {
                 } else {
                     return InteractiveChat.chatListener;
                 }
+            }, event -> {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    UUID uuid = event.getPacket().getUUIDs().read(0);
+                    if (uuid != null) {
+                        return ICPlayerFactory.getICPlayer(uuid);
+                    }
+                }
+                return null;
             }, packet -> {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                     ChatComponentType type = ChatComponentType.IChatBaseComponent;
@@ -177,10 +204,9 @@ public class OutMessagePacket implements Listener {
                 String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
                 boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
-                    if (sender == null) {
-                        sender = new UUID(0, 0);
+                    if (sender != null) {
+                        packet.getUUIDs().write(0, sender);
                     }
-                    packet.getUUIDs().write(0, sender);
                     packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                 } else {
                     if (field == Integer.MIN_VALUE) {
@@ -193,7 +219,7 @@ public class OutMessagePacket implements Listener {
                             packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                         }
                         if (sender == null) {
-                            sender = new UUID(0, 0);
+                            sender = UUID_NIL;
                         }
                         if (packet.getUUIDs().size() > 0) {
                             packet.getUUIDs().write(0, sender);
@@ -239,7 +265,7 @@ public class OutMessagePacket implements Listener {
                     boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
                     packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                     if (sender == null) {
-                        sender = new UUID(0, 0);
+                        sender = UUID_NIL;
                     }
                     return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                 }));
@@ -320,11 +346,17 @@ public class OutMessagePacket implements Listener {
                 }
                 packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
             }
-            if (sender == null) {
-                sender = new UUID(0, 0);
-            }
-            if (packet.getUUIDs().size() > 0) {
-                packet.getUUIDs().write(0, sender);
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                if (sender != null) {
+                    packet.getUUIDs().write(0, sender);
+                }
+            } else {
+                if (sender == null) {
+                    sender = UUID_NIL;
+                }
+                if (packet.getUUIDs().size() > 0) {
+                    packet.getUUIDs().write(0, sender);
+                }
             }
             return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
         }));
@@ -360,7 +392,7 @@ public class OutMessagePacket implements Listener {
                 boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
                 packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                 if (sender == null) {
-                    sender = new UUID(0, 0);
+                    sender = UUID_NIL;
                 }
                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
             });
@@ -403,7 +435,7 @@ public class OutMessagePacket implements Listener {
                 boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
                 packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                 if (sender == null) {
-                    sender = new UUID(0, 0);
+                    sender = UUID_NIL;
                 }
                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
             }));

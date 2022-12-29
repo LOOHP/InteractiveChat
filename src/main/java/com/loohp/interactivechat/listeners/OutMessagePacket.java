@@ -348,7 +348,9 @@ public class OutMessagePacket implements Listener {
             }
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                 if (sender != null) {
-                    packet.getUUIDs().write(0, sender);
+                    if (packet.getUUIDs().size() > 0) {
+                        packet.getUUIDs().write(0, sender);
+                    }
                 }
             } else {
                 if (sender == null) {

@@ -27,8 +27,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.CompassMeta;
 
 public class CompassUtils {
@@ -38,15 +41,24 @@ public class CompassUtils {
     }
 
     public static ItemStack hideLodestoneCompassPosition(ItemStack itemStack) {
-        if (!isLodestoneCompass(itemStack)) {
-            throw new IllegalArgumentException("itemStack is not a lodestone compass");
-        }
-        CompassMeta compassMeta = (CompassMeta) itemStack.getItemMeta();
-        if (compassMeta.hasLodestone()) {
-            Location location = compassMeta.getLodestone();
-            World world = location.getWorld() == null ? Bukkit.getWorlds().get(0) : location.getWorld();
-            compassMeta.setLodestone(world.getSpawnLocation());
-            itemStack.setItemMeta(compassMeta);
+        if (isLodestoneCompass(itemStack)) {
+            CompassMeta compassMeta = (CompassMeta) itemStack.getItemMeta();
+            if (compassMeta.hasLodestone()) {
+                Location location = compassMeta.getLodestone();
+                World world = location.getWorld() == null ? Bukkit.getWorlds().get(0) : location.getWorld();
+                compassMeta.setLodestone(world.getSpawnLocation());
+                itemStack = itemStack.clone();
+                itemStack.setItemMeta(compassMeta);
+            }
+        } else if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BlockStateMeta) {
+            BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
+            BlockState state = meta.getBlockState();
+            if (state instanceof InventoryHolder) {
+                hideLodestoneCompassesPosition(((InventoryHolder) state).getInventory());
+                meta.setBlockState(state);
+                itemStack = itemStack.clone();
+                itemStack.setItemMeta(meta);
+            }
         }
         return itemStack;
     }
@@ -54,8 +66,21 @@ public class CompassUtils {
     public static void hideLodestoneCompassesPosition(Inventory inventory) {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
-            if (itemStack != null && !itemStack.getType().equals(Material.AIR) && isLodestoneCompass(itemStack)) {
-                inventory.setItem(i, hideLodestoneCompassPosition(itemStack));
+            if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
+                if (isLodestoneCompass(itemStack)) {
+                    inventory.setItem(i, hideLodestoneCompassPosition(itemStack));
+                } else if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BlockStateMeta) {
+                    BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
+                    BlockState state = meta.getBlockState();
+                    if (state instanceof InventoryHolder) {
+                        Inventory container = ((InventoryHolder) state).getInventory();
+                        if (inventory != container) {
+                            hideLodestoneCompassesPosition(container);
+                            meta.setBlockState(state);
+                            itemStack.setItemMeta(meta);
+                        }
+                    }
+                }
             }
         }
     }

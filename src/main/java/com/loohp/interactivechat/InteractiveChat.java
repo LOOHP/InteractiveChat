@@ -249,6 +249,7 @@ public class InteractiveChat extends JavaPlugin {
     public static int invDisplayLayout = 0;
 
     public static long itemDisplayTimeout = 300000;
+    public static boolean hideLodestoneCompassPos = false;
 
     public static ConcurrentCacheHashMap<String, Inventory> itemDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);
     public static ConcurrentCacheHashMap<String, Inventory> inventoryDisplay = new ConcurrentCacheHashMap<>(InteractiveChat.itemDisplayTimeout, 60000);

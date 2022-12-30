@@ -25,6 +25,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
+import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.FilledMapUtils;
@@ -124,6 +125,9 @@ public class HoverableItemDisplay {
         boolean isAir = item.getType().equals(Material.AIR);
         ItemStack originalItem = item.clone();
         item = InteractiveChatAPI.transformItemStack(item, player.getUniqueId());
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            item = CompassUtils.hideLodestoneCompassPosition(item);
+        }
         String title = InteractiveChat.hoverableItemTitle;
         String sha1 = HashUtils.createSha1(title, item);
         boolean isMapView = false;

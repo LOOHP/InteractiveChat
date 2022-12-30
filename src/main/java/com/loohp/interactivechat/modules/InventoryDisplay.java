@@ -30,6 +30,7 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -122,7 +123,7 @@ public class InventoryDisplay {
         }
     }
 
-    private static void layout0(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+    public static void layout0(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
         Inventory inv = Bukkit.createInventory(null, 54, title);
         int f1 = 0;
         int f2 = 0;
@@ -182,6 +183,10 @@ public class InventoryDisplay {
             inv.setItem(8, offhand);
         }
 
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            CompassUtils.hideLodestoneCompassesPosition(inv);
+        }
+
         InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY);
         Bukkit.getPluginManager().callEvent(event);
         inv = event.getInventory();
@@ -216,7 +221,7 @@ public class InventoryDisplay {
         }
     }
 
-    private static void layout1(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+    public static void layout1(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
         boolean rightHanded = player.isRightHanded();
         int selectedSlot = player.getSelectedSlot();
         int level = player.getExperienceLevel();
@@ -280,9 +285,17 @@ public class InventoryDisplay {
             }
         }
 
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            CompassUtils.hideLodestoneCompassesPosition(inv);
+        }
+
         InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY1_UPPER);
         Bukkit.getPluginManager().callEvent(event);
         inv = event.getInventory();
+
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            CompassUtils.hideLodestoneCompassesPosition(inv2);
+        }
 
         InventoryPlaceholderEvent event2 = new InventoryPlaceholderEvent(player, reciever, component, unix, inv2, InventoryPlaceholderType.INVENTORY1_LOWER);
         Bukkit.getPluginManager().callEvent(event2);

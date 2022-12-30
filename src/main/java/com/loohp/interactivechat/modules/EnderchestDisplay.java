@@ -29,6 +29,7 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -63,30 +64,7 @@ public class EnderchestDisplay {
                     String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 
                     if (!preview && !InteractiveChat.enderDisplay.containsKey(sha1)) {
-                        int size = player.getEnderChest().getSize();
-                        Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
-                        for (int j = 0; j < size; j++) {
-                            if (player.getEnderChest().getItem(j) != null) {
-                                if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
-                                    inv.setItem(j, player.getEnderChest().getItem(j).clone());
-                                }
-                            }
-                        }
-                        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
-                        Bukkit.getPluginManager().callEvent(event);
-                        inv = event.getInventory();
-
-                        InteractiveChatAPI.addInventoryToItemShareList(SharedType.ENDERCHEST, sha1, inv);
-
-                        if (InteractiveChat.bungeecordMode) {
-                            if (player.isLocal()) {
-                                try {
-                                    BungeeMessageSender.forwardEnderchest(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
+                        layout(player, sha1, title, reciever, component, unix);
                     }
 
                     String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
@@ -121,6 +99,38 @@ public class EnderchestDisplay {
             return component;
         } else {
             return component;
+        }
+    }
+
+    public static void layout(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+        int size = player.getEnderChest().getSize();
+        Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
+        for (int j = 0; j < size; j++) {
+            if (player.getEnderChest().getItem(j) != null) {
+                if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {
+                    inv.setItem(j, player.getEnderChest().getItem(j).clone());
+                }
+            }
+        }
+
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            CompassUtils.hideLodestoneCompassesPosition(inv);
+        }
+
+        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
+        Bukkit.getPluginManager().callEvent(event);
+        inv = event.getInventory();
+
+        InteractiveChatAPI.addInventoryToItemShareList(SharedType.ENDERCHEST, sha1, inv);
+
+        if (InteractiveChat.bungeecordMode) {
+            if (player.isLocal()) {
+                try {
+                    BungeeMessageSender.forwardEnderchest(unix, player.getUniqueId(), player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), null, inv);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

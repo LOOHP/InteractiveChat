@@ -273,6 +273,8 @@ ItemDisplay:
     #How long should an item display be stored in memory after its creation
     #This is in minutes
     Timeout: 5
+    #Hide lodestone compass position when sharing them
+    HideLodestoneCompassPos: false
 
   Item:
     #Enable players to show their items in main hand

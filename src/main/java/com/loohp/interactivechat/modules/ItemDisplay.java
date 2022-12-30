@@ -28,6 +28,7 @@ import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
@@ -159,6 +160,9 @@ public class ItemDisplay {
     public static Component createItemDisplay(OfflineICPlayer player, ItemStack item, String rawTitle, boolean showHover, Component alternativeHover, boolean preview) throws Exception {
         if (item == null) {
             item = new ItemStack(Material.AIR);
+        }
+        if (InteractiveChat.hideLodestoneCompassPos) {
+            item = CompassUtils.hideLodestoneCompassPosition(item);
         }
 
         boolean trimmed = false;

@@ -245,6 +245,7 @@ public class ConfigManager {
         InteractiveChat.invDisplayLayout = getConfig().getInt("ItemDisplay.Inventory.Layout");
 
         InteractiveChat.itemDisplayTimeout = getConfig().getLong("ItemDisplay.Settings.Timeout") * 60 * 1000;
+        InteractiveChat.hideLodestoneCompassPos = getConfig().getBoolean("ItemDisplay.Settings.HideLodestoneCompassPos");
 
         if (getConfig().contains("Secret.t")) {
             InteractiveChat.t = getConfig().getBoolean("Secret.t");

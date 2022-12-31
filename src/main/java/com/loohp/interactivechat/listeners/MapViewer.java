@@ -36,6 +36,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -80,7 +81,7 @@ public class MapViewer implements Listener {
                 packet1.getIntegers().write(0, player.getEntityId());
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
                     List<Pair<ItemSlot, ItemStack>> list = new ArrayList<>();
-                    list.add(new Pair<ItemSlot, ItemStack>(ItemSlot.MAINHAND, item));
+                    list.add(new Pair<>(ItemSlot.MAINHAND, item));
                     packet1.getSlotStackPairLists().write(0, list);
                 } else {
                     packet1.getItemSlots().write(0, ItemSlot.MAINHAND);
@@ -189,6 +190,9 @@ public class MapViewer implements Listener {
             boolean removed = MAP_VIEWERS.remove(player) != null;
 
             if (removed) {
+                if (event.getClick().equals(ClickType.SWAP_OFFHAND) && event.getClickedInventory().equals(player.getInventory()) && event.getSlot() == player.getInventory().getHeldItemSlot()) {
+                    event.setCancelled(true);
+                }
                 player.getInventory().setItemInHand(player.getInventory().getItemInHand());
             }
         }

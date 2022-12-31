@@ -580,7 +580,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         if (isPluginEnabled("ChatControlRed", false)) {
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] ChatControlRed has hooked into ChatControlRed!");
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ChatControlRed!");
             chatControlRedHook = true;
         }
 

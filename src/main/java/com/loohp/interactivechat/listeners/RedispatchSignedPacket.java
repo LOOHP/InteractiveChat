@@ -66,13 +66,22 @@ public class RedispatchSignedPacket {
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
                     if (InteractiveChat.forceUnsignedChatPackets) {
                         String message = packet.getStrings().read(0);
-                        event.setReadOnly(false);
-                        event.setCancelled(true);
-                        event.setReadOnly(true);
                         if (message.startsWith("/")) {
+                            event.setReadOnly(false);
+                            event.setCancelled(true);
+                            event.setReadOnly(true);
                             Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat(message));
                         } else {
-                            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> PlayerUtils.chatAsPlayer(player, message));
+                            if (!ModernChatSigningUtils.isChatMessageIllegal(message)) {
+                                event.setReadOnly(false);
+                                event.setCancelled(true);
+                                event.setReadOnly(true);
+                                if (player.isConversing()) {
+                                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
+                                } else {
+                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> PlayerUtils.chatAsPlayer(player, message));
+                                }
+                            }
                         }
                     }
                 }

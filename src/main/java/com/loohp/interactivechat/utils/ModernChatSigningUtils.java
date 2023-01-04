@@ -54,6 +54,8 @@ public class ModernChatSigningUtils {
     private static Field nmsChatMessageContentContentField;
     private static Class<?> nmsSignedMessageBodyAClass;
     private static Field nmsSignedMessageBodyAContentField;
+    private static Class<?> nmsPlayerConnectionClass;
+    private static Method nmsIsChatMessageIllegalMethod;
 
     static {
         if (InteractiveChat.hasChatSigning()) {
@@ -94,6 +96,8 @@ public class ModernChatSigningUtils {
                     nmsSignedMessageBodyAClass = NMSUtils.getNMSClass("net.minecraft.network.chat.SignedMessageBody$a");
                     nmsSignedMessageBodyAContentField = nmsSignedMessageBodyAClass.getDeclaredField("a");
                 }
+                nmsPlayerConnectionClass = NMSUtils.getNMSClass("net.minecraft.server.network.PlayerConnection");
+                nmsIsChatMessageIllegalMethod = nmsPlayerConnectionClass.getDeclaredMethod("c", String.class);
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -189,6 +193,16 @@ public class ModernChatSigningUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean isChatMessageIllegal(String s) {
+        try {
+            nmsIsChatMessageIllegalMethod.setAccessible(true);
+            return (boolean) nmsIsChatMessageIllegalMethod.invoke(null, s);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

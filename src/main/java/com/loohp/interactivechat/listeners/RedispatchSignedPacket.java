@@ -60,7 +60,7 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat("/" + command));
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player, "/" + command));
                         }
                     }
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {

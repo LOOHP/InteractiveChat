@@ -57,6 +57,7 @@ public class PlayerUtils implements Listener {
     private static Field nmsPlayerPingField;
     private static Field nmsPlayerConnectionField;
     private static Method nmsPlayerConnectionChatMethod;
+    private static Method nmsPlayerConnectionHandleCommandMethod;
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -86,6 +87,7 @@ public class PlayerUtils implements Listener {
                 return craftPlayerGetHandleMethod.getReturnType().getField("b");
             });
             nmsPlayerConnectionChatMethod = Arrays.stream(nmsPlayerConnectionField.getType().getMethods()).filter(each -> each.getName().equals("chat")).findFirst().orElseThrow(() -> new ReflectiveOperationException());
+            nmsPlayerConnectionHandleCommandMethod = nmsPlayerConnectionField.getType().getDeclaredMethod("handleCommand", String.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -109,6 +111,22 @@ public class PlayerUtils implements Listener {
                 default:
                     throw new IllegalStateException("Unexpected value: " + nmsPlayerConnectionChatMethod.getParameterCount());
             }
+        } catch (IllegalAccessException | InvocationTargetException | IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void dispatchCommandAsPlayer(Player player, String command) {
+        if (!command.startsWith("/")) {
+            throw new IllegalArgumentException("command must start with '/'");
+        }
+        if (!Bukkit.isPrimaryThread()) {
+            throw new IllegalStateException("commands must only be dispatched on main thread");
+        }
+        try {
+            Object entityPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+            Object playerConnection = nmsPlayerConnectionField.get(entityPlayer);
+            nmsPlayerConnectionHandleCommandMethod.invoke(playerConnection, command);
         } catch (IllegalAccessException | InvocationTargetException | IllegalStateException e) {
             e.printStackTrace();
         }

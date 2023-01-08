@@ -128,6 +128,7 @@ public class PlayerUtils implements Listener {
             throw new IllegalStateException("commands must only be dispatched on main thread");
         }
         try {
+            nmsPlayerConnectionHandleCommandMethod.setAccessible(true);
             Object entityPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
             Object playerConnection = nmsPlayerConnectionField.get(entityPlayer);
             nmsPlayerConnectionHandleCommandMethod.invoke(playerConnection, command);

@@ -75,7 +75,7 @@ public class ModernChatSigningUtils {
                         nmsChatDecoratorModernResultClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatDecorator$ModernResult");
                         nmsChatDecoratorModernResultConstructor = nmsChatDecoratorModernResultClass.getConstructor(nmsIChatBaseComponent, boolean.class, boolean.class);
                         nmsPlayerChatMessageWithResultMethod = nmsPlayerChatMessageFromStringMethod.getReturnType().getMethod("withResult", nmsChatDecoratorResultClass);
-                    } catch (NoSuchMethodException e) {
+                    } catch (ClassNotFoundException | NoSuchMethodException e) {
                         nmsPlayerChatMessageWithResultMethod = null;
                     }
                 }

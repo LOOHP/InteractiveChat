@@ -518,6 +518,34 @@ public class PluginMessageSendingVelocity {
         }
     }
 
+    public static void executeBackendCommand(UUID player, String command, RegisteredServer server) throws IOException {
+        ByteArrayDataOutput output = ByteStreams.newDataOutput();
+
+        DataTypeIO.writeUUID(output, player);
+        DataTypeIO.writeString(output, command, StandardCharsets.UTF_8);
+
+        int packetNumber = InteractiveChatVelocity.random.nextInt();
+        int packetId = 0x15;
+        byte[] data = output.toByteArray();
+
+        byte[][] dataArray = CustomArrayUtils.divideArray(data, 32700);
+
+        for (int i = 0; i < dataArray.length; i++) {
+            byte[] chunk = dataArray[i];
+
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeInt(packetNumber);
+
+            out.writeShort(packetId);
+            out.writeBoolean(i == (dataArray.length - 1));
+
+            out.write(chunk);
+
+            server.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
+            InteractiveChatVelocity.pluginMessagesCounter.incrementAndGet();
+        }
+    }
+
     private static class PlayerListPlayerData {
 
         private final String server;

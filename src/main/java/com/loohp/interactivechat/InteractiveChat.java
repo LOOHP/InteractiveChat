@@ -36,6 +36,7 @@ import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
 import com.loohp.interactivechat.hooks.eco.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
+import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
@@ -140,6 +141,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean luckPermsHook = false;
     public static Boolean mysqlPDBHook = false;
     public static Boolean chatControlRedHook = false;
+    public static Boolean floodgateHook = false;
 
     public static Permission perms = null;
 
@@ -241,6 +243,8 @@ public class InteractiveChat extends JavaPlugin {
     public static String invalidArgs = "";
     public static String placeholderCooldownMessage = "";
     public static String universalCooldownMessage = "";
+    public static String bedrockEventsMenuTitle = "";
+    public static String bedrockEventsMenuContent = "";
 
     public static Map<String, UUID> messages = new ConcurrentHashMap<>();
     public static Map<String, Long> keyTime = new ConcurrentHashMap<>();
@@ -584,9 +588,15 @@ public class InteractiveChat extends JavaPlugin {
             chatControlRedHook = true;
         }
 
+        if (isPluginEnabled("floodgate")) {
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Floodgate!");
+            getServer().getPluginManager().registerEvents(new FloodgateHook(), this);
+            floodgateHook = true;
+        }
+
         if (isPluginEnabled("VentureChat")) {
-            VentureChatInjection._init_();
             getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+            VentureChatInjection._init_();
             ventureChatHook = true;
         }
 

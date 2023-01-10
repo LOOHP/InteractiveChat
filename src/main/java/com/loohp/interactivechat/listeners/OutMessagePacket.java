@@ -646,7 +646,7 @@ public class OutMessagePacket implements Listener {
             UUID postEventSenderUUID = packetWriterResult.getSender();
             int jsonLength = packetWriterResult.getJsonLength();
 
-            PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
+            PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, component, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
             Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {

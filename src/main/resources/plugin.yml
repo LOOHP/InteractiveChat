@@ -21,6 +21,7 @@ softdepend:
   - LuckPerms
   - MysqlPlayerDataBridge
   - ChatControlRed
+  - floodgate
 depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

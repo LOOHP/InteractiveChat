@@ -551,8 +551,18 @@ public class InteractiveChatVelocity {
                                 default:
                                     break;
                             }
+                        case 0x15:
+                            UUID playerUUID = DataTypeIO.readUUID(input);
+                            String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                            Optional<Player> optPlayer = proxyServer.getPlayer(playerUUID);
+                            if (optPlayer.isPresent()) {
+                                if (!proxyServer.getCommandManager().executeImmediatelyAsync(optPlayer.get(), command).get()) {
+                                    PluginMessageSendingVelocity.executeBackendCommand(playerUUID, command, server);
+                                }
+                            }
+                            break;
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });

@@ -20,21 +20,19 @@
 
 package com.loohp.interactivechat.api.events;
 
-import com.comphenix.protocol.events.PacketContainer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import java.util.UUID;
 
 /**
- * This Event is called after the plugin has modified the components in the chat packet and is ready to send.
+ * This Event is called after the plugin has modified the components an external request and is ready to send.
  *
  * @author LOOHP
  */
-public class PreChatPacketSendEvent extends Event implements Cancellable {
+public class PreExternalResponseSendEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -43,66 +41,53 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
     }
 
     private final Player reciever;
-    private final PacketContainer packet;
-    private final Component component;
+    private Component component;
     private final UUID sender;
-    private final PacketContainer original;
-    private PacketContainer originalModified;
+    private Component original;
     private boolean sendOriginalIfCancelled;
-    private boolean cancel;
 
-    public PreChatPacketSendEvent(boolean async, Player reciever, PacketContainer packet, Component component, UUID sender, PacketContainer original, boolean sendOriginalIfCancelled, boolean cancelled) {
+    public PreExternalResponseSendEvent(boolean async, Player reciever, Component component, UUID sender, Component original, boolean sendOriginalIfCancelled) {
         super(async);
         this.reciever = reciever;
-        this.packet = packet;
         this.component = component;
         this.sender = sender;
         this.original = original;
         this.sendOriginalIfCancelled = sendOriginalIfCancelled;
-        this.cancel = cancelled;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancel;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancel = cancel;
-    }
-
-    public Player getReciver() {
+    public Player getReciever() {
         return reciever;
-    }
-
-    public UUID getSender() {
-        return sender;
-    }
-
-    public PacketContainer getPacket() {
-        return packet;
     }
 
     public Component getComponent() {
         return component;
     }
 
-    public PacketContainer getOriginal() {
-        if (originalModified == null) {
-            originalModified = original.deepClone();
-        }
-        return originalModified;
+    public void setComponent(Component component) {
+        this.component = component;
     }
 
-    public boolean sendOriginalIfCancelled() {
+    public UUID getSender() {
+        return sender;
+    }
+
+    public Component getOriginal() {
+        return original;
+    }
+
+    public void setOriginal(Component original) {
+        this.original = original;
+    }
+
+    public boolean isSendOriginalIfCancelled() {
         return sendOriginalIfCancelled;
     }
 
-    public void setSendOriginalIfCancelled(boolean value) {
-        this.sendOriginalIfCancelled = value;
+    public void setSendOriginalIfCancelled(boolean sendOriginalIfCancelled) {
+        this.sendOriginalIfCancelled = sendOriginalIfCancelled;
     }
 
+    @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }

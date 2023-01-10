@@ -145,7 +145,7 @@ public class InteractiveChatComponentSerializer {
                 TranslatableComponent trans = (TranslatableComponent) component;
                 Component translated = Component.text(LanguageUtils.getTranslation(trans.key(), language)).style(trans.style()).children(trans.children()).clickEvent(trans.clickEvent()).hoverEvent(trans.hoverEvent());
                 for (Component with : trans.args()) {
-                    translated = translated.replaceText(TextReplacementConfig.builder().matchLiteral("%s").replacement(with).times(1).build());
+                    translated = translated.replaceText(TextReplacementConfig.builder().match("%+[0-9]*\\$?[sd]").replacement(with).times(1).build());
                 }
                 component = translated;
             }

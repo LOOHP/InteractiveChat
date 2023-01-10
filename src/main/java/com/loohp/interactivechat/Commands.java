@@ -25,6 +25,7 @@ import com.loohp.interactivechat.api.events.InteractiveChatConfigReloadEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
@@ -63,6 +64,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BooleanSupplier;
 
 public class Commands implements CommandExecutor, TabCompleter {
 
@@ -368,6 +371,26 @@ public class Commands implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (InteractiveChat.floodgateHook && args[0].equalsIgnoreCase("events")) {
+            if (sender.hasPermission("interactivechat.bedrock.events")) {
+                if (sender instanceof Player) {
+                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                        UUID uuid = ((Player) sender).getUniqueId();
+                        if (FloodgateHook.isFloodgatePlayer(uuid)) {
+                            FloodgateHook.sendRecentChatMessagesForm(uuid);
+                        } else {
+                            sender.sendMessage(InteractiveChat.noPermissionMessage);
+                        }
+                    });
+                } else {
+                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                }
+            } else {
+                sender.sendMessage(InteractiveChat.noPermissionMessage);
+            }
+            return true;
+        }
+
         if (args[0].equalsIgnoreCase("dumpnbt")) {
             if (sender.hasPermission("interactivechat.dumpnbt")) {
                 if (sender instanceof Player) {
@@ -461,6 +484,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             return tab;
         }
 
+        BooleanSupplier isBedrock = () -> InteractiveChat.floodgateHook && sender instanceof Player && FloodgateHook.isFloodgatePlayer(((Player) sender).getUniqueId());
+
         if (sender instanceof Player && args.length > 1 && (("chat".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.chat")) || ("parse".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.parse")))) {
             if (InteractiveChat.version.isLegacy()) {
                 for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
@@ -527,6 +552,9 @@ public class Commands implements CommandExecutor, TabCompleter {
                 if (sender.hasPermission("interactivechat.chat")) {
                     tab.add("chat");
                 }
+                if (isBedrock.getAsBoolean() && sender.hasPermission("interactivechat.bedrock.events")) {
+                    tab.add("events");
+                }
                 return tab;
             case 1:
                 if (sender.hasPermission("interactivechat.reload")) {
@@ -562,6 +590,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                 if (sender.hasPermission("interactivechat.chat")) {
                     if ("chat".startsWith(args[0].toLowerCase())) {
                         tab.add("chat");
+                    }
+                }
+                if (isBedrock.getAsBoolean() && sender.hasPermission("interactivechat.bedrock.events")) {
+                    if ("events".startsWith(args[0].toLowerCase())) {
+                        tab.add("events");
                     }
                 }
                 return tab;

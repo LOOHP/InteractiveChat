@@ -22,6 +22,7 @@ package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.interactivechat.api.events.PreExternalResponseSendEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
@@ -345,7 +346,11 @@ public class ProcessExternalMessage {
         }, 5);
 
         String newJson = InteractiveChatComponentSerializer.gson().serialize(component);
-        if (InteractiveChat.sendOriginalIfTooLong && newJson.length() > InteractiveChat.packetStringMaxLength) {
+
+        PreExternalResponseSendEvent event = new PreExternalResponseSendEvent(!Bukkit.isPrimaryThread(), receiver, component, sender.map(each -> each.getUniqueId()).orElse(null), originalComponent, InteractiveChat.sendOriginalIfTooLong);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isSendOriginalIfCancelled() && newJson.length() > InteractiveChat.packetStringMaxLength) {
             String originalJson = InteractiveChatComponentSerializer.gson().serialize(originalComponent);
             if (originalJson.length() > InteractiveChat.packetStringMaxLength) {
                 return "{\"text\":\"\"}";

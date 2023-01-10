@@ -40,6 +40,11 @@ Messages:
   NoEnoughArgs: "&cInsufficient arguments!"
   InvalidArgs: "&cInvalid arguments!"
 
+  #The prompts sent when a Floodgate (Geyser/Bedrock) player uses the /ic events menu
+  BedrockEventsMenu:
+    Title: "Recent Chat Messages"
+    Content: "Select Message"
+
 Settings:
   #Bungeecord Mode
   Bungeecord: false

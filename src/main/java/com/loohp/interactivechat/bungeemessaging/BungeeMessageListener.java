@@ -44,6 +44,7 @@ import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.interactivechat.utils.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -408,6 +409,14 @@ public class BungeeMessageListener implements PluginMessageListener {
                         if (icPlayer2 != null) {
                             icPlayer2.setRemoteVanished(vanished);
                         }
+                    }
+                    break;
+                case 0x15:
+                    UUID playerUUID5 = DataTypeIO.readUUID(input);
+                    String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                    Player player4 = Bukkit.getPlayer(playerUUID5);
+                    if (player4 != null) {
+                        PlayerUtils.dispatchCommandAsPlayer(player4, command);
                     }
                     break;
                 case 0xFF:

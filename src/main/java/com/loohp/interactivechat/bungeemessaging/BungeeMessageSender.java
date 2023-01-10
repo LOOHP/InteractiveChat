@@ -340,4 +340,11 @@ public class BungeeMessageSender {
         return forwardData(time, 0x14, out.toByteArray());
     }
 
+    public static boolean executeProxyCommand(long time, UUID player, String command) throws Exception {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        DataTypeIO.writeUUID(out, player);
+        DataTypeIO.writeString(out, command, StandardCharsets.UTF_8);
+        return forwardData(time, 0x15, out.toByteArray());
+    }
+
 }

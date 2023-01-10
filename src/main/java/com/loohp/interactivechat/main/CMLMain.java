@@ -60,6 +60,7 @@ public class CMLMain {
                 System.out.println("Links:");
                 System.out.println("SpigotMC: \"https://www.spigotmc.org/resources/75870/\"");
                 System.out.println("GitHub: \"https://github.com/LOOHP/InteractiveChat\"");
+                System.out.println("Discord: \"https://loohpjames.com/dev-discord\"");
                 System.out.println("Build Server: \"https://ci.loohpjames.com\"");
                 System.out.println();
                 System.out.println("Select one of the tools by typing in their corresponding number");

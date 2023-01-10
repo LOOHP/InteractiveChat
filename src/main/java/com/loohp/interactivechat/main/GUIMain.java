@@ -118,7 +118,7 @@ public class GUIMain {
                     dt.browse(new URI("https://github.com/LOOHP/InteractiveChat"));
                     break;
                 case 2:
-                    dt.browse(new URI("http://dev.discord.loohpjames.com"));
+                    dt.browse(new URI("https://loohpjames.com/dev-discord"));
                     break;
                 case 3:
                     dt.browse(new URI("https://ci.loohpjames.com"));

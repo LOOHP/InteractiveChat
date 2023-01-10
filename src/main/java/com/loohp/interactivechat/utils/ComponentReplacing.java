@@ -84,14 +84,15 @@ public class ComponentReplacing {
             } else {
                 ValuePairs<String, List<Component>> pair = either.getLeft();
                 List<Component> componentCharacters = pair.getSecond();
-                Matcher matcher = pattern.matcher(pair.getFirst());
+                String str = pair.getFirst();
+                Matcher matcher = pattern.matcher(str);
                 int lastEnd = 0;
                 while (matcher.find()) {
-                    int start = matcher.start();
-                    int end = matcher.end();
+                    int start = toComponentIndex(matcher.start(), str);
+                    int end = toComponentIndex(matcher.end(), str);
                     List<Component> componentGroup = Collections.unmodifiableList(componentCharacters.subList(start, end));
                     int originalLength = componentGroup.size();
-                    Component result = replaceFunction.apply(new ComponentMatchResult(matcher, componentCharacters), componentGroup);
+                    Component result = replaceFunction.apply(new ComponentMatchResult(matcher, str, componentCharacters), componentGroup);
                     children.addAll(componentCharacters.subList(lastEnd, start));
                     children.add(result);
                     lastEnd = end;
@@ -107,6 +108,17 @@ public class ComponentReplacing {
         }
 
         return component;
+    }
+
+    private static int toComponentIndex(int pos, String str) {
+        int actual = 0;
+        for (int i = 0; i < pos;) {
+            int codePoint = str.codePointAt(i);
+            String character = new String(Character.toChars(codePoint));
+            i += character.length();
+            actual++;
+        }
+        return actual;
     }
 
     private static List<Either<ValuePairs<String, List<Component>>, Component>> breakdown(Component component) {
@@ -144,11 +156,13 @@ public class ComponentReplacing {
 
     public static final class ComponentMatchResult implements MatchResult {
 
+        private final String str;
         private final MatchResult backingResult;
         private final List<Component> componentCharacters;
 
-        public ComponentMatchResult(MatchResult backingResult, List<Component> componentCharacters) {
+        public ComponentMatchResult(MatchResult backingResult, String str, List<Component> componentCharacters) {
             this.backingResult = backingResult;
+            this.str = str;
             this.componentCharacters = componentCharacters;
         }
 
@@ -172,6 +186,22 @@ public class ComponentReplacing {
             return backingResult.end(group);
         }
 
+        public int componentStart() {
+            return toComponentIndex(backingResult.start(), str);
+        }
+
+        public int componentStart(int group) {
+            return toComponentIndex(backingResult.start(group), str);
+        }
+
+        public int componentEnd() {
+            return toComponentIndex(backingResult.end(), str);
+        }
+
+        public int componentEnd(int group) {
+            return toComponentIndex(backingResult.end(group), str);
+        }
+
         @Override
         public String group() {
             return backingResult.group();
@@ -183,14 +213,14 @@ public class ComponentReplacing {
         }
 
         public Component groupComponent() {
-            int start = backingResult.start();
-            int end = backingResult.end();
+            int start = componentStart();
+            int end = componentEnd();
             return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
         }
 
         public Component groupComponent(int group) {
-            int start = backingResult.start(group);
-            int end = backingResult.end(group);
+            int start = componentStart(group);
+            int end = componentEnd(group);
             return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
         }
 

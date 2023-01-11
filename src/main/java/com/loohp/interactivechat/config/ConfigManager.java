@@ -136,6 +136,7 @@ public class ConfigManager {
         InteractiveChat.universalCooldownMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.UniversalCooldown"));
         InteractiveChat.bedrockEventsMenuTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.Title"));
         InteractiveChat.bedrockEventsMenuContent = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.Content"));
+        InteractiveChat.bedrockEventsMenuRunSuggested = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.RunSuggested"));
 
         InteractiveChat.useItem = getConfig().getBoolean("ItemDisplay.Item.Enabled");
         InteractiveChat.useInventory = getConfig().getBoolean("ItemDisplay.Inventory.Enabled");

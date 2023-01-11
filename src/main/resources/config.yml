@@ -44,6 +44,8 @@ Messages:
   BedrockEventsMenu:
     Title: "Recent Chat Messages"
     Content: "Select Message"
+    # Unused as you couldn't actually see custom titles on bedrock edition
+    RunSuggested: "Run Suggested Command"
 
 Settings:
   #Bungeecord Mode
@@ -426,7 +428,6 @@ TabCompletion:
     ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
 
 #Note that all settings have to be present even if they are set to false
-#You can also use the CustomPlaceholderCreator tool by double-clicking the plugin jar
 CustomPlaceholders:
   '1':
     #Should the placeholders be parsed as the message sender or the message receiver

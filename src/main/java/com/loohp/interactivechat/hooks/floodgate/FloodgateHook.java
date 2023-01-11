@@ -26,6 +26,7 @@ import com.loohp.interactivechat.api.events.PreExternalResponseSendEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.objectholders.LimitedQueue;
 import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -33,12 +34,16 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
@@ -114,34 +119,68 @@ public class FloodgateHook implements Listener {
                     .append(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(pair.getSecond(), InteractiveChat.language));
         }
         SimpleForm.Builder builder = SimpleForm.builder().title(InteractiveChat.bedrockEventsMenuTitle).content(sb.toString());
-        List<ValuePairs<Component, String>> clicks = extractClickCommands(message);
-        for (ValuePairs<Component, String> pair : clicks) {
-            builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(pair.getFirst(), InteractiveChat.language));
+        List<ValueTrios<Component, String, ClickEvent.Action>> clicks = extractClickCommands(message);
+        for (ValueTrios<Component, String, ClickEvent.Action> trio : clicks) {
+            builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(trio.getFirst(), InteractiveChat.language));
         }
         builder.validResultHandler(response -> {
             int index = response.clickedButtonId();
             if (index >= clicks.size()) {
                 return;
             }
-            String command = clicks.get(index).getSecond();
-            FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(uuid);
-            if (floodgatePlayer.isFromProxy() && InteractiveChat.bungeecordMode) {
-                try {
-                    BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            ValueTrios<Component, String, ClickEvent.Action> trio = clicks.get(index);
+            ClickEvent.Action action = trio.getThird();
+            String command = trio.getSecond();
+            if (action.equals(ClickEvent.Action.SUGGEST_COMMAND)) {
+                handleSuggestCommand(uuid, command);
             } else {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player != null) {
-                    PlayerUtils.dispatchCommandAsPlayer(player, command);
-                }
+                handleRunCommand(uuid, command);
             }
         }).closedOrInvalidResultHandler(() -> sendRecentChatMessagesForm(uuid));
         FloodgateApi.getInstance().sendForm(uuid, builder);
     }
 
-    public static List<ValuePairs<Component, Component>> extractHoverTexts(Component component) {
+    private static void handleSuggestCommand(UUID uuid, String suggestedCommand) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+            ItemStack output = new ItemStack(Material.PAPER);
+            ItemMeta meta = output.getItemMeta();
+            meta.setDisplayName(suggestedCommand);
+            output.setItemMeta(meta);
+            new AnvilGUI.Builder()
+                    .plugin(InteractiveChat.plugin)
+                    .text(suggestedCommand)
+                    .title(InteractiveChat.bedrockEventsMenuRunSuggested)
+                    .itemOutput(output)
+                    .onComplete(completion -> {
+                        String command = completion.getText();
+                        handleRunCommand(uuid, command);
+                        return Collections.singletonList(AnvilGUI.ResponseAction.close());
+                    })
+                    .open(player);
+        });
+    }
+
+    private static void handleRunCommand(UUID uuid, String command) {
+        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(uuid);
+        if (floodgatePlayer.isFromProxy() && InteractiveChat.bungeecordMode) {
+            try {
+                BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player, command));
+            }
+        }
+    }
+
+    private static List<ValuePairs<Component, Component>> extractHoverTexts(Component component) {
         List<ValuePairs<Component, Component>> result = new ArrayList<>();
         List<Component> flattened = new ArrayList<>(ComponentFlattening.flatten(component).children());
         for (int i = 0; i < flattened.size(); i++) {
@@ -160,8 +199,8 @@ public class FloodgateHook implements Listener {
         return result;
     }
 
-    public static List<ValuePairs<Component, String>> extractClickCommands(Component component) {
-        List<ValuePairs<Component, String>> result = new ArrayList<>();
+    private static List<ValueTrios<Component, String, ClickEvent.Action>> extractClickCommands(Component component) {
+        List<ValueTrios<Component, String, ClickEvent.Action>> result = new ArrayList<>();
         List<Component> flattened = new ArrayList<>(ComponentFlattening.flatten(component).children());
         for (int i = 0; i < flattened.size(); i++) {
             Component c = flattened.get(i);
@@ -173,7 +212,7 @@ public class FloodgateHook implements Listener {
         for (Component c : optimizeEvents.children()) {
             ClickEvent clickEvent = c.clickEvent();
             if (clickEvent != null && (clickEvent.action().equals(ClickEvent.Action.RUN_COMMAND) || clickEvent.action().equals(ClickEvent.Action.SUGGEST_COMMAND))) {
-                result.add(new ValuePairs<>(c, clickEvent.value()));
+                result.add(new ValueTrios<>(c, clickEvent.value(), clickEvent.action()));
             }
         }
         return result;

@@ -416,7 +416,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                     String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                     Player player4 = Bukkit.getPlayer(playerUUID5);
                     if (player4 != null) {
-                        PlayerUtils.dispatchCommandAsPlayer(player4, command);
+                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command));
                     }
                     break;
                 case 0xFF:

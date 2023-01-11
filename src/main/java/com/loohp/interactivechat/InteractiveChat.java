@@ -245,6 +245,7 @@ public class InteractiveChat extends JavaPlugin {
     public static String universalCooldownMessage = "";
     public static String bedrockEventsMenuTitle = "";
     public static String bedrockEventsMenuContent = "";
+    public static String bedrockEventsMenuRunSuggested = "";
 
     public static Map<String, UUID> messages = new ConcurrentHashMap<>();
     public static Map<String, Long> keyTime = new ConcurrentHashMap<>();

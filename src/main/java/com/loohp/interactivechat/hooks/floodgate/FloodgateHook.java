@@ -34,16 +34,13 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
@@ -132,7 +129,7 @@ public class FloodgateHook implements Listener {
             ClickEvent.Action action = trio.getThird();
             String command = trio.getSecond();
             if (action.equals(ClickEvent.Action.SUGGEST_COMMAND)) {
-                handleSuggestCommand(uuid, command);
+                handleSuggestCommand(uuid, trio.getFirst(), message, command);
             } else {
                 handleRunCommand(uuid, command);
             }
@@ -140,28 +137,18 @@ public class FloodgateHook implements Listener {
         FloodgateApi.getInstance().sendForm(uuid, builder);
     }
 
-    private static void handleSuggestCommand(UUID uuid, String suggestedCommand) {
+    private static void handleSuggestCommand(UUID uuid, Component clickComponent, Component message, String suggestedCommand) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) {
             return;
         }
-        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-            ItemStack output = new ItemStack(Material.PAPER);
-            ItemMeta meta = output.getItemMeta();
-            meta.setDisplayName(suggestedCommand);
-            output.setItemMeta(meta);
-            new AnvilGUI.Builder()
-                    .plugin(InteractiveChat.plugin)
-                    .text(suggestedCommand)
-                    .title(InteractiveChat.bedrockEventsMenuRunSuggested)
-                    .itemOutput(output)
-                    .onComplete(completion -> {
-                        String command = completion.getText();
-                        handleRunCommand(uuid, command);
-                        return Collections.singletonList(AnvilGUI.ResponseAction.close());
-                    })
-                    .open(player);
-        });
+        CustomForm.Builder builder = CustomForm.builder().title(InteractiveChat.bedrockEventsMenuRunSuggested)
+                .input(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(clickComponent, InteractiveChat.language), suggestedCommand, suggestedCommand)
+                .validResultHandler(response -> {
+                    handleRunCommand(uuid, response.asInput());
+                })
+                .closedOrInvalidResultHandler(() -> sendEventsForm(uuid, message));
+        FloodgateApi.getInstance().sendForm(uuid, builder);
     }
 
     private static void handleRunCommand(UUID uuid, String command) {

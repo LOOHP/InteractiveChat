@@ -44,7 +44,6 @@ Messages:
   BedrockEventsMenu:
     Title: "Recent Chat Messages"
     Content: "Select Message"
-    # Unused as you couldn't actually see custom titles on bedrock edition
     RunSuggested: "Run Suggested Command"
 
 Settings:

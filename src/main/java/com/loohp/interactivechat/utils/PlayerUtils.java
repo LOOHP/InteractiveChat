@@ -131,7 +131,7 @@ public class PlayerUtils implements Listener {
             nmsPlayerConnectionHandleCommandMethod.setAccessible(true);
             Object entityPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
             Object playerConnection = nmsPlayerConnectionField.get(entityPlayer);
-            nmsPlayerConnectionHandleCommandMethod.invoke(playerConnection, command);
+            nmsPlayerConnectionHandleCommandMethod.invoke(playerConnection, command.trim());
         } catch (IllegalAccessException | InvocationTargetException | IllegalStateException e) {
             e.printStackTrace();
         }

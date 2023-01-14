@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class BookUtils {
 
     public static boolean isTextBook(ItemStack item) {
-        return item.hasItemMeta() && item.getItemMeta() instanceof BookMeta;
+        return item.getItemMeta() instanceof BookMeta;
     }
 
     public static List<Component> getPages(BookMeta bookMeta) {

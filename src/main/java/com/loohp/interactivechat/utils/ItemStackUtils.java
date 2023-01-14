@@ -94,7 +94,7 @@ public class ItemStackUtils {
             }
         } else {
             boolean displayNameCompleted = false;
-            if (itemstack.hasItemMeta() && itemstack.getItemMeta() instanceof BookMeta) {
+            if (itemstack.getItemMeta() instanceof BookMeta) {
                 BookMeta meta = (BookMeta) itemstack.getItemMeta();
                 String rawTitle = meta.getTitle();
                 if (rawTitle != null) {
@@ -120,10 +120,10 @@ public class ItemStackUtils {
     }
 
     public static List<Component> getLore(ItemStack itemstack) {
-        if (!itemstack.hasItemMeta()) {
+        ItemMeta meta = itemstack.getItemMeta();
+        if (meta == null) {
             return null;
         }
-        ItemMeta meta = itemstack.getItemMeta();
         if (!meta.hasLore()) {
             return null;
         }

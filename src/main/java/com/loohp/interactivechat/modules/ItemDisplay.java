@@ -117,7 +117,7 @@ public class ItemDisplay {
 
     public static boolean useInventoryView(ItemStack item) {
         try {
-            if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+            if (item.getItemMeta() instanceof BlockStateMeta) {
                 BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
                 if (bsm instanceof InventoryHolder) {
                     Inventory container = ((InventoryHolder) bsm).getInventory();
@@ -184,7 +184,7 @@ public class ItemDisplay {
                     trimmedItem = nameItem;
                 }
             }
-            if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
+            if (item.getItemMeta() != null && item.getItemMeta().hasLore()) {
                 ItemStack loreItem = trimmedItem.clone();
                 ItemMeta meta = loreItem.getItemMeta();
                 meta.setLore(item.getItemMeta().getLore());
@@ -224,7 +224,7 @@ public class ItemDisplay {
                     if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                         empty = InteractiveChat.itemFrame2.clone();
                     }
-                    if (empty.hasItemMeta()) {
+                    if (empty.getItemMeta() != null) {
                         ItemMeta emptyMeta = empty.getItemMeta();
                         emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
                         empty.setItemMeta(emptyMeta);
@@ -261,7 +261,7 @@ public class ItemDisplay {
                         if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                             empty = InteractiveChat.itemFrame2.clone();
                         }
-                        if (empty.hasItemMeta()) {
+                        if (empty.getItemMeta() != null) {
                             ItemMeta emptyMeta = empty.getItemMeta();
                             emptyMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "");
                             empty.setItemMeta(emptyMeta);

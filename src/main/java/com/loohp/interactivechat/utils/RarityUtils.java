@@ -56,7 +56,7 @@ public class RarityUtils {
     public static ChatColor getRarityColor(ItemStack item) {
         ChatColor color = ChatColor.WHITE;
         if (!item.getType().equals(Material.AIR)) {
-            if (item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
+            if (!item.getEnchantments().isEmpty()) {
                 color = ChatColor.AQUA;
             }
             try {

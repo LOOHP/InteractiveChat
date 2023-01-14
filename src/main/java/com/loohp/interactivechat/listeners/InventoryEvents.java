@@ -132,7 +132,7 @@ public class InventoryEvents implements Listener {
                     }
                 }
             }
-            if (!InteractiveChat.containerDisplay.containsKey(topInventory) && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+            if (!InteractiveChat.containerDisplay.containsKey(topInventory) && item.getItemMeta() instanceof BlockStateMeta) {
                 BlockState bsm = ((BlockStateMeta) item.getItemMeta()).getBlockState();
                 if (bsm instanceof InventoryHolder) {
                     Inventory container = ((InventoryHolder) bsm).getInventory();

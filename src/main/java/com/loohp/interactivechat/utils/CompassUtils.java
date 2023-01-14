@@ -50,7 +50,7 @@ public class CompassUtils {
                 itemStack = itemStack.clone();
                 itemStack.setItemMeta(compassMeta);
             }
-        } else if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BlockStateMeta) {
+        } else if (itemStack.getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
             BlockState state = meta.getBlockState();
             if (state instanceof InventoryHolder) {
@@ -69,7 +69,7 @@ public class CompassUtils {
             if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
                 if (isLodestoneCompass(itemStack)) {
                     inventory.setItem(i, hideLodestoneCompassPosition(itemStack));
-                } else if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BlockStateMeta) {
+                } else if (itemStack.getItemMeta() instanceof BlockStateMeta) {
                     BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
                     BlockState state = meta.getBlockState();
                     if (state instanceof InventoryHolder) {

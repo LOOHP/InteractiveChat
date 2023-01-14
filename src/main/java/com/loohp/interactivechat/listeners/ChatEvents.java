@@ -231,7 +231,7 @@ public class ChatEvents implements Listener {
                     if (matcher.find()) {
                         int start = matcher.start();
                         if ((start < 1 || command.charAt(start - 1) != '\\') || (start > 1 && command.charAt(start - 1) == '\\' && command.charAt(start - 2) == '\\')) {
-                            if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
+                            if (icplaceholder.equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
                                 event.setCancelled(true);
                                 String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
                                 event.getPlayer().sendMessage(cancelmessage);
@@ -312,7 +312,7 @@ public class ChatEvents implements Listener {
             if (matcher.find()) {
                 int start = matcher.start();
                 if ((start < 1 || message.charAt(start - 1) != '\\') || (start > 1 && message.charAt(start - 1) == '\\' && message.charAt(start - 2) == '\\')) {
-                    if (icplaceholder.getKeyword().equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
+                    if (icplaceholder.equals(InteractiveChat.itemPlaceholder) && !InteractiveChat.itemAirAllow && PlayerUtils.getHeldItem(event.getPlayer()).getType().equals(Material.AIR) && PlayerUtils.hasPermission(event.getPlayer().getUniqueId(), "interactivechat.module.item", false, 200)) {
                         event.setCancelled(true);
                         String cancelmessage = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.itemAirErrorMessage));
                         event.getPlayer().sendMessage(cancelmessage);

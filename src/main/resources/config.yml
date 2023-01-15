@@ -396,7 +396,7 @@ Player:
     #The text to show in the hover message
     #Supports multiple lines
     Text:
-      - '&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%'
+      - '&aWorld: &7%player_world%'
       - '&eBiome: &6%player_biome_capitalized%'
       - '&cHealth: %player_health_rounded%&7/%player_max_health_rounded%'
       - '&bPing: &7%player_colored_ping% &bms'
@@ -424,7 +424,7 @@ TabCompletion:
   #Doesn't work on chat tab completions or on versions on or below 1.12.2
   PlayerNameToolTip:
     Enabled: true
-    ToolTip: "&aWorld: &7%player_world% &aX: &7%player_x% &aY: &7%player_y% &aZ: &7%player_z%"
+    ToolTip: "%vault_prefix%%player_name%"
 
 #Note that all settings have to be present even if they are set to false
 CustomPlaceholders:

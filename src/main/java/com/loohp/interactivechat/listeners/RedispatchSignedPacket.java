@@ -29,8 +29,12 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.ExecutionException;
 
 public class RedispatchSignedPacket {
 
@@ -66,6 +70,7 @@ public class RedispatchSignedPacket {
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
                     if (InteractiveChat.forceUnsignedChatPackets) {
                         String message = packet.getStrings().read(0);
+                        System.out.println(message);
                         if (message.startsWith("/")) {
                             event.setReadOnly(false);
                             event.setCancelled(true);
@@ -79,7 +84,14 @@ public class RedispatchSignedPacket {
                                 if (player.isConversing()) {
                                     Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
                                 } else {
-                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> PlayerUtils.chatAsPlayer(player, message));
+                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                                        try {
+                                            Component decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
+                                            PlayerUtils.chatAsPlayer(player, LegacyComponentSerializer.legacySection().serialize(decorated));
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
                                 }
                             }
                         }

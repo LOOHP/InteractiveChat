@@ -23,13 +23,17 @@ package com.loohp.interactivechat.utils;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class ModernChatSigningUtils {
 
@@ -56,6 +60,15 @@ public class ModernChatSigningUtils {
     private static Field nmsSignedMessageBodyAContentField;
     private static Class<?> nmsPlayerConnectionClass;
     private static Method nmsIsChatMessageIllegalMethod;
+    private static Class<?> nmsMinecraftServerClass;
+    private static Class<?> nmsChatDecoratorClass;
+    private static Class<?> nmsEntityPlayerClass;
+    private static Method nmsChatDecoratorDecorateMethod;
+    private static Method nmsGetDecoratorMethod;
+    private static Class<?> craftPlayerClass;
+    private static Method craftPlayerGetHandleMethod;
+    private static Class<?> craftServerClass;
+    private static Method craftServerGetServerMethod;
 
     static {
         if (InteractiveChat.hasChatSigning()) {
@@ -98,6 +111,15 @@ public class ModernChatSigningUtils {
                 }
                 nmsPlayerConnectionClass = NMSUtils.getNMSClass("net.minecraft.server.network.PlayerConnection");
                 nmsIsChatMessageIllegalMethod = nmsPlayerConnectionClass.getDeclaredMethod("c", String.class);
+                nmsMinecraftServerClass = NMSUtils.getNMSClass("net.minecraft.server.MinecraftServer");
+                nmsChatDecoratorClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatDecorator");
+                nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.level.EntityPlayer");
+                nmsChatDecoratorDecorateMethod = nmsChatDecoratorClass.getMethod("decorate", nmsEntityPlayerClass, nmsIChatBaseComponent);
+                nmsGetDecoratorMethod = Arrays.stream(nmsMinecraftServerClass.getMethods()).filter(each -> each.getReturnType().equals(nmsChatDecoratorClass)).findFirst().get();
+                craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
+                craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
+                craftServerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftServer");
+                craftServerGetServerMethod = craftServerClass.getMethod("getServer");
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -203,6 +225,19 @@ public class ModernChatSigningUtils {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static CompletableFuture<Component> getChatDecorator(Player player, Component message) {
+        try {
+            Object nmsMinecraftServer = craftServerGetServerMethod.invoke(Bukkit.getServer());
+            Object nmsChatDecorator = nmsGetDecoratorMethod.invoke(nmsMinecraftServer);
+            Object nmsEntityPlayer = craftPlayerGetHandleMethod.invoke(player);
+            CompletableFuture<?> decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()));
+            return decorator.thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return CompletableFuture.completedFuture(message);
     }
 
 }

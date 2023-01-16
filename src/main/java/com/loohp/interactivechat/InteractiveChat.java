@@ -516,7 +516,7 @@ public class InteractiveChat extends JavaPlugin {
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
             RedispatchSignedPacket.packetListener();
             if (ModernChatCompletionTask.isSupported()) {
-                new ModernChatCompletionTask();
+                getServer().getPluginManager().registerEvents(new ModernChatCompletionTask(), this);
             }
         }
         if (!version.isLegacy()) {

@@ -28,11 +28,17 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.NMSUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-public class ModernChatCompletionTask {
+public class ModernChatCompletionTask implements Listener {
 
     private static Object[] nmsClientboundCustomChatCompletionsPacketActions;
 
@@ -56,11 +62,19 @@ public class ModernChatCompletionTask {
         return true;
     }
 
+    private final Map<Player, List<String>> registered;
+
     public ModernChatCompletionTask() {
         if (!isSupported()) {
             throw new IllegalStateException("ModernChatCompletion is not supported on this server");
         }
+        this.registered = new ConcurrentHashMap<>();
         run();
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        registered.remove(event.getPlayer());
     }
 
     private void run() {
@@ -84,11 +98,21 @@ public class ModernChatCompletionTask {
                         }
                     }
 
-                    PacketContainer chatCompletionPacket = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
-                    chatCompletionPacket.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[2]);
-                    chatCompletionPacket.getModifier().write(1, tab);
+                    List<String> oldList = registered.computeIfAbsent(tabCompleter, k -> new ArrayList<>());
+                    List<String> add = tab.stream().filter(each -> !oldList.contains(each)).collect(Collectors.toList());
+                    List<String> remove = oldList.stream().filter(each -> !tab.contains(each)).collect(Collectors.toList());
+                    oldList.addAll(add);
 
-                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket);
+                    PacketContainer chatCompletionPacket1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
+                    chatCompletionPacket1.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[0]);
+                    chatCompletionPacket1.getModifier().write(1, add);
+
+                    PacketContainer chatCompletionPacket2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
+                    chatCompletionPacket2.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[1]);
+                    chatCompletionPacket2.getModifier().write(1, remove);
+
+                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket1);
+                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket2);
                 }
             }
         }, 0, 10);

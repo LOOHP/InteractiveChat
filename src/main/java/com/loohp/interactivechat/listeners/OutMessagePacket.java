@@ -578,7 +578,7 @@ public class OutMessagePacket implements Listener {
 
             component = ComponentModernizing.modernize(component);
 
-            component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement("").build());
+            component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement(Registry.ID_PATTERN_REPLACEMENT).build());
 
             UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
             PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);

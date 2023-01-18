@@ -29,7 +29,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -60,17 +59,19 @@ public class RedispatchSignedPacket {
                     if (packet.getModifier().size() > 3) {
                         Object argumentSignature = packet.getModifier().read(3);
                         if (ModernChatSigningUtils.isArgumentSignatureClass(argumentSignature) && !ModernChatSigningUtils.getArgumentSignatureEntries(argumentSignature).isEmpty()) {
-                            String command = packet.getStrings().read(0);
+                            String command = "/" + packet.getStrings().read(0);
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player, "/" + command));
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                                PlayerUtils.dispatchCommandAsPlayer(player, command);
+                                ModernChatSigningUtils.detectRateSpam(player, command);
+                            });
                         }
                     }
                 } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
                     if (InteractiveChat.forceUnsignedChatPackets) {
                         String message = packet.getStrings().read(0);
-                        System.out.println(message);
                         if (message.startsWith("/")) {
                             event.setReadOnly(false);
                             event.setCancelled(true);
@@ -83,11 +84,13 @@ public class RedispatchSignedPacket {
                                 event.setReadOnly(true);
                                 if (player.isConversing()) {
                                     Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
+                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> ModernChatSigningUtils.detectRateSpam(player, message));
                                 } else {
                                     Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
                                         try {
-                                            Component decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
-                                            PlayerUtils.chatAsPlayer(player, LegacyComponentSerializer.legacySection().serialize(decorated));
+                                            Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
+                                            PlayerUtils.chatAsPlayer(player, message, decorated);
+                                            ModernChatSigningUtils.detectRateSpam(player, message);
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
                                         }

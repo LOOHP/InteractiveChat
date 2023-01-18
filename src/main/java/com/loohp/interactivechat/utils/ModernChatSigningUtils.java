@@ -23,6 +23,7 @@ package com.loohp.interactivechat.utils;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -31,6 +32,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -42,7 +44,8 @@ public class ModernChatSigningUtils {
     private static Class<?> nmsPlayerChatMessageClass;
     private static Class<?> nmsArgumentSignaturesClass;
     private static Class<?> nmsChatMessageContentClass;
-    private static Constructor<?> nmsChatMessageContentConstructor;
+    private static Constructor<?> nmsChatMessageContentComponentStringConstructor;
+    private static Constructor<?> nmsChatMessageContentStringConstructor;
     private static Method nmsArgumentSignaturesEntries;
     private static Field nmsChatMessageTypeBChatTypeField;
     private static Method nmsChatMessageWithChatMessageContentMethod;
@@ -60,6 +63,7 @@ public class ModernChatSigningUtils {
     private static Field nmsSignedMessageBodyAContentField;
     private static Class<?> nmsPlayerConnectionClass;
     private static Method nmsIsChatMessageIllegalMethod;
+    private static Method nmsDetectRateSpamMethod;
     private static Class<?> nmsMinecraftServerClass;
     private static Class<?> nmsChatDecoratorClass;
     private static Class<?> nmsEntityPlayerClass;
@@ -69,6 +73,7 @@ public class ModernChatSigningUtils {
     private static Method craftPlayerGetHandleMethod;
     private static Class<?> craftServerClass;
     private static Method craftServerGetServerMethod;
+    private static Field nmsPlayerConnectionField;
 
     static {
         if (InteractiveChat.hasChatSigning()) {
@@ -79,7 +84,8 @@ public class ModernChatSigningUtils {
                 nmsArgumentSignaturesClass = NMSUtils.getNMSClass("net.minecraft.commands.arguments.ArgumentSignatures");
                 if (InteractiveChat.version.isOlderThan(MCVersion.V1_19_3)) {
                     nmsChatMessageContentClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatMessageContent");
-                    nmsChatMessageContentConstructor = nmsChatMessageContentClass.getConstructor(String.class);
+                    nmsChatMessageContentComponentStringConstructor = nmsChatMessageContentClass.getConstructor(String.class, nmsIChatBaseComponent);
+                    nmsChatMessageContentStringConstructor = nmsChatMessageContentClass.getConstructor(String.class);
                     nmsChatMessageWithChatMessageContentMethod = nmsPlayerChatMessageClass.getMethod("a", nmsChatMessageContentClass);
                 } else {
                     nmsPlayerChatMessageFromStringMethod = nmsPlayerChatMessageClass.getMethod("a", String.class);
@@ -111,20 +117,38 @@ public class ModernChatSigningUtils {
                 }
                 nmsPlayerConnectionClass = NMSUtils.getNMSClass("net.minecraft.server.network.PlayerConnection");
                 nmsIsChatMessageIllegalMethod = nmsPlayerConnectionClass.getDeclaredMethod("c", String.class);
+                nmsDetectRateSpamMethod = nmsPlayerConnectionClass.getDeclaredMethod("detectRateSpam", String.class);
                 nmsMinecraftServerClass = NMSUtils.getNMSClass("net.minecraft.server.MinecraftServer");
                 nmsChatDecoratorClass = NMSUtils.getNMSClass("net.minecraft.network.chat.ChatDecorator");
                 nmsEntityPlayerClass = NMSUtils.getNMSClass("net.minecraft.server.level.EntityPlayer");
-                nmsChatDecoratorDecorateMethod = nmsChatDecoratorClass.getMethod("decorate", nmsEntityPlayerClass, nmsIChatBaseComponent);
+                nmsChatDecoratorDecorateMethod = Arrays.stream(nmsChatDecoratorClass.getMethods()).filter(each -> {
+                    if (!each.getName().equals("decorate")) {
+                        return false;
+                    }
+                    return Arrays.stream(each.getAnnotations()).noneMatch(m -> m.annotationType().getSimpleName().equals("DoNotUse"));
+                }).min(Comparator.comparing(each -> each.getParameterCount())).get();
                 nmsGetDecoratorMethod = Arrays.stream(nmsMinecraftServerClass.getMethods()).filter(each -> each.getReturnType().equals(nmsChatDecoratorClass)).findFirst().get();
                 craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
                 craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
                 craftServerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftServer");
                 craftServerGetServerMethod = craftServerClass.getMethod("getServer");
+                nmsPlayerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("b");
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         } else {
             throw new IllegalStateException("This class should only be used on version 1.19.1 or above");
+        }
+    }
+
+    public static void detectRateSpam(Player player, String message) {
+        nmsDetectRateSpamMethod.setAccessible(true);
+        try {
+            Object nmsEntityPlayer = craftPlayerGetHandleMethod.invoke(player);
+            Object nmsPlayerConnection = nmsPlayerConnectionField.get(nmsEntityPlayer);
+            nmsDetectRateSpamMethod.invoke(nmsPlayerConnection, message);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 
@@ -149,7 +173,27 @@ public class ModernChatSigningUtils {
                     return nmsPlayerChatMessageWithResultMethod.invoke(nmsPlayerChatMessageObject, nmsModernResult);
                 }
             } else {
-                Object nmsChatMessageContentObject = nmsChatMessageContentConstructor.newInstance(message);
+                Object nmsChatMessageContentObject = nmsChatMessageContentStringConstructor.newInstance(message);
+                return nmsChatMessageWithChatMessageContentMethod.invoke(null, nmsChatMessageContentObject);
+            }
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Object getPlayerChatMessage(String message, Component component) {
+        try {
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                Object nmsPlayerChatMessageObject =  nmsPlayerChatMessageFromStringMethod.invoke(null, message);
+                if (nmsPlayerChatMessageWithResultMethod == null) {
+                    return nmsPlayerChatMessageObject;
+                } else {
+                    Object nmsModernResult = nmsChatDecoratorModernResultConstructor.newInstance(ChatComponentType.IChatBaseComponent.convertTo(component, false), true, false);
+                    return nmsPlayerChatMessageWithResultMethod.invoke(nmsPlayerChatMessageObject, nmsModernResult);
+                }
+            } else {
+                Object nmsChatMessageContentObject = nmsChatMessageContentComponentStringConstructor.newInstance(message, ChatComponentType.IChatBaseComponent.convertTo(component, false));
                 return nmsChatMessageWithChatMessageContentMethod.invoke(null, nmsChatMessageContentObject);
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -183,6 +227,19 @@ public class ModernChatSigningUtils {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    public static boolean hasWithResult() {
+        return nmsPlayerChatMessageWithResultMethod != null;
+    }
+
+    public static Object withResult(Object playerChatMessage, Object result) {
+        try {
+            return nmsPlayerChatMessageWithResultMethod.invoke(playerChatMessage, result);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Object withUnsignedContent(Object playerChatMessage, Object unsignedContent) {
@@ -227,13 +284,27 @@ public class ModernChatSigningUtils {
         return false;
     }
 
-    public static CompletableFuture<Component> getChatDecorator(Player player, Component message) {
+    public static CompletableFuture<?> getChatDecorator(Player player, Component message) {
         try {
             Object nmsMinecraftServer = craftServerGetServerMethod.invoke(Bukkit.getServer());
             Object nmsChatDecorator = nmsGetDecoratorMethod.invoke(nmsMinecraftServer);
             Object nmsEntityPlayer = craftPlayerGetHandleMethod.invoke(player);
-            CompletableFuture<?> decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()));
-            return decorator.thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
+            CompletableFuture<?> decorator;
+            switch (nmsChatDecoratorDecorateMethod.getParameterCount()) {
+                case 2:
+                    decorator = ((CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()))).thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
+                    break;
+                case 3:
+                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                        decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()));
+                    } else {
+                        decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, getPlayerChatMessage(PlainTextComponentSerializer.plainText().serialize(message), message));
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + nmsChatDecoratorDecorateMethod.getParameterCount());
+            }
+            return decorator;
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

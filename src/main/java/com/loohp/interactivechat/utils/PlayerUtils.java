@@ -25,6 +25,7 @@ import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -98,6 +99,10 @@ public class PlayerUtils implements Listener {
     }
 
     public static void chatAsPlayer(Player player, String message) {
+        chatAsPlayer(player, message, null);
+    }
+
+    public static void chatAsPlayer(Player player, String message, Object unsignedContentOrResult) {
         if (Bukkit.isPrimaryThread()) {
             player.chat(message);
             return;
@@ -110,7 +115,19 @@ public class PlayerUtils implements Listener {
                     nmsPlayerConnectionChatMethod.invoke(playerConnection, message, true);
                     break;
                 case 3:
-                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, ModernChatSigningUtils.getPlayerChatMessage(message), true);
+                    Object playerChatMessage = ModernChatSigningUtils.getPlayerChatMessage(message);
+                    if (unsignedContentOrResult != null) {
+                        if (unsignedContentOrResult instanceof Component) {
+                            playerChatMessage = ModernChatSigningUtils.withUnsignedContent(playerChatMessage, ChatComponentType.IChatBaseComponent.convertTo((Component) unsignedContentOrResult, false));
+                        } else if (nmsPlayerConnectionChatMethod.getParameterTypes()[1].isInstance(unsignedContentOrResult)) {
+                            playerChatMessage = unsignedContentOrResult;
+                        } else if (ModernChatSigningUtils.hasWithResult()) {
+                            playerChatMessage = ModernChatSigningUtils.withResult(playerChatMessage, unsignedContentOrResult);
+                        } else {
+                            throw new IllegalArgumentException("Unexpected type: " + unsignedContentOrResult.getClass());
+                        }
+                    }
+                    nmsPlayerConnectionChatMethod.invoke(playerConnection, message, playerChatMessage, true);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + nmsPlayerConnectionChatMethod.getParameterCount());

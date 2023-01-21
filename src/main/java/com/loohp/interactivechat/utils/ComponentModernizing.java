@@ -50,11 +50,7 @@ public class ComponentModernizing {
             } else if (child instanceof TranslatableComponent) {
                 TranslatableComponent trans = (TranslatableComponent) child;
                 List<Component> withs = new ArrayList<>(trans.args());
-                int u = -1;
-                for (Component with : withs) {
-                    u++;
-                    withs.set(u, modernize(with));
-                }
+                withs.replaceAll(arg -> modernize(arg));
                 trans = trans.args(withs);
                 children.set(i, trans);
             }

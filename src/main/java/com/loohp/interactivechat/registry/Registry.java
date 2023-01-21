@@ -21,15 +21,14 @@
 package com.loohp.interactivechat.registry;
 
 import com.loohp.interactivechat.objectholders.MentionTagConverter;
-import net.kyori.adventure.text.ComponentLike;
-import net.kyori.adventure.text.TextComponent;
+import com.loohp.interactivechat.utils.ComponentReplacing;
+import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.regex.MatchResult;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class Registry {
@@ -40,7 +39,7 @@ public class Registry {
     public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 45;
 
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
-    public static final BiFunction<MatchResult, TextComponent.Builder, ComponentLike> ID_PATTERN_REPLACEMENT = (result, builder) -> builder.content(result.group(4) == null ? "" : result.group(4));
+    public static final Function<ComponentReplacing.ComponentMatchResult, Component> ID_PATTERN_REPLACEMENT = result -> result.group(4) == null ? Component.empty() : result.componentGroup(4);
     public static final Pattern CHR_ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\\\\:(.*?)\\\\:)?>)");
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");
     public static final Pattern ID_UNESCAPE_PATTERN = Pattern.compile("\\\\>");

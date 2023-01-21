@@ -22,11 +22,9 @@ package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -47,11 +45,11 @@ public class ProcessAccurateSender {
             uuid = UUID.fromString(matcher0.group(1));
         }
         component = ComponentReplacing.replace(component, PATTERN_0.pattern(), false, (result, matchedComponents) -> {
-            String replacement = result.group(2);
+            Component replacement = result.componentGroup(2);
             if (replacement == null) {
                 return Component.empty();
             } else {
-                return LegacyComponentSerializer.legacySection().deserialize(Registry.ID_UNESCAPE_PATTERN.matcher(replacement).replaceAll(">"));
+                return ComponentReplacing.replace(replacement, Registry.ID_UNESCAPE_PATTERN.pattern(), Component.text(">"));
             }
         });
         if (uuid == null) {

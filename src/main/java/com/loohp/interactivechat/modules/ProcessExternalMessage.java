@@ -231,6 +231,8 @@ public class ProcessExternalMessage {
         Component component = InteractiveChatComponentSerializer.gson().deserialize(json);
         Component originalComponent = component;
 
+        component = ComponentModernizing.modernize(component);
+
         try {
             if (LegacyComponentSerializer.legacySection().serialize(component).isEmpty()) {
                 return json;
@@ -294,9 +296,7 @@ public class ProcessExternalMessage {
             server = ICPlayer.LOCAL_SERVER_REPRESENTATION;
         }
 
-        component = ComponentModernizing.modernize(component);
-
-        component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Component.empty());
+        component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Registry.ID_PATTERN_REPLACEMENT);
 
         if (InteractiveChat.usePlayerName) {
             component = PlayernameDisplay.process(component, sender, receiver, unix);

@@ -104,13 +104,16 @@ public class ComponentReplacing {
         component = ComponentCompacting.optimize(component.children(children));
 
         if (escaping) {
-            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> result.groupComponent(1));
+            component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> result.componentGroup(1));
         }
 
         return component;
     }
 
     private static int toComponentIndex(int pos, String str) {
+        if (pos < 0) {
+            return pos;
+        }
         int actual = 0;
         for (int i = 0; i < pos;) {
             int codePoint = str.codePointAt(i);
@@ -212,15 +215,21 @@ public class ComponentReplacing {
             return backingResult.group(group);
         }
 
-        public Component groupComponent() {
+        public Component componentGroup() {
             int start = componentStart();
             int end = componentEnd();
+            if (start < 0 || end < 0) {
+                return null;
+            }
             return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
         }
 
-        public Component groupComponent(int group) {
+        public Component componentGroup(int group) {
             int start = componentStart(group);
             int end = componentEnd(group);
+            if (start < 0 || end < 0) {
+                return null;
+            }
             return ComponentCompacting.optimize(Component.empty().children(componentCharacters.subList(start, end)));
         }
 

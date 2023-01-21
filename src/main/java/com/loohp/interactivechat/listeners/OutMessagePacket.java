@@ -509,6 +509,8 @@ public class OutMessagePacket implements Listener {
                 return;
             }
 
+            component = ComponentModernizing.modernize(component);
+
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
             try {
                 if (legacyText.equals("") || InteractiveChat.messageToIgnore.stream().anyMatch(each -> legacyText.matches(each))) {
@@ -576,9 +578,7 @@ public class OutMessagePacket implements Listener {
                 InteractiveChat.keyPlayer.put(rawMessageKey, sender.get());
             }
 
-            component = ComponentModernizing.modernize(component);
-
-            component = component.replaceText(TextReplacementConfig.builder().match(Registry.ID_PATTERN).replacement(Registry.ID_PATTERN_REPLACEMENT).build());
+            component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Registry.ID_PATTERN_REPLACEMENT);
 
             UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
             PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);

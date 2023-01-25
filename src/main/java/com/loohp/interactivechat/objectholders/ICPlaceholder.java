@@ -34,28 +34,43 @@ public abstract class ICPlaceholder {
         }
         String firstChar = new String(Character.toChars(regex.codePointAt(0)));
         StringBuilder sb = new StringBuilder(firstChar);
-        boolean inCharSet = firstChar.equals("[");
+        String inCharSet = null;
+        if (firstChar.equals("[")) {
+            inCharSet = "]";
+        } else if (firstChar.equals("{")) {
+            inCharSet = "}";
+        }
         String lastChar = firstChar;
         boolean lastCharEscaped = false;
         for (int i = firstChar.length(); i < regex.length();) {
             String character = new String(Character.toChars(regex.codePointAt(i)));
             i += character.length();
-            boolean shouldNotAppend = lastChar.equals("?") || inCharSet || (!lastCharEscaped && lastChar.equals("\\"));
+            boolean shouldNotAppend = lastChar.equals("?") || inCharSet != null || (!lastCharEscaped && lastChar.equals("\\"));
             if (!lastChar.equals("\\")) {
-                if (inCharSet) {
-                    if (character.equals("]")) {
-                        inCharSet = false;
-                    }
+                if (character.equals(inCharSet)) {
+                    inCharSet = null;
                 } else {
-                    if (character.equals("[")) {
-                        inCharSet = true;
-                    } else if (character.equals("|")) {
-                        shouldNotAppend = true;
-                    } else {
-                        try {
-                            Pattern.compile(character);
-                        } catch (PatternSyntaxException e) {
+                    switch (character) {
+                        case "[": {
+                            inCharSet = "]";
+                            break;
+                        }
+                        case "{": {
+                            inCharSet = "}";
                             shouldNotAppend = true;
+                            break;
+                        }
+                        case "|": {
+                            shouldNotAppend = true;
+                            break;
+                        }
+                        default: {
+                            try {
+                                Pattern.compile(character);
+                            } catch (PatternSyntaxException e) {
+                                shouldNotAppend = true;
+                            }
+                            break;
                         }
                     }
                 }

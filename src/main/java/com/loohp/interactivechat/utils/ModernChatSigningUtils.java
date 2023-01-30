@@ -125,6 +125,11 @@ public class ModernChatSigningUtils {
                     if (!each.getName().equals("decorate")) {
                         return false;
                     }
+                    if (each.getParameterCount() == 2) {
+                        if (Arrays.stream(each.getParameterTypes()).noneMatch(m -> m.equals(nmsIChatBaseComponent))) {
+                            return false;
+                        }
+                    }
                     return Arrays.stream(each.getAnnotations()).noneMatch(m -> m.annotationType().getSimpleName().equals("DoNotUse"));
                 }).min(Comparator.comparing(each -> each.getParameterCount())).get();
                 nmsGetDecoratorMethod = Arrays.stream(nmsMinecraftServerClass.getMethods()).filter(each -> each.getReturnType().equals(nmsChatDecoratorClass)).findFirst().get();

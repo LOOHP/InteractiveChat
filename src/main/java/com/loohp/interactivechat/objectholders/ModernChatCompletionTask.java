@@ -101,18 +101,22 @@ public class ModernChatCompletionTask implements Listener {
                     List<String> oldList = registered.computeIfAbsent(tabCompleter, k -> new ArrayList<>());
                     List<String> add = tab.stream().filter(each -> !oldList.contains(each)).collect(Collectors.toList());
                     List<String> remove = oldList.stream().filter(each -> !tab.contains(each)).collect(Collectors.toList());
+                    oldList.removeAll(remove);
                     oldList.addAll(add);
 
-                    PacketContainer chatCompletionPacket1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
-                    chatCompletionPacket1.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[0]);
-                    chatCompletionPacket1.getModifier().write(1, add);
+                    if (!add.isEmpty()) {
+                        PacketContainer chatCompletionPacket1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
+                        chatCompletionPacket1.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[0]);
+                        chatCompletionPacket1.getModifier().write(1, add);
+                        InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket1);
+                    }
 
-                    PacketContainer chatCompletionPacket2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
-                    chatCompletionPacket2.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[1]);
-                    chatCompletionPacket2.getModifier().write(1, remove);
-
-                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket1);
-                    InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket2);
+                    if (!remove.isEmpty()) {
+                        PacketContainer chatCompletionPacket2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
+                        chatCompletionPacket2.getModifier().write(0, nmsClientboundCustomChatCompletionsPacketActions[1]);
+                        chatCompletionPacket2.getModifier().write(1, remove);
+                        InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket2);
+                    }
                 }
             }
         }, 0, 10);

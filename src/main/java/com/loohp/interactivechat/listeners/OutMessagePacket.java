@@ -469,13 +469,12 @@ public class OutMessagePacket implements Listener {
 
                     InteractiveChat.messagesCounter.getAndIncrement();
 
-                    PacketContainer packetOriginal = event.getPacket();
+                    PacketContainer packet = event.getPacket();
                     boolean readOnly = event.isReadOnly();
                     event.setReadOnly(false);
                     event.setCancelled(true);
                     event.setReadOnly(readOnly);
                     Player receiver = event.getPlayer();
-                    PacketContainer packet = packetOriginal.deepClone();
                     UUID messageUUID = UUID.randomUUID();
 
                     ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);

@@ -45,9 +45,12 @@ public abstract class ICPlaceholder {
         for (int i = firstChar.length(); i < regex.length();) {
             String character = new String(Character.toChars(regex.codePointAt(i)));
             i += character.length();
-            boolean shouldNotAppend = lastChar.equals("?") || inCharSet != null || (!lastCharEscaped && lastChar.equals("\\"));
+            boolean shouldNotAppend = lastChar.equals("?") || inCharSet != null;
             if (!lastChar.equals("\\")) {
                 if (character.equals(inCharSet)) {
+                    if (inCharSet.equals("]")) {
+                        sb.append("\u00A7");
+                    }
                     inCharSet = null;
                 } else {
                     switch (character) {
@@ -64,6 +67,13 @@ public abstract class ICPlaceholder {
                             shouldNotAppend = true;
                             break;
                         }
+                        case "<": {
+                            if (lastChar.equals("?")) {
+                                inCharSet = ">";
+                                shouldNotAppend = true;
+                            }
+                            break;
+                        }
                         default: {
                             try {
                                 Pattern.compile(character);
@@ -77,13 +87,17 @@ public abstract class ICPlaceholder {
             }
             if (!shouldNotAppend) {
                 try {
-                    Pattern.compile(regex.substring(0, i - 1) + regex.substring(i));
+                    Pattern.compile(regex.substring(0, i - (lastChar.equals("\\") ? 2 : 1)) + regex.substring(i));
                 } catch (PatternSyntaxException e) {
                     shouldNotAppend = true;
                 }
             }
             if (!shouldNotAppend) {
-                sb.append("(?:\u00A7.)?");
+                if (!lastCharEscaped && lastChar.equals("\\")) {
+                    sb.insert(sb.length() - 1, "(?:\u00A7.)?");
+                } else {
+                    sb.append("(?:\u00A7.)?");
+                }
             }
             sb.append(character);
             if (lastCharEscaped) {

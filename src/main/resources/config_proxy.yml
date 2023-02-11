@@ -7,8 +7,9 @@ Settings:
 
   TagEveryIdentifiableMessage: false
 
-  #Handling messages from the Proxy
-  HandlingProxyMessage: true
+  #Handle messages from the Proxy
+  #You probably won't want to touch this
+  HandleProxyMessage: true
 
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.

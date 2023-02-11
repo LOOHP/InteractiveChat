@@ -125,7 +125,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
-    public static boolean handlingProxyMessage = true;
+    public static boolean handleProxyMessage = true;
     public static byte chatEventPriority = EventPriority.HIGH;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -185,7 +185,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
-        handlingProxyMessage = config.getConfiguration().getBoolean("Settings.HandlingProxyMessage");
+        handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "HIGH";
@@ -721,7 +721,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
-        if (!handlingProxyMessage) return;
+        if (!handleProxyMessage) return;
         ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
         pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
@@ -792,7 +792,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
-        if (!handlingProxyMessage) return;
+        if (!handleProxyMessage) return;
         ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
         pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {

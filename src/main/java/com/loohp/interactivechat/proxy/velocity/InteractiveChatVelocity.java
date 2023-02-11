@@ -135,7 +135,7 @@ public class InteractiveChatVelocity {
     public static Map<String, List<ICPlaceholder>> placeholderList = new HashMap<>();
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
-    public static boolean handlingProxyMessage = true;
+    public static boolean handleProxyMessage = true;
     public static PostOrder chatEventPostOrder = PostOrder.LATE;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -383,7 +383,7 @@ public class InteractiveChatVelocity {
         parseCommands = config.getConfiguration().getStringList("Settings.CommandsToParse");
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
-        handlingProxyMessage = config.getConfiguration().getBoolean("Settings.HandlingProxyMessage");
+        handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "LATE";
@@ -780,7 +780,7 @@ public class InteractiveChatVelocity {
             }
         }).delay(100, TimeUnit.MILLISECONDS).schedule();
 
-        if (!handlingProxyMessage) return;
+        if (!handleProxyMessage) return;
         VelocityServerConnection serverConnection = ((ConnectedPlayer) event.getPlayer()).getConnectedServer();
         ChannelPipeline pipeline = serverConnection.ensureConnected().getChannel().pipeline();
 
@@ -837,7 +837,7 @@ public class InteractiveChatVelocity {
             }
         }
 
-        if (!handlingProxyMessage) return;
+        if (!handleProxyMessage) return;
         ConnectedPlayer userConnection = (ConnectedPlayer) player;
         ChannelPipeline pipeline = userConnection.getConnection().getChannel().pipeline();
 

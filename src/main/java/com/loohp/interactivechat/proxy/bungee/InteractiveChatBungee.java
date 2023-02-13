@@ -126,6 +126,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
     public static boolean handleProxyMessage = true;
+    public static List<String> handlePacketType = new ArrayList<>();
     public static byte chatEventPriority = EventPriority.HIGH;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -186,6 +187,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
         handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
+        handlePacketType = config.getConfiguration().getStringList("Settings.HandlePacketType");
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "HIGH";
@@ -728,7 +730,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat) {
+                    if (obj instanceof Chat && handlePacketType.contains("CHAT")) {
                         Chat packet = (Chat) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
@@ -738,7 +740,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
                             }
                         }
-                    } else if (obj instanceof ClientChat) {
+                    } else if (obj instanceof ClientChat && handlePacketType.contains("CHAT")) {
                         ClientChat packet = (ClientChat) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
@@ -799,7 +801,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat) {
+                    if (obj instanceof Chat && handlePacketType.contains("CHAT")) {
                         Chat packet = (Chat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getPosition();
@@ -815,7 +817,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 return;
                             }
                         }
-                    } else if (obj instanceof SystemChat) {
+                    } else if (obj instanceof SystemChat && handlePacketType.contains("SYSTEM_CHAT")) {
                         SystemChat packet = (SystemChat) obj;
                         String message = packet.getMessage();
                         int position = packet.getPosition();
@@ -849,7 +851,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                             }
                         }
                     */
-                    } else if (obj instanceof Title) {
+                    } else if (obj instanceof Title && handlePacketType.contains("TITLE")) {
                         Title packet = (Title) obj;
                         String message = packet.getText();
                         if (packet.getAction() == null || packet.getAction().equals(Action.TITLE) || packet.getAction().equals(Action.SUBTITLE) || packet.getAction().equals(Action.ACTIONBAR)) {
@@ -866,7 +868,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 }
                             }
                         }
-                    } else if (obj instanceof Subtitle) {
+                    } else if (obj instanceof Subtitle && handlePacketType.contains("TITLE")) {
                         Subtitle packet = (Subtitle) obj;
                         String message = packet.getText();
                         if (message != null) {

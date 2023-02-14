@@ -34,11 +34,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
-import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
-import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
-import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
-import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
-import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
+import com.loohp.interactivechat.proxy.objectholders.*;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
@@ -136,6 +132,7 @@ public class InteractiveChatVelocity {
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
     public static boolean handleProxyMessage = true;
+    public static HandlePacket handlePacketType = new HandlePacket();
     public static PostOrder chatEventPostOrder = PostOrder.LATE;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -384,6 +381,7 @@ public class InteractiveChatVelocity {
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
         handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
+        handlePacketType = new HandlePacket(config.getConfiguration().getStringList("Settings.HandlePacketType"));
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "LATE";
@@ -788,7 +786,7 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat) {
+                    if (obj instanceof LegacyChat && handlePacketType.isChat()) {
                         LegacyChat packet = (LegacyChat) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
@@ -799,7 +797,7 @@ public class InteractiveChatVelocity {
                                 list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
                             }
                         }
-                    } else if (obj instanceof SessionPlayerChat) {
+                    } else if (obj instanceof SessionPlayerChat && handlePacketType.isChat()) {
                         SessionPlayerChat packet = (SessionPlayerChat) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
@@ -845,7 +843,7 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat) {
+                    if (obj instanceof LegacyChat && handlePacketType.isChat()) {
                         LegacyChat packet = (LegacyChat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getType();
@@ -861,7 +859,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
-                    } else if (obj instanceof SystemChat) {
+                    } else if (obj instanceof SystemChat && handlePacketType.isSystemChat()) {
                         SystemChat packet = (SystemChat) obj;
                         Method getComponentMethod = packet.getClass().getMethod("getComponent");
                         String message = NativeAdventureConverter.jsonStringFromNative(getComponentMethod.invoke(packet));
@@ -901,7 +899,7 @@ public class InteractiveChatVelocity {
                             }
                         }
                     */
-                    } else if (obj instanceof LegacyTitlePacket) {
+                    } else if (obj instanceof LegacyTitlePacket && handlePacketType.isTitle()) {
                         LegacyTitlePacket packet = (LegacyTitlePacket) obj;
                         String message = packet.getComponent();
                         if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
@@ -918,7 +916,7 @@ public class InteractiveChatVelocity {
                                 }
                             }
                         }
-                    } else if (obj instanceof TitleTextPacket) {
+                    } else if (obj instanceof TitleTextPacket && handlePacketType.isTitle()) {
                         TitleTextPacket packet = (TitleTextPacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {
@@ -933,7 +931,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
-                    } else if (obj instanceof TitleSubtitlePacket) {
+                    } else if (obj instanceof TitleSubtitlePacket && handlePacketType.isTitle()) {
                         TitleSubtitlePacket packet = (TitleSubtitlePacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {
@@ -948,7 +946,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
-                    } else if (obj instanceof TitleActionbarPacket) {
+                    } else if (obj instanceof TitleActionbarPacket && handlePacketType.isActionBar()) {
                         TitleActionbarPacket packet = (TitleActionbarPacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {

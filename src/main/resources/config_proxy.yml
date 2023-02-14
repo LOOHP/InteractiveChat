@@ -11,6 +11,17 @@ Settings:
   #You probably won't want to touch this
   HandleProxyMessage: true
 
+  #All types
+  # CHAT - Player's chat messages
+  # SYSTEM_CHAT - Server's messages
+  # TITLE
+  # ACTIONBAR
+  HandlePacketType:
+    - CHAT
+    - SYSTEM_CHAT
+    - TITLE
+    - ACTIONBAR
+
   #A list of private message commands on your server
   #The plugin will attempt to parse placeholder inside these commands.
   #This list is in REGEX, so you can do some more advanced matches.

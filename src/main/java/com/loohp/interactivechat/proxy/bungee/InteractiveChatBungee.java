@@ -122,7 +122,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
     public static boolean handleProxyMessage = true;
-    public static HandlePacket handlePacketType = new HandlePacket();
+    public static ProxyHandlePacketTypes proxyHandlePacketTypesType = ProxyHandlePacketTypes.ALL;
     public static byte chatEventPriority = EventPriority.HIGH;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -183,7 +183,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
         handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
-        handlePacketType = new HandlePacket(config.getConfiguration().getStringList("Settings.HandlePacketType"));
+        proxyHandlePacketTypesType = ProxyHandlePacketTypes.fromStringList(config.getConfiguration().getStringList("Settings.HandlePacketType"));
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "HIGH";
@@ -726,17 +726,20 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat && handlePacketType.isChat()) {
+                    if (obj instanceof Chat) {
                         Chat packet = (Chat) obj;
                         UUID uuid = player.getUniqueId();
-                        String message = packet.getMessage();
-                        if (uuid != null && message != null) {
-                            Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
-                            if (list != null) {
-                                list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
+                        byte position = packet.getPosition();
+                        if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
+                            String message = packet.getMessage();
+                            if (uuid != null && message != null) {
+                                Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
+                                if (list != null) {
+                                    list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
+                                }
                             }
                         }
-                    } else if (obj instanceof ClientChat && handlePacketType.isChat()) {
+                    } else if (obj instanceof ClientChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) {
                         ClientChat packet = (ClientChat) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
@@ -797,23 +800,25 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof Chat && handlePacketType.isChat()) {
+                    if (obj instanceof Chat) {
                         Chat packet = (Chat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getPosition();
-                        if (message != null) {
-                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                        if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
+                            if (message != null) {
+                                if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                    message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                    if (Registry.ID_PATTERN.matcher(message).find()) {
+                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    }
+                                    packet.setMessage(message);
+                                } else if (hasInteractiveChat(player.getServer())) {
+                                    messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
+                                    return;
                                 }
-                                packet.setMessage(message);
-                            } else if (hasInteractiveChat(player.getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
-                                return;
                             }
                         }
-                    } else if (obj instanceof SystemChat && handlePacketType.isSystemChat()) {
+                    } else if (obj instanceof SystemChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
                         SystemChat packet = (SystemChat) obj;
                         String message = packet.getMessage();
                         int position = packet.getPosition();
@@ -847,7 +852,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                             }
                         }
                     */
-                    } else if (obj instanceof Title && handlePacketType.isTitle()) {
+                    } else if (obj instanceof Title && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         Title packet = (Title) obj;
                         String message = packet.getText();
                         if (packet.getAction() == null || packet.getAction().equals(Action.TITLE) || packet.getAction().equals(Action.SUBTITLE) || packet.getAction().equals(Action.ACTIONBAR)) {
@@ -864,7 +869,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                 }
                             }
                         }
-                    } else if (obj instanceof Subtitle && handlePacketType.isTitle()) {
+                    } else if (obj instanceof Subtitle && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         Subtitle packet = (Subtitle) obj;
                         String message = packet.getText();
                         if (message != null) {

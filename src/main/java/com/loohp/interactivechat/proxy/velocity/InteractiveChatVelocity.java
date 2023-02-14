@@ -132,7 +132,7 @@ public class InteractiveChatVelocity {
     public static boolean useAccurateSenderFinder = true;
     public static boolean tagEveryIdentifiableMessage = false;
     public static boolean handleProxyMessage = true;
-    public static HandlePacket handlePacketType = new HandlePacket();
+    public static ProxyHandlePacketTypes proxyHandlePacketTypesType = ProxyHandlePacketTypes.ALL;
     public static PostOrder chatEventPostOrder = PostOrder.LATE;
     public static int delay = 200;
     public static ProxyPlayerCooldownManager playerCooldownManager;
@@ -381,7 +381,7 @@ public class InteractiveChatVelocity {
         useAccurateSenderFinder = config.getConfiguration().getBoolean("Settings.UseAccurateSenderParser");
         tagEveryIdentifiableMessage = config.getConfiguration().getBoolean("Settings.TagEveryIdentifiableMessage");
         handleProxyMessage = config.getConfiguration().getBoolean("Settings.HandleProxyMessage");
-        handlePacketType = new HandlePacket(config.getConfiguration().getStringList("Settings.HandlePacketType"));
+        proxyHandlePacketTypesType = ProxyHandlePacketTypes.fromStringList(config.getConfiguration().getStringList("Settings.HandlePacketType"));
         String chatEventPriorityString = config.getConfiguration().getString("Settings.ChatEventPriority").toUpperCase();
         if (chatEventPriorityString.equals("DEFAULT")) {
             chatEventPriorityString = "LATE";
@@ -786,18 +786,20 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat && handlePacketType.isChat()) {
+                    if (obj instanceof LegacyChat) {
                         LegacyChat packet = (LegacyChat) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
                         byte position = packet.getType();
-                        if ((position == 0 || position == 1) && uuid != null && message != null) {
-                            Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
-                            if (list != null) {
-                                list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
+                        if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
+                            if ((position == 0 || position == 1) && uuid != null && message != null) {
+                                Set<ForwardedMessageData> list = forwardedMessages.get(uuid);
+                                if (list != null) {
+                                    list.add(new ForwardedMessageData(message, ChatPacketType.LEGACY_CHAT, System.currentTimeMillis()));
+                                }
                             }
                         }
-                    } else if (obj instanceof SessionPlayerChat && handlePacketType.isChat()) {
+                    } else if (obj instanceof SessionPlayerChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) {
                         SessionPlayerChat packet = (SessionPlayerChat) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
@@ -843,23 +845,25 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat && handlePacketType.isChat()) {
+                    if (obj instanceof LegacyChat) {
                         LegacyChat packet = (LegacyChat) obj;
                         String message = packet.getMessage();
                         byte position = packet.getType();
-                        if ((position == 0 || position == 1) && message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                        if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
+                            if ((position == 0 || position == 1) && message != null) {
+                                if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                    message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
+                                    if (Registry.ID_PATTERN.matcher(message).find()) {
+                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    }
+                                    packet.setMessage(message);
+                                } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
+                                    messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
+                                    return;
                                 }
-                                packet.setMessage(message);
-                            } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.LEGACY_CHAT, packet);
-                                return;
                             }
                         }
-                    } else if (obj instanceof SystemChat && handlePacketType.isSystemChat()) {
+                    } else if (obj instanceof SystemChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
                         SystemChat packet = (SystemChat) obj;
                         Method getComponentMethod = packet.getClass().getMethod("getComponent");
                         String message = NativeAdventureConverter.jsonStringFromNative(getComponentMethod.invoke(packet));
@@ -899,7 +903,7 @@ public class InteractiveChatVelocity {
                             }
                         }
                     */
-                    } else if (obj instanceof LegacyTitlePacket && handlePacketType.isTitle()) {
+                    } else if (obj instanceof LegacyTitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         LegacyTitlePacket packet = (LegacyTitlePacket) obj;
                         String message = packet.getComponent();
                         if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
@@ -916,7 +920,7 @@ public class InteractiveChatVelocity {
                                 }
                             }
                         }
-                    } else if (obj instanceof TitleTextPacket && handlePacketType.isTitle()) {
+                    } else if (obj instanceof TitleTextPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleTextPacket packet = (TitleTextPacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {
@@ -931,7 +935,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
-                    } else if (obj instanceof TitleSubtitlePacket && handlePacketType.isTitle()) {
+                    } else if (obj instanceof TitleSubtitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleSubtitlePacket packet = (TitleSubtitlePacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {
@@ -946,7 +950,7 @@ public class InteractiveChatVelocity {
                                 return;
                             }
                         }
-                    } else if (obj instanceof TitleActionbarPacket && handlePacketType.isActionBar()) {
+                    } else if (obj instanceof TitleActionbarPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR)) {
                         TitleActionbarPacket packet = (TitleActionbarPacket) obj;
                         String message = packet.getComponent();
                         if (message != null) {

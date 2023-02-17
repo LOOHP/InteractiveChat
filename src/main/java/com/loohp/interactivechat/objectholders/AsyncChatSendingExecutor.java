@@ -199,7 +199,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                 OutboundPacket out = sendingQueue.poll();
                 try {
                     if (out.getReciever().isOnline()) {
-                        InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), false);
+                        InteractiveChat.protocolManager.sendServerPacket(out.getReciever(), out.getPacket(), true);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

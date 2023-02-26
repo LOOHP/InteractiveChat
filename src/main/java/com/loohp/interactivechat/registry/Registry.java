@@ -44,7 +44,7 @@ public class Registry {
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");
     public static final Pattern ID_UNESCAPE_PATTERN = Pattern.compile("\\\\>");
 
-    public static final MentionTagConverter MENTION_TAG_CONVERTER = new MentionTagConverter("<IC#%s>");
+    public static final MentionTagConverter MENTION_TAG_CONVERTER = new MentionTagConverter("<IC^%s>");
 
     public static final int MINECRAFT_1_16_PROTOCOL_VERSION = 735;
     public static final int MINECRAFT_1_19_1_PROTOCOL_VERSION = 760;

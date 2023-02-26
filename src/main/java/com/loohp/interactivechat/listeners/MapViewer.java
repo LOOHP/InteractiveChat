@@ -60,6 +60,28 @@ public class MapViewer implements Listener {
 
     public static final Map<Player, ItemStack> MAP_VIEWERS = new ConcurrentHashMap<>();
 
+    private static PacketContainer getMainHandSlotPacket(Player player, ItemStack item) {
+        PacketContainer packet1;
+        if (InteractiveChat.version.isOld()) {
+            packet1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_SLOT);
+            packet1.getIntegers().write(0, 0);
+            packet1.getIntegers().write(1, player.getInventory().getHeldItemSlot() + 36);
+            packet1.getItemModifier().write(0, item);
+        } else {
+            packet1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.ENTITY_EQUIPMENT);
+            packet1.getIntegers().write(0, player.getEntityId());
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+                List<Pair<ItemSlot, ItemStack>> list = new ArrayList<>();
+                list.add(new Pair<>(ItemSlot.MAINHAND, item));
+                packet1.getSlotStackPairLists().write(0, list);
+            } else {
+                packet1.getItemSlots().write(0, ItemSlot.MAINHAND);
+                packet1.getItemModifier().write(0, item);
+            }
+        }
+        return packet1;
+    }
+
     @SuppressWarnings("deprecation")
     public static void showMap(Player player, ItemStack item) {
         if (!FilledMapUtils.isFilledMap(item)) {
@@ -70,24 +92,7 @@ public class MapViewer implements Listener {
             int mapId = FilledMapUtils.getMapId(item);
             MapView mapView = FilledMapUtils.getMapView(item);
 
-            PacketContainer packet1;
-            if (InteractiveChat.version.isOld()) {
-                packet1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SET_SLOT);
-                packet1.getIntegers().write(0, 0);
-                packet1.getIntegers().write(1, player.getInventory().getHeldItemSlot() + 36);
-                packet1.getItemModifier().write(0, item);
-            } else {
-                packet1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.ENTITY_EQUIPMENT);
-                packet1.getIntegers().write(0, player.getEntityId());
-                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-                    List<Pair<ItemSlot, ItemStack>> list = new ArrayList<>();
-                    list.add(new Pair<>(ItemSlot.MAINHAND, item));
-                    packet1.getSlotStackPairLists().write(0, list);
-                } else {
-                    packet1.getItemSlots().write(0, ItemSlot.MAINHAND);
-                    packet1.getItemModifier().write(0, item);
-                }
-            }
+            PacketContainer packet1 = getMainHandSlotPacket(player, item);
 
             PacketContainer packet2 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.MAP);
             int mapIconFieldPos = 2;
@@ -170,7 +175,7 @@ public class MapViewer implements Listener {
         boolean removed = MAP_VIEWERS.remove(player) != null;
 
         if (removed) {
-            player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+            InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
         }
     }
 
@@ -183,7 +188,7 @@ public class MapViewer implements Listener {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
-                    player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                    InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
                 }
             }, 1);
         } else {
@@ -193,7 +198,7 @@ public class MapViewer implements Listener {
                 if (event.getClick().equals(ClickType.SWAP_OFFHAND) && event.getClickedInventory().equals(player.getInventory()) && event.getSlot() == player.getInventory().getHeldItemSlot()) {
                     event.setCancelled(true);
                 }
-                player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
             }
         }
     }
@@ -216,7 +221,7 @@ public class MapViewer implements Listener {
         }
 
         if (removed) {
-            player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+            InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
         }
     }
 
@@ -231,7 +236,7 @@ public class MapViewer implements Listener {
         boolean removed = MAP_VIEWERS.remove(player) != null;
 
         if (removed) {
-            player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+            InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
         }
     }
 
@@ -248,14 +253,14 @@ public class MapViewer implements Listener {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
-                    player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                    InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
                 }
             }, 1);
         } else {
             boolean removed = MAP_VIEWERS.remove(player) != null;
 
             if (removed) {
-                player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
             }
         }
     }
@@ -269,7 +274,7 @@ public class MapViewer implements Listener {
             boolean removed = MAP_VIEWERS.remove(player) != null;
 
             if (removed) {
-                player.getInventory().setItemInHand(player.getInventory().getItemInHand());
+                InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
             }
         }
     }

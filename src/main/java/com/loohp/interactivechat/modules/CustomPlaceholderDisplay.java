@@ -53,8 +53,11 @@ public class CustomPlaceholderDisplay {
             }
             CustomPlaceholder cp = (CustomPlaceholder) icplaceholder;
 
-            ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : ICPlayerFactory.getICPlayer(reciever);
+            ICPlayer parseplayer = cp.getParsePlayer().equals(ParsePlayer.SENDER) ? optplayer.orElse(null) : ICPlayerFactory.getICPlayer(reciever);
 
+            if (parseplayer == null) {
+                continue;
+            }
             if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
                 ICPlayer sender = optplayer.get();
                 if (!PlayerUtils.hasPermission(sender.getUniqueId(), cp.getPermission(), true, 5)) {

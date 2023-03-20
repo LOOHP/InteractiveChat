@@ -123,11 +123,10 @@ public class ICMaterial {
     private static String format(String name) {
         try {
             formatMethod.setAccessible(true);
-            formatMethod.invoke(null, name);
+            return (String) formatMethod.invoke(null, name);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     private final XMaterial xMaterial;

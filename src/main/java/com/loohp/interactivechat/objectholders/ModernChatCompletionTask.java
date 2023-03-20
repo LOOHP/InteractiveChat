@@ -45,7 +45,9 @@ public class ModernChatCompletionTask implements Listener {
     static {
         if (isSupported()) {
             try {
-                Class<?> nmsClientboundCustomChatCompletionsPacketActionClass = NMSUtils.getNMSClass("net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket$a");
+                Class<?> nmsClientboundCustomChatCompletionsPacketActionClass = NMSUtils.getNMSClass(
+                        "net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket$Action",
+                        "net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket$a");
                 nmsClientboundCustomChatCompletionsPacketActions = nmsClientboundCustomChatCompletionsPacketActionClass.getEnumConstants();
             } catch (Throwable e) {
                 e.printStackTrace();

@@ -326,20 +326,20 @@ public class LanguageUtils {
             path = "item." + material.getKey().getNamespace() + "." + material.getKey().getKey();
         }
 
-        if (itemStack.getType().equals(Material.POTION) || itemStack.getType().equals(Material.SPLASH_POTION) || itemStack.getType().equals(Material.LINGERING_POTION) || itemStack.getType().equals(Material.TIPPED_ARROW)) {
+        if (material.equals(Material.POTION) || material.equals(Material.SPLASH_POTION) || material.equals(Material.LINGERING_POTION) || material.equals(Material.TIPPED_ARROW)) {
             PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
             String namespace = PotionUtils.getVanillaPotionName(meta.getBasePotionData().getType());
             path += ".effect." + namespace;
         }
 
-        if (itemStack.getType().equals(Material.PLAYER_HEAD)) {
+        if (material.equals(Material.PLAYER_HEAD)) {
             String owner = NBTEditor.getString(itemStack, "SkullOwner", "Name");
             if (owner != null) {
                 path += ".named";
             }
         }
 
-        if (itemStack.getType().equals(Material.SHIELD)) {
+        if (material.equals(Material.SHIELD)) {
             if (NBTEditor.contains(itemStack, "BlockEntityTag")) {
                 DyeColor color = DyeColor.WHITE;
                 if (!(itemStack.getItemMeta() instanceof BannerMeta)) {
@@ -359,10 +359,14 @@ public class LanguageUtils {
             }
         }
 
-        if (itemStack.getType().equals(Material.COMPASS)) {
+        if (material.equals(Material.COMPASS)) {
             if (CompassUtils.isLodestoneCompass(itemStack)) {
                 path = "item.minecraft.lodestone_compass";
             }
+        }
+
+        if (material.name().contains("SMITHING_TEMPLATE")) {
+            path = "item.minecraft.smithing_template";
         }
 
         return path;

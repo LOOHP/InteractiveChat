@@ -83,7 +83,7 @@ public class BungeeMessageSender {
         String hash = HashUtils.createSha1String(new ByteArrayInputStream(data));
 
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        if (players.size() <= 0) {
+        if (players.size() == 0) {
             return false;
         }
         Player player = players.stream().skip(random.nextInt(players.size())).findAny().orElse(null);
@@ -104,6 +104,10 @@ public class BungeeMessageSender {
                 newSet.add(hash);
                 sent.put(index, newSet);
             }
+        }
+
+        if (InteractiveChat.pluginMessagePacketVerbose) {
+            Bukkit.getConsoleSender().sendMessage("IC Outbound - ID " + packetId + " via " + player.getName());
         }
 
         int packetNumber = random.nextInt();

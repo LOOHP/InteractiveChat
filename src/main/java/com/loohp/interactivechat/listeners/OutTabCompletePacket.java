@@ -51,10 +51,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OutTabCompletePacket {
 
-    private static Map<String, UUID> playernames = new HashMap<>();
+    private static AtomicReference<Map<String, UUID>> playernames = new AtomicReference<>(new HashMap<>());
 
     public static void tabCompleteListener() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -70,7 +71,7 @@ public class OutTabCompletePacket {
                         playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
                     }
                 }
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames = playernames);
+                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames.set(playernames));
             }
         }, 0, 100);
 
@@ -94,7 +95,7 @@ public class OutTabCompletePacket {
                     if (pos < 0) {
                         if (InteractiveChat.useTooltipOnTab) {
                             ICPlayer icplayer = null;
-                            for (Entry<String, UUID> entry : playernames.entrySet()) {
+                            for (Entry<String, UUID> entry : playernames.get().entrySet()) {
                                 if (entry.getKey().equalsIgnoreCase(text)) {
                                     icplayer = ICPlayerFactory.getICPlayer(entry.getValue());
                                     if (icplayer == null) {

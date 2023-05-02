@@ -89,6 +89,9 @@ public class ConfigManager {
 
     @SuppressWarnings("deprecation")
     public static void loadConfig() {
+        InteractiveChat.extraProxiedPacketProcessingDelay =  getConfig().getInt("Options.ExtraProxiedPacketProcessingDelay");
+        InteractiveChat.pluginMessagePacketVerbose =  getConfig().getBoolean("Options.PluginMessagePacketVerbose");
+
         InteractiveChat.commandsEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Commands").toUpperCase());
         InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat").toUpperCase());
 

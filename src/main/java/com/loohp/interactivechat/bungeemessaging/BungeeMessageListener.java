@@ -120,6 +120,9 @@ public class BungeeMessageListener implements PluginMessageListener {
         }
 
         try {
+            if (InteractiveChat.pluginMessagePacketVerbose) {
+                Bukkit.getConsoleSender().sendMessage("IC Inbound - ID " + packetId + " via " + pluginMessagingPlayer.getName());
+            }
             ByteArrayDataInput input = ByteStreams.newDataInput(data);
 
             switch (packetId) {

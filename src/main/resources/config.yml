@@ -4,6 +4,8 @@ ConfigVersion: "${project.version}"
 Options:
   Updater: true
   ShowCancelledNotice: true
+  ExtraProxiedPacketProcessingDelay: 0
+  PluginMessagePacketVerbose: false
 
 Messages:
   NoPermission: "&cYou do not have permission to use that command!"

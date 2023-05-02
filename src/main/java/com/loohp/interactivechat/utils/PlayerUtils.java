@@ -51,7 +51,6 @@ import java.util.concurrent.TimeoutException;
 public class PlayerUtils implements Listener {
 
     private static final Map<UUID, Map<String, PermissionCache>> PERMISSION_CACHE = new ConcurrentHashMap<>();
-    private static final ItemStack AIR = new ItemStack(Material.AIR);
 
     private static Class<?> craftPlayerClass;
     private static Method craftPlayerGetHandleMethod;
@@ -225,18 +224,16 @@ public class PlayerUtils implements Listener {
     public static ItemStack getHeldItem(ICPlayer player) {
         ItemStack item;
         if (InteractiveChat.version.isOld()) {
-            if (player.getEquipment().getItemInHand() == null) {
-                item = AIR.clone();
-            } else if (player.getEquipment().getItemInHand().getType().equals(Material.AIR)) {
-                item = AIR.clone();
+            ItemStack held = player.getEquipment().getItemInHand();
+            if (held == null || held.getType().equals(Material.AIR)) {
+                item = new ItemStack(Material.AIR);
             } else {
                 item = player.getEquipment().getItemInHand().clone();
             }
         } else {
-            if (player.getEquipment().getItemInMainHand() == null) {
-                item = AIR.clone();
-            } else if (player.getEquipment().getItemInMainHand().getType().equals(Material.AIR)) {
-                item = AIR.clone();
+            ItemStack held = player.getEquipment().getItemInMainHand();
+            if (held == null || held.getType().equals(Material.AIR)) {
+                item = new ItemStack(Material.AIR);
             } else {
                 item = player.getEquipment().getItemInMainHand().clone();
             }

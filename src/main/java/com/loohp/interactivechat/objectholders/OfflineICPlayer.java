@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class OfflineICPlayer {
@@ -166,27 +167,15 @@ public class OfflineICPlayer {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OfflineICPlayer that = (OfflineICPlayer) o;
+        return Objects.equals(uuid, that.uuid);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof OfflineICPlayer)) {
-            return false;
-        }
-        OfflineICPlayer other = (OfflineICPlayer) obj;
-        if (uuid == null) {
-            return other.uuid == null;
-        } else {
-            return uuid.equals(other.uuid);
-        }
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
-
 }

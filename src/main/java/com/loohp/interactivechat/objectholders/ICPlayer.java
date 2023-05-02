@@ -212,28 +212,4 @@ public class ICPlayer extends OfflineICPlayer {
         return this;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof ICPlayer)) {
-            return false;
-        }
-        ICPlayer other = (ICPlayer) obj;
-        if (uuid == null) {
-            return other.uuid == null;
-        } else {
-            return uuid.equals(other.uuid);
-        }
-    }
-
 }

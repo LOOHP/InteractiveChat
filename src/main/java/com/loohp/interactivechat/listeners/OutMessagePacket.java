@@ -169,7 +169,7 @@ public class OutMessagePacket implements Listener {
                                     break;
                                 }
                             }
-                            if (positionOfSignedContent <= 0) {
+                            if (positionOfSignedContent == 0) {
                                 throw new RuntimeException("Unable to find index of field \"a\"");
                             }
                             for (ChatComponentType t : ChatComponentType.byPriority()) {
@@ -230,6 +230,7 @@ public class OutMessagePacket implements Listener {
             }));
 
             if (InteractiveChat.version.isOlderOrEqualTo(MCVersion.V1_19)) {
+                //noinspection deprecation
                 PACKET_HANDLERS.put(PacketType.Play.Server.CHAT_PREVIEW, new PacketHandler(event -> {
                     return InteractiveChat.chatListener;
                 }, event -> {
@@ -565,7 +566,7 @@ public class OutMessagePacket implements Listener {
                         SERVICE.execute(() -> {
                             processPacket(receiver, determinedSender, packet, messageUUID, false, packetHandler);
                         }, receiver, messageUUID);
-                    }, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50));
+                    }, (int) Math.ceil((double) InteractiveChat.remoteDelay / 50) + InteractiveChat.extraProxiedPacketProcessingDelay);
                     return;
                 }
             }

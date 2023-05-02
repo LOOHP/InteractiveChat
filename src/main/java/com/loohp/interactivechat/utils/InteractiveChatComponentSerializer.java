@@ -332,17 +332,11 @@ public class InteractiveChatComponentSerializer {
 
         @Override
         public @NotNull Component deserialize(@NotNull String input) {
-            if (input.startsWith("\"") && input.endsWith("\"")) {
-                return Component.text(input.substring(1, input.length() - 1));
-            }
             return instance.deserialize(input);
         }
 
         @Override
         public @Nullable Component deserializeOr(@Nullable String input, @Nullable Component fallback) {
-            if (input != null && input.startsWith("\"") && input.endsWith("\"")) {
-                return Component.text(input.substring(1, input.length() - 1));
-            }
             return instance.deserializeOr(input, fallback);
         }
 

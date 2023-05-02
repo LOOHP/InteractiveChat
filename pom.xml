@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.2.6.0</version>
+	<version>4.2.6.1</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -450,37 +450,37 @@
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-gson</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-legacy</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-plain</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-api</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-nbt</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-minimessage</artifactId>
-			<version>4.13.0</version>
+			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -492,7 +492,7 @@
 		<dependency>
 			<groupId>com.github.MylesIsCool</groupId>
 			<artifactId>ViaVersion</artifactId>
-			<version>3.2.1</version>
+			<version>4.6.2</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

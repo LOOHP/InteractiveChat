@@ -129,6 +129,9 @@ public class InteractiveChat extends JavaPlugin {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static Optional<Character> chatAltColorCode = Optional.empty();
 
+    public static int extraProxiedPacketProcessingDelay;
+    public static boolean pluginMessagePacketVerbose;
+
     public static Boolean essentialsHook = false;
     public static Boolean essentialsDiscordHook = false;
     public static Boolean cmiHook = false;

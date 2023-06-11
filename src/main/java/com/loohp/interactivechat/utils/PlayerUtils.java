@@ -85,6 +85,8 @@ public class PlayerUtils implements Listener {
                 return craftPlayerGetHandleMethod.getReturnType().getField("playerConnection");
             }, () -> {
                 return craftPlayerGetHandleMethod.getReturnType().getField("b");
+            }, () -> {
+                return craftPlayerGetHandleMethod.getReturnType().getField("c");
             });
             nmsPlayerConnectionChatMethod = Arrays.stream(nmsPlayerConnectionField.getType().getMethods()).filter(each -> each.getName().equals("chat")).findFirst().orElseThrow(() -> new ReflectiveOperationException());
             try {

@@ -66,7 +66,7 @@ public abstract class DummyPlayer implements Player {
                     .method(callbackFilter)
                     .intercept(implementation)
                     .make()
-                    .load(ByteBuddyFactory.getInstance().getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .load(DummyPlayer.class.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded()
                     .getDeclaredConstructor(String.class, UUID.class);
         } catch (NoSuchMethodException e) {

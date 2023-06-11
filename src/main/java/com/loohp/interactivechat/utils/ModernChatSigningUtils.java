@@ -137,7 +137,11 @@ public class ModernChatSigningUtils {
                 craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
                 craftServerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.CraftServer");
                 craftServerGetServerMethod = craftServerClass.getMethod("getServer");
-                nmsPlayerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("b");
+                try {
+                    nmsPlayerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("b");
+                } catch (NoSuchFieldException e) {
+                    nmsPlayerConnectionField = craftPlayerGetHandleMethod.getReturnType().getField("c");
+                }
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException e) {
                 e.printStackTrace();
             }

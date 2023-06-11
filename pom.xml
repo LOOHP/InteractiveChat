@@ -400,11 +400,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>bungeecord-proxy-1.19-R0.1-SNAPSHOT</groupId>
-			<artifactId>bungeecord-proxy-1.19-R0.1-SNAPSHOT</artifactId>
+			<groupId>bungeecord-proxy-1.20-R0.1-SNAPSHOT</groupId>
+			<artifactId>bungeecord-proxy-1.20-R0.1-SNAPSHOT</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/bungeecord-proxy-1.19-R0.1-SNAPSHOT.jar</systemPath>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.20-R0.1-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>Dynmap-3.3-beta-1-spigot</groupId>
@@ -418,7 +418,7 @@
 			<artifactId>venturechat</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/VentureChat-3.4.1_1.19_patch.jar</systemPath>
+			<systemPath>${basedir}/lib/VentureChat-3.6.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>MPDB</groupId>
@@ -436,14 +436,14 @@
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.19-R0.1-SNAPSHOT</version>
+			<version>1.20-R0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.19-R0.1-SNAPSHOT</version>
+			<version>1.20-R0.1-SNAPSHOT</version>
 			<type>javadoc</type>
 			<scope>provided</scope>
 		</dependency>
@@ -506,7 +506,7 @@
 			<artifactId>velocity-proxy</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/velocity-3.1.2-SNAPSHOT-198.jar</systemPath>
+			<systemPath>${basedir}/lib/velocity-3.2.0-SNAPSHOT-258.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.luckperms</groupId>

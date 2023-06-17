@@ -89,7 +89,11 @@ public class ToastUtils {
             nmsCriterionInstanceClass = NMSUtils.getNMSClass("net.minecraft.server.%s.CriterionInstance", "net.minecraft.advancements.CriterionInstance");
             nmsCriterionConstructor = nmsCriterionClass.getConstructor(nmsCriterionInstanceClass);
             nmsAdvancementClass = NMSUtils.getNMSClass("net.minecraft.server.%s.Advancement", "net.minecraft.advancements.Advancement");
-            nmsAdvancementConstructor = nmsAdvancementClass.getConstructor(nmsMinecraftKeyClass, nmsAdvancementClass, nmsAdvancementDisplayClass, nmsAdvancementRewardsClass, Map.class, String[][].class);
+            nmsAdvancementConstructor = NMSUtils.reflectiveLookup(Constructor.class, () -> {
+                return nmsAdvancementClass.getConstructor(nmsMinecraftKeyClass, nmsAdvancementClass, nmsAdvancementDisplayClass, nmsAdvancementRewardsClass, Map.class, String[][].class);
+            }, () -> {
+                return nmsAdvancementClass.getConstructor(nmsMinecraftKeyClass, nmsAdvancementClass, nmsAdvancementDisplayClass, nmsAdvancementRewardsClass, Map.class, String[][].class, boolean.class);
+            });
             nmsAdvancementProgressClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementProgress", "net.minecraft.advancements.AdvancementProgress");
             nmsAdvancementProgressConstructor = nmsAdvancementProgressClass.getConstructor();
             nmsAdvancementProgressAMethod = nmsAdvancementProgressClass.getMethod("a", Map.class, String[][].class);
@@ -121,7 +125,12 @@ public class ToastUtils {
             fixedRequirements.add(new String[] {"for_free"});
             String[][] advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);
 
-            Object saveAdv = nmsAdvancementConstructor.newInstance(minecraftKey, null, advancementDisplay, advRewards, advCriteria, advRequirements);
+            Object saveAdv;
+            if (nmsAdvancementConstructor.getParameterCount() == 6) {
+                saveAdv = nmsAdvancementConstructor.newInstance(minecraftKey, null, advancementDisplay, advRewards, advCriteria, advRequirements);
+            } else {
+                saveAdv = nmsAdvancementConstructor.newInstance(minecraftKey, null, advancementDisplay, advRewards, advCriteria, advRequirements, false);
+            }
 
             Map<Object, Object> prg = new HashMap<>();
             Object advPrg = nmsAdvancementProgressConstructor.newInstance();

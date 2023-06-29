@@ -37,7 +37,7 @@ import net.kyori.adventure.text.event.HoverEvent.ShowEntity;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.gson.LegacyHoverEventSerializer;
+import net.kyori.adventure.text.serializer.json.LegacyHoverEventSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.util.Codec.Decoder;
@@ -250,7 +250,7 @@ public class InteractiveChatComponentSerializer {
                     String nbtAsString = "";
                     if (nbt != null) {
                         nbtAsString = nbt.string();
-                        builder.put("tag", StringBinaryTag.of("{Tag}"));
+                        builder.put("tag", StringBinaryTag.stringBinaryTag("{Tag}"));
                     }
 
                     return Component.text(TagStringIO.get().asString(builder.build()).replace("\"{Tag}\"", nbtAsString));

@@ -33,6 +33,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -169,7 +170,7 @@ public class MapViewer implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventory(InventoryOpenEvent event) {
         Player player = (Player) event.getPlayer();
         boolean removed = MAP_VIEWERS.remove(player) != null;
@@ -180,7 +181,7 @@ public class MapViewer implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventory(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
@@ -204,7 +205,7 @@ public class MapViewer implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventory(InventoryCreativeEvent event) {
         Player player = (Player) event.getWhoClicked();
         boolean removed = MAP_VIEWERS.remove(player) != null;
@@ -226,9 +227,11 @@ public class MapViewer implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSlotChange(PlayerItemHeldEvent event) {
-        if (event.getNewSlot() == event.getPreviousSlot()) {
+        int lastSlot = event.getPreviousSlot();
+        int slot = event.getNewSlot();
+        if (event.getNewSlot() == lastSlot) {
             return;
         }
 
@@ -236,12 +239,14 @@ public class MapViewer implements Listener {
         boolean removed = MAP_VIEWERS.remove(player) != null;
 
         if (removed) {
+            player.getInventory().setHeldItemSlot(lastSlot);
             InteractiveChat.protocolManager.sendServerPacket(player, getMainHandSlotPacket(player, player.getInventory().getItemInHand()));
+            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setHeldItemSlot(slot), 1);
         }
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction().equals(Action.PHYSICAL)) {
             return;
@@ -266,7 +271,7 @@ public class MapViewer implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAttack(EntityDamageByEntityEvent event) {
         Entity entity = event.getDamager();
         if (entity instanceof Player) {

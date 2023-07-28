@@ -320,11 +320,12 @@ public class OutMessagePacket implements Listener {
             search:
             for (ChatComponentType t : ChatComponentType.byPriority()) {
                 for (int i = 0; i < packet.getModifier().size(); i++) {
-                    if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                    Object obj = packet.getModifier().read(i);
+                    if (!CustomArrayUtils.allNull(obj) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                         try {
-                            component = t.convertFrom(packet.getModifier().read(i));
+                            component = t.convertFrom(obj);
                         } catch (Throwable e) {
-                            System.err.println(t.toString(packet.getModifier().read(i)));
+                            System.err.println(t.toString(obj));
                             e.printStackTrace();
                             break search;
                         }

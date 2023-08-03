@@ -69,10 +69,9 @@ public class CommandsDisplay {
                 }
                 return commandComponent;
             } else if (result.group(4) != null) {
-                String escaped = result.group(5);
-                return Component.text(escaped);
+                return result.componentGroup(5);
             } else {
-                return Component.text(result.group());
+                return result.componentGroup();
             }
         });
     }

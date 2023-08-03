@@ -105,17 +105,12 @@ public class CustomPlaceholderDisplay {
         if (placeholder.matcher(plain).find()) {
             String regex = placeholder.pattern();
 
-            String replace;
-            if (replaceEnabled) {
-                replace = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
-            } else {
-                replace = null;
-            }
-
             return ComponentReplacing.replace(component, regex, true, (result, matchedComponents) -> {
                 Component replaceComponent;
                 if (replaceEnabled) {
-                    replaceComponent = LegacyComponentSerializer.legacySection().deserialize(CustomStringUtils.applyReplacementRegex(replace, result, 1));
+                    String replace = CustomStringUtils.applyReplacementRegex(replaceText, result, 1);
+                    replace = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replace));
+                    replaceComponent = LegacyComponentSerializer.legacySection().deserialize(replace);
                 } else {
                     replaceComponent = Component.empty().children(matchedComponents);
                 }

@@ -39,9 +39,10 @@ public class CustomStringUtils {
         str = str.replaceAll(REPLACE_REGEX.replace("%s", "0"), escapeReplaceAllMetaCharacters(result.group()));
         for (int i = groupOffset + 1; i <= result.groupCount(); i++) {
             String replacement = result.group(i);
-            if (replacement != null) {
-                str = str.replaceAll(REPLACE_REGEX.replace("%s", (i - groupOffset) + ""), escapeReplaceAllMetaCharacters(replacement));
+            if (replacement == null) {
+                replacement = "";
             }
+            str = str.replaceAll(REPLACE_REGEX.replace("%s", String.valueOf(i - groupOffset)), escapeReplaceAllMetaCharacters(replacement));
         }
         return str.replaceAll(REPLACE_ESCAPE_REGEX, "\\$");
     }

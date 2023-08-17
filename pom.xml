@@ -307,7 +307,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>me.carleslc.Simple-YAML</groupId>
+			<groupId>com.github.Carleslc.Simple-YAML</groupId>
 			<artifactId>Simple-Yaml</artifactId>
 			<version>1.8.1</version>
 			<scope>compile</scope>

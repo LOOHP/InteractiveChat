@@ -154,7 +154,6 @@ public class ChatEvents implements Listener {
         event.setMessage(checkSignedModificationsFromProxy(event.getPlayer().getUniqueId(), event.getMessage()));
     }
 
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static String checkSignedModificationsFromProxy(UUID uuid, String originalMessage) {
         if (InteractiveChat.bungeecordMode) {
             List<SignedMessageModificationData> data = InteractiveChat.signedMessageModificationData.get(uuid);

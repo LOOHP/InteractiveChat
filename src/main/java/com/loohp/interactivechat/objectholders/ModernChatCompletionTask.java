@@ -22,6 +22,7 @@ package com.loohp.interactivechat.objectholders;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
+import com.google.common.collect.Sets;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.utils.ChatColorUtils;
@@ -35,8 +36,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class ModernChatCompletionTask implements Listener {
 
@@ -64,7 +65,7 @@ public class ModernChatCompletionTask implements Listener {
         return true;
     }
 
-    private final Map<Player, List<String>> registered;
+    private final Map<Player, Set<String>> registered;
 
     public ModernChatCompletionTask() {
         if (!isSupported()) {
@@ -83,7 +84,7 @@ public class ModernChatCompletionTask implements Listener {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             if (InteractiveChat.chatTabCompletionsEnabled) {
                 for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
-                    List<String> tab = new ArrayList<>();
+                    Set<String> tab = ConcurrentHashMap.newKeySet();
 
                     for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
                         if (tabCompleter.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
@@ -100,11 +101,10 @@ public class ModernChatCompletionTask implements Listener {
                         }
                     }
 
-                    List<String> oldList = registered.computeIfAbsent(tabCompleter, k -> new ArrayList<>());
-                    List<String> add = tab.stream().filter(each -> !oldList.contains(each)).collect(Collectors.toList());
-                    List<String> remove = oldList.stream().filter(each -> !tab.contains(each)).collect(Collectors.toList());
-                    oldList.removeAll(remove);
-                    oldList.addAll(add);
+                    Set<String> oldList = registered.computeIfAbsent(tabCompleter, k -> ConcurrentHashMap.newKeySet());
+
+                    List<String> add = new ArrayList<>(Sets.difference(tab, oldList));
+                    List<String> remove = new ArrayList<>(Sets.difference(oldList, tab));
 
                     if (!add.isEmpty()) {
                         PacketContainer chatCompletionPacket1 = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS);
@@ -119,6 +119,9 @@ public class ModernChatCompletionTask implements Listener {
                         chatCompletionPacket2.getModifier().write(1, remove);
                         InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket2);
                     }
+
+                    remove.forEach(oldList::remove);
+                    oldList.addAll(add);
                 }
             }
         }, 0, 10);

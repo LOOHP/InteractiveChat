@@ -36,6 +36,7 @@ import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
 import com.loohp.interactivechat.hooks.eco.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
+import com.loohp.interactivechat.hooks.excellentenchants.ExcellentEnchantsHook;
 import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
@@ -141,6 +142,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean viaVersionHook = false;
     public static Boolean protocolSupportHook = false;
     public static Boolean ecoHook = false;
+    public static Boolean excellentenchantsHook = false;
     public static Boolean luckPermsHook = false;
     public static Boolean mysqlPDBHook = false;
     public static Boolean chatControlRedHook = false;
@@ -574,6 +576,12 @@ public class InteractiveChat extends JavaPlugin {
             EcoHook.init();
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Eco (Core)!");
             ecoHook = true;
+        }
+
+        if (isPluginEnabled("ExcellentEnchants")) {
+            ExcellentEnchantsHook.init();
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ExcellentEnchants!");
+            excellentenchantsHook = true;
         }
 
         if (isPluginEnabled("LuckPerms")) {

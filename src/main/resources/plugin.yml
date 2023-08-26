@@ -22,6 +22,7 @@ softdepend:
   - MysqlPlayerDataBridge
   - ChatControlRed
   - floodgate
+  - ExcellentEnchants
 depend: [ProtocolLib, PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

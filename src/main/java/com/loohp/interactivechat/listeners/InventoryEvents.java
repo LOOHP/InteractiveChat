@@ -22,6 +22,7 @@ package com.loohp.interactivechat.listeners;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICMaterial;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.InventoryUtils;
@@ -45,13 +46,13 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InventoryEvents implements Listener {
 
-    private static final Set<InventoryClickEvent> CANCELLED_INVENTORY = new HashSet<>();
+    private static final Set<InventoryClickEvent> CANCELLED_INVENTORY = ConcurrentHashMap.newKeySet();
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
@@ -75,11 +76,11 @@ public class InventoryEvents implements Listener {
             return;
         }
         Inventory topInventory = event.getView().getTopInventory();
-        if (InteractiveChat.containerDisplay.containsKey(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
-
+        if (topInventory.getHolder() instanceof ICInventoryHolder) {
             event.setCancelled(true);
             CANCELLED_INVENTORY.add(event);
-
+        }
+        if (InteractiveChat.containerDisplay.containsKey(topInventory) || InteractiveChat.upperSharedInventory.contains(topInventory)) {
             if (event.getRawSlot() < event.getView().getTopInventory().getSize()) {
                 ItemStack item = event.getCurrentItem();
                 inventoryAction(item, player, topInventory);
@@ -137,7 +138,7 @@ public class InventoryEvents implements Listener {
                 if (bsm instanceof InventoryHolder) {
                     Inventory container = ((InventoryHolder) bsm).getInventory();
                     if ((container.getSize() % 9) == 0) {
-                        Inventory displayInventory = Bukkit.createInventory(null, container.getSize() + 9, InteractiveChat.containerViewTitle);
+                        Inventory displayInventory = Bukkit.createInventory(ICInventoryHolder.INSTANCE, container.getSize() + 9, InteractiveChat.containerViewTitle);
                         ItemStack empty = InteractiveChat.itemFrame1.clone();
                         if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                             empty = InteractiveChat.itemFrame2.clone();

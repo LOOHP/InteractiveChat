@@ -261,8 +261,8 @@ public class ICPlayerFactory {
             int selectedSlot = 0;
             boolean rightHanded = true;
             int xpLevel = 0;
-            Inventory inventory = Bukkit.createInventory(null, 45);
-            Inventory enderchest = Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize());
+            Inventory inventory = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 45);
+            Inventory enderchest = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.getDefaultEnderChestSize());
             if (dat.exists()) {
                 NamedTag nbtData = NBTUtil.read(dat);
                 CompoundTag rootTag = (CompoundTag) nbtData.getTag();

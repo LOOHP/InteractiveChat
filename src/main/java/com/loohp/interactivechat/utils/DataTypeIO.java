@@ -25,6 +25,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -53,9 +54,9 @@ public class DataTypeIO {
                 int size = in.readInt();
                 Inventory inventory;
                 if (type.equals(InventoryType.CHEST)) {
-                    inventory = hasTitle ? Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title) : Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size));
+                    inventory = hasTitle ? Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size), title) : Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size));
                 } else {
-                    inventory = hasTitle ? Bukkit.createInventory(null, type, title) : Bukkit.createInventory(null, type);
+                    inventory = hasTitle ? Bukkit.createInventory(ICInventoryHolder.INSTANCE, type, title) : Bukkit.createInventory(ICInventoryHolder.INSTANCE, type);
                 }
                 for (int i = 0; i < inventory.getSize(); i++) {
                     inventory.setItem(i, readItemStack(in, charset));

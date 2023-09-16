@@ -24,6 +24,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
@@ -139,7 +140,7 @@ public class HoverableItemDisplay {
         } else if (!InteractiveChat.itemDisplay.containsKey(sha1)) {
             if (ItemDisplay.useInventoryView(item)) {
                 Inventory container = ((InventoryHolder) ((BlockStateMeta) item.getItemMeta()).getBlockState()).getInventory();
-                Inventory inv = Bukkit.createInventory(null, container.getSize() + 9, title);
+                Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, container.getSize() + 9, title);
                 ItemStack empty = InteractiveChat.itemFrame1.clone();
                 if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                     empty = InteractiveChat.itemFrame2.clone();
@@ -162,7 +163,7 @@ public class HoverableItemDisplay {
                 InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
             } else {
                 if (InteractiveChat.version.isOld()) {
-                    Inventory inv = Bukkit.createInventory(null, 27, title);
+                    Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 27, title);
                     ItemStack empty = InteractiveChat.itemFrame1.clone();
                     if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                         empty = InteractiveChat.itemFrame2.clone();
@@ -178,7 +179,7 @@ public class HoverableItemDisplay {
                     inv.setItem(13, isAir ? null : originalItem);
                     InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
                 } else {
-                    Inventory inv = Bukkit.createInventory(null, InventoryType.DROPPER, title);
+                    Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryType.DROPPER, title);
                     ItemStack empty = InteractiveChat.itemFrame1.clone();
                     if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                         empty = InteractiveChat.itemFrame2.clone();

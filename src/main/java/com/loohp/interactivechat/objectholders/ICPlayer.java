@@ -57,7 +57,7 @@ public class ICPlayer extends OfflineICPlayer {
     }
 
     protected ICPlayer(Player player) {
-        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), Bukkit.createInventory(null, 54), Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize()));
+        super(player.getUniqueId(), player.getInventory().getHeldItemSlot(), InteractiveChat.version.isOld() || player.getMainHand().equals(MainHand.RIGHT), player.getLevel(), Bukkit.createInventory(ICInventoryHolder.INSTANCE, 54), Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.getDefaultEnderChestSize()));
         this.remoteServer = EMPTY_SERVER_REPRESENTATION;
         this.remoteName = player.getName();
         this.remoteNicknames = new HashSet<>();

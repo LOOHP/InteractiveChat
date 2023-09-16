@@ -62,7 +62,7 @@ public class OfflineICPlayer {
     }
 
     protected OfflineICPlayer(UUID uuid) {
-        this(uuid, 0, true, 0, Bukkit.createInventory(null, 54), Bukkit.createInventory(null, InventoryUtils.getDefaultEnderChestSize()));
+        this(uuid, 0, true, 0, Bukkit.createInventory(ICInventoryHolder.INSTANCE, 54), Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.getDefaultEnderChestSize()));
     }
 
     public UUID getUniqueId() {

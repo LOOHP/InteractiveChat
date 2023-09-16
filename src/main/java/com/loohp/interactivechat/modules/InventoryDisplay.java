@@ -28,6 +28,7 @@ import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CompassUtils;
@@ -124,7 +125,7 @@ public class InventoryDisplay {
     }
 
     public static void layout0(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
-        Inventory inv = Bukkit.createInventory(null, 54, title);
+        Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 54, title);
         int f1 = 0;
         int f2 = 0;
         int u = 45;
@@ -206,7 +207,7 @@ public class InventoryDisplay {
         if (InteractiveChat.bungeecordMode) {
             if (player.isLocal()) {
                 try {
-                    Inventory toForward = Bukkit.createInventory(null, 45, title);
+                    Inventory toForward = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 45, title);
                     for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
                         ItemStack item = player.getInventory().getItem(j);
                         if (item != null && !item.getType().equals(Material.AIR)) {
@@ -226,7 +227,7 @@ public class InventoryDisplay {
         int selectedSlot = player.getSelectedSlot();
         int level = player.getExperienceLevel();
 
-        Inventory inv = Bukkit.createInventory(null, 54, title);
+        Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 54, title);
         int f1 = 0;
         int f2 = 0;
         for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
@@ -277,7 +278,7 @@ public class InventoryDisplay {
         }
         inv.setItem(37, exp);
 
-        Inventory inv2 = Bukkit.createInventory(null, 45, title);
+        Inventory inv2 = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 45, title);
         for (int j = 0; j < Math.min(player.getInventory().getSize(), 45); j++) {
             ItemStack item = player.getInventory().getItem(j);
             if (item != null && !item.getType().equals(Material.AIR)) {

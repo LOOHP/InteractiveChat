@@ -27,6 +27,7 @@ import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent;
 import com.loohp.interactivechat.api.events.InventoryPlaceholderEvent.InventoryPlaceholderType;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CompassUtils;
@@ -104,7 +105,7 @@ public class EnderchestDisplay {
 
     public static void layout(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
         int size = player.getEnderChest().getSize();
-        Inventory inv = Bukkit.createInventory(null, InventoryUtils.toMultipleOf9(size), title);
+        Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size), title);
         for (int j = 0; j < size; j++) {
             if (player.getEnderChest().getItem(j) != null) {
                 if (!player.getEnderChest().getItem(j).getType().equals(Material.AIR)) {

@@ -25,12 +25,12 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,7 +41,7 @@ import java.util.UUID;
 
 public class DataTypeIO {
 
-    public static Inventory readInventory(ByteArrayDataInput in, Charset charset) throws IOException {
+    public static Inventory readInventory(ByteArrayDataInput in, Charset charset, InventoryHolder holder) throws IOException {
         int encodingScheme = in.readByte();
         InventoryType type = InventoryType.valueOf(readString(in, charset));
         boolean hasTitle = in.readBoolean();
@@ -54,9 +54,9 @@ public class DataTypeIO {
                 int size = in.readInt();
                 Inventory inventory;
                 if (type.equals(InventoryType.CHEST)) {
-                    inventory = hasTitle ? Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size), title) : Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size));
+                    inventory = hasTitle ? Bukkit.createInventory(holder, InventoryUtils.toMultipleOf9(size), title) : Bukkit.createInventory(holder, InventoryUtils.toMultipleOf9(size));
                 } else {
-                    inventory = hasTitle ? Bukkit.createInventory(ICInventoryHolder.INSTANCE, type, title) : Bukkit.createInventory(ICInventoryHolder.INSTANCE, type);
+                    inventory = hasTitle ? Bukkit.createInventory(holder, type, title) : Bukkit.createInventory(holder, type);
                 }
                 for (int i = 0; i < inventory.getSize(); i++) {
                     inventory.setItem(i, readItemStack(in, charset));

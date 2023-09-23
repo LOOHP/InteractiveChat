@@ -210,9 +210,9 @@ public class BungeeMessageListener implements PluginMessageListener {
                     player1.setRemoteExperienceLevel(level1);
                     int type = input.readByte();
                     if (type == 0) {
-                        player1.setRemoteInventory(DataTypeIO.readInventory(input, StandardCharsets.UTF_8));
+                        player1.setRemoteInventory(DataTypeIO.readInventory(input, StandardCharsets.UTF_8, null));
                     } else {
-                        player1.setRemoteEnderChest(DataTypeIO.readInventory(input, StandardCharsets.UTF_8));
+                        player1.setRemoteEnderChest(DataTypeIO.readInventory(input, StandardCharsets.UTF_8, null));
                     }
                     break;
                 case 0x05:
@@ -329,7 +329,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                 case 0x0E:
                     SharedType sharedType = SharedType.fromValue(input.readByte());
                     String sha1 = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                    Inventory inventory = DataTypeIO.readInventory(input, StandardCharsets.UTF_8);
+                    Inventory inventory = DataTypeIO.readInventory(input, StandardCharsets.UTF_8, null);
                     InteractiveChatAPI.addInventoryToItemShareList(sharedType, sha1, inventory);
                     break;
                 case 0x0F:

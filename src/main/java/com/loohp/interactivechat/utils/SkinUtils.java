@@ -36,6 +36,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Base64;
 import java.util.Collection;
@@ -52,6 +53,7 @@ public class SkinUtils {
     private static Class<?> craftSkullMetaClass;
     private static Field craftSkullMetaProfileField;
     private static Method playerGetPlayerProfileMethod;
+    private static Method mojangPropertyGetValueMethod;
 
     static {
         if (InteractiveChat.version.isOlderThan(MCVersion.V1_19)) {
@@ -68,15 +70,27 @@ public class SkinUtils {
                     }
                     return method;
                 }, () -> {
-                    return nmsEntityPlayerClass.getMethod("fq");
+                    Method method = nmsEntityPlayerClass.getMethod("fq");
+                    if (!method.getReturnType().equals(GameProfile.class)) {
+                        throw new NoSuchMethodException();
+                    }
+                    return method;
+                }, () -> {
+                    return nmsEntityPlayerClass.getMethod("fQ");
                 });
                 craftSkullMetaClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.inventory.CraftMetaSkull");
                 craftSkullMetaProfileField = craftSkullMetaClass.getDeclaredField("profile");
+                mojangPropertyGetValueMethod = Property.class.getMethod("getValue");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
             try {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
+                    mojangPropertyGetValueMethod = Property.class.getMethod("value");
+                } else {
+                    mojangPropertyGetValueMethod = Property.class.getMethod("getValue");
+                }
                 playerGetPlayerProfileMethod = Player.class.getMethod("getPlayerProfile");
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
@@ -97,7 +111,7 @@ public class SkinUtils {
             if (property == null) {
                 return null;
             }
-            return property.getValue();
+            return (String) mojangPropertyGetValueMethod.invoke(property);
         } else {
             Object playerNMS = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
             GameProfile profile = (GameProfile) nmsEntityPlayerGetProfileMethod.invoke(playerNMS);
@@ -105,7 +119,7 @@ public class SkinUtils {
             if (textures == null || textures.isEmpty()) {
                 return null;
             }
-            return textures.iterator().next().getValue();
+            return (String) mojangPropertyGetValueMethod.invoke(textures.iterator().next());
         }
     }
 
@@ -122,7 +136,7 @@ public class SkinUtils {
                     if (property == null) {
                         return null;
                     }
-                    return property.getValue();
+                    return (String) mojangPropertyGetValueMethod.invoke(property);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -139,8 +153,13 @@ public class SkinUtils {
 
             if (profile != null && !profile.getProperties().get("textures").isEmpty()) {
                 for (Property property : profile.getProperties().get("textures")) {
-                    if (!property.getValue().isEmpty()) {
-                        return property.getValue();
+                    try {
+                        String value = (String) mojangPropertyGetValueMethod.invoke(property);
+                        if (!value.isEmpty()) {
+                            return value;
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -189,6 +208,5 @@ public class SkinUtils {
         }
         throw new RuntimeException("Unable to retrieve skin url from Mojang servers for the player " + uuid);
     }
-
 
 }

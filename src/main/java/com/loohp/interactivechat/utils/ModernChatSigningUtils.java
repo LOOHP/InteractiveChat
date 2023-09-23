@@ -298,20 +298,40 @@ public class ModernChatSigningUtils {
             Object nmsMinecraftServer = craftServerGetServerMethod.invoke(Bukkit.getServer());
             Object nmsChatDecorator = nmsGetDecoratorMethod.invoke(nmsMinecraftServer);
             Object nmsEntityPlayer = craftPlayerGetHandleMethod.invoke(player);
+            Class<?> decoratorType = nmsChatDecoratorDecorateMethod.getReturnType();
             CompletableFuture<?> decorator;
-            switch (nmsChatDecoratorDecorateMethod.getParameterCount()) {
-                case 2:
-                    decorator = ((CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()))).thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
-                    break;
-                case 3:
-                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
-                        decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()));
-                    } else {
-                        decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, getPlayerChatMessage(PlainTextComponentSerializer.plainText().serialize(message), message));
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + nmsChatDecoratorDecorateMethod.getParameterCount());
+            if (decoratorType.isAssignableFrom(CompletableFuture.class)) {
+                switch (nmsChatDecoratorDecorateMethod.getParameterCount()) {
+                    case 2:
+                        decorator = ((CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()))).thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
+                        break;
+                    case 3:
+                        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                            decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()));
+                        } else {
+                            decorator = (CompletableFuture<?>) nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, getPlayerChatMessage(PlainTextComponentSerializer.plainText().serialize(message), message));
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + nmsChatDecoratorDecorateMethod.getParameterCount());
+                }
+            } else if (decoratorType.isAssignableFrom(nmsIChatBaseComponent)) {
+                switch (nmsChatDecoratorDecorateMethod.getParameterCount()) {
+                    case 2:
+                        decorator = CompletableFuture.completedFuture(nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB()))).thenApply(i -> ChatComponentType.IChatBaseComponent.convertFrom(i));
+                        break;
+                    case 3:
+                        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                            decorator = CompletableFuture.completedFuture(nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, ChatComponentType.IChatBaseComponent.convertTo(message, InteractiveChat.version.isLegacyRGB())));
+                        } else {
+                            decorator = CompletableFuture.completedFuture(nmsChatDecoratorDecorateMethod.invoke(nmsChatDecorator, nmsEntityPlayer, null, getPlayerChatMessage(PlainTextComponentSerializer.plainText().serialize(message), message)));
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + nmsChatDecoratorDecorateMethod.getParameterCount());
+                }
+            } else {
+                throw new IllegalStateException("Unexpected type: " + decoratorType);
             }
             return decorator;
         } catch (IllegalAccessException | InvocationTargetException e) {

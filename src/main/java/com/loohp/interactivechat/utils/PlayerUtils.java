@@ -21,10 +21,10 @@
 package com.loohp.interactivechat.utils;
 
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.listeners.ClientSettingPacket;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
+import com.viaversion.viaversion.api.Via;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -54,8 +54,10 @@ public class PlayerUtils implements Listener {
 
     private static Class<?> craftPlayerClass;
     private static Method craftPlayerGetHandleMethod;
+    private static Class<?> nmsEntityPlayerClass;
     private static Field nmsPlayerPingField;
     private static Field nmsPlayerConnectionField;
+    private static Field nmsPlayerCanChatColorField;
     private static Method nmsPlayerConnectionChatMethod;
     private static Method nmsPlayerConnectionHandleCommandMethod;
 
@@ -77,17 +79,81 @@ public class PlayerUtils implements Listener {
         try {
             craftPlayerClass = NMSUtils.getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftPlayer");
             craftPlayerGetHandleMethod = craftPlayerClass.getMethod("getHandle");
+            nmsEntityPlayerClass = craftPlayerGetHandleMethod.getReturnType();
             try {
-                nmsPlayerPingField = craftPlayerGetHandleMethod.getReturnType().getField("ping");
+                nmsPlayerPingField = nmsEntityPlayerClass.getField("ping");
             } catch (NoSuchFieldException ignore) {
             }
             nmsPlayerConnectionField = NMSUtils.reflectiveLookup(Field.class, () -> {
-                return craftPlayerGetHandleMethod.getReturnType().getField("playerConnection");
+                return nmsEntityPlayerClass.getField("playerConnection");
             }, () -> {
-                return craftPlayerGetHandleMethod.getReturnType().getField("b");
+                return nmsEntityPlayerClass.getField("b");
             }, () -> {
-                return craftPlayerGetHandleMethod.getReturnType().getField("c");
+                return nmsEntityPlayerClass.getField("c");
             });
+            switch (InteractiveChat.version) {
+                case V1_20_2:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cC");
+                    break;
+                case V1_20:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cB");
+                    break;
+                case V1_19_4:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cA");
+                    break;
+                case V1_19_3:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cE");
+                    break;
+                case V1_19:
+                case V1_18_2:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cF");
+                    break;
+                case V1_18:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cG");
+                    break;
+                case V1_17:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cF");
+                    break;
+                case V1_16_4:
+                case V1_16_2:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("bZ");
+                    break;
+                case V1_16:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cg");
+                    break;
+                case V1_15:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("ci");
+                    break;
+                case V1_14:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cl");
+                    break;
+                case V1_13_1:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("ct");
+                    break;
+                case V1_13:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cu");
+                    break;
+                case V1_12:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cm");
+                    break;
+                case V1_11:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("ch");
+                    break;
+                case V1_10:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("ci");
+                    break;
+                case V1_9_4:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("ch");
+                    break;
+                case V1_9:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cg");
+                    break;
+                case V1_8_4:
+                case V1_8_3:
+                case V1_8:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("bS");
+                    break;
+            }
             nmsPlayerConnectionChatMethod = Arrays.stream(nmsPlayerConnectionField.getType().getMethods()).filter(each -> each.getName().equals("chat")).findFirst().orElseThrow(() -> new ReflectiveOperationException());
             try {
                 nmsPlayerConnectionHandleCommandMethod = nmsPlayerConnectionField.getType().getDeclaredMethod("handleCommand", String.class);
@@ -243,14 +309,21 @@ public class PlayerUtils implements Listener {
         return item;
     }
 
-    public static ColorSettings getColorSettings(Player player) {
-        return ClientSettingPacket.getSettings(player);
+    public static boolean canChatColor(Player player) {
+        try {
+            Object nmsPlayer = craftPlayerGetHandleMethod.invoke(craftPlayerClass.cast(player));
+            nmsPlayerCanChatColorField.setAccessible(true);
+            return nmsPlayerCanChatColorField.getBoolean(nmsPlayer);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     public static int getProtocolVersion(Player player) {
         int protocolVersion = -1;
         if (InteractiveChat.viaVersionHook) {
-            protocolVersion = us.myles.ViaVersion.api.Via.getAPI().getPlayerVersion(player.getUniqueId());
+            protocolVersion = Via.getAPI().getPlayerVersion(player.getUniqueId());
         } else if (InteractiveChat.protocolSupportHook) {
             protocolVersion = protocolsupport.api.ProtocolSupportAPI.getProtocolVersion(player).getId();
         } else {
@@ -262,12 +335,6 @@ public class PlayerUtils implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         PERMISSION_CACHE.remove(event.getPlayer().getUniqueId());
-    }
-
-    public enum ColorSettings {
-        ON,
-        OFF,
-        WAITING
     }
 
 }

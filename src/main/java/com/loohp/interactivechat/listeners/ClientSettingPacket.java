@@ -28,27 +28,31 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
+import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.NMSUtils;
+import com.loohp.interactivechat.utils.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
 
-public class ClientSettingPacket implements Listener {
+public class ClientSettingPacket {
 
-    private static final Map<Player, Boolean> colorSettingsMap = new HashMap<>();
+    private static Class<?> nmsClientInformationClass;
+    private static Field nmsClientInformationChatColorsField;
 
-    public static ColorSettings getSettings(Player player) {
-        Boolean settings = colorSettingsMap.get(player);
-        return settings != null ? (settings ? ColorSettings.ON : ColorSettings.OFF) : ColorSettings.WAITING;
+    static {
+        try {
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
+                nmsClientInformationClass = NMSUtils.getNMSClass("net.minecraft.server.level.ClientInformation");
+                nmsClientInformationChatColorsField = nmsClientInformationClass.getDeclaredField("e");
+            }
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void clientSettingsListener() {
-        Bukkit.getPluginManager().registerEvents(new ClientSettingPacket(), InteractiveChat.plugin);
         InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.SETTINGS)) {
             @Override
             public void onPacketSending(PacketEvent event) {
@@ -57,32 +61,49 @@ public class ClientSettingPacket implements Listener {
 
             @Override
             public void onPacketReceiving(PacketEvent event) {
-                if (!event.getPacketType().equals(PacketType.Play.Client.SETTINGS)) {
-                    return;
-                }
-
-                PacketContainer packet = event.getPacket();
-                Player player = event.getPlayer();
-
-                boolean colorSettings = packet.getBooleans().read(0);
-                ColorSettings originalColorSettings = getSettings(player);
-
-                if ((originalColorSettings.equals(ColorSettings.WAITING) || originalColorSettings.equals(ColorSettings.ON)) && !colorSettings) {
-                    Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled"))), 5);
-                }
-
-                if (originalColorSettings.equals(ColorSettings.OFF) && colorSettings) {
-                    Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled"))), 5);
-                }
-
-                colorSettingsMap.put(player, colorSettings);
+                handlePacketReceiving(event);
             }
         });
+
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
+            InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Configuration.Client.CLIENT_INFORMATION)) {
+                @Override
+                public void onPacketSending(PacketEvent event) {
+                    //do nothing
+                }
+
+                @Override
+                public void onPacketReceiving(PacketEvent event) {
+                    handlePacketReceiving(event);
+                }
+            });
+        }
     }
 
-    @EventHandler
-    public void onLeave(PlayerQuitEvent event) {
-        colorSettingsMap.remove(event.getPlayer());
+    public static void handlePacketReceiving(PacketEvent event) {
+        boolean colorSettings;
+        PacketContainer packet = event.getPacket();
+        Player player = event.getPlayer();
+        if (event.getPacketType().equals(PacketType.Play.Client.SETTINGS)) {
+            colorSettings = packet.getBooleans().read(0);
+        } else if (event.getPacketType().equals(PacketType.Configuration.Client.CLIENT_INFORMATION)) {
+            try {
+                Object clientInformation = packet.getModifier().read(0);
+                nmsClientInformationChatColorsField.setAccessible(true);
+                colorSettings = nmsClientInformationChatColorsField.getBoolean(clientInformation);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            return;
+        }
+        boolean originalColorSettings = PlayerUtils.canChatColor(player);
+        if (originalColorSettings && !colorSettings) {
+            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled"))), 5);
+        } else if (!originalColorSettings && colorSettings) {
+            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled"))), 5);
+        }
     }
 
 }

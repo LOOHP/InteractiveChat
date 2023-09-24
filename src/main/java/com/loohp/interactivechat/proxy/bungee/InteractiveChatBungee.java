@@ -38,6 +38,7 @@ import com.loohp.interactivechat.proxy.objectholders.*;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.viaversion.viaversion.api.Via;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -73,7 +74,6 @@ import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.Title.Action;
-import us.myles.ViaVersion.api.Via;
 
 import java.io.File;
 import java.io.IOException;

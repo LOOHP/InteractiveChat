@@ -35,7 +35,6 @@ import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
@@ -107,7 +106,7 @@ public class OutTabCompletePacket {
                             }
                             if (icplayer != null) {
                                 Component component = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip)));
-                                if (PlayerUtils.getColorSettings(tabCompleter).equals(ColorSettings.OFF)) {
+                                if (!PlayerUtils.canChatColor(tabCompleter)) {
                                     component = ComponentStyling.stripColor(component);
                                 }
                                 String json = InteractiveChat.version.isLegacyRGB() ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);

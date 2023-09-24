@@ -62,7 +62,6 @@ import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import com.loohp.interactivechat.utils.PlayerUtils.ColorSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -634,7 +633,7 @@ public class OutMessagePacket implements Listener {
                 }
             }
 
-            if (PlayerUtils.getColorSettings(receiver).equals(ColorSettings.OFF)) {
+            if (!PlayerUtils.canChatColor(receiver)) {
                 component = ComponentStyling.stripColor(component);
             }
 

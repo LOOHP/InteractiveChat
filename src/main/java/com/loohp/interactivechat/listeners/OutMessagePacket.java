@@ -591,6 +591,12 @@ public class OutMessagePacket implements Listener {
             }
             component = preEvent.getComponent();
 
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {
+                if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
+                    component = ComponentFont.parseFont(component);
+                }
+            }
+
             if (InteractiveChat.translateHoverableItems && InteractiveChat.itemGUI) {
                 component = HoverableItemDisplay.process(component, receiver);
             }

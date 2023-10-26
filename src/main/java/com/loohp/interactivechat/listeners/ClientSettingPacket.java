@@ -53,20 +53,20 @@ public class ClientSettingPacket {
     }
 
     public static void clientSettingsListener() {
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.SETTINGS)) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                //do nothing
-            }
-
-            @Override
-            public void onPacketReceiving(PacketEvent event) {
-                handlePacketReceiving(event);
-            }
-        });
-
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
             InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Configuration.Client.CLIENT_INFORMATION)) {
+                @Override
+                public void onPacketSending(PacketEvent event) {
+                    //do nothing
+                }
+
+                @Override
+                public void onPacketReceiving(PacketEvent event) {
+                    handlePacketReceiving(event);
+                }
+            });
+        } else {
+            InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.SETTINGS)) {
                 @Override
                 public void onPacketSending(PacketEvent event) {
                     //do nothing

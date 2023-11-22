@@ -81,6 +81,9 @@ public class ClientSettingPacket {
     }
 
     public static void handlePacketReceiving(PacketEvent event) {
+        if (event.isPlayerTemporary()) {
+            return;
+        }
         boolean colorSettings;
         PacketContainer packet = event.getPacket();
         Player player = event.getPlayer();

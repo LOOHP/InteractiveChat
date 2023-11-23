@@ -442,7 +442,7 @@
 			<artifactId>bungeecord-proxy-1.20-R0.2-SNAPSHOT</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/bungeecord-proxy-1.20-R0.1-SNAPSHOT.jar</systemPath>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.20-R0.2-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>

@@ -51,6 +51,8 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -266,13 +268,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 }
             }, delay + 50, TimeUnit.MILLISECONDS);
         }, (info, component) -> {
+            BaseComponent baseComponent = new TextComponent("<QUxSRUFEWVBST0NFU1NFRA==>");
+            for (BaseComponent part : ComponentSerializer.parse(component)) {
+                baseComponent.addExtra(part);
+            }
             DefinedPacket definedPacket;
             switch (info.getType()) {
                 case LEGACY_CHAT:
                     definedPacket = new Chat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition());
                     break;
                 case SYSTEM_CHAT:
-                    definedPacket = new SystemChat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", info.getPosition());
+                    definedPacket = new SystemChat(baseComponent, info.getPosition());
                     break;
                 /*
                 case PLAYER_CHAT:
@@ -283,7 +289,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 case TITLE:
                     Title originalTitle = (Title) info.getOriginalPacket();
                     Title title = new Title();
-                    title.setText(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    title.setText(baseComponent);
                     if (originalTitle.getAction() != null) {
                         title.setAction(originalTitle.getAction());
                     }
@@ -291,7 +297,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                     break;
                 case SUBTITLE:
                     Subtitle subtitle = new Subtitle();
-                    subtitle.setText(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    subtitle.setText(baseComponent);
                     definedPacket = subtitle;
                     break;
                 default:
@@ -820,17 +826,22 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         }
                     } else if (obj instanceof SystemChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
                         SystemChat packet = (SystemChat) obj;
-                        String message = packet.getMessage();
+                        BaseComponent baseComponent = packet.getMessage();
                         int position = packet.getPosition();
-                        if (message != null) {
-                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                        if (baseComponent != null) {
+                            if (baseComponent instanceof TextComponent && ((TextComponent) baseComponent).getText().equals("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                ((TextComponent) baseComponent).setText("");
+                                if (baseComponent.getExtra() != null) {
+                                    for (BaseComponent part : baseComponent.getExtra()) {
+                                        if (part instanceof TextComponent) {
+                                            TextComponent textPart = (TextComponent) part;
+                                            textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                        }
+                                    }
                                 }
-                                packet.setMessage(message);
+                                packet.setMessage(baseComponent);
                             } else if (hasInteractiveChat(player.getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.SYSTEM_CHAT, packet);
+                                messageForwardingHandler.processMessage(player.getUniqueId(), ComponentSerializer.toString(baseComponent), position, ChatPacketType.SYSTEM_CHAT, packet);
                                 return;
                             }
                         }
@@ -854,38 +865,47 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                     */
                     } else if (obj instanceof Title && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         Title packet = (Title) obj;
-                        String message = packet.getText();
+                        BaseComponent baseComponent = packet.getText();
                         if (packet.getAction() == null || packet.getAction().equals(Action.TITLE) || packet.getAction().equals(Action.SUBTITLE) || packet.getAction().equals(Action.ACTIONBAR)) {
-                            if (message != null) {
-                                if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                    message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                    if (Registry.ID_PATTERN.matcher(message).find()) {
-                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                            if (baseComponent != null) {
+                                if (baseComponent instanceof TextComponent && ((TextComponent) baseComponent).getText().equals("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                    ((TextComponent) baseComponent).setText("");
+                                    if (baseComponent.getExtra() != null) {
+                                        for (BaseComponent part : baseComponent.getExtra()) {
+                                            if (part instanceof TextComponent) {
+                                                TextComponent textPart = (TextComponent) part;
+                                                textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                            }
+                                        }
                                     }
-                                    packet.setText(message);
+                                    packet.setText(baseComponent);
                                 } else if (hasInteractiveChat(player.getServer())) {
-                                    messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.TITLE, packet);
+                                    messageForwardingHandler.processMessage(player.getUniqueId(), ComponentSerializer.toString(baseComponent), 0, ChatPacketType.TITLE, packet);
                                     return;
                                 }
                             }
                         }
                     } else if (obj instanceof Subtitle && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         Subtitle packet = (Subtitle) obj;
-                        String message = packet.getText();
-                        if (message != null) {
-                            if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
-                                message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                        BaseComponent baseComponent = packet.getText();
+                        if (baseComponent != null) {
+                            if (baseComponent instanceof TextComponent && ((TextComponent) baseComponent).getText().equals("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                ((TextComponent) baseComponent).setText("");
+                                if (baseComponent.getExtra() != null) {
+                                    for (BaseComponent part : baseComponent.getExtra()) {
+                                        if (part instanceof TextComponent) {
+                                            TextComponent textPart = (TextComponent) part;
+                                            textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                        }
+                                    }
                                 }
-                                packet.setText(message);
+                                packet.setText(baseComponent);
                             } else if (hasInteractiveChat(player.getServer())) {
-                                messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.SUBTITLE, packet);
+                                messageForwardingHandler.processMessage(player.getUniqueId(), ComponentSerializer.toString(baseComponent), 0, ChatPacketType.SUBTITLE, packet);
                                 return;
                             }
                         }
                     }
-                    //TO-DO Chat Preview
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

@@ -411,13 +411,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>bungeecord-proxy-1.20-R0.1-SNAPSHOT</groupId>
-			<artifactId>bungeecord-proxy-1.20-R0.1-SNAPSHOT</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${basedir}/lib/bungeecord-proxy-1.20-R0.1-SNAPSHOT.jar</systemPath>
-		</dependency>
-		<dependency>
 			<groupId>Dynmap-3.3-beta-1-spigot</groupId>
 			<artifactId>Dynmap-3.3-beta-1-spigot</artifactId>
 			<scope>system</scope>
@@ -445,9 +438,16 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>bungeecord-proxy-1.20-R0.2-SNAPSHOT</groupId>
+			<artifactId>bungeecord-proxy-1.20-R0.2-SNAPSHOT</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/bungeecord-proxy-1.20-R0.1-SNAPSHOT.jar</systemPath>
+		</dependency>
+		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.20-R0.1-SNAPSHOT</version>
+			<version>1.20-R0.2-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>

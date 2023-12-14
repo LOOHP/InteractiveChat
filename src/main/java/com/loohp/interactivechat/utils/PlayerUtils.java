@@ -92,6 +92,9 @@ public class PlayerUtils implements Listener {
                 return nmsEntityPlayerClass.getField("c");
             });
             switch (InteractiveChat.version) {
+                case V1_20_3:
+                    nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cE");
+                    break;
                 case V1_20_2:
                     nmsPlayerCanChatColorField = nmsEntityPlayerClass.getDeclaredField("cC");
                     break;

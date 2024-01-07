@@ -52,6 +52,7 @@ import com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -64,6 +65,7 @@ import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatType;
+import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.SystemChat;
 import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChat;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChat;
@@ -142,6 +144,25 @@ public class InteractiveChatVelocity {
     protected static Map<String, BackendInteractiveChatData> serverInteractiveChatInfo = new ConcurrentHashMap<>();
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
+    private static Field componentHolderProtocolField;
+
+    static {
+        try {
+            componentHolderProtocolField = ComponentHolder.class.getDeclaredField("version");
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ProtocolVersion getProtocolVersion(ComponentHolder componentHolder) {
+        try {
+            componentHolderProtocolField.setAccessible(true);
+            return (ProtocolVersion) componentHolderProtocolField.get(componentHolder);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
         return Collections.unmodifiableMap(serverInteractiveChatInfo);
@@ -303,23 +324,26 @@ public class InteractiveChatVelocity {
                 case LEGACY_TITLE:
                     LegacyTitlePacket originalTitlePacket = (LegacyTitlePacket) info.getOriginalPacket();
                     LegacyTitlePacket legacyTitlePacket = new LegacyTitlePacket();
-                    legacyTitlePacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    legacyTitlePacket.setComponent(new ComponentHolder(getProtocolVersion(originalTitlePacket.getComponent()), component + "<QUxSRUFEWVBST0NFU1NFRA==>"));
                     legacyTitlePacket.setAction(originalTitlePacket.getAction());
                     packet = legacyTitlePacket;
                     break;
                 case TITLE:
+                    TitleTextPacket originalTitleTextPacket = (TitleTextPacket) info.getOriginalPacket();
                     TitleTextPacket titleTextPacket = new TitleTextPacket();
-                    titleTextPacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    titleTextPacket.setComponent(new ComponentHolder(getProtocolVersion(originalTitleTextPacket.getComponent()), component + "<QUxSRUFEWVBST0NFU1NFRA==>"));
                     packet = titleTextPacket;
                     break;
                 case SUBTITLE:
+                    TitleSubtitlePacket originalSubtitleTextPacket = (TitleSubtitlePacket) info.getOriginalPacket();
                     TitleSubtitlePacket titleSubtitlePacket = new TitleSubtitlePacket();
-                    titleSubtitlePacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    titleSubtitlePacket.setComponent(new ComponentHolder(getProtocolVersion(originalSubtitleTextPacket.getComponent()), component + "<QUxSRUFEWVBST0NFU1NFRA==>"));
                     packet = titleSubtitlePacket;
                     break;
                 case ACTION_BAR:
+                    TitleActionbarPacket originalActionbarPacket = (TitleActionbarPacket) info.getOriginalPacket();
                     TitleActionbarPacket titleActionbarPacket = new TitleActionbarPacket();
-                    titleActionbarPacket.setComponent(component + "<QUxSRUFEWVBST0NFU1NFRA==>");
+                    titleActionbarPacket.setComponent(new ComponentHolder(getProtocolVersion(originalActionbarPacket.getComponent()), component + "<QUxSRUFEWVBST0NFU1NFRA==>"));
                     packet = titleActionbarPacket;
                     break;
                 default:
@@ -905,7 +929,8 @@ public class InteractiveChatVelocity {
                     */
                     } else if (obj instanceof LegacyTitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         LegacyTitlePacket packet = (LegacyTitlePacket) obj;
-                        String message = packet.getComponent();
+                        ComponentHolder holder = packet.getComponent();
+                        String message = holder.getJson();
                         if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
                             if (message != null) {
                                 if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
@@ -913,7 +938,7 @@ public class InteractiveChatVelocity {
                                     if (Registry.ID_PATTERN.matcher(message).find()) {
                                         message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                     }
-                                    packet.setComponent(message);
+                                    packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                                 } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                     messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.LEGACY_TITLE, packet);
                                     return;
@@ -922,14 +947,15 @@ public class InteractiveChatVelocity {
                         }
                     } else if (obj instanceof TitleTextPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleTextPacket packet = (TitleTextPacket) obj;
-                        String message = packet.getComponent();
+                        ComponentHolder holder = packet.getComponent();
+                        String message = holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
-                                packet.setComponent(message);
+                                packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.TITLE, packet);
                                 return;
@@ -937,14 +963,15 @@ public class InteractiveChatVelocity {
                         }
                     } else if (obj instanceof TitleSubtitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleSubtitlePacket packet = (TitleSubtitlePacket) obj;
-                        String message = packet.getComponent();
+                        ComponentHolder holder = packet.getComponent();
+                        String message = holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
-                                packet.setComponent(message);
+                                packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.SUBTITLE, packet);
                                 return;
@@ -952,14 +979,15 @@ public class InteractiveChatVelocity {
                         }
                     } else if (obj instanceof TitleActionbarPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR)) {
                         TitleActionbarPacket packet = (TitleActionbarPacket) obj;
-                        String message = packet.getComponent();
+                        ComponentHolder holder = packet.getComponent();
+                        String message = holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
-                                packet.setComponent(message);
+                                packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, 0, ChatPacketType.ACTION_BAR, packet);
                                 return;

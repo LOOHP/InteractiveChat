@@ -501,7 +501,7 @@
 		<dependency>
 			<groupId>com.discordsrv</groupId>
 			<artifactId>discordsrv</artifactId>
-			<version>1.26.1-SNAPSHOT</version>
+			<version>1.27.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

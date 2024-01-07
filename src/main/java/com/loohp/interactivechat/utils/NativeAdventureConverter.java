@@ -20,12 +20,16 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.loohp.interactivechat.InteractiveChat;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentIteratorFlag;
+import net.kyori.adventure.text.ComponentIteratorType;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowEntity;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
-import net.kyori.adventure.text.serializer.gson.LegacyHoverEventSerializer;
+import net.kyori.adventure.text.serializer.json.LegacyHoverEventSerializer;
 import net.kyori.adventure.util.Codec.Decoder;
 import net.kyori.adventure.util.Codec.Encoder;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +100,11 @@ public class NativeAdventureConverter {
                 nativeBinaryTagHolderConstructionMethod.setAccessible(true);
                 nativeBinaryTagHolderStringMethod = nativeBinaryTagHolderClass.getMethod("string");
                 nativeBinaryTagHolderStringMethod.setAccessible(true);
-                nativeShowItemConstructionMethod = nativeShowItemClass.getMethod("of", nativeKeyClass, int.class, nativeBinaryTagHolderClass);
+                try {
+                    nativeShowItemConstructionMethod = nativeShowItemClass.getMethod("showItem", nativeKeyClass, int.class, nativeBinaryTagHolderClass);
+                } catch (Throwable e) {
+                    nativeShowItemConstructionMethod = nativeShowItemClass.getMethod("of", nativeKeyClass, int.class, nativeBinaryTagHolderClass);
+                }
                 nativeShowItemConstructionMethod.setAccessible(true);
                 nativeShowItemGetItemMethod = nativeShowItemClass.getMethod("item");
                 nativeShowItemGetItemMethod.setAccessible(true);
@@ -105,7 +113,11 @@ public class NativeAdventureConverter {
                 nativeShowItemGetNbtMethod = nativeShowItemClass.getMethod("nbt");
                 nativeShowItemGetNbtMethod.setAccessible(true);
                 nativeShowEntityClass = Class.forName(NATIVE_PACKAGE + ".text.event.HoverEvent$ShowEntity");
-                nativeShowEntityClassConstructionMethod = nativeShowEntityClass.getMethod("of", nativeKeyClass, UUID.class, nativeComponentClass);
+                try {
+                    nativeShowEntityClassConstructionMethod = nativeShowEntityClass.getMethod("showEntity", nativeKeyClass, UUID.class, nativeComponentClass);
+                } catch (Throwable e) {
+                    nativeShowEntityClassConstructionMethod = nativeShowEntityClass.getMethod("of", nativeKeyClass, UUID.class, nativeComponentClass);
+                }
                 nativeShowEntityClassConstructionMethod.setAccessible(true);
                 nativeShowEntityGetTypeMethod = nativeShowEntityClass.getMethod("type");
                 nativeShowEntityGetTypeMethod.setAccessible(true);
@@ -129,11 +141,23 @@ public class NativeAdventureConverter {
         return hasNativeAdventureImplementation;
     }
 
-    private static void printError(Throwable e) {
-        if (hasNativeAdventureImplementation) {
-            new RuntimeException("There is no native adventure implementation on this platform", e).printStackTrace();
+    public static boolean canHandle(Component component) {
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+            return true;
+        }
+        for (Component child : component.iterable(ComponentIteratorType.BREADTH_FIRST, ComponentIteratorFlag.values())) {
+            if (child.hoverEvent() != null && child.hoverEvent().action().equals(HoverEvent.Action.SHOW_ENTITY)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static RuntimeException error(Throwable e) {
+        if (!hasNativeAdventureImplementation) {
+            return new RuntimeException("There is no native adventure implementation on this platform", e);
         } else {
-            e.printStackTrace();
+            return new RuntimeException("There is an error when converting to native adventure components", e);
         }
     }
 
@@ -141,36 +165,32 @@ public class NativeAdventureConverter {
         try {
             return nativeGsonComponentDeserializeMethod.invoke(nativeGsonComponentSerializerObject, legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static Component componentFromNative(Object component) {
         try {
             return InteractiveChatComponentSerializer.gson().deserialize(nativeGsonComponentSerializeMethod.invoke(nativeGsonComponentSerializerObject, component).toString());
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static String jsonStringFromNative(Object component) {
         try {
             return nativeGsonComponentSerializeMethod.invoke(nativeGsonComponentSerializerObject, component).toString();
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static Object jsonStringToNative(String json) {
         try {
             return nativeGsonComponentDeserializeMethod.invoke(nativeGsonComponentSerializerObject, json);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static Object showItemToNative(ShowItem showItem) {
@@ -180,9 +200,8 @@ public class NativeAdventureConverter {
         try {
             return nativeShowItemConstructionMethod.invoke(null, nativeKeyConstructionMethod.invoke(null, key), amount, nbt == null ? null : nativeBinaryTagHolderConstructionMethod.invoke(null, nbt));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static ShowItem showItemFromNative(Object showItem) {
@@ -191,11 +210,10 @@ public class NativeAdventureConverter {
             int amount = (int) nativeShowItemGetCountMethod.invoke(showItem);
             Object nbtObject = nativeShowItemGetNbtMethod.invoke(showItem);
             String nbt = nbtObject == null ? null : nativeBinaryTagHolderStringMethod.invoke(nbtObject).toString();
-            return ShowItem.of(Key.key(key), amount, nbt == null ? null : BinaryTagHolder.binaryTagHolder(nbt));
+            return ShowItem.showItem(Key.key(key), amount, nbt == null ? null : BinaryTagHolder.binaryTagHolder(nbt));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static Object showEntityToNative(ShowEntity showEntity, boolean legacyRGB) {
@@ -205,9 +223,8 @@ public class NativeAdventureConverter {
             Component component = showEntity.name() == null ? null : showEntity.name();
             return nativeShowEntityClassConstructionMethod.invoke(null, nativeKeyConstructionMethod.invoke(null, key), uuid, componentToNative(component, legacyRGB));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static ShowEntity showEntityFromNative(Object showEntity) {
@@ -216,11 +233,10 @@ public class NativeAdventureConverter {
             UUID uuid = (UUID) nativeShowEntityGetIdMethod.invoke(showEntity);
             Object componentObject = nativeShowEntityGetNameMethod.invoke(showEntity);
             Component component = componentObject == null ? null : componentFromNative(componentObject);
-            return ShowEntity.of(Key.key(key), uuid, component);
+            return ShowEntity.showEntity(Key.key(key), uuid, component);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
-        return null;
     }
 
     public static boolean isInstanceOfNativeAudience(Object object) {
@@ -233,7 +249,7 @@ public class NativeAdventureConverter {
             Object nativeComponent = componentToNative(component, legacyRGB);
             nativeAudienceSendMessageMethod.invoke(nativeAudience, nativeComponent);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            printError(e);
+            throw error(e);
         }
     }
 
@@ -273,7 +289,7 @@ public class NativeAdventureConverter {
                 Object nativeShowItem = nativeDeserializeShowItemMethod.invoke(nativeImplementation, nativeInput);
                 return showItemFromNative(nativeShowItem);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                printError(e);
+                error(e);
             }
             return null;
         }
@@ -296,7 +312,7 @@ public class NativeAdventureConverter {
                 }));
                 return showEntityFromNative(nativeShowEntity);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                printError(e);
+                error(e);
             }
             return null;
         }
@@ -308,7 +324,7 @@ public class NativeAdventureConverter {
                 Object nativeComponent = nativeSerializeShowItemMethod.invoke(nativeImplementation, nativeInput);
                 return componentFromNative(nativeComponent);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                printError(e);
+                error(e);
             }
             return null;
         }
@@ -331,7 +347,7 @@ public class NativeAdventureConverter {
                 }));
                 return componentFromNative(nativeComponent);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                printError(e);
+                error(e);
             }
             return null;
         }

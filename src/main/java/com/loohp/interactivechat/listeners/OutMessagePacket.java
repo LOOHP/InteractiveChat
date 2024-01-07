@@ -339,13 +339,19 @@ public class OutMessagePacket implements Listener {
             boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
             String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
             boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
-            try {
-                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-            } catch (Throwable e) {
-                for (int i = 0; i < finalChatFieldsSize; i++) {
-                    packet.getModifier().write(i, null);
+            if (type.canHandle(component)) {
+                try {
+                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                } catch (Throwable e) {
+                    for (int i = 0; i < finalChatFieldsSize; i++) {
+                        packet.getModifier().write(i, null);
+                    }
+                    if (packet.getChatComponents().size() > 0) {
+                        packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+                    } else if (packet.getStrings().size() > 0) {
+                        packet.getStrings().write(0, json);
+                    }
                 }
-                packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
             }
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                 if (sender != null) {

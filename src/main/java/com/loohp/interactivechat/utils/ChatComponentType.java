@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public enum ChatComponentType {
 
@@ -39,6 +40,8 @@ public enum ChatComponentType {
         return WrappedChatComponent.fromJson(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component)).getHandle();
     }, object -> {
         return WrappedChatComponent.fromHandle(object).getJson();
+    }, component -> {
+        return true;
     }),
 
     BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", object -> {
@@ -47,6 +50,8 @@ public enum ChatComponentType {
         return ComponentSerializer.parse(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
     }, object -> {
         return ComponentSerializer.toString((BaseComponent[]) object);
+    }, component -> {
+        return true;
     }),
 
     NativeAdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
@@ -55,6 +60,8 @@ public enum ChatComponentType {
         return NativeAdventureConverter.componentToNative(component, legacyRGB);
     }, object -> {
         return NativeAdventureConverter.jsonStringFromNative(object);
+    }, component -> {
+        return NativeAdventureConverter.canHandle(component);
     }),
 
     AdventureComponent(".*com\\.loohp\\.interactivechat\\.libs\\.net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
@@ -63,6 +70,8 @@ public enum ChatComponentType {
         return component;
     }, object -> {
         return InteractiveChatComponentSerializer.gson().serialize((Component) object);
+    }, component -> {
+        return true;
     }),
 
     JsonString(".*java\\.lang\\.String.*", object -> {
@@ -71,6 +80,8 @@ public enum ChatComponentType {
         return legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
     }, object -> {
         return (String) object;
+    }, component -> {
+        return true;
     });
 
     private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(AdventureComponent, NativeAdventureComponent, JsonString, BaseComponentArray, IChatBaseComponent));
@@ -83,12 +94,14 @@ public enum ChatComponentType {
     private final Function<Object, Component> converterFrom;
     private final BiFunction<Component, Boolean, Object> converterTo;
     private final Function<Object, String> toJsonString;
+    private final Predicate<Component> canHandle;
 
-    ChatComponentType(String regex, Function<Object, Component> converterFrom, BiFunction<Component, Boolean, Object> converterTo, Function<Object, String> toString) {
+    ChatComponentType(String regex, Function<Object, Component> converterFrom, BiFunction<Component, Boolean, Object> converterTo, Function<Object, String> toString, Predicate<Component> canHandle) {
         this.regex = regex;
         this.converterFrom = converterFrom;
         this.converterTo = converterTo;
         this.toJsonString = toString;
+        this.canHandle = canHandle;
     }
 
     public String getMatchingRegex() {
@@ -114,6 +127,10 @@ public enum ChatComponentType {
             return null;
         }
         return toJsonString.apply(object);
+    }
+
+    public boolean canHandle(Component component) {
+        return canHandle.test(component);
     }
 
     public String toString(Object object) {

@@ -889,8 +889,8 @@ public class InteractiveChatVelocity {
                         }
                     } else if (obj instanceof SystemChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
                         SystemChat packet = (SystemChat) obj;
-                        Method getComponentMethod = packet.getClass().getMethod("getComponent");
-                        String message = NativeAdventureConverter.jsonStringFromNative(getComponentMethod.invoke(packet));
+                        ComponentHolder holder = packet.getComponent();
+                        String message = holder == null ? null : holder.getJson();
                         int position = packet.getType().getId();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
@@ -930,7 +930,7 @@ public class InteractiveChatVelocity {
                     } else if (obj instanceof LegacyTitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         LegacyTitlePacket packet = (LegacyTitlePacket) obj;
                         ComponentHolder holder = packet.getComponent();
-                        String message = holder.getJson();
+                        String message = holder == null ? null : holder.getJson();
                         if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
                             if (message != null) {
                                 if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
@@ -948,7 +948,7 @@ public class InteractiveChatVelocity {
                     } else if (obj instanceof TitleTextPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleTextPacket packet = (TitleTextPacket) obj;
                         ComponentHolder holder = packet.getComponent();
-                        String message = holder.getJson();
+                        String message = holder == null ? null : holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
@@ -964,7 +964,7 @@ public class InteractiveChatVelocity {
                     } else if (obj instanceof TitleSubtitlePacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.TITLE)) {
                         TitleSubtitlePacket packet = (TitleSubtitlePacket) obj;
                         ComponentHolder holder = packet.getComponent();
-                        String message = holder.getJson();
+                        String message = holder == null ? null : holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
@@ -980,7 +980,7 @@ public class InteractiveChatVelocity {
                     } else if (obj instanceof TitleActionbarPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR)) {
                         TitleActionbarPacket packet = (TitleActionbarPacket) obj;
                         ComponentHolder holder = packet.getComponent();
-                        String message = holder.getJson();
+                        String message = holder == null ? null : holder.getJson();
                         if (message != null) {
                             if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");

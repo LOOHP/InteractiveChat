@@ -34,7 +34,12 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.LogFilter;
-import com.loohp.interactivechat.proxy.objectholders.*;
+import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
+import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
+import com.loohp.interactivechat.proxy.objectholders.ProxyHandlePacketTypes;
+import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
+import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
@@ -66,9 +71,9 @@ import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatType;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
-import com.velocitypowered.proxy.protocol.packet.chat.SystemChat;
-import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChat;
-import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChat;
+import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.title.GenericTitlePacket.ActionType;
 import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
@@ -274,10 +279,10 @@ public class InteractiveChatVelocity {
             MinecraftPacket packet;
             switch (info.getType()) {
                 case LEGACY_CHAT:
-                    packet = new LegacyChat(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition(), null);
+                    packet = new LegacyChatPacket(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition(), null);
                     break;
                 case SYSTEM_CHAT:
-                    packet = new SystemChat();
+                    packet = new SystemChatPacket();
                     ChatType chatType;
                     switch (info.getPosition()) {
                         case 0:
@@ -810,8 +815,8 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat) {
-                        LegacyChat packet = (LegacyChat) obj;
+                    if (obj instanceof LegacyChatPacket) {
+                        LegacyChatPacket packet = (LegacyChatPacket) obj;
                         UUID uuid = player.getUniqueId();
                         String message = packet.getMessage();
                         byte position = packet.getType();
@@ -823,8 +828,8 @@ public class InteractiveChatVelocity {
                                 }
                             }
                         }
-                    } else if (obj instanceof SessionPlayerChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) {
-                        SessionPlayerChat packet = (SessionPlayerChat) obj;
+                    } else if (obj instanceof SessionPlayerChatPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) {
+                        SessionPlayerChatPacket packet = (SessionPlayerChatPacket) obj;
                         Set<ForwardedMessageData> list = forwardedMessages.get(player.getUniqueId());
                         if (list != null) {
                             list.add(new ForwardedMessageData(packet.getMessage(), ChatPacketType.CLIENT_CHAT, System.currentTimeMillis()));
@@ -869,8 +874,8 @@ public class InteractiveChatVelocity {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object obj, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (obj instanceof LegacyChat) {
-                        LegacyChat packet = (LegacyChat) obj;
+                    if (obj instanceof LegacyChatPacket) {
+                        LegacyChatPacket packet = (LegacyChatPacket) obj;
                         String message = packet.getMessage();
                         byte position = packet.getType();
                         if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
@@ -887,8 +892,8 @@ public class InteractiveChatVelocity {
                                 }
                             }
                         }
-                    } else if (obj instanceof SystemChat && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
-                        SystemChat packet = (SystemChat) obj;
+                    } else if (obj instanceof SystemChatPacket && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.SYSTEM_CHAT)) {
+                        SystemChatPacket packet = (SystemChatPacket) obj;
                         ComponentHolder holder = packet.getComponent();
                         String message = holder == null ? null : holder.getJson();
                         int position = packet.getType().getId();

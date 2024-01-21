@@ -521,7 +521,7 @@
 			<artifactId>velocity-proxy</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/velocity-3.3.0-SNAPSHOT-316.jar</systemPath>
+			<systemPath>${basedir}/lib/velocity-3.3.0-SNAPSHOT-339.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.luckperms</groupId>

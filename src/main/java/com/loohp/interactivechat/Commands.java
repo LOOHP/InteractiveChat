@@ -290,6 +290,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     sender.sendMessage(InteractiveChat.noPermissionMessage);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 sender.sendMessage(InteractiveChat.invalidArgs);
             }
             return true;

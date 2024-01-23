@@ -32,7 +32,7 @@ Messages:
 
   #The messages sent when listing placeholders
   ListPlaceholdersHeader: "&eList of Chat Placeholders:"
-  ListPlaceholdersBody: "&b{Order}. \"&f&l{Keyword}&b\" &6- &e{Description}"
+  ListPlaceholdersBody: "&b{Order}. \"&f{Keyword}&b\" &6- &e{Description}"
 
   #The messages sent when a player set their inventory display layout
   SetInventoryDisplayLayout: "&aSet inventory display layout to Layout &e{Layout}"

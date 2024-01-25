@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ToastUtils {
 
@@ -82,13 +83,21 @@ public class ToastUtils {
             nmsMinecraftKeyClass = NMSUtils.getNMSClass("net.minecraft.server.%s.MinecraftKey", "net.minecraft.resources.MinecraftKey");
             nmsMinecraftKeyConstructor = nmsMinecraftKeyClass.getConstructor(String.class, String.class);
             nmsAdvancementRewardsClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementRewards", "net.minecraft.advancements.AdvancementRewards");
-            nmsCustomFunctionAClass = NMSUtils.getNMSClass("net.minecraft.server.%s.CustomFunction$a", "net.minecraft.commands.CustomFunction$a");
-            nmsAdvancementRewardsConstructor = nmsAdvancementRewardsClass.getConstructor(int.class, ClassUtils.arrayType(nmsMinecraftKeyClass), ClassUtils.arrayType(nmsMinecraftKeyClass), nmsCustomFunctionAClass);
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+                nmsAdvancementRewardsConstructor = nmsAdvancementRewardsClass.getConstructor(int.class, List.class, List.class, Optional.class);
+            } else {
+                nmsCustomFunctionAClass = NMSUtils.getNMSClass("net.minecraft.server.%s.CustomFunction$a", "net.minecraft.commands.CustomFunction$a");
+                nmsAdvancementRewardsConstructor = nmsAdvancementRewardsClass.getConstructor(int.class, ClassUtils.arrayType(nmsMinecraftKeyClass), ClassUtils.arrayType(nmsMinecraftKeyClass), nmsCustomFunctionAClass);
+            }
             nmsAdvancementDisplayClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementDisplay", "net.minecraft.advancements.AdvancementDisplay");
             nmsItemStackClass = NMSUtils.getNMSClass("net.minecraft.server.%s.ItemStack", "net.minecraft.world.item.ItemStack");
             nmsIChatBaseComponentClass = NMSUtils.getNMSClass("net.minecraft.server.%s.IChatBaseComponent", "net.minecraft.network.chat.IChatBaseComponent");
             nmsAdvancementFrameTypeClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementFrameType", "net.minecraft.advancements.AdvancementFrameType");
-            nmsAdvancementDisplayConstructor = nmsAdvancementDisplayClass.getConstructor(nmsItemStackClass, nmsIChatBaseComponentClass, nmsIChatBaseComponentClass, nmsMinecraftKeyClass, nmsAdvancementFrameTypeClass, boolean.class, boolean.class, boolean.class);
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+                nmsAdvancementDisplayConstructor = nmsAdvancementDisplayClass.getConstructor(nmsItemStackClass, nmsIChatBaseComponentClass, nmsIChatBaseComponentClass, Optional.class, nmsAdvancementFrameTypeClass, boolean.class, boolean.class, boolean.class);
+            } else {
+                nmsAdvancementDisplayConstructor = nmsAdvancementDisplayClass.getConstructor(nmsItemStackClass, nmsIChatBaseComponentClass, nmsIChatBaseComponentClass, nmsMinecraftKeyClass, nmsAdvancementFrameTypeClass, boolean.class, boolean.class, boolean.class);
+            }
             nmsAdvancementFrameTypeEnums = nmsAdvancementFrameTypeClass.getEnumConstants();
             nmsCriterionClass = NMSUtils.getNMSClass("net.minecraft.server.%s.Criterion", "net.minecraft.advancements.Criterion");
             nmsCriterionTriggerImpossibleAClass = NMSUtils.getNMSClass("net.minecraft.server.%s.CriterionTriggerImpossible$a", "net.minecraft.advancements.critereon.CriterionTriggerImpossible$a");
@@ -108,7 +117,11 @@ public class ToastUtils {
                 return nmsAdvancementClass.getConstructor(nmsMinecraftKeyClass, nmsAdvancementClass, nmsAdvancementDisplayClass, nmsAdvancementRewardsClass, Map.class, String[][].class, boolean.class);
             }, () -> {
                 nmsAdvancementRequirementsClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementRequirements", "net.minecraft.advancements.AdvancementRequirements");
-                nmsAdvancementRequirementsConstructor = nmsAdvancementRequirementsClass.getConstructor(String[][].class);
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+                    nmsAdvancementRequirementsConstructor = nmsAdvancementRequirementsClass.getConstructor(List.class);
+                } else {
+                    nmsAdvancementRequirementsConstructor = nmsAdvancementRequirementsClass.getConstructor(String[][].class);
+                }
                 return nmsAdvancementClass.getConstructor(Optional.class, Optional.class, nmsAdvancementRewardsClass, Map.class, nmsAdvancementRequirementsClass, boolean.class);
             });
             nmsAdvancementProgressClass = NMSUtils.getNMSClass("net.minecraft.server.%s.AdvancementProgress", "net.minecraft.advancements.AdvancementProgress");
@@ -139,10 +152,20 @@ public class ToastUtils {
     public static void mention(ICPlayer sender, Player pinged, String message, ItemStack icon) {
         try {
             Object minecraftKey = nmsMinecraftKeyConstructor.newInstance("interactivechat", "mentioned/" + sender.getUniqueId());
-            Object advRewards = nmsAdvancementRewardsConstructor.newInstance(0, Array.newInstance(nmsMinecraftKeyClass, 0), Array.newInstance(nmsMinecraftKeyClass, 0), null);
+            Object advRewards;
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+                advRewards = nmsAdvancementRewardsConstructor.newInstance(0, Collections.emptyList(), Collections.emptyList(), Optional.empty());
+            } else {
+                advRewards = nmsAdvancementRewardsConstructor.newInstance(0, Array.newInstance(nmsMinecraftKeyClass, 0), Array.newInstance(nmsMinecraftKeyClass, 0), null);
+            }
             Object componentTitle = ChatComponentType.IChatBaseComponent.convertTo(LegacyComponentSerializer.legacySection().deserialize(message), InteractiveChat.version.isLegacy());
             Object componentSubtitle = ChatComponentType.IChatBaseComponent.convertTo(Component.empty(), InteractiveChat.version.isLegacy());
-            Object advancementDisplay = nmsAdvancementDisplayConstructor.newInstance(ItemStackUtils.toNMSCopy(icon), componentTitle, componentSubtitle, null, nmsAdvancementFrameTypeEnums[2], true, false, true);
+            Object advancementDisplay;
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
+                advancementDisplay =  nmsAdvancementDisplayConstructor.newInstance(ItemStackUtils.toNMSCopy(icon), componentTitle, componentSubtitle, Optional.empty(), nmsAdvancementFrameTypeEnums[2], true, false, true);
+            } else {
+                advancementDisplay = nmsAdvancementDisplayConstructor.newInstance(ItemStackUtils.toNMSCopy(icon), componentTitle, componentSubtitle, null, nmsAdvancementFrameTypeEnums[2], true, false, true);
+            }
 
             Map<String, Object> advCriteria = new HashMap<>();
             Object nmsCriterion;
@@ -154,12 +177,17 @@ public class ToastUtils {
             advCriteria.put("for_free", nmsCriterion);
             List<String[]> fixedRequirements = new ArrayList<>();
             fixedRequirements.add(new String[] {"for_free"});
-            Object advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);
+            Object advRequirements;
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
+                advRequirements = fixedRequirements.stream().map(e -> Arrays.asList(e)).collect(Collectors.toList());
+            } else {
+                advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);
+            }
 
             Object saveAdv;
             if (nmsAdvancementConstructor.getParameterTypes()[0].equals(Optional.class)) {
                 advRequirements = nmsAdvancementRequirementsConstructor.newInstance(advRequirements);
-                saveAdv = nmsAdvancementConstructor.newInstance(Optional.of(minecraftKey), Optional.of(advancementDisplay), advRewards, advCriteria, advRequirements, false);
+                saveAdv = nmsAdvancementConstructor.newInstance(Optional.empty(), Optional.of(advancementDisplay), advRewards, advCriteria, advRequirements, false);
             } else if (nmsAdvancementConstructor.getParameterCount() == 6) {
                 saveAdv = nmsAdvancementConstructor.newInstance(minecraftKey, null, advancementDisplay, advRewards, advCriteria, advRequirements);
             } else {

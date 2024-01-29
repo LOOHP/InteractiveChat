@@ -145,10 +145,10 @@ public class NativeAdventureConverter {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
             return true;
         }
-        for (Component child : component.iterable(ComponentIteratorType.BREADTH_FIRST, ComponentIteratorFlag.values())) {
-            if (child.hoverEvent() != null && child.hoverEvent().action().equals(HoverEvent.Action.SHOW_ENTITY)) {
-                return false;
-            }
+        try {
+            NativeAdventureConverter.componentToNative(component, InteractiveChat.version.isLegacyRGB());
+        } catch (Throwable e) {
+            return false;
         }
         return true;
     }

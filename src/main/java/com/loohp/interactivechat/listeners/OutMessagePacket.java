@@ -343,13 +343,20 @@ public class OutMessagePacket implements Listener {
                 try {
                     packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                 } catch (Throwable e) {
-                    for (int i = 0; i < finalChatFieldsSize; i++) {
-                        packet.getModifier().write(i, null);
-                    }
-                    if (packet.getChatComponents().size() > 0) {
-                        packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-                    } else if (packet.getStrings().size() > 0) {
-                        packet.getStrings().write(0, json);
+                    try {
+                        if (packet.getChatComponents().size() > 0) {
+                            WrappedChatComponent wcc = WrappedChatComponent.fromJson(json);
+                            for (int i = 0; i < finalChatFieldsSize; i++) {
+                                packet.getModifier().write(i, null);
+                            }
+                            packet.getChatComponents().write(0, wcc);
+                        } else if (packet.getStrings().size() > 0) {
+                            for (int i = 0; i < finalChatFieldsSize; i++) {
+                                packet.getModifier().write(i, null);
+                            }
+                            packet.getStrings().write(0, json);
+                        }
+                    } catch (Throwable ignore) {
                     }
                 }
             }

@@ -353,9 +353,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
+			<groupId>com.github.dmulloy2</groupId>
 			<artifactId>ProtocolLib</artifactId>
-			<version>5.1.1-SNAPSHOT</version>
+			<version>5.2.0</version>
 			<scope>provided</scope>
 			<classifier>all</classifier>
 		</dependency>
@@ -402,16 +402,17 @@
 			<version>1.20.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.mojang/authlib -->
 		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.20.4-R0.1-SNAPSHOT</version>
+			<groupId>com.mojang</groupId>
+			<artifactId>authlib</artifactId>
+			<version>3.16.29</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.papermc.paper</groupId>
 			<artifactId>paper-api</artifactId>
-			<version>1.20.2-R0.1-SNAPSHOT</version>
+			<version>1.20.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -547,7 +548,14 @@
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-3.5.5.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.0.2.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>su.nightexpress</groupId>
+			<artifactId>nightcore</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/nightcore-2.5.2.1.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nexmedia</groupId>

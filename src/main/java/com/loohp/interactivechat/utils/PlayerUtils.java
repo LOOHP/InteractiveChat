@@ -60,6 +60,8 @@ public class PlayerUtils implements Listener {
     private static Field nmsPlayerCanChatColorField;
     private static Method nmsPlayerConnectionChatMethod;
     private static Method nmsPlayerConnectionHandleCommandMethod;
+    private static Class<?> paperAdventureComponentClass;
+    private static Field paperAdventureComponentAdventureField;
 
     static {
         Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
@@ -163,6 +165,11 @@ public class PlayerUtils implements Listener {
             } catch (NoSuchMethodException e) {
                 nmsPlayerConnectionHandleCommandMethod = nmsPlayerConnectionField.getType().getDeclaredMethod("a", String.class);
             }
+            try {
+                paperAdventureComponentClass = NMSUtils.getNMSClass("io.papermc.paper.adventure.AdventureComponent");
+                paperAdventureComponentAdventureField = paperAdventureComponentClass.getDeclaredField("adventure");
+            } catch (ClassNotFoundException ignore) {
+            }
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -187,6 +194,11 @@ public class PlayerUtils implements Listener {
                 case 3:
                     Object playerChatMessage = ModernChatSigningUtils.getPlayerChatMessage(message);
                     if (unsignedContentOrResult != null) {
+                        if (paperAdventureComponentClass != null && paperAdventureComponentClass.isInstance(unsignedContentOrResult)) {
+                            paperAdventureComponentAdventureField.setAccessible(true);
+                            Object nativeAdventureComponent = paperAdventureComponentAdventureField.get(unsignedContentOrResult);
+                            unsignedContentOrResult = NativeAdventureConverter.componentFromNative(nativeAdventureComponent);
+                        }
                         if (unsignedContentOrResult instanceof Component) {
                             playerChatMessage = ModernChatSigningUtils.withUnsignedContent(playerChatMessage, ChatComponentType.IChatBaseComponent.convertTo((Component) unsignedContentOrResult, false));
                         } else if (nmsPlayerConnectionChatMethod.getParameterTypes()[1].isInstance(unsignedContentOrResult)) {

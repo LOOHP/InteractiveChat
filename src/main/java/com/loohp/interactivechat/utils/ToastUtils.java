@@ -178,7 +178,7 @@ public class ToastUtils {
             List<String[]> fixedRequirements = new ArrayList<>();
             fixedRequirements.add(new String[] {"for_free"});
             Object advRequirements;
-            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3)) {
                 advRequirements = fixedRequirements.stream().map(e -> Arrays.asList(e)).collect(Collectors.toList());
             } else {
                 advRequirements = Arrays.stream(fixedRequirements.toArray()).toArray(String[][]::new);

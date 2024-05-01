@@ -27,17 +27,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.excellentenchants.config.Config;
-import su.nightexpress.excellentenchants.hook.HookId;
 import su.nightexpress.excellentenchants.hook.impl.ProtocolHook;
+import su.nightexpress.nightcore.util.Plugins;
 
 public class ExcellentEnchantsHook {
 
     public static void init() {
         Plugin eco = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
 
-        if (Config.ENCHANTMENTS_DISPLAY_MODE.get() == 2 && EngineUtils.hasPlugin(HookId.PROTOCOL_LIB)) {
+        if (Config.ENCHANTMENTS_DISPLAY_MODE.get() == 2 && Plugins.isLoaded("ProtocolLib")) {
             InteractiveChatAPI.registerItemStackTransformProvider(eco, 1, (itemStack, uuid) -> {
                 ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
                 boolean isCreative = icPlayer != null && icPlayer.isLocal() && icPlayer.getLocalPlayer().getGameMode().equals(GameMode.CREATIVE);

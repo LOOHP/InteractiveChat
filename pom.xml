@@ -203,9 +203,8 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>
+						<version>3.3.1</version>
 						<configuration>
-							<encoding>${project.build.sourceEncoding}</encoding>
 						</configuration>
 						<executions>
 							<execution>
@@ -355,7 +354,7 @@
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib</artifactId>
-			<version>5.1.1-SNAPSHOT</version>
+			<version>5.2.1-SNAPSHOT</version>
 			<scope>provided</scope>
 			<classifier>all</classifier>
 		</dependency>
@@ -547,14 +546,14 @@
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-3.5.5.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.0.4.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>su.nexmedia</groupId>
-			<artifactId>engine</artifactId>
+			<groupId>su.nightexpress.nightcore</groupId>
+			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/NexEngine.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.5.2.1.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>io.github.bananapuncher714</groupId>
@@ -567,6 +566,12 @@
 			<artifactId>api</artifactId>
 			<version>2.2.0-SNAPSHOT</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-source-plugin</artifactId>
+			<version>3.3.1</version>
+			<type>maven-plugin</type>
 		</dependency>
 	</dependencies>
 </project>

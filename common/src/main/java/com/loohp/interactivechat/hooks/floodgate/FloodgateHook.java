@@ -1,0 +1,208 @@
+/*
+ * This file is part of InteractiveChat4.
+ *
+ * Copyright (C) 2023. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2023. Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.loohp.interactivechat.hooks.floodgate;
+
+import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
+import com.loohp.interactivechat.api.events.PreExternalResponseSendEvent;
+import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.objectholders.LimitedQueue;
+import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.objectholders.ValueTrios;
+import com.loohp.interactivechat.utils.ComponentCompacting;
+import com.loohp.interactivechat.utils.ComponentFlattening;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.loohp.interactivechat.utils.PlayerUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.geysermc.cumulus.form.CustomForm;
+import org.geysermc.cumulus.form.SimpleForm;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class FloodgateHook implements Listener {
+
+    private static Map<UUID, List<Component>> CHAT_MESSAGES = new ConcurrentHashMap<>();
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChatPacket(PreChatPacketSendEvent event) {
+        if (!event.isCancelled() || event.sendOriginalIfCancelled()) {
+            addChatMessage(event.getReciver().getUniqueId(), event.getComponent());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChatPacket(PreExternalResponseSendEvent event) {
+        addChatMessage(event.getReciever().getUniqueId(), event.getComponent());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        CHAT_MESSAGES.remove(event.getPlayer().getUniqueId());
+    }
+
+    public static synchronized void addChatMessage(UUID uuid, Component component) {
+        if (!isFloodgatePlayer(uuid)) {
+            return;
+        }
+        List<Component> list = CHAT_MESSAGES.get(uuid);
+        if (list == null) {
+            CHAT_MESSAGES.put(uuid, list = Collections.synchronizedList(new LimitedQueue<>(30)));
+        }
+        list.add(component);
+    }
+
+    public static boolean isFloodgatePlayer(UUID uuid) {
+        return FloodgateApi.getInstance().isFloodgatePlayer(uuid);
+    }
+
+    public static void sendRecentChatMessagesForm(UUID uuid) {
+        SimpleForm.Builder builder = SimpleForm.builder().title(InteractiveChat.bedrockEventsMenuTitle);
+        List<Component> list = CHAT_MESSAGES.get(uuid);
+        if (list != null) {
+            builder.content(InteractiveChat.bedrockEventsMenuContent);
+            List<Component> components = new ArrayList<>(list);
+            Collections.reverse(components);
+            for (Component component : components) {
+                builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(component, InteractiveChat.language));
+            }
+            builder.validResultHandler(response -> {
+                int index = response.clickedButtonId();
+                if (index >= components.size()) {
+                    return;
+                }
+                sendEventsForm(uuid, components.get(index));
+            });
+        }
+        FloodgateApi.getInstance().sendForm(uuid, builder);
+    }
+
+    public static void sendEventsForm(UUID uuid, Component message) {
+        StringBuilder sb = new StringBuilder(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(message, InteractiveChat.language));
+        for (ValuePairs<Component, Component> pair : extractHoverTexts(message)) {
+            sb.append("\n\n").append(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(pair.getFirst(), InteractiveChat.language)).append("\n")
+                    .append(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(pair.getSecond(), InteractiveChat.language));
+        }
+        SimpleForm.Builder builder = SimpleForm.builder().title(InteractiveChat.bedrockEventsMenuTitle).content(sb.toString());
+        List<ValueTrios<Component, String, ClickEvent.Action>> clicks = extractClickCommands(message);
+        for (ValueTrios<Component, String, ClickEvent.Action> trio : clicks) {
+            builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(trio.getFirst(), InteractiveChat.language));
+        }
+        builder.validResultHandler(response -> {
+            int index = response.clickedButtonId();
+            if (index >= clicks.size()) {
+                return;
+            }
+            ValueTrios<Component, String, ClickEvent.Action> trio = clicks.get(index);
+            ClickEvent.Action action = trio.getThird();
+            String command = trio.getSecond();
+            if (action.equals(ClickEvent.Action.SUGGEST_COMMAND)) {
+                handleSuggestCommand(uuid, trio.getFirst(), message, command);
+            } else {
+                handleRunCommand(uuid, command);
+            }
+        }).closedOrInvalidResultHandler(() -> sendRecentChatMessagesForm(uuid));
+        FloodgateApi.getInstance().sendForm(uuid, builder);
+    }
+
+    private static void handleSuggestCommand(UUID uuid, Component clickComponent, Component message, String suggestedCommand) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+        CustomForm.Builder builder = CustomForm.builder().title(InteractiveChat.bedrockEventsMenuRunSuggested)
+                .input(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(clickComponent, InteractiveChat.language), suggestedCommand, suggestedCommand)
+                .validResultHandler(response -> {
+                    handleRunCommand(uuid, response.asInput());
+                })
+                .closedOrInvalidResultHandler(() -> sendEventsForm(uuid, message));
+        FloodgateApi.getInstance().sendForm(uuid, builder);
+    }
+
+    private static void handleRunCommand(UUID uuid, String command) {
+        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(uuid);
+        if (floodgatePlayer.isFromProxy() && InteractiveChat.bungeecordMode) {
+            try {
+                BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player, command));
+            }
+        }
+    }
+
+    private static List<ValuePairs<Component, Component>> extractHoverTexts(Component component) {
+        List<ValuePairs<Component, Component>> result = new ArrayList<>();
+        List<Component> flattened = new ArrayList<>(ComponentFlattening.flatten(component).children());
+        for (int i = 0; i < flattened.size(); i++) {
+            Component c = flattened.get(i);
+            if (c.clickEvent() != null) {
+                flattened.set(i, c.clickEvent(null));
+            }
+        }
+        Component optimizeEvents = ComponentCompacting.optimizeEvents(Component.empty().children(flattened));
+        for (Component c : optimizeEvents.children()) {
+            HoverEvent<?> hoverEvent = c.hoverEvent();
+            if (hoverEvent != null && hoverEvent.action().equals(HoverEvent.Action.SHOW_TEXT)) {
+                result.add(new ValuePairs<>(c, (Component) hoverEvent.value()));
+            }
+        }
+        return result;
+    }
+
+    private static List<ValueTrios<Component, String, ClickEvent.Action>> extractClickCommands(Component component) {
+        List<ValueTrios<Component, String, ClickEvent.Action>> result = new ArrayList<>();
+        List<Component> flattened = new ArrayList<>(ComponentFlattening.flatten(component).children());
+        for (int i = 0; i < flattened.size(); i++) {
+            Component c = flattened.get(i);
+            if (c.hoverEvent() != null) {
+                flattened.set(i, c.hoverEvent(null));
+            }
+        }
+        Component optimizeEvents = ComponentCompacting.optimizeEvents(Component.empty().children(flattened));
+        for (Component c : optimizeEvents.children()) {
+            ClickEvent clickEvent = c.clickEvent();
+            if (clickEvent != null && (clickEvent.action().equals(ClickEvent.Action.RUN_COMMAND) || clickEvent.action().equals(ClickEvent.Action.SUGGEST_COMMAND))) {
+                result.add(new ValueTrios<>(c, clickEvent.value(), clickEvent.action()));
+            }
+        }
+        return result;
+    }
+
+}

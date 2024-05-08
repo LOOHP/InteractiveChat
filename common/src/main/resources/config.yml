@@ -1,0 +1,583 @@
+#Do not change this value
+ConfigVersion: "${project.version}"
+
+Options:
+  Updater: true
+  ShowCancelledNotice: true
+  ExtraProxiedPacketProcessingDelay: 0
+  PluginMessagePacketVerbose: false
+
+Messages:
+  NoPermission: "&cYou do not have permission to use that command!"
+
+  #After 5 minutes the shared item/inventory generated inventory view will expire
+  InvExpired: "&cThis inventory view has expired!"
+  ReloadPlugin: "&aInteractiveChat has been reloaded!"
+
+  #The message to send when a message is cancelled due to the placeholder limit
+  LimitReached: "&cPlease do not use an excessive amount of placeholders in one message!"
+
+  #Sent if a keyword placeholder is on cooldown
+  PlaceholderCooldown: "&cYou have to wait &e{Time} &cbefore you can use &e{Keyword} &cagain!"
+  #Sent if the player is on universal cooldown
+  UniversalCooldown: "&cYou have to wait &e{Time} &cbefore you can use keywords again!"
+
+  #The messages sent when a client has colors disabled in their own settings
+  ColorsDisabled: "&lYou have colors disabled in your client settings! All messages will be white and respect the settings!"
+  ColorsReEnabled: "&aYou have colors re-enabled in your client settings! All messages will be colored from this point!"
+
+  #The message sent when a player toggle mentions
+  EnableMentions: "&aPlayer Mentions Enabled!"
+  DisableMentions: "&ePlayer Mentions Disabled!"
+
+  #The messages sent when listing placeholders
+  ListPlaceholdersHeader: "&eList of Chat Placeholders:"
+  ListPlaceholdersBody: "&b{Order}. \"&f{Keyword}&b\" &6- &e{Description}"
+
+  #The messages sent when a player set their inventory display layout
+  SetInventoryDisplayLayout: "&aSet inventory display layout to Layout &e{Layout}"
+
+  PlayerOnlyCommand: "&cThis command cannot be used in the console!"
+  InvalidPlayer: "&cThat is not a valid player!"
+  NoEnoughArgs: "&cInsufficient arguments!"
+  InvalidArgs: "&cInvalid arguments!"
+
+  #The prompts sent when a Floodgate (Geyser/Bedrock) player uses the /ic events menu
+  BedrockEventsMenu:
+    Title: "Recent Chat Messages"
+    Content: "Select Message"
+    RunSuggested: "Run Suggested Command"
+
+Settings:
+  #Bungeecord Mode
+  Bungeecord: false
+  UseAccurateSenderParser: true
+  TagEveryIdentifiableMessage: false
+  #These option is only effective on Minecraft 1.19.1+
+  ForceUnsignedChatPackets: true
+  ForceUnsignedChatCommandPackets: true
+  #This option is only effective on Minecraft 1.19.1+
+  #If this is true then ForceUnsignedChatPackets & ForceUnsignedChatCommandPackets should also be true
+  HideServerUnsignedStatus: true
+  #In which packets should InteractiveChat listen to and modify
+  PacketsToListen:
+    Chat: true
+    Title: false
+  #Should click and hover events be removed in chat previews on 1.19+
+  ChatPreviewRemoveClickAndHover: false
+  #Whether to parse PlaceholderAPI placeholders on the main thread
+  ParsePAPIOnMainThread: false
+  ItemTagMaxLength: 30767
+  PacketStringMaxLength: 32767
+  SendOriginalMessageIfExceedLengthLimit: true
+  #You might want to adjust this option if you have other plugins listening to the chat
+  #And it is interfering with InteractiveChat's placeholders
+  #Valid options are
+  #LOWEST, LOW, NORMAL, HIGH, HIGHEST, MONITOR
+  EventPriorities:
+    #Defaults to HIGH
+    Commands: HIGH
+    #Defaults to HIGH
+    Chat: HIGH
+    #Defaults to HIGH
+    Preview: HIGH
+  #Do NOT set this to true unless you know what you are doing
+  #Does not do anything on or below 1.16.5
+  #Using PaperMC does NOT mean you need to set this to true
+  UsePaperModernChatEvent: false
+  #Only used if UsePaperModernChatEvent is true
+  PaperChatEventEditOriginalMessageField: true
+  FormattingTags:
+    #Allow the use of "[color=#123456]" RGB tags (1.16+)
+    AllowRGBTags: true
+    #Allow the use of "[font=uniform]" Font tags (1.16+)
+    AllowFontTags: true
+    #Define custom RGB formats using regex
+    #Matching group 1-6 should be EACH of the characters in the RGB hex code
+    #For example, the regex for "#123456" should be
+    #"#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
+    AdditionalRGBFormats:
+      - "#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])"
+  BungeecordUnknownItem:
+    ReplaceItem: BARRIER
+    DisplayName: "&cUnknown Item {Type}"
+    Lore:
+      - "&7Unable to parse item"
+      - "&7This is likely to be an item that"
+      - "&7does not exist in this version of Minecraft"
+  #Visit this page for all the languages that Minecraft offers
+  #https://minecraft.fandom.com/wiki/Language
+  Language: en_us
+  #Use individual permissions for custom placeholders
+  #For example the first custom placeholder will have the permission
+  #interactivechat.module.custom.1
+  UseCustomPlaceholderPermissions: false
+  #The title of viewing a container inside an inventory view
+  ContainerViewTitle: "Container Contents"
+  #A list of private message commands on your server
+  #The plugin will attempt to parse placeholder inside these commands.
+  #This list is in REGEX, so you can do some more advanced matches.
+  CommandsToParse:
+    - "(?i)/emsg .*"
+    - "(?i)/msg .*"
+    - "(?i)/pm .*"
+    - "(?i)/tell .*"
+    - "(?i)/r .*"
+  #A list of chat messages to ignore
+  #This list is in REGEX, so you can do some more advanced matches.
+  MessagesToIgnore:
+    - ".*\\[.*IGNORE.*\\].*"
+  #Set the cooldown that is shared between all placeholders in the plugin (in seconds)
+  #Placeholders will not be parsed when a player is in cooldown
+  UniversalCooldown: 0
+  #Maximum Placeholders that can be used in one message will be cancelled if the limit is reached
+  #Put in -1 to disable the limit
+  MaxPlaceholders: -1
+  #Settings for situations where the plugin is unable to parse a placeholder
+  PlayerNotFound:
+    #Hover message settings
+    Hover:
+      #Add a hover message
+      Enable: true
+      #Text for the hover message
+      #Supports multiple lines
+      Text:
+        - "&cUnable to parse placeholder.."
+    #Click action settings
+    Click:
+      #Add a click action
+      Enable: false
+      #The action to do when clicked
+      #List of actions:
+      #OPEN_URL
+      #OPEN_FILE
+      #RUN_COMMAND
+      #SUGGEST_COMMAND
+      #CHANGE_PAGE
+      #COPY_TO_CLIPBOARD
+      Action: SUGGEST_COMMAND
+      #The value for the action above
+      #for example '/say yellow is her fav color' for the action RUN_COMMAND
+      Value: ""
+    #Replace keyword settings
+    Replace:
+      #Whether the keyword should be replaced with another text
+      Enable: true
+      #The text to replace the keyword
+      #Use {Placeholder} for the name of the placeholder that was unable to be parsed
+      ReplaceText: '&c{Placeholder}&r'
+  Hooks:
+    EcoSetLoreOnMainThread: false
+
+Commands:
+  #Whether to make commands displayed in chat clickable
+  Enabled: true
+  #The formatting to trigger the command display function
+  Format: "[{Command}]"
+  #The text to replace the matched section of the message
+  #Use "{Command}" for the command
+  Text: "&b[&e{Command}&b]"
+  #What happens when the player clicks the command
+  #List of actions:
+  #RUN_COMMAND
+  #SUGGEST_COMMAND
+  Action: SUGGEST_COMMAND
+  HoverMessage:
+    - "&eClick to use command!"
+
+Chat:
+  #Convert alternate color code character
+  #Only one character is allowed, leave blank to disable this feature
+  TranslateAltColorCode: '&'
+
+  #Enable the mention title and sound
+  AllowMention: true
+
+  #Time until a player can be mentioned by the same player again
+  #In seconds
+  MentionCooldown: 3
+
+  DisableHere: false
+  DisableEveryone: false
+
+  #The prefix to trigger a mention
+  MentionPrefix: "@"
+
+  #The sound to play when a player is mentioned
+  #List of all sounds
+  #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  #.
+  #Alternatively you can use full resourceLocations on 1.13+
+  #Example: "minecraft:entity.player.levelup"
+  MentionedSound: ENTITY_EXPERIENCE_ORB_PICKUP
+
+  #The title to show when mentioned
+  #Blank to disable
+  MentionedTitle: "&c&lMentioned"
+
+  #How long should the title be shown when mentioned
+  #Duration in seconds
+  MentionedTitleDuration: 1.5
+
+  #These are currently unused
+  UnknownPlayerMentionSubtitle: "&fSomeone had mentioned you in the chat!"
+  UnknownPlayerMentionActionbar: ""
+
+  #The subtitle and actionbar  to show when mentioned
+  #Note that actionbar might not work if your version of Minecraft does not support it
+  #Blank to disable
+  KnownPlayerMentionSubtitle: "&3%player_name% &fmentioned you in the chat!"
+  KnownPlayerMentionActionbar: ""
+
+  #Use Advancement Grant Toast to show a message
+  #Only works on versions 1.12 or above
+  #Blank to disable
+  MentionToast: "&3%player_name% &fmentioned you!"
+
+  #Use the bossbar to show a message (1.9+)
+  MentionBossBar:
+    #Blank to disable
+    Text: "&3%player_name% &fmentioned you!"
+    #Color of the bossbar if supported
+    #Accepted values:
+    #PURPLE
+    #PINK
+    #BLUE
+    #RED
+    #GREEN
+    #YELLOW
+    #WHITE
+    Color: "YELLOW"
+    #The style of the bossbar if supported
+    #PROGRESS
+    #NOTCHED_6
+    #NOTCHED_10
+    #NOTCHED_12
+    #NOTCHED_20
+    Overlay: "PROGRESS"
+    #How long should the bossbar be shown when mentioned
+    #Duration in seconds
+    Duration: 6.0
+    #The delay after the duration above before the bossbar is removed
+    #Delay in seconds
+    RemoveDelay: 0.5
+
+  #Highlight the mentioned playername for the player mentioned
+  #Use {MentionedPlayer} for the highlighted player name
+  MentionHighlight: "&e{MentionedPlayer}"
+  #Highlight the mentioned playername for other players
+  #Use {MentionedPlayer} for the highlighted player name
+  MentionHighlightOthers: "&3{MentionedPlayer}"
+
+  #The text to show when the player mentioned hover over the highlighted text
+  #Use {Sender} and {Receiver}
+  MentionHoverText:
+    - "&b{Sender} mentioned you!"
+
+  UseBukkitDisplayName: true
+  UseEssentialsNicknames: true
+
+ItemDisplay:
+  Settings:
+    #How long should an item display be stored in memory after its creation
+    #This is in minutes
+    Timeout: 5
+    #Hide lodestone compass position when sharing them
+    HideLodestoneCompassPos: false
+
+  Item:
+    #Enable players to show their items in main hand
+    Enabled: true
+    #The keyword to trigger the item display function (in regex)
+    Keyword: "(?i)\\[item\\]|\\[i\\]"
+    #The text to replace the keyword
+    #Special Placeholders:
+    #Use {Item} for item display name
+    #Use {Amount} for the item amount
+    Text: "&f[&f{Item} &bx{Amount}&f]"
+    #The text to replace the keyword when the player is only holding one item
+    SingularText: "&f[&f{Item}&f]"
+    #The title of the inventory view
+    InventoryTitle: "%player_name%'s Item"
+    #Cooldown of this placeholder in seconds
+    Cooldown: 0
+    #Enable the click GUI
+    GUIEnabled: true
+    #Enable the chat hover tooltip
+    HoverEnabled: true
+    #Alternative hover message to show if HoverEnabled is false
+    #Leave blank to disable
+    AlternativeHoverMessage:
+      - ""
+    #The item used for the frame of the Item GUI
+    Frame:
+      Primary: BLACK_STAINED_GLASS_PANE
+      Secondary: WHITE_STAINED_GLASS_PANE
+    #Preview shared maps instead of showing the item itself
+    PreviewMaps: true
+    EmptyItemSettings:
+      #Whether players are allowed to show an empty hand
+      AllowAir: true
+      #Message to send when AllowAir is false and a player tried to show nothing
+      DisallowMessage: "&cYou have nothing to show! Try holding something in your hand!"
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
+    Name: "[item]"
+    #This description is used when listing placeholders 
+    Description: "&aShow the Item you are holding in the chat!"
+
+    HoverableItemsTranslation:
+      #Whether to make all chat message item tooltips clickable (e.g. death messages, give command results)
+      #Only have an effect if GUIEnabled is enabled above
+      Enabled: true
+      #The title of the inventory view
+      InventoryTitle: "Item Preview"
+
+  Inventory:
+    #Enable players to show their inventory
+    Enabled: true
+    #The keyword to trigger the inventory display function (in regex)
+    Keyword: "(?i)\\[inv\\]|\\[inventory\\]"
+    #The text to replace the keyword
+    Text: "&f[&b%player_name%'s Inventory&f]"
+    #The title of the inventory view
+    InventoryTitle: "%player_name%'s Inventory"
+    #Cooldown of this placeholder in seconds
+    Cooldown: 0
+    #Which inventory sharing layout do you want as default
+    #Currently there is layout 0 and layout 1
+    Layout: 0
+    #The item display text of the skull
+    SkullDisplayName: "&e%player_name%"
+    #The item used for the frame of the Inventory GUI
+    Frame:
+      Primary: BLACK_STAINED_GLASS_PANE
+      Secondary: WHITE_STAINED_GLASS_PANE
+    #Hover Message
+    HoverMessage:
+      - "&bClick to view!"
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
+    Name: "[inv]"
+    #This description is used when listing placeholders 
+    Description: "&bShow your Inventory in the chat!"
+
+  EnderChest:
+    #Enable players to show their ender chest
+    Enabled: true
+    #The keyword to trigger the ender chest display function (in regex)
+    Keyword: "(?i)\\[ender\\]|\\[e\\]"
+    #The text to replace the keyword
+    Text: "&f[&d%player_name%'s Ender Chest&f]"
+    #The title of the ender chest inventory view
+    InventoryTitle: "%player_name%'s Ender Chest"
+    #Cooldown of this placeholder in seconds
+    Cooldown: 0
+    #Hover Message
+    HoverMessage:
+      - "&bClick to view!"
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
+    Name: "[ender]"
+    #This description is used when listing placeholders 
+    Description: "&dShow your Ender Chest in the chat!"
+
+Player:
+  #Let InteractiveChat handle all player names that appears in chat (literally ALL)
+  UsePlayerNameInteraction: true
+  #Let InteractiveChat override original hover/click events with its own hover/click events
+  #If it is set to false, the original hover/click event will take priority
+  #Meaning InteractiveChat player name interaction won't be applied
+  OverrideOriginal:
+    HoverEvent: true
+    ClickEvent: true
+  #Whether names have to be capitalized correctly to be replaced
+  CaseSensitive: true
+  Hover:
+    #Add a hover message to all player names in chat
+    Enable: true
+    #The text to show in the hover message
+    #Supports multiple lines
+    Text:
+      - '&aWorld: &7%player_world%'
+      - '&eBiome: &6%player_biome_capitalized%'
+      - '&cHealth: %player_health_rounded%&7/%player_max_health_rounded%'
+      - '&bPing: &7%player_colored_ping% &bms'
+  Click:
+    #Add a click action to all player names in chat
+    Enable: true
+    #The action to do when a player name is clicked
+    #List of actions:
+    #OPEN_URL
+    #OPEN_FILE
+    #RUN_COMMAND
+    #SUGGEST_COMMAND
+    #CHANGE_PAGE
+    #COPY_TO_CLIPBOARD
+    Action: SUGGEST_COMMAND
+    #The value for the action above
+    #for example '/say yellow is her fav color' for the action RUN_COMMAND
+    Value: "/msg %player_name% "
+
+TabCompletion:
+  #This option is only used on 1.19.1+
+  ChatTabCompletions:
+    Enabled: true
+  #This only works on command tab completions
+  #Doesn't work on chat tab completions or on versions on or below 1.12.2
+  PlayerNameToolTip:
+    Enabled: true
+    ToolTip: "%vault_prefix%%player_name%"
+
+#Note that all settings have to be present even if they are set to false
+CustomPlaceholders:
+  '1':
+    #Should the placeholders be parsed as the message sender or the message receiver
+    #Either 'sender' or 'viewer'
+    ParsePlayer: sender
+    #The keyword to look for in the chat (in regex)
+    Keyword: "(?i)\\[money\\]|\\[m\\]"
+    #Whether to parse placeholders in the keyword text
+    ParseKeyword: false
+    #Cooldown of this placeholder in seconds
+    Cooldown: 0
+    #Hover message settings
+    Hover:
+      #Add a hover message
+      Enable: true
+      #Text for the hover message
+      #Supports multiple lines
+      Text:
+        - "&6%player_name%'s Balance: \\$%vault_eco_balance_commas%"
+    #Click action settings
+    Click:
+      #Add a click action
+      Enable: true
+      #The action to do when clicked
+      #List of actions:
+      #OPEN_URL
+      #OPEN_FILE
+      #RUN_COMMAND
+      #SUGGEST_COMMAND
+      #CHANGE_PAGE
+      #COPY_TO_CLIPBOARD
+      Action: SUGGEST_COMMAND
+      #The value for the action above
+      #for example '/say yellow is her fav color' for the action RUN_COMMAND
+      Value: "/pay %player_name% "
+    #Replace keyword settings
+    Replace:
+      #Whether the keyword should be replaced with another text
+      Enable: true
+      #The text to replace the keyword
+      ReplaceText: "[%player_name%'s Balance]"
+    #This name is used to identify your placeholder
+    #It must be a non-regex form of your keyword and should satisfy the regex of your keyword
+    Name: "[money]"
+    #This description is used when listing placeholders 
+    Description: "&eShow the amount of money you have in the chat!"
+  '2':
+    ParsePlayer: viewer
+    Keyword: "(?i)\\[loohpjames\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: true
+      Text:
+        - "&eVisit the author's website!"
+        - "&bClick me!"
+    Click:
+      Enable: true
+      Action: OPEN_URL
+      Value: "https://loohpjames.com"
+    Replace:
+      Enable: true
+      ReplaceText: "&3&lLoohp&6&lJames"
+    Name: "[loohpjames]"
+    Description: "&eLink to author's website!"
+  '3':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[gametime\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ""
+      Value: ""
+    Replace:
+      Enable: true
+      ReplaceText: "%player_world_time_24%"
+    Name: "[gametime]"
+    Description: "&eShows the current time of the world you are in!"
+  '4':
+    ParsePlayer: viewer
+    Keyword: "(?i)\\[match: *([^\\[\\]]*)\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: true
+      Text:
+        - "&b$1"
+    Click:
+      Enable: true
+      Action: RUN_COMMAND
+      Value: "/me $1"
+    Replace:
+      Enable: true
+      ReplaceText: "&b[&e$1&b]"
+    Name: "[match:<Text>]"
+    Description: "&eExample of using Regex matching groups Text"
+  '5':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[time\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+    Name: "[time]"
+    Description: "&eShows the current time of the server in the real world!"
+  '6':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[pos\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
+    Name: "[pos]"
+    Description: "&eShows your current position!"
+  '7':
+    ParsePlayer: sender
+    Keyword: "(?i)\\[ping\\]"
+    ParseKeyword: false
+    Cooldown: 0
+    Hover:
+      Enable: false
+      Text: []
+    Click:
+      Enable: false
+      Action: ''
+      Value: ''
+    Replace:
+      Enable: true
+      ReplaceText: '%player_colored_ping% &bms'
+    Name: "[ping]"
+    Description: "&eShows your current ping!"

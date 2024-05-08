@@ -1,5 +1,5 @@
 /*
- * This file is part of HoloMobHealth.
+ * This file is part of InteractiveChat.
  *
  * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
  * Copyright (C) 2022. Contributors

@@ -38,7 +38,13 @@ import java.util.concurrent.ExecutionException;
 public class RedispatchSignedPacket {
 
     public static void packetListener() {
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(PacketType.Play.Client.CHAT_COMMAND_SIGNED, PacketType.Play.Client.CHAT_COMMAND, PacketType.Play.Client.CHAT)) {
+        PacketType[] packetTypes;
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
+            packetTypes = new PacketType[] {PacketType.Play.Client.CHAT_COMMAND_SIGNED, PacketType.Play.Client.CHAT_COMMAND, PacketType.Play.Client.CHAT};
+        } else {
+            packetTypes = new PacketType[] {PacketType.Play.Client.CHAT_COMMAND, PacketType.Play.Client.CHAT};
+        }
+        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().plugin(InteractiveChat.plugin).listenerPriority(ListenerPriority.MONITOR).types(packetTypes)) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 //do nothing
@@ -56,22 +62,7 @@ public class RedispatchSignedPacket {
                 Player player = event.getPlayer();
                 PacketContainer packet = event.getPacket();
 
-                if (event.getPacketType().equals(PacketType.Play.Client.CHAT_COMMAND) || event.getPacketType().equals(PacketType.Play.Client.CHAT_COMMAND_SIGNED)) {
-                    if (InteractiveChat.forceUnsignedChatCommandPackets && packet.getModifier().size() > 3) {
-                        Object argumentSignature = packet.getModifier().read(3);
-                        System.out.println(argumentSignature.getClass());
-                        if (ModernChatSigningUtils.isArgumentSignatureClass(argumentSignature) && !ModernChatSigningUtils.getArgumentSignatureEntries(argumentSignature).isEmpty()) {
-                            String command = "/" + packet.getStrings().read(0);
-                            event.setReadOnly(false);
-                            event.setCancelled(true);
-                            event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                                PlayerUtils.dispatchCommandAsPlayer(player, command);
-                                ModernChatSigningUtils.detectRateSpam(player, command);
-                            });
-                        }
-                    }
-                } else if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
+                if (event.getPacketType().equals(PacketType.Play.Client.CHAT)) {
                     if (InteractiveChat.forceUnsignedChatPackets) {
                         String message = packet.getStrings().read(0);
                         if (message.startsWith("/")) {
@@ -99,6 +90,21 @@ public class RedispatchSignedPacket {
                                     });
                                 }
                             }
+                        }
+                    }
+                } else {
+                    if (InteractiveChat.forceUnsignedChatCommandPackets && packet.getModifier().size() > 3) {
+                        Object argumentSignature = packet.getModifier().read(3);
+                        System.out.println(argumentSignature.getClass());
+                        if (ModernChatSigningUtils.isArgumentSignatureClass(argumentSignature) && !ModernChatSigningUtils.getArgumentSignatureEntries(argumentSignature).isEmpty()) {
+                            String command = "/" + packet.getStrings().read(0);
+                            event.setReadOnly(false);
+                            event.setCancelled(true);
+                            event.setReadOnly(true);
+                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                                PlayerUtils.dispatchCommandAsPlayer(player, command);
+                                ModernChatSigningUtils.detectRateSpam(player, command);
+                            });
                         }
                     }
                 }

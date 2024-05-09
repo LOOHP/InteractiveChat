@@ -1,5 +1,5 @@
 /*
- * This file is part of ImageFrame.
+ * This file is part of InteractiveChat.
  *
  * Copyright (C) 2024. LoohpJames <jamesloohp@gmail.com>
  * Copyright (C) 2024. Contributors

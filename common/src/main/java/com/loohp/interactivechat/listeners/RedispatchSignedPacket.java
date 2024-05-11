@@ -99,7 +99,6 @@ public class RedispatchSignedPacket {
                 } else {
                     if (InteractiveChat.forceUnsignedChatCommandPackets && packet.getModifier().size() > 3) {
                         Object argumentSignature = packet.getModifier().read(3);
-                        System.out.println(argumentSignature.getClass());
                         if (ModernChatSigningUtils.isArgumentSignatureClass(argumentSignature) && !ModernChatSigningUtils.getArgumentSignatureEntries(argumentSignature).isEmpty()) {
                             String command = "/" + packet.getStrings().read(0);
                             event.setReadOnly(false);

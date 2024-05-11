@@ -344,6 +344,7 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean forceUnsignedChatPackets = false;
     public static boolean forceUnsignedChatCommandPackets = false;
     public static boolean hideServerUnsignedStatus = true;
+    public static boolean skipDetectSpamRateWhenDispatchingUnsignedPackets = false;
 
     public static boolean ecoSetLoreOnMainThread = false;
 

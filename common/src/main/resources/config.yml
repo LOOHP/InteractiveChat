@@ -59,11 +59,13 @@ Settings:
   #This option is only effective on Minecraft 1.19.1+
   #If this is true then ForceUnsignedChatPackets & ForceUnsignedChatCommandPackets should also be true
   HideServerUnsignedStatus: true
+  #Enable this if your players are getting kicked for spamming when they are not spamming
+  SkipDetectSpamRateWhenDispatchingUnsignedPackets: false
   #In which packets should InteractiveChat listen to and modify
   PacketsToListen:
     Chat: true
     Title: false
-  #Should click and hover events be removed in chat previews on 1.19+
+  #Should click and hover events be removed in chat previews on 1.19-1.19.2
   ChatPreviewRemoveClickAndHover: false
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false

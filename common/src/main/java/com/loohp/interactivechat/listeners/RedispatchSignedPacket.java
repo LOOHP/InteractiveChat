@@ -77,13 +77,17 @@ public class RedispatchSignedPacket {
                                 event.setReadOnly(true);
                                 if (player.isConversing()) {
                                     Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
-                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> ModernChatSigningUtils.detectRateSpam(player, message));
+                                    if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
+                                        Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> ModernChatSigningUtils.detectRateSpam(player, message));
+                                    }
                                 } else {
                                     Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
                                         try {
                                             Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
                                             PlayerUtils.chatAsPlayer(player, message, decorated);
-                                            ModernChatSigningUtils.detectRateSpam(player, message);
+                                            if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
+                                                ModernChatSigningUtils.detectRateSpam(player, message);
+                                            }
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
                                         }
@@ -103,7 +107,9 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(true);
                             Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
                                 PlayerUtils.dispatchCommandAsPlayer(player, command);
-                                ModernChatSigningUtils.detectRateSpam(player, command);
+                                if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
+                                    ModernChatSigningUtils.detectRateSpam(player, command);
+                                }
                             });
                         }
                     }

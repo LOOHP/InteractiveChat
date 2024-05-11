@@ -98,6 +98,7 @@ public class ConfigManager {
         InteractiveChat.forceUnsignedChatPackets = getConfig().getBoolean("Settings.ForceUnsignedChatPackets");
         InteractiveChat.forceUnsignedChatCommandPackets = getConfig().getBoolean("Settings.ForceUnsignedChatCommandPackets");
         InteractiveChat.hideServerUnsignedStatus = getConfig().getBoolean("Settings.HideServerUnsignedStatus");
+        InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets = getConfig().getBoolean("Settings.SkipDetectSpamRateWhenDispatchingUnsignedPackets");
 
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");

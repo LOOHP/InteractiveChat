@@ -82,7 +82,7 @@ public class InteractiveChatComponentSerializer {
                                 .value(JSONOptions.EMIT_RGB, true)
                                 .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.BOTH)
                                 .value(JSONOptions.EMIT_DEFAULT_ITEM_HOVER_QUANTITY, true)
-                                .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3))
+                                .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, isProxyEnvironment() || InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3))
                                 .build()
                         )
                         .build()
@@ -102,6 +102,15 @@ public class InteractiveChatComponentSerializer {
         );
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
         LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacySection().toBuilder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+    }
+
+    private static boolean isProxyEnvironment() {
+        try {
+            Class.forName("org.bukkit.plugin.java.JavaPlugin");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {

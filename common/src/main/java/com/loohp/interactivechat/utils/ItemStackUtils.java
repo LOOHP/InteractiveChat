@@ -61,7 +61,9 @@ public class ItemStackUtils {
         if (rarityChatColor.equals(ChatColor.WHITE)) {
             rarityChatColor = defaultRarityColor;
         }
-        component = component.colorIfAbsent(ColorUtils.toTextColor(rarityChatColor));
+        if (rarityChatColor != null) {
+            component = component.colorIfAbsent(ColorUtils.toTextColor(rarityChatColor));
+        }
 
         if (removeClickAndHover) {
             component = ComponentStyling.stripEvents(component);

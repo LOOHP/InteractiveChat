@@ -125,9 +125,12 @@ public class DataTypeIO {
                         boolean setDurability = in.readBoolean();
                         int durability = setDurability ? in.readInt() : -1;
                         String nbtStr = readString(in, charset);
-                        ItemStack fromTag = ItemNBTUtils.getItemFromNBTJson(nbtStr);
-                        if (fromTag != null && fromTag.getType().equals(itemStack.getType())) {
-                            itemStack = fromTag;
+                        try {
+                            ItemStack fromTag = ItemNBTUtils.getItemFromNBTJson(nbtStr);
+                            if (fromTag != null && fromTag.getType().equals(itemStack.getType())) {
+                                itemStack = fromTag;
+                            }
+                        } catch (Exception ignore) {
                         }
                         if (setDurability) {
                             if (InteractiveChat.version.isLegacy()) {

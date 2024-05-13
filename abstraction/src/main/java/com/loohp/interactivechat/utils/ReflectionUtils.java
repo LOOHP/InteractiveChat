@@ -22,7 +22,6 @@ package com.loohp.interactivechat.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.function.Predicate;
 
 public class ReflectionUtils {
 

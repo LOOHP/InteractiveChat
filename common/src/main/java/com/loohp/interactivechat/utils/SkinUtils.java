@@ -67,7 +67,11 @@ public class SkinUtils {
         try {
             if (player != null) {
                 String base64 = getSkinValue(player);
-                head = Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner: {Properties: {textures: [{Value: \"" + base64 + "\"}]}}}");
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
+                    head = Bukkit.getUnsafe().modifyItemStack(head, "minecraft:player_head[minecraft:profile={properties:[{name:\"textures\",value:\"" + base64 + "\"}]}]");
+                } else {
+                    head = Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner: {Properties: {textures: [{Value: \"" + base64 + "\"}]}}}");
+                }
             }
         } catch (Throwable ignore) {
         }

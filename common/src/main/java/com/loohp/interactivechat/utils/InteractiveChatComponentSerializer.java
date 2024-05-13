@@ -23,7 +23,6 @@ package com.loohp.interactivechat.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -82,7 +81,7 @@ public class InteractiveChatComponentSerializer {
                                 .value(JSONOptions.EMIT_RGB, true)
                                 .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.BOTH)
                                 .value(JSONOptions.EMIT_DEFAULT_ITEM_HOVER_QUANTITY, true)
-                                .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, isProxyEnvironment() || InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3))
+                                .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, isProxyEnvironment() || isBukkitAboveV1_20_3())
                                 .build()
                         )
                         .build()
@@ -108,9 +107,17 @@ public class InteractiveChatComponentSerializer {
         try {
             Class.forName("org.bukkit.plugin.java.JavaPlugin");
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable e) {
             return false;
         }
+    }
+
+    private static boolean isBukkitAboveV1_20_3() {
+       try {
+           return com.loohp.interactivechat.InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_3);
+       } catch (Throwable e) {
+           return true;
+       }
     }
 
     public static InteractiveChatBungeecordAPILegacyComponentSerializer bungeecordApiLegacy() {

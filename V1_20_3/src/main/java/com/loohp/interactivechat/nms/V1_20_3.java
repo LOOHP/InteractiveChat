@@ -127,6 +127,7 @@ public class V1_20_3 extends NMSWrapper {
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
+    private Method paperPlayerChatMessageWithResultMethod;
 
     public V1_20_3() {
         try {
@@ -139,8 +140,13 @@ public class V1_20_3 extends NMSWrapper {
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        //paper
-        paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 3).findFirst().orElse(null);
+        try {
+            //paper
+            paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 3).findFirst().orElse(null);
+            //noinspection JavaReflectionMemberAccess
+            paperPlayerChatMessageWithResultMethod = PlayerChatMessage.class.getMethod("withResult", Class.forName("net.minecraft.network.chat.ChatDecorator$Result"));
+        } catch (NoSuchMethodException | ClassNotFoundException ignore) {
+        }
     }
 
     @Override
@@ -427,12 +433,16 @@ public class V1_20_3 extends NMSWrapper {
 
     @Override
     public boolean modernChatSigningHasWithResult() {
-        return false;
+        return paperPlayerChatMessageWithResultMethod != null;
     }
 
     @Override
-    public Object modernChatSigningWithResult(Object playerChatMessage, Object result) {
-        return null;
+    public PlayerChatMessage modernChatSigningWithResult(Object playerChatMessage, Object result) {
+        try {
+            return (PlayerChatMessage) paperPlayerChatMessageWithResultMethod.invoke(playerChatMessage, result);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -469,16 +479,15 @@ public class V1_20_3 extends NMSWrapper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public CompletableFuture<IChatBaseComponent> modernChatSigningGetChatDecorator(Player player, Component message) {
+    public CompletableFuture<?> modernChatSigningGetChatDecorator(Player player, Component message) {
         try {
             ChatDecorator chatDecorator = ((CraftServer) Bukkit.getServer()).getServer().bi();
             EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
             if (paperChatDecoratorDecorateMethod == null) {
                 return CompletableFuture.completedFuture(chatDecorator.decorate(entityPlayer, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message))));
             } else {
-                return (CompletableFuture<IChatBaseComponent>) paperChatDecoratorDecorateMethod.invoke(chatDecorator, entityPlayer, null, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message)));
+                return (CompletableFuture<?>) paperChatDecoratorDecorateMethod.invoke(chatDecorator, entityPlayer, null, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message)));
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -489,7 +498,11 @@ public class V1_20_3 extends NMSWrapper {
     public void chatAsPlayerAsync(Player player, String message, Object unsignedContentOrResult) {
         PlayerChatMessage playerChatMessage = modernChatSigningGetPlayerChatMessage(message);
         if (unsignedContentOrResult != null) {
-            playerChatMessage = modernChatSigningWithUnsignedContent(playerChatMessage, unsignedContentOrResult);
+            if (unsignedContentOrResult instanceof IChatBaseComponent) {
+                playerChatMessage = modernChatSigningWithUnsignedContent(playerChatMessage, unsignedContentOrResult);
+            } else {
+                playerChatMessage = modernChatSigningWithResult(playerChatMessage, unsignedContentOrResult);
+            }
         }
         ((CraftPlayer) player).getHandle().c.chat(message, playerChatMessage, true);
     }

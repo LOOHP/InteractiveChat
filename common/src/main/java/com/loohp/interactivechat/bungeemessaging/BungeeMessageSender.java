@@ -52,7 +52,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BungeeMessageSender {
 
     public static final Pattern VALID_CUSTOM_CHANNEL = Pattern.compile("[a-z]+:[a-z0-9_]+");
@@ -239,7 +238,6 @@ public class BungeeMessageSender {
         return forwardData(time, 0x0B, out.toByteArray());
     }
 
-    @SuppressWarnings("deprecation")
     public static boolean resetAndForwardPlaceholderList(long time, Collection<ICPlaceholder> placeholderList) throws Exception {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeInt(placeholderList.size());

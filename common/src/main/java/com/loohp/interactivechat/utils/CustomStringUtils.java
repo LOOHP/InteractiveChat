@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.utils;
 
+import org.apache.commons.text.translate.UnicodeUnescaper;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +36,7 @@ public class CustomStringUtils {
     private static final String[] REPLACE_ALL_META_CHARACTERS = new String[] {"$"};
     private static final String REPLACE_REGEX = "(?<!\\\\)\\$%s|\\\\\\\\\\$%s";
     private static final String REPLACE_ESCAPE_REGEX = "(?<!\\\\)\\\\\\$";
+    private static final UnicodeUnescaper UNESCAPE_UNICODE = new UnicodeUnescaper();
 
     public static String applyReplacementRegex(String str, MatchResult result, int groupOffset) {
         str = str.replaceAll(REPLACE_REGEX.replace("%s", "0"), escapeReplaceAllMetaCharacters(result.group()));
@@ -226,6 +229,10 @@ public class CustomStringUtils {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    public static String unescapeUnicode(String str) {
+        return UNESCAPE_UNICODE.translate(str);
     }
 
 }

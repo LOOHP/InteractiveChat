@@ -43,6 +43,7 @@ import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.velocitypowered.api.command.CommandSource;
@@ -86,8 +87,6 @@ import io.netty.channel.ChannelPromise;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.json.simple.JSONObject;
@@ -282,26 +281,13 @@ public class InteractiveChatVelocity {
                     packet = new LegacyChatPacket(component + "<QUxSRUFEWVBST0NFU1NFRA==>", (byte) info.getPosition(), null);
                     break;
                 case SYSTEM_CHAT:
+                    SystemChatPacket originalSystemChatPacket = (SystemChatPacket) info.getOriginalPacket();
                     packet = new SystemChatPacket();
-                    ChatType chatType;
-                    switch (info.getPosition()) {
-                        case 0:
-                            chatType = ChatType.CHAT;
-                            break;
-                        case 1:
-                            chatType = ChatType.SYSTEM;
-                            break;
-                        case 2:
-                            chatType = ChatType.GAME_INFO;
-                            break;
-                        default:
-                            chatType = ChatType.CHAT;
-                            break;
-                    }
+                    ChatType chatType = Arrays.stream(ChatType.values()).filter(c -> c.getId() == info.getPosition()).findFirst().orElse(ChatType.CHAT);
                     try {
                         Field[] fields = packet.getClass().getDeclaredFields();
                         fields[0].setAccessible(true);
-                        fields[0].set(packet, NativeAdventureConverter.componentToNative(GsonComponentSerializer.gson().deserialize(component).append(Component.text("<QUxSRUFEWVBST0NFU1NFRA==>")), legacyRGB));
+                        fields[0].set(packet, new ComponentHolder(getProtocolVersion(originalSystemChatPacket.getComponent()), component + "<QUxSRUFEWVBST0NFU1NFRA==>"));
                         fields[1].setAccessible(true);
                         fields[1].set(packet, chatType);
                     } catch (IllegalAccessException e) {
@@ -880,7 +866,7 @@ public class InteractiveChatVelocity {
                         byte position = packet.getType();
                         if ((position != 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.CHAT)) || (position == 2 && proxyHandlePacketTypesType.hasType(ProxyHandlePacketTypes.ProxyPacketType.ACTIONBAR))) {
                             if ((position == 0 || position == 1) && message != null) {
-                                if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                     message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                     if (Registry.ID_PATTERN.matcher(message).find()) {
                                         message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
@@ -898,14 +884,14 @@ public class InteractiveChatVelocity {
                         String message = holder == null ? null : holder.getJson();
                         int position = packet.getType().getId();
                         if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                            if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
                                 Field messageField = packet.getClass().getDeclaredField("component");
                                 messageField.setAccessible(true);
-                                messageField.set(packet, NativeAdventureConverter.jsonStringToNative(message));
+                                messageField.set(packet, new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.SYSTEM_CHAT, packet);
                                 return;
@@ -920,12 +906,12 @@ public class InteractiveChatVelocity {
                         String message = unsignedContent == null ? null : NativeAdventureConverter.jsonStringFromNative(unsignedContent);
                         int position = packet.getType();
                         if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                            if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
                                 }
-                                unsignedContentField.set(packet, NativeAdventureConverter.jsonStringToNative(message));
+                                unsignedContentField.set(packet, new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
                                 messageForwardingHandler.processMessage(player.getUniqueId(), message, position, ChatPacketType.PLAYER_CHAT, packet);
                                 return;
@@ -938,7 +924,7 @@ public class InteractiveChatVelocity {
                         String message = holder == null ? null : holder.getJson();
                         if (packet.getAction().equals(ActionType.SET_TITLE) || packet.getAction().equals(ActionType.SET_SUBTITLE) || packet.getAction().equals(ActionType.SET_ACTION_BAR)) {
                             if (message != null) {
-                                if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                                if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                     message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                     if (Registry.ID_PATTERN.matcher(message).find()) {
                                         message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
@@ -955,7 +941,7 @@ public class InteractiveChatVelocity {
                         ComponentHolder holder = packet.getComponent();
                         String message = holder == null ? null : holder.getJson();
                         if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                            if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
@@ -971,7 +957,7 @@ public class InteractiveChatVelocity {
                         ComponentHolder holder = packet.getComponent();
                         String message = holder == null ? null : holder.getJson();
                         if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                            if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
@@ -987,7 +973,7 @@ public class InteractiveChatVelocity {
                         ComponentHolder holder = packet.getComponent();
                         String message = holder == null ? null : holder.getJson();
                         if (message != null) {
-                            if ((message = StringEscapeUtils.unescapeJava(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
+                            if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
                                 if (Registry.ID_PATTERN.matcher(message).find()) {
                                     message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();

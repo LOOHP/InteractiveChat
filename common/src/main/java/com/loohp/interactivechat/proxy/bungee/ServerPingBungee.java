@@ -23,12 +23,12 @@ package com.loohp.interactivechat.proxy.bungee;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.DataStreamIO;
 import com.loohp.interactivechat.utils.MCVersion;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.apache.commons.text.StringEscapeUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -149,7 +149,7 @@ public class ServerPingBungee {
                             String descriptionAsStr = ChatColor.stripColor(ComponentSerializer.parse(description.toJSONString())[0].toPlainText());
                             data = (JSONObject) new JSONParser().parse(descriptionAsStr);
                         } else {
-                            data = (JSONObject) new JSONParser().parse(StringEscapeUtils.unescapeJava(descriptionObj.toString()));
+                            data = (JSONObject) new JSONParser().parse(CustomStringUtils.unescapeUnicode(descriptionObj.toString()));
                         }
                         present = (boolean) data.get("present");
                         version = (String) data.get("version");

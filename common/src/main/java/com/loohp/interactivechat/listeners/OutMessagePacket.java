@@ -33,6 +33,7 @@ import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
 import com.loohp.interactivechat.api.events.PrePacketComponentProcessEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
+import com.loohp.interactivechat.hooks.triton.TritonHook;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
@@ -648,6 +649,10 @@ public class OutMessagePacket implements Listener {
 
             if (!PlayerUtils.canChatColor(receiver)) {
                 component = ComponentStyling.stripColor(component);
+            }
+
+            if (InteractiveChat.tritonHook) {
+                component = TritonHook.parseLanguageChat(sender.map(p -> p.getUniqueId()).orElse(null), component);
             }
 
             PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);

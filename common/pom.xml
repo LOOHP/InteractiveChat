@@ -512,6 +512,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.github.tritonmc.Triton</groupId>
+			<artifactId>Triton</artifactId>
+			<version>v3.9.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.github.ProtocolSupport</groupId>
 			<artifactId>ProtocolSupport</artifactId>
 			<version>master-04834effe2-1</version>
@@ -548,14 +554,14 @@
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-4.0.4.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.0.5.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.nightcore</groupId>
 			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/nightcore-2.5.2.1.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.6.1.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.geysermc.floodgate</groupId>

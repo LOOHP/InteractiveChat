@@ -35,7 +35,6 @@ public class ExcellentEnchantsHook {
 
     public static void init() {
         Plugin excellentEnchants = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
-
         if (Config.ENCHANTMENTS_DISPLAY_MODE.get() == 2 && Plugins.isLoaded("ProtocolLib")) {
             InteractiveChatAPI.registerItemStackTransformProvider(excellentEnchants, 1, (itemStack, uuid) -> {
                 ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);

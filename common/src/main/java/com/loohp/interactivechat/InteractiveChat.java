@@ -147,6 +147,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean mysqlPDBHook = false;
     public static Boolean chatControlRedHook = false;
     public static Boolean floodgateHook = false;
+    public static Boolean tritonHook = false;
 
     public static Permission perms = null;
 
@@ -606,6 +607,11 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Floodgate!");
             getServer().getPluginManager().registerEvents(new FloodgateHook(), this);
             floodgateHook = true;
+        }
+
+        if (isPluginEnabled("Triton")) {
+            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Triton!");
+            tritonHook = true;
         }
 
         if (isPluginEnabled("VentureChat")) {

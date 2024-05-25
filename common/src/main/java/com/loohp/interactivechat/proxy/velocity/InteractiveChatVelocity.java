@@ -49,6 +49,7 @@ import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.connection.PluginMessageEvent.ForwardResult;
@@ -120,6 +121,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -596,60 +598,114 @@ public class InteractiveChatVelocity {
     @Subscribe(order = PostOrder.FIRST)
     public void onVelocityChatFirst(PlayerChatEvent event) {
         if (chatEventPostOrder.equals(PostOrder.FIRST)) {
-            handleChat(event);
+            handleVelocityChat(event);
         }
     }
 
     @Subscribe(order = PostOrder.EARLY)
     public void onVelocityChatEarly(PlayerChatEvent event) {
         if (chatEventPostOrder.equals(PostOrder.EARLY)) {
-            handleChat(event);
+            handleVelocityChat(event);
         }
     }
 
     @Subscribe(order = PostOrder.NORMAL)
     public void onVelocityChatNormal(PlayerChatEvent event) {
         if (chatEventPostOrder.equals(PostOrder.NORMAL)) {
-            handleChat(event);
+            handleVelocityChat(event);
         }
     }
 
     @Subscribe(order = PostOrder.LATE)
     public void onVelocityChatLate(PlayerChatEvent event) {
         if (chatEventPostOrder.equals(PostOrder.LATE)) {
-            handleChat(event);
+            handleVelocityChat(event);
         }
     }
 
     @Subscribe(order = PostOrder.LAST)
     public void onVelocityChatLast(PlayerChatEvent event) {
         if (chatEventPostOrder.equals(PostOrder.LAST)) {
-            handleChat(event);
+            handleVelocityChat(event);
         }
     }
 
-    private void handleChat(PlayerChatEvent event) {
-        if (!event.getResult().isAllowed()) {
+    public void handleVelocityChat(PlayerChatEvent event) {
+        handleChat(event.getPlayer(), event.getMessage(), event.getResult().isAllowed(), newMessage -> {
+            try {
+                Field messageField = event.getClass().getDeclaredField("message");
+                messageField.setAccessible(true);
+                messageField.set(event, newMessage);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }, newMessage -> event.setResult(ChatResult.message(newMessage)));
+    }
+
+    @Subscribe(order = PostOrder.FIRST)
+    public void onCommandExecuteFirst(CommandExecuteEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.FIRST)) {
+            handleCommandExecute(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.EARLY)
+    public void onCommandExecuteEarly(CommandExecuteEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.EARLY)) {
+            handleCommandExecute(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.NORMAL)
+    public void onCommandExecuteNormal(CommandExecuteEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.NORMAL)) {
+            handleCommandExecute(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.LATE)
+    public void onCommandExecuteLate(CommandExecuteEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.LATE)) {
+            handleCommandExecute(event);
+        }
+    }
+
+    @Subscribe(order = PostOrder.LAST)
+    public void onCommandExecuteLast(CommandExecuteEvent event) {
+        if (chatEventPostOrder.equals(PostOrder.LAST)) {
+            handleCommandExecute(event);
+        }
+    }
+
+    public void handleCommandExecute(CommandExecuteEvent event) {
+        CommandSource sender = event.getCommandSource();
+        if (sender instanceof Player) {
+            handleChat((Player) sender, event.getCommand(), event.getResult().isAllowed(), newMessage -> {
+                try {
+                    Field messageField = event.getClass().getDeclaredField("command");
+                    messageField.setAccessible(true);
+                    messageField.set(event, newMessage);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }, newMessage -> event.setResult(CommandExecuteEvent.CommandResult.command(newMessage)));
+        }
+    }
+
+    private void handleChat(Player player, String eventMessage, boolean isAllowed, Consumer<String> setEventMessage, Consumer<String> setResult) {
+        if (!isAllowed) {
             return;
         }
-
-        Player player = event.getPlayer();
 
         if (!player.getCurrentServer().isPresent()) {
             return;
         }
 
         UUID uuid = player.getUniqueId();
-        String message = event.getMessage();
+        String message = eventMessage;
 
-        String newMessage = Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll("");
-        try {
-            Field messageField = event.getClass().getDeclaredField("message");
-            messageField.setAccessible(true);
-            messageField.set(event, newMessage);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        String newMessage = Registry.ID_PATTERN.matcher(eventMessage).replaceAll("");
+        setEventMessage.accept(newMessage);
 
         boolean hasInteractiveChat = false;
         BackendInteractiveChatData data = serverInteractiveChatInfo.get(player.getCurrentServer().get().getServerInfo().getName());
@@ -712,13 +768,7 @@ public class InteractiveChatVelocity {
                     }
                 }
             }
-            try {
-                Field messageField = event.getClass().getDeclaredField("message");
-                messageField.setAccessible(true);
-                messageField.set(event, message);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            setEventMessage.accept(message);
 
             String finalNewMessage = newMessage;
             proxyServer.getScheduler().buildTask(plugin, () -> {
@@ -733,15 +783,16 @@ public class InteractiveChatVelocity {
             }).delay(100, TimeUnit.MILLISECONDS).schedule();
         }
 
-        if (!event.getMessage().equals(newMessage)) {
-            if (player.getIdentifiedKey().getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
+        if (!eventMessage.equals(newMessage)) {
+            IdentifiedKey key = player.getIdentifiedKey();
+            if (key != null && key.getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
                 try {
-                    PluginMessageSendingVelocity.forwardSignedChatEventChange(uuid, event.getMessage(), newMessage, System.currentTimeMillis());
+                    PluginMessageSendingVelocity.forwardSignedChatEventChange(uuid, eventMessage, newMessage, System.currentTimeMillis());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                event.setResult(ChatResult.message(newMessage));
+                setResult.accept(newMessage);
             }
         }
     }

@@ -64,7 +64,7 @@ public class DataTypeIO {
                 }
                 return inventory;
             default:
-                throw new IllegalArgumentException("Unknown encodingScheme version!");
+                throw new IllegalArgumentException("Unknown encodingScheme version " + encodingScheme);
         }
     }
 
@@ -88,7 +88,7 @@ public class DataTypeIO {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Unknown encodingScheme version!");
+                throw new IllegalArgumentException("Unknown encodingScheme version " + encodingScheme);
         }
     }
 
@@ -147,7 +147,7 @@ public class DataTypeIO {
                     return null;
                 }
             default:
-                throw new IllegalArgumentException("Unknown encodingScheme version!");
+                throw new IllegalArgumentException("Unknown encodingScheme version " + encodingScheme);
         }
     }
 
@@ -187,7 +187,7 @@ public class DataTypeIO {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Unknown encodingScheme version!");
+                throw new IllegalArgumentException("Unknown encodingScheme version " + encodingScheme);
         }
         out.writeByte(encodingScheme);
         out.write(itemByte.toByteArray());

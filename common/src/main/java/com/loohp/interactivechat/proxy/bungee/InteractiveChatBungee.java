@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.proxy.bungee;
 
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.config.Config;
@@ -440,6 +441,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
 
             byte[] finalData = data;
+            byte[][] finalChunks = chunks;
             pluginMessageHandlingExecutor.submit(() -> {
                 try {
                     ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
@@ -459,9 +461,17 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                     playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
                                     break;
                             }
-                            for (ServerInfo server : getProxy().getServers().values()) {
-                                if (!server.getSocketAddress().equals(senderServerAddress) && server.getPlayers().size() > 0) {
-                                    server.sendData("interchat:main", finalData);
+                            List<ServerInfo> servers = getProxy().getServers().values().stream().filter(e -> !e.getSocketAddress().equals(senderServerAddress) && !e.getPlayers().isEmpty()).collect(Collectors.toList());
+                            for (int i = 0; i < finalChunks.length; i++) {
+                                byte[] chunk = finalChunks[i];
+                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                                out.writeInt(packetNumber); //random packet number
+                                out.writeInt(i); //packet chunk index
+                                out.writeInt(finalChunks.length); //packet total chunks
+                                out.writeShort(packetId); //packet id
+                                out.write(chunk);
+                                for (ServerInfo eachServer : servers) {
+                                    eachServer.sendData("interchat:main", out.toByteArray());
                                     pluginMessagesCounter.incrementAndGet();
                                 }
                             }
@@ -546,7 +556,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         } else {
             pluginMessageHandlingExecutor.submit(() -> {
                 for (ServerInfo server : getProxy().getServers().values()) {
-                    if (!server.getSocketAddress().equals(senderServerAddress) && server.getPlayers().size() > 0) {
+                    if (!server.getSocketAddress().equals(senderServerAddress) && !server.getPlayers().isEmpty()) {
                         server.sendData("interchat:main", event.getData());
                         pluginMessagesCounter.incrementAndGet();
                     }
@@ -708,7 +718,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         }
 
         if (!event.getMessage().equals(newMessage)) {
-            if (((ProxiedPlayer) event.getSender()).getPendingConnection().getVersion() >= Registry.MINECRAFT_1_19_1_PROTOCOL_VERSION) {
+            if (player.getPendingConnection().getVersion() >= Registry.MINECRAFT_1_19_1_PROTOCOL_VERSION) {
                 try {
                     PluginMessageSendingBungee.forwardSignedChatEventChange(uuid, event.getMessage(), newMessage, System.currentTimeMillis());
                 } catch (IOException e) {

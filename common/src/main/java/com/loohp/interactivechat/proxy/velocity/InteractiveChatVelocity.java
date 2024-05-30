@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.proxy.velocity;
 
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
@@ -49,6 +50,7 @@ import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -68,7 +70,9 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.proxy.messages.ChannelMessageSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
+import com.velocitypowered.proxy.connection.client.ClientPlaySessionHandler;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -76,6 +80,7 @@ import com.velocitypowered.proxy.protocol.packet.chat.ChatType;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.session.SessionChatHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.title.GenericTitlePacket.ActionType;
 import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
@@ -114,6 +119,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
@@ -151,6 +157,7 @@ public class InteractiveChatVelocity {
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
     private static Field componentHolderProtocolField;
+    private static Map<ResultedEvent<?>, String> eventOriginalMessage = Collections.synchronizedMap(new WeakHashMap<>());
 
     static {
         try {
@@ -489,6 +496,7 @@ public class InteractiveChatVelocity {
             }
 
             byte[] finalData = data;
+            byte[][] finalChunks = chunks;
             pluginMessageHandlingExecutor.submit(() -> {
                 try {
                     ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
@@ -508,9 +516,17 @@ public class InteractiveChatVelocity {
                                     playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
                                     break;
                             }
-                            for (RegisteredServer eachServer : getServer().getAllServers()) {
-                                if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
-                                    eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, finalData);
+                            List<RegisteredServer> servers = getServer().getAllServers().stream().filter(e -> !e.getServerInfo().getName().equals(senderServer) && !e.getPlayersConnected().isEmpty()).collect(Collectors.toList());
+                            for (int i = 0; i < finalChunks.length; i++) {
+                                byte[] chunk = finalChunks[i];
+                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                                out.writeInt(packetNumber); //random packet number
+                                out.writeInt(i); //packet chunk index
+                                out.writeInt(finalChunks.length); //packet total chunks
+                                out.writeShort(packetId); //packet id
+                                out.write(chunk);
+                                for (RegisteredServer eachServer : servers) {
+                                    eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
                                     pluginMessagesCounter.incrementAndGet();
                                 }
                             }
@@ -595,7 +611,7 @@ public class InteractiveChatVelocity {
         } else {
             pluginMessageHandlingExecutor.submit(() -> {
                 for (RegisteredServer eachServer : getServer().getAllServers()) {
-                    if (!eachServer.getServerInfo().getName().equals(senderServer) && eachServer.getPlayersConnected().size() > 0) {
+                    if (!eachServer.getServerInfo().getName().equals(senderServer) && !eachServer.getPlayersConnected().isEmpty()) {
                         eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
                         pluginMessagesCounter.incrementAndGet();
                     }
@@ -637,9 +653,20 @@ public class InteractiveChatVelocity {
         if (chatEventPostOrder.equals(PostOrder.LAST)) {
             handleVelocityChat(event);
         }
+        String originalMessage = eventOriginalMessage.remove(event);
+        if (originalMessage != null) {
+            try {
+                Field messageField = event.getClass().getDeclaredField("message");
+                messageField.setAccessible(true);
+                messageField.set(event, originalMessage);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void handleVelocityChat(PlayerChatEvent event) {
+        eventOriginalMessage.put(event, event.getMessage());
         handleChat(event.getPlayer(), event.getMessage(), event.getResult().isAllowed(), newMessage -> {
             try {
                 Field messageField = event.getClass().getDeclaredField("message");
@@ -684,11 +711,22 @@ public class InteractiveChatVelocity {
         if (chatEventPostOrder.equals(PostOrder.LAST)) {
             handleCommandExecute(event);
         }
+        String originalMessage = eventOriginalMessage.remove(event);
+        if (originalMessage != null) {
+            try {
+                Field messageField = event.getClass().getDeclaredField("command");
+                messageField.setAccessible(true);
+                messageField.set(event, originalMessage);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void handleCommandExecute(CommandExecuteEvent event) {
         CommandSource sender = event.getCommandSource();
         if (sender instanceof Player) {
+            eventOriginalMessage.put(event, event.getCommand());
             handleChat((Player) sender, event.getCommand(), event.getResult().isAllowed(), newMessage -> {
                 try {
                     Field messageField = event.getClass().getDeclaredField("command");
@@ -794,7 +832,21 @@ public class InteractiveChatVelocity {
 
         if (!eventMessage.equals(newMessage)) {
             IdentifiedKey key = player.getIdentifiedKey();
-            if (key != null && key.getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
+            boolean signedPacket = key != null && key.getKeyRevision().noLessThan(IdentifiedKey.Revision.LINKED_V2);
+            if (!signedPacket && player instanceof ConnectedPlayer) {
+                MinecraftSessionHandler handler = ((ConnectedPlayer) player).getConnection().getActiveSessionHandler();
+                if (handler instanceof ClientPlaySessionHandler) {
+                    ClientPlaySessionHandler playSessionHandler = (ClientPlaySessionHandler) handler;
+                    try {
+                        Field chatHandlerField = ClientPlaySessionHandler.class.getDeclaredField("chatHandler");
+                        chatHandlerField.setAccessible(true);
+                        signedPacket |= chatHandlerField.get(playSessionHandler) instanceof SessionChatHandler;
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (signedPacket) {
                 try {
                     PluginMessageSendingVelocity.forwardSignedChatEventChange(uuid, eventMessage, newMessage, System.currentTimeMillis());
                 } catch (IOException e) {

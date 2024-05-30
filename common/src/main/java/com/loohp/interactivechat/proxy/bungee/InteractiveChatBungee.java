@@ -34,8 +34,14 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.proxy.bungee.metrics.Charts;
 import com.loohp.interactivechat.proxy.bungee.metrics.Metrics;
-import com.loohp.interactivechat.proxy.objectholders.*;
+import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
+import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
+import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
+import com.loohp.interactivechat.proxy.objectholders.ProxyHandlePacketTypes;
+import com.loohp.interactivechat.proxy.objectholders.ProxyMessageForwardingHandler;
+import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.viaversion.viaversion.api.Via;
@@ -81,7 +87,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,7 +118,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
     public static final int BSTATS_PLUGIN_ID = 8839;
     public static final String CONFIG_ID = "config";
-    private static final Map<Integer, byte[]> incoming = new HashMap<>();
+    private static final Map<Integer, byte[][]> incoming = new HashMap<>();
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static boolean viaVersionHook = false;
     public static InteractiveChatBungee plugin;
@@ -405,24 +410,33 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
         ByteArrayDataInput in = ByteStreams.newDataInput(packet);
         int packetNumber = in.readInt();
+        int packetChunkIndex = in.readInt();
+        int packetChunkSize = in.readInt();
         int packetId = in.readShort();
 
         if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
-            boolean isEnding = in.readBoolean();
-            byte[] data = new byte[packet.length - 7];
+            byte[] data = new byte[packet.length - 14];
             in.readFully(data);
 
-            byte[] chain = incoming.remove(packetNumber);
-            if (chain != null) {
-                ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-                buff.put(chain);
-                buff.put(data);
-                data = buff.array();
+            byte[][] chunks = incoming.remove(packetNumber);
+            if (chunks == null) {
+                chunks = new byte[packetChunkSize][];
             }
-
-            if (!isEnding) {
-                incoming.put(packetNumber, data);
+            if (chunks.length != packetChunkSize) {
+                byte[][] adjusted = new byte[packetChunkSize][];
+                System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+                chunks = adjusted;
+            }
+            chunks[packetChunkIndex] = data;
+            if (CustomArrayUtils.anyNull(chunks)) {
+                incoming.put(packetNumber, chunks);
                 return;
+            }
+            data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+            for (int i = 0, pos = 0; i < chunks.length; i++) {
+                byte[] chunk = chunks[i];
+                System.arraycopy(chunk, 0, data, pos, chunk.length);
+                pos += chunk.length;
             }
 
             byte[] finalData = data;

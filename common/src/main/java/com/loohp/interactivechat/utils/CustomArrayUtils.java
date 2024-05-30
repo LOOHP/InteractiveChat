@@ -25,17 +25,17 @@ import java.util.Arrays;
 
 public class CustomArrayUtils {
 
-    public static byte[][] divideArray(byte[] source, int chunksize) {
-        int length = (int) Math.ceil(source.length / (double) chunksize);
+    public static byte[][] divideArray(byte[] source, int chunkSize) {
+        int length = (int) Math.ceil(source.length / (double) chunkSize);
         if (length <= 1) {
             return new byte[][] {source};
         }
         byte[][] ret = new byte[length][];
         int start = 0;
         for (int i = 0; i < ret.length; i++) {
-            int end = start + chunksize;
+            int end = start + chunkSize;
             ret[i] = Arrays.copyOfRange(source, start, Math.min(end, source.length));
-            start += chunksize;
+            start += chunkSize;
         }
         return ret;
     }
@@ -53,6 +53,21 @@ public class CustomArrayUtils {
             }
         }
         return true;
+    }
+
+    public static boolean anyNull(Object src) {
+        if (src == null) {
+            return true;
+        }
+        if (!src.getClass().isArray()) {
+            return false;
+        }
+        for (int i = 0; i < Array.getLength(src); i++) {
+            if (Array.get(src, i) == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

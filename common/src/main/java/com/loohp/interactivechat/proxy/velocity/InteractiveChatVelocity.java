@@ -43,6 +43,7 @@ import com.loohp.interactivechat.proxy.objectholders.ProxyPlayerCooldownManager;
 import com.loohp.interactivechat.proxy.velocity.metrics.Charts;
 import com.loohp.interactivechat.proxy.velocity.metrics.Metrics;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
@@ -100,7 +101,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public class InteractiveChatVelocity {
     public static final int BSTATS_PLUGIN_ID = 10945;
     public static final String CONFIG_ID = "config";
     private static final boolean filtersAdded = false;
-    private static final Map<Integer, byte[]> incoming = new HashMap<>();
+    private static final Map<Integer, byte[][]> incoming = new HashMap<>();
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static InteractiveChatVelocity plugin = null;
     public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
@@ -459,24 +459,33 @@ public class InteractiveChatVelocity {
         byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
         ByteArrayDataInput in = ByteStreams.newDataInput(packet);
         int packetNumber = in.readInt();
+        int packetChunkIndex = in.readInt();
+        int packetChunkSize = in.readInt();
         int packetId = in.readShort();
 
         if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
-            boolean isEnding = in.readBoolean();
-            byte[] data = new byte[packet.length - 7];
+            byte[] data = new byte[packet.length - 14];
             in.readFully(data);
 
-            byte[] chain = incoming.remove(packetNumber);
-            if (chain != null) {
-                ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-                buff.put(chain);
-                buff.put(data);
-                data = buff.array();
+            byte[][] chunks = incoming.remove(packetNumber);
+            if (chunks == null) {
+                chunks = new byte[packetChunkSize][];
             }
-
-            if (!isEnding) {
-                incoming.put(packetNumber, data);
+            if (chunks.length != packetChunkSize) {
+                byte[][] adjusted = new byte[packetChunkSize][];
+                System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+                chunks = adjusted;
+            }
+            chunks[packetChunkIndex] = data;
+            if (CustomArrayUtils.anyNull(chunks)) {
+                incoming.put(packetNumber, chunks);
                 return;
+            }
+            data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+            for (int i = 0, pos = 0; i < chunks.length; i++) {
+                byte[] chunk = chunks[i];
+                System.arraycopy(chunk, 0, data, pos, chunk.length);
+                pos += chunk.length;
             }
 
             byte[] finalData = data;

@@ -86,10 +86,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -161,10 +161,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -193,10 +193,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -226,10 +226,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -256,10 +256,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -286,10 +286,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -348,10 +348,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -377,10 +377,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -406,10 +406,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -435,10 +435,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -474,10 +474,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -504,10 +504,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 
@@ -534,10 +534,10 @@ public class PluginMessageSendingVelocity {
             byte[] chunk = dataArray[i];
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeInt(packetNumber);
-
-            out.writeShort(packetId);
-            out.writeBoolean(i == (dataArray.length - 1));
+            out.writeInt(packetNumber); //random packet number
+            out.writeInt(i); //packet chunk index
+            out.writeInt(dataArray.length); //packet total chunks
+            out.writeShort(packetId); //packet id
 
             out.write(chunk);
 

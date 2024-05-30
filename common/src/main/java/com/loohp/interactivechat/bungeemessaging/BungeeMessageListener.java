@@ -42,6 +42,7 @@ import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValueTrios;
+import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
@@ -52,9 +53,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -70,11 +71,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("UnstableApiUsage")
+
 public class BungeeMessageListener implements PluginMessageListener {
 
     private final InteractiveChat plugin;
-    private final Map<Integer, byte[]> incoming = new HashMap<>();
+    private final Map<Integer, byte[][]> incoming = new HashMap<>();
     private final Map<UUID, CompletableFuture<?>> toComplete = new ConcurrentHashMap<>();
 
     public BungeeMessageListener(InteractiveChat instance) {
@@ -94,7 +95,6 @@ public class BungeeMessageListener implements PluginMessageListener {
     @SuppressWarnings("deprecation")
     @Override
     public void onPluginMessageReceived(String channel, Player pluginMessagingPlayer, byte[] bytes) {
-
         if (!channel.equals("interchat:main")) {
             return;
         }
@@ -102,22 +102,31 @@ public class BungeeMessageListener implements PluginMessageListener {
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 
         int packetNumber = in.readInt();
+        int packetChunkIndex = in.readInt();
+        int packetChunkSize = in.readInt();
         int packetId = in.readShort();
-        boolean isEnding = in.readBoolean();
-        byte[] data = new byte[bytes.length - 7];
+        byte[] data = new byte[bytes.length - 14];
         in.readFully(data);
 
-        byte[] chain = incoming.remove(packetNumber);
-        if (chain != null) {
-            ByteBuffer buff = ByteBuffer.allocate(chain.length + data.length);
-            buff.put(chain);
-            buff.put(data);
-            data = buff.array();
+        byte[][] chunks = incoming.remove(packetNumber);
+        if (chunks == null) {
+            chunks = new byte[packetChunkSize][];
         }
-
-        if (!isEnding) {
-            incoming.put(packetNumber, data);
+        if (chunks.length != packetChunkSize) {
+            byte[][] adjusted = new byte[packetChunkSize][];
+            System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+            chunks = adjusted;
+        }
+        chunks[packetChunkIndex] = data;
+        if (CustomArrayUtils.anyNull(chunks)) {
+            incoming.put(packetNumber, chunks);
             return;
+        }
+        data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+        for (int i = 0, pos = 0; i < chunks.length; i++) {
+            byte[] chunk = chunks[i];
+            System.arraycopy(chunk, 0, data, pos, chunk.length);
+            pos += chunk.length;
         }
 
         try {

@@ -28,6 +28,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
 import com.comphenix.protocol.wrappers.EnumWrappers.TitleAction;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.events.PostPacketComponentProcessEvent;
 import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
@@ -77,6 +78,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -86,6 +89,7 @@ public class OutMessagePacket implements Listener {
     public static final UUID UUID_NIL = new UUID(0, 0);
 
     private static final Map<PacketType, PacketHandler> PACKET_HANDLERS = new HashMap<>();
+    private static final Executor SCHEDULING_SERVICE = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Process Scheduling Thread").build());
     private static final AsyncChatSendingExecutor SERVICE;
 
     static {
@@ -490,9 +494,11 @@ public class OutMessagePacket implements Listener {
                     Player receiver = event.getPlayer();
                     UUID messageUUID = UUID.randomUUID();
                     ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);
-                    SERVICE.execute(() -> {
-                        processPacket(receiver, determinedSender, packet, messageUUID, event.isFiltered(), packetHandler);
-                    }, receiver, messageUUID);
+                    SCHEDULING_SERVICE.execute(() -> {
+                        SERVICE.execute(() -> {
+                            processPacket(receiver, determinedSender, packet, messageUUID, event.isFiltered(), packetHandler);
+                        }, receiver, messageUUID);
+                    });
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

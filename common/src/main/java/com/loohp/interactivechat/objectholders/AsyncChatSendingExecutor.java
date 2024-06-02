@@ -81,18 +81,21 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     }
 
     public void execute(Runnable runnable, Player player, UUID id) {
-        executeLock.lock();
-        messagesOrder.putIfAbsent(player.getUniqueId(), new ConcurrentLinkedQueue<>());
-        Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
-        Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
-        if (optInfo.isPresent()) {
-            optInfo.get().setTime(System.currentTimeMillis());
-        } else {
-            queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
+        try {
+            executeLock.lock();
+            messagesOrder.putIfAbsent(player.getUniqueId(), new ConcurrentLinkedQueue<>());
+            Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
+            Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
+            if (optInfo.isPresent()) {
+                optInfo.get().setTime(System.currentTimeMillis());
+            } else {
+                queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
+            }
+            Future<?> future = executor.submit(runnable);
+            executingTasks.put(future, new ExecutingTaskData(System.currentTimeMillis(), player.getUniqueId(), id));
+        } finally {
+            executeLock.unlock();
         }
-        Future<?> future = executor.submit(runnable);
-        executingTasks.put(future, new ExecutingTaskData(System.currentTimeMillis(), player.getUniqueId(), id));
-        executeLock.unlock();
     }
 
     public void send(PacketContainer packet, Player player, UUID id) {

@@ -141,7 +141,7 @@ public class V1_19 extends NMSWrapper {
         }
         try {
             //paper
-            paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 3).findFirst().orElse(null);
+            paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 4).findFirst().orElse(null);
             //noinspection JavaReflectionMemberAccess
             paperPlayerChatMessageWithResultMethod = PlayerChatMessage.class.getMethod("withResult", Class.forName("net.minecraft.network.chat.ChatDecorator$Result"));
         } catch (NoSuchMethodException | ClassNotFoundException ignore) {
@@ -486,7 +486,7 @@ public class V1_19 extends NMSWrapper {
             if (paperChatDecoratorDecorateMethod == null) {
                 return chatDecorator.decorate(entityPlayer, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message)));
             } else {
-                return (CompletableFuture<?>) paperChatDecoratorDecorateMethod.invoke(chatDecorator, entityPlayer, null, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message)));
+                return (CompletableFuture<?>) paperChatDecoratorDecorateMethod.invoke(chatDecorator, entityPlayer, null, CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(message)), false);
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);

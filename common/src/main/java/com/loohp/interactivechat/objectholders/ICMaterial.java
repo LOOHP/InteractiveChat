@@ -21,33 +21,15 @@
 package com.loohp.interactivechat.objectholders;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.google.common.cache.Cache;
+import com.cryptomorin.xseries.XTag;
 import com.loohp.interactivechat.InteractiveChat;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 public class ICMaterial {
-
-    private static Field cachedRegexField;
-    private static Method formatMethod;
-
-    static {
-        try {
-            cachedRegexField = XMaterial.class.getDeclaredField("CACHED_REGEX");
-            formatMethod = XMaterial.class.getDeclaredMethod("format", String.class);
-        } catch (NoSuchMethodException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static ICMaterial of(Material material) {
         XMaterial xMaterial = null;
@@ -109,25 +91,6 @@ public class ICMaterial {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static Cache<String, Pattern> getCachedRegex() {
-        try {
-            cachedRegexField.setAccessible(true);
-            return (Cache<String, Pattern>) cachedRegexField.get(null);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String format(String name) {
-        try {
-            formatMethod.setAccessible(true);
-            return (String) formatMethod.invoke(null, name);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private final XMaterial xMaterial;
     private final Material material;
 
@@ -170,34 +133,7 @@ public class ICMaterial {
     }
 
     public boolean isOneOf(Collection<String> materials) {
-        if (xMaterial != null) {
-            return xMaterial.isOneOf(materials);
-        }
-        String name = name();
-        for (String comp : materials) {
-            String checker = comp.toUpperCase(Locale.ENGLISH);
-            if (checker.startsWith("CONTAINS:")) {
-                comp = format(checker.substring(9));
-                if (name.contains(comp)) return true;
-                continue;
-            }
-            if (checker.startsWith("REGEX:")) {
-                comp = comp.substring(6);
-                Pattern pattern = getCachedRegex().getIfPresent(comp);
-                if (pattern == null) {
-                    try {
-                        pattern = Pattern.compile(comp);
-                        getCachedRegex().put(comp, pattern);
-                    } catch (PatternSyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (pattern != null && pattern.matcher(name).matches()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return XTag.anyMatch(name(), XTag.stringMatcher(materials));
     }
 
     public boolean isMaterial(XMaterial xMaterial) {

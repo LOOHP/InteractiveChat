@@ -33,6 +33,7 @@ import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
+import com.loohp.interactivechat.utils.XMaterialUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -82,7 +83,7 @@ public class HoverableItemDisplay {
                 } else {
                     Optional<XMaterial> optXMaterial;
                     if (legacyId.hasByteId()) {
-                        optXMaterial = XMaterial.matchXMaterial(legacyId.getByteId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
+                        optXMaterial = XMaterialUtils.matchXMaterial(legacyId.getByteId(), legacyId.isDamageDataValue() ? (byte) legacyId.getDamage() : 0);
                         if (optXMaterial.isPresent()) {
                             itemstack = optXMaterial.get().parseItem();
                         }

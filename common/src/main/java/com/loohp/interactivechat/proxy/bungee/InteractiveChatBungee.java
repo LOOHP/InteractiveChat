@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.proxy.bungee;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -119,7 +121,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
     public static final int BSTATS_PLUGIN_ID = 8839;
     public static final String CONFIG_ID = "config";
-    private static final Map<Integer, byte[][]> incoming = new HashMap<>();
+    private static final Map<Integer, byte[][]> incoming;
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static boolean viaVersionHook = false;
     public static InteractiveChatBungee plugin;
@@ -140,6 +142,11 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     private static volatile boolean filtersAdded = false;
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
+
+    static {
+        Cache<Integer, byte[][]> incomingCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).build();
+        incoming = incomingCache.asMap();
+    }
 
     public static Map<String, BackendInteractiveChatData> getBackendInteractiveChatInfo() {
         return Collections.unmodifiableMap(serverInteractiveChatInfo);
@@ -405,163 +412,169 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
         event.setCancelled(true);
 
-        Server senderServer = (Server) event.getSender();
-        SocketAddress senderServerAddress = event.getSender().getSocketAddress();
+        try {
+            Server senderServer = (Server) event.getSender();
+            SocketAddress senderServerAddress = event.getSender().getSocketAddress();
 
-        byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
-        ByteArrayDataInput in = ByteStreams.newDataInput(packet);
-        int packetNumber = in.readInt();
-        int packetChunkIndex = in.readInt();
-        int packetChunkSize = in.readInt();
-        int packetId = in.readShort();
+            byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
+            ByteArrayDataInput in = ByteStreams.newDataInput(packet);
+            int packetNumber = in.readInt();
+            int packetChunkIndex = in.readInt();
+            int packetChunkSize = in.readInt();
+            int packetId = in.readShort();
 
-        if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
-            byte[] data = new byte[packet.length - 14];
-            in.readFully(data);
+            if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
+                byte[] data = new byte[packet.length - 14];
+                in.readFully(data);
 
-            byte[][] chunks = incoming.remove(packetNumber);
-            if (chunks == null) {
-                chunks = new byte[packetChunkSize][];
-            }
-            if (chunks.length != packetChunkSize) {
-                byte[][] adjusted = new byte[packetChunkSize][];
-                System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
-                chunks = adjusted;
-            }
-            chunks[packetChunkIndex] = data;
-            if (CustomArrayUtils.anyNull(chunks)) {
-                incoming.put(packetNumber, chunks);
-                return;
-            }
-            data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
-            for (int i = 0, pos = 0; i < chunks.length; i++) {
-                byte[] chunk = chunks[i];
-                System.arraycopy(chunk, 0, data, pos, chunk.length);
-                pos += chunk.length;
-            }
-
-            byte[] finalData = data;
-            byte[][] finalChunks = chunks;
-            pluginMessageHandlingExecutor.submit(() -> {
-                try {
-                    ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
-                    switch (packetId) {
-                        case 0x07:
-                            int cooldownType = input.readByte();
-                            switch (cooldownType) {
-                                case 0:
-                                    UUID uuid = DataTypeIO.readUUID(input);
-                                    long time = input.readLong();
-                                    playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
-                                    break;
-                                case 1:
-                                    uuid = DataTypeIO.readUUID(input);
-                                    UUID internalId = DataTypeIO.readUUID(input);
-                                    time = input.readLong();
-                                    playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
-                                    break;
-                            }
-                            List<ServerInfo> servers = getProxy().getServers().values().stream().filter(e -> !e.getSocketAddress().equals(senderServerAddress) && !e.getPlayers().isEmpty()).collect(Collectors.toList());
-                            for (int i = 0; i < finalChunks.length; i++) {
-                                byte[] chunk = finalChunks[i];
-                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                                out.writeInt(packetNumber); //random packet number
-                                out.writeInt(i); //packet chunk index
-                                out.writeInt(finalChunks.length); //packet total chunks
-                                out.writeShort(packetId); //packet id
-                                out.write(chunk);
-                                for (ServerInfo eachServer : servers) {
-                                    eachServer.sendData("interchat:main", out.toByteArray());
-                                    pluginMessagesCounter.incrementAndGet();
-                                }
-                            }
-                            break;
-                        case 0x08:
-                            UUID messageId = DataTypeIO.readUUID(input);
-                            String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                            messageForwardingHandler.receivedProcessedMessage(messageId, component);
-                            break;
-                        case 0x09:
-                            loadConfig();
-                            break;
-                        case 0x0B:
-                            int id = input.readInt();
-                            boolean permissionValue = input.readBoolean();
-                            permissionChecks.put(id, permissionValue);
-                            break;
-                        case 0x0C:
-                            int size1 = input.readInt();
-                            List<ICPlaceholder> list = new ArrayList<>(size1);
-                            for (int i = 0; i < size1; i++) {
-                                boolean isBulitIn = input.readBoolean();
-                                if (isBulitIn) {
-                                    String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    long cooldown = input.readLong();
-                                    list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
-                                } else {
-                                    String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
-                                    String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean parseKeyword = input.readBoolean();
-                                    long cooldown = input.readLong();
-                                    boolean hoverEnabled = input.readBoolean();
-                                    String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean clickEnabled = input.readBoolean();
-                                    String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean replaceEnabled = input.readBoolean();
-                                    String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-
-                                    list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
-                                }
-                            }
-                            placeholderList.put(senderServer.getInfo().getName(), list);
-                            playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
-                            PluginMessageSendingBungee.forwardPlaceholderList(list, senderServer.getInfo());
-                            break;
-                        case 0x0D:
-                            UUID uuid2 = DataTypeIO.readUUID(input);
-                            PluginMessageSendingBungee.reloadPlayerData(uuid2, senderServer.getInfo());
-                            break;
-                        case 0x10:
-                            UUID requestUUID = DataTypeIO.readUUID(input);
-                            int requestType = input.readByte();
-                            switch (requestType) {
-                                case 0:
-                                    PluginMessageSendingBungee.respondPlayerListRequest(requestUUID, senderServer.getInfo());
-                                    break;
-                                default:
-                                    break;
-                            }
-                        case 0x15:
-                            UUID playerUUID = DataTypeIO.readUUID(input);
-                            String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                            ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(playerUUID);
-                            if (proxiedPlayer != null) {
-                                if (!ProxyServer.getInstance().getPluginManager().dispatchCommand(proxiedPlayer, command)) {
-                                    PluginMessageSendingBungee.executeBackendCommand(playerUUID, command, senderServer.getInfo());
-                                }
-                            }
-                            break;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                byte[][] chunks = incoming.remove(packetNumber);
+                if (chunks == null) {
+                    chunks = new byte[packetChunkSize][];
                 }
-            });
-        } else {
-            pluginMessageHandlingExecutor.submit(() -> {
-                for (ServerInfo server : getProxy().getServers().values()) {
-                    if (!server.getSocketAddress().equals(senderServerAddress) && !server.getPlayers().isEmpty()) {
-                        server.sendData("interchat:main", event.getData());
-                        pluginMessagesCounter.incrementAndGet();
-                    }
+                if (chunks.length != packetChunkSize) {
+                    byte[][] adjusted = new byte[packetChunkSize][];
+                    System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+                    chunks = adjusted;
                 }
-            });
+                if (packetChunkIndex >= 0 && packetChunkIndex < chunks.length) {
+                    chunks[packetChunkIndex] = data;
+                }
+                if (CustomArrayUtils.anyNull(chunks)) {
+                    incoming.put(packetNumber, chunks);
+                    return;
+                }
+                data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+                for (int i = 0, pos = 0; i < chunks.length; i++) {
+                    byte[] chunk = chunks[i];
+                    System.arraycopy(chunk, 0, data, pos, chunk.length);
+                    pos += chunk.length;
+                }
+
+                byte[] finalData = data;
+                byte[][] finalChunks = chunks;
+                pluginMessageHandlingExecutor.submit(() -> {
+                    try {
+                        ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
+                        switch (packetId) {
+                            case 0x07:
+                                int cooldownType = input.readByte();
+                                switch (cooldownType) {
+                                    case 0:
+                                        UUID uuid = DataTypeIO.readUUID(input);
+                                        long time = input.readLong();
+                                        playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
+                                        break;
+                                    case 1:
+                                        uuid = DataTypeIO.readUUID(input);
+                                        UUID internalId = DataTypeIO.readUUID(input);
+                                        time = input.readLong();
+                                        playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
+                                        break;
+                                }
+                                List<ServerInfo> servers = getProxy().getServers().values().stream().filter(e -> !e.getSocketAddress().equals(senderServerAddress) && !e.getPlayers().isEmpty()).collect(Collectors.toList());
+                                for (int i = 0; i < finalChunks.length; i++) {
+                                    byte[] chunk = finalChunks[i];
+                                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                                    out.writeInt(packetNumber); //random packet number
+                                    out.writeInt(i); //packet chunk index
+                                    out.writeInt(finalChunks.length); //packet total chunks
+                                    out.writeShort(packetId); //packet id
+                                    out.write(chunk);
+                                    for (ServerInfo eachServer : servers) {
+                                        eachServer.sendData("interchat:main", out.toByteArray());
+                                        pluginMessagesCounter.incrementAndGet();
+                                    }
+                                }
+                                break;
+                            case 0x08:
+                                UUID messageId = DataTypeIO.readUUID(input);
+                                String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                messageForwardingHandler.receivedProcessedMessage(messageId, component);
+                                break;
+                            case 0x09:
+                                loadConfig();
+                                break;
+                            case 0x0B:
+                                int id = input.readInt();
+                                boolean permissionValue = input.readBoolean();
+                                permissionChecks.put(id, permissionValue);
+                                break;
+                            case 0x0C:
+                                int size1 = input.readInt();
+                                List<ICPlaceholder> list = new ArrayList<>(size1);
+                                for (int i = 0; i < size1; i++) {
+                                    boolean isBulitIn = input.readBoolean();
+                                    if (isBulitIn) {
+                                        String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        long cooldown = input.readLong();
+                                        list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
+                                    } else {
+                                        String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
+                                        String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean parseKeyword = input.readBoolean();
+                                        long cooldown = input.readLong();
+                                        boolean hoverEnabled = input.readBoolean();
+                                        String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean clickEnabled = input.readBoolean();
+                                        String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean replaceEnabled = input.readBoolean();
+                                        String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+
+                                        list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
+                                    }
+                                }
+                                placeholderList.put(senderServer.getInfo().getName(), list);
+                                playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
+                                PluginMessageSendingBungee.forwardPlaceholderList(list, senderServer.getInfo());
+                                break;
+                            case 0x0D:
+                                UUID uuid2 = DataTypeIO.readUUID(input);
+                                PluginMessageSendingBungee.reloadPlayerData(uuid2, senderServer.getInfo());
+                                break;
+                            case 0x10:
+                                UUID requestUUID = DataTypeIO.readUUID(input);
+                                int requestType = input.readByte();
+                                switch (requestType) {
+                                    case 0:
+                                        PluginMessageSendingBungee.respondPlayerListRequest(requestUUID, senderServer.getInfo());
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            case 0x15:
+                                UUID playerUUID = DataTypeIO.readUUID(input);
+                                String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(playerUUID);
+                                if (proxiedPlayer != null) {
+                                    if (!ProxyServer.getInstance().getPluginManager().dispatchCommand(proxiedPlayer, command)) {
+                                        PluginMessageSendingBungee.executeBackendCommand(playerUUID, command, senderServer.getInfo());
+                                    }
+                                }
+                                break;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                pluginMessageHandlingExecutor.submit(() -> {
+                    for (ServerInfo server : getProxy().getServers().values()) {
+                        if (!server.getSocketAddress().equals(senderServerAddress) && !server.getPlayers().isEmpty()) {
+                            server.sendData("interchat:main", event.getData());
+                            pluginMessagesCounter.incrementAndGet();
+                        }
+                    }
+                });
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

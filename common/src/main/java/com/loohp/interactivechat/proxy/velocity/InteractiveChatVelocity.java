@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.proxy.velocity;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -137,7 +139,7 @@ public class InteractiveChatVelocity {
     public static final int BSTATS_PLUGIN_ID = 10945;
     public static final String CONFIG_ID = "config";
     private static final boolean filtersAdded = false;
-    private static final Map<Integer, byte[][]> incoming = new HashMap<>();
+    private static final Map<Integer, byte[][]> incoming;
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static InteractiveChatVelocity plugin = null;
     public static AtomicLong pluginMessagesCounter = new AtomicLong(0);
@@ -160,6 +162,8 @@ public class InteractiveChatVelocity {
     private static Map<ResultedEvent<?>, String> eventOriginalMessage = Collections.synchronizedMap(new WeakHashMap<>());
 
     static {
+        Cache<Integer, byte[][]> incomingCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).build();
+        incoming = incomingCache.asMap();
         try {
             componentHolderProtocolField = ComponentHolder.class.getDeclaredField("version");
         } catch (NoSuchFieldException e) {
@@ -451,172 +455,177 @@ public class InteractiveChatVelocity {
         if (!event.getIdentifier().getId().equals("interchat:main")) {
             return;
         }
+        try {
+            ChannelMessageSource source = event.getSource();
 
-        ChannelMessageSource source = event.getSource();
-
-        if (!(source instanceof ServerConnection)) {
-            return;
-        }
-
-        event.setResult(ForwardResult.handled());
-
-        RegisteredServer server = ((ServerConnection) source).getServer();
-        String senderServer = server.getServerInfo().getName();
-
-        byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
-        ByteArrayDataInput in = ByteStreams.newDataInput(packet);
-        int packetNumber = in.readInt();
-        int packetChunkIndex = in.readInt();
-        int packetChunkSize = in.readInt();
-        int packetId = in.readShort();
-
-        if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
-            byte[] data = new byte[packet.length - 14];
-            in.readFully(data);
-
-            byte[][] chunks = incoming.remove(packetNumber);
-            if (chunks == null) {
-                chunks = new byte[packetChunkSize][];
-            }
-            if (chunks.length != packetChunkSize) {
-                byte[][] adjusted = new byte[packetChunkSize][];
-                System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
-                chunks = adjusted;
-            }
-            chunks[packetChunkIndex] = data;
-            if (CustomArrayUtils.anyNull(chunks)) {
-                incoming.put(packetNumber, chunks);
+            if (!(source instanceof ServerConnection)) {
                 return;
             }
-            data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
-            for (int i = 0, pos = 0; i < chunks.length; i++) {
-                byte[] chunk = chunks[i];
-                System.arraycopy(chunk, 0, data, pos, chunk.length);
-                pos += chunk.length;
+
+            event.setResult(ForwardResult.handled());
+
+            RegisteredServer server = ((ServerConnection) source).getServer();
+            String senderServer = server.getServerInfo().getName();
+
+            byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);
+            ByteArrayDataInput in = ByteStreams.newDataInput(packet);
+            int packetNumber = in.readInt();
+            int packetChunkIndex = in.readInt();
+            int packetChunkSize = in.readInt();
+            int packetId = in.readShort();
+
+            if (!Registry.PROXY_PASSTHROUGH_RELAY_PACKETS.contains(packetId)) {
+                byte[] data = new byte[packet.length - 14];
+                in.readFully(data);
+
+                byte[][] chunks = incoming.remove(packetNumber);
+                if (chunks == null) {
+                    chunks = new byte[packetChunkSize][];
+                }
+                if (chunks.length != packetChunkSize) {
+                    byte[][] adjusted = new byte[packetChunkSize][];
+                    System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+                    chunks = adjusted;
+                }
+                if (packetChunkIndex >= 0 && packetChunkIndex < chunks.length) {
+                    chunks[packetChunkIndex] = data;
+                }
+                if (CustomArrayUtils.anyNull(chunks)) {
+                    incoming.put(packetNumber, chunks);
+                    return;
+                }
+                data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+                for (int i = 0, pos = 0; i < chunks.length; i++) {
+                    byte[] chunk = chunks[i];
+                    System.arraycopy(chunk, 0, data, pos, chunk.length);
+                    pos += chunk.length;
+                }
+
+                byte[] finalData = data;
+                byte[][] finalChunks = chunks;
+                pluginMessageHandlingExecutor.submit(() -> {
+                    try {
+                        ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
+                        switch (packetId) {
+                            case 0x07:
+                                int cooldownType = input.readByte();
+                                switch (cooldownType) {
+                                    case 0:
+                                        UUID uuid = DataTypeIO.readUUID(input);
+                                        long time = input.readLong();
+                                        playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
+                                        break;
+                                    case 1:
+                                        uuid = DataTypeIO.readUUID(input);
+                                        UUID internalId = DataTypeIO.readUUID(input);
+                                        time = input.readLong();
+                                        playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
+                                        break;
+                                }
+                                List<RegisteredServer> servers = getServer().getAllServers().stream().filter(e -> !e.getServerInfo().getName().equals(senderServer) && !e.getPlayersConnected().isEmpty()).collect(Collectors.toList());
+                                for (int i = 0; i < finalChunks.length; i++) {
+                                    byte[] chunk = finalChunks[i];
+                                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                                    out.writeInt(packetNumber); //random packet number
+                                    out.writeInt(i); //packet chunk index
+                                    out.writeInt(finalChunks.length); //packet total chunks
+                                    out.writeShort(packetId); //packet id
+                                    out.write(chunk);
+                                    for (RegisteredServer eachServer : servers) {
+                                        eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
+                                        pluginMessagesCounter.incrementAndGet();
+                                    }
+                                }
+                                break;
+                            case 0x08:
+                                UUID messageId = DataTypeIO.readUUID(input);
+                                String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                messageForwardingHandler.receivedProcessedMessage(messageId, component);
+                                break;
+                            case 0x09:
+                                loadConfig();
+                                break;
+                            case 0x0B:
+                                int id = input.readInt();
+                                boolean permissionValue = input.readBoolean();
+                                permissionChecks.put(id, permissionValue);
+                                break;
+                            case 0x0C:
+                                int size1 = input.readInt();
+                                List<ICPlaceholder> list = new ArrayList<>(size1);
+                                for (int i = 0; i < size1; i++) {
+                                    boolean isBuiltIn = input.readBoolean();
+                                    if (isBuiltIn) {
+                                        String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        long cooldown = input.readLong();
+                                        list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
+                                    } else {
+                                        String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
+                                        String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean parseKeyword = input.readBoolean();
+                                        long cooldown = input.readLong();
+                                        boolean hoverEnabled = input.readBoolean();
+                                        String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean clickEnabled = input.readBoolean();
+                                        String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        boolean replaceEnabled = input.readBoolean();
+                                        String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+
+                                        list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
+                                    }
+                                }
+                                placeholderList.put(server.getServerInfo().getName(), list);
+                                playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
+                                PluginMessageSendingVelocity.forwardPlaceholderList(list, server);
+                                break;
+                            case 0x0D:
+                                UUID uuid2 = DataTypeIO.readUUID(input);
+                                PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
+                                break;
+                            case 0x10:
+                                UUID requestUUID = DataTypeIO.readUUID(input);
+                                int requestType = input.readByte();
+                                switch (requestType) {
+                                    case 0:
+                                        PluginMessageSendingVelocity.respondPlayerListRequest(requestUUID, server);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            case 0x15:
+                                UUID playerUUID = DataTypeIO.readUUID(input);
+                                String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                Optional<Player> optPlayer = proxyServer.getPlayer(playerUUID);
+                                if (optPlayer.isPresent()) {
+                                    if (!proxyServer.getCommandManager().executeImmediatelyAsync(optPlayer.get(), command).get()) {
+                                        PluginMessageSendingVelocity.executeBackendCommand(playerUUID, command, server);
+                                    }
+                                }
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                pluginMessageHandlingExecutor.submit(() -> {
+                    for (RegisteredServer eachServer : getServer().getAllServers()) {
+                        if (!eachServer.getServerInfo().getName().equals(senderServer) && !eachServer.getPlayersConnected().isEmpty()) {
+                            eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
+                            pluginMessagesCounter.incrementAndGet();
+                        }
+                    }
+                });
             }
-
-            byte[] finalData = data;
-            byte[][] finalChunks = chunks;
-            pluginMessageHandlingExecutor.submit(() -> {
-                try {
-                    ByteArrayDataInput input = ByteStreams.newDataInput(finalData);
-                    switch (packetId) {
-                        case 0x07:
-                            int cooldownType = input.readByte();
-                            switch (cooldownType) {
-                                case 0:
-                                    UUID uuid = DataTypeIO.readUUID(input);
-                                    long time = input.readLong();
-                                    playerCooldownManager.setPlayerUniversalLastTimestamp(uuid, time);
-                                    break;
-                                case 1:
-                                    uuid = DataTypeIO.readUUID(input);
-                                    UUID internalId = DataTypeIO.readUUID(input);
-                                    time = input.readLong();
-                                    playerCooldownManager.setPlayerPlaceholderLastTimestamp(uuid, internalId, time);
-                                    break;
-                            }
-                            List<RegisteredServer> servers = getServer().getAllServers().stream().filter(e -> !e.getServerInfo().getName().equals(senderServer) && !e.getPlayersConnected().isEmpty()).collect(Collectors.toList());
-                            for (int i = 0; i < finalChunks.length; i++) {
-                                byte[] chunk = finalChunks[i];
-                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                                out.writeInt(packetNumber); //random packet number
-                                out.writeInt(i); //packet chunk index
-                                out.writeInt(finalChunks.length); //packet total chunks
-                                out.writeShort(packetId); //packet id
-                                out.write(chunk);
-                                for (RegisteredServer eachServer : servers) {
-                                    eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, out.toByteArray());
-                                    pluginMessagesCounter.incrementAndGet();
-                                }
-                            }
-                            break;
-                        case 0x08:
-                            UUID messageId = DataTypeIO.readUUID(input);
-                            String component = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                            messageForwardingHandler.receivedProcessedMessage(messageId, component);
-                            break;
-                        case 0x09:
-                            loadConfig();
-                            break;
-                        case 0x0B:
-                            int id = input.readInt();
-                            boolean permissionValue = input.readBoolean();
-                            permissionChecks.put(id, permissionValue);
-                            break;
-                        case 0x0C:
-                            int size1 = input.readInt();
-                            List<ICPlaceholder> list = new ArrayList<>(size1);
-                            for (int i = 0; i < size1; i++) {
-                                boolean isBuiltIn = input.readBoolean();
-                                if (isBuiltIn) {
-                                    String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    long cooldown = input.readLong();
-                                    list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
-                                } else {
-                                    String key = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    ParsePlayer parseplayer = ParsePlayer.fromOrder(input.readByte());
-                                    String placeholder = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean parseKeyword = input.readBoolean();
-                                    long cooldown = input.readLong();
-                                    boolean hoverEnabled = input.readBoolean();
-                                    String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean clickEnabled = input.readBoolean();
-                                    String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    boolean replaceEnabled = input.readBoolean();
-                                    String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                    String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-
-                                    list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
-                                }
-                            }
-                            placeholderList.put(server.getServerInfo().getName(), list);
-                            playerCooldownManager.reloadPlaceholders(placeholderList.values().stream().flatMap(each -> each.stream()).distinct().collect(Collectors.toList()));
-                            PluginMessageSendingVelocity.forwardPlaceholderList(list, server);
-                            break;
-                        case 0x0D:
-                            UUID uuid2 = DataTypeIO.readUUID(input);
-                            PluginMessageSendingVelocity.reloadPlayerData(uuid2, server);
-                            break;
-                        case 0x10:
-                            UUID requestUUID = DataTypeIO.readUUID(input);
-                            int requestType = input.readByte();
-                            switch (requestType) {
-                                case 0:
-                                    PluginMessageSendingVelocity.respondPlayerListRequest(requestUUID, server);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        case 0x15:
-                            UUID playerUUID = DataTypeIO.readUUID(input);
-                            String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                            Optional<Player> optPlayer = proxyServer.getPlayer(playerUUID);
-                            if (optPlayer.isPresent()) {
-                                if (!proxyServer.getCommandManager().executeImmediatelyAsync(optPlayer.get(), command).get()) {
-                                    PluginMessageSendingVelocity.executeBackendCommand(playerUUID, command, server);
-                                }
-                            }
-                            break;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } else {
-            pluginMessageHandlingExecutor.submit(() -> {
-                for (RegisteredServer eachServer : getServer().getAllServers()) {
-                    if (!eachServer.getServerInfo().getName().equals(senderServer) && !eachServer.getPlayersConnected().isEmpty()) {
-                        eachServer.sendPluginMessage(ICChannelIdentifier.INSTANCE, event.getData());
-                        pluginMessagesCounter.incrementAndGet();
-                    }
-                }
-            });
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

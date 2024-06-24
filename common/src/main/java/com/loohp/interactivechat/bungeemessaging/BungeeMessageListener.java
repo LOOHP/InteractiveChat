@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.bungeemessaging;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
@@ -57,7 +59,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,6 +68,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -75,11 +77,13 @@ import java.util.stream.Collectors;
 public class BungeeMessageListener implements PluginMessageListener {
 
     private final InteractiveChat plugin;
-    private final Map<Integer, byte[][]> incoming = new HashMap<>();
+    private final Map<Integer, byte[][]> incoming;
     private final Map<UUID, CompletableFuture<?>> toComplete = new ConcurrentHashMap<>();
 
     public BungeeMessageListener(InteractiveChat instance) {
         plugin = instance;
+        Cache<Integer, byte[][]> incomingCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).build();
+        incoming = incomingCache.asMap();
     }
 
     public void addToComplete(UUID uuid, CompletableFuture<?> future) {
@@ -100,37 +104,39 @@ public class BungeeMessageListener implements PluginMessageListener {
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-            ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
-
-            int packetNumber = in.readInt();
-            int packetChunkIndex = in.readInt();
-            int packetChunkSize = in.readInt();
-            int packetId = in.readShort();
-            byte[] data = new byte[bytes.length - 14];
-            in.readFully(data);
-
-            byte[][] chunks = incoming.remove(packetNumber);
-            if (chunks == null) {
-                chunks = new byte[packetChunkSize][];
-            }
-            if (chunks.length != packetChunkSize) {
-                byte[][] adjusted = new byte[packetChunkSize][];
-                System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
-                chunks = adjusted;
-            }
-            chunks[packetChunkIndex] = data;
-            if (CustomArrayUtils.anyNull(chunks)) {
-                incoming.put(packetNumber, chunks);
-                return;
-            }
-            data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
-            for (int i = 0, pos = 0; i < chunks.length; i++) {
-                byte[] chunk = chunks[i];
-                System.arraycopy(chunk, 0, data, pos, chunk.length);
-                pos += chunk.length;
-            }
-
             try {
+                ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
+
+                int packetNumber = in.readInt();
+                int packetChunkIndex = in.readInt();
+                int packetChunkSize = in.readInt();
+                int packetId = in.readShort();
+                byte[] data = new byte[bytes.length - 14];
+                in.readFully(data);
+
+                byte[][] chunks = incoming.remove(packetNumber);
+                if (chunks == null) {
+                    chunks = new byte[packetChunkSize][];
+                }
+                if (chunks.length != packetChunkSize) {
+                    byte[][] adjusted = new byte[packetChunkSize][];
+                    System.arraycopy(chunks, 0, adjusted, 0, adjusted.length);
+                    chunks = adjusted;
+                }
+                if (packetChunkIndex >= 0 && packetChunkIndex < chunks.length) {
+                    chunks[packetChunkIndex] = data;
+                }
+                if (CustomArrayUtils.anyNull(chunks)) {
+                    incoming.put(packetNumber, chunks);
+                    return;
+                }
+                data = new byte[Arrays.stream(chunks).mapToInt(a -> a.length).sum()];
+                for (int i = 0, pos = 0; i < chunks.length; i++) {
+                    byte[] chunk = chunks[i];
+                    System.arraycopy(chunk, 0, data, pos, chunk.length);
+                    pos += chunk.length;
+                }
+
                 if (InteractiveChat.pluginMessagePacketVerbose) {
                     Bukkit.getConsoleSender().sendMessage("IC Inbound - ID " + packetId + " via " + pluginMessagingPlayer.getName());
                 }
@@ -436,7 +442,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                         Bukkit.getPluginManager().callEvent(dataEvent);
                         break;
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         });

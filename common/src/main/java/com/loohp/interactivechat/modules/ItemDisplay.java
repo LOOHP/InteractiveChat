@@ -171,6 +171,7 @@ public class ItemDisplay {
 
         boolean trimmed = false;
         boolean isAir = item.getType().equals(Material.AIR);
+        int itemAmount = isAir && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5) ? 1 : item.getAmount();
         ItemMeta itemMeta = item.getItemMeta();
 
         ItemStack originalItem = item.clone();
@@ -205,7 +206,7 @@ public class ItemDisplay {
         String amountString = "";
         Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item);
 
-        amountString = String.valueOf(item.getAmount());
+        amountString = String.valueOf(itemAmount);
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
         ShowItem showItem;
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
@@ -213,10 +214,10 @@ public class ItemDisplay {
                 showHover = false;
             }
             Map<Key, DataComponentValue> dataComponents = ItemNBTUtils.getNMSItemStackDataComponents(trimmedItem == null ? item : trimmedItem);
-            showItem = dataComponents.isEmpty() ? ShowItem.showItem(key, item.getAmount()) : ShowItem.showItem(key, item.getAmount(), dataComponents);
+            showItem = dataComponents.isEmpty() ? ShowItem.showItem(key, itemAmount) : ShowItem.showItem(key, itemAmount, dataComponents);
         } else {
             String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
-            showItem = tag == null ? ShowItem.showItem(key, item.getAmount()) : ShowItem.showItem(key, item.getAmount(), BinaryTagHolder.binaryTagHolder(tag));
+            showItem = tag == null ? ShowItem.showItem(key, itemAmount) : ShowItem.showItem(key, itemAmount, BinaryTagHolder.binaryTagHolder(tag));
         }
         HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(showItem);
         String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, rawTitle));
@@ -298,7 +299,7 @@ public class ItemDisplay {
             Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
         }
 
-        Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, item.getAmount() == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
+        Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, itemAmount == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
         itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
         if (showHover) {
             itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);

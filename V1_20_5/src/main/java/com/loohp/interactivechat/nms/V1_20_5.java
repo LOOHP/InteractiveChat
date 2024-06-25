@@ -432,16 +432,17 @@ public class V1_20_5 extends NMSWrapper {
     @Override
     public String getNMSItemStackTag(ItemStack itemStack) {
         if (itemStack.getType().isAir()) {
-            return "{}";
+            return null;
         }
         IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().H_();
         NBTTagCompound nbtTagCompound = new NBTTagCompound();
         net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
         NBTBase nbt = nmsItemStack.b(registryAccess, nbtTagCompound);
         if (nbt instanceof NBTTagCompound) {
-            return ((NBTTagCompound) nbt).p("tag").toString();
+            NBTBase tag = ((NBTTagCompound) nbt).p("tag");
+            return tag == null ? null : tag.toString();
         }
-        return "{}";
+        return null;
     }
 
     @Override

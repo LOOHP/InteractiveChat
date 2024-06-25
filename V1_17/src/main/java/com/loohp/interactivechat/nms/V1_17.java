@@ -340,7 +340,8 @@ public class V1_17 extends NMSWrapper {
         NBTTagCompound nbtTagCompound = new NBTTagCompound();
         net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
         NBTTagCompound nbt = nmsItemStack.save(nbtTagCompound);
-        return nbt.get("tag").toString();
+        NBTBase tag = nbt.get("tag");
+        return tag == null ? null : tag.toString();
     }
 
     @Override

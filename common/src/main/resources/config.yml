@@ -479,25 +479,6 @@ CustomPlaceholders:
     #This description is used when listing placeholders 
     Description: "&eShow the amount of money you have in the chat!"
   '2':
-    ParsePlayer: viewer
-    Keyword: "(?i)\\[loohpjames\\]"
-    ParseKeyword: false
-    Cooldown: 0
-    Hover:
-      Enable: true
-      Text:
-        - "&eVisit the author's website!"
-        - "&bClick me!"
-    Click:
-      Enable: true
-      Action: OPEN_URL
-      Value: "https://loohpjames.com"
-    Replace:
-      Enable: true
-      ReplaceText: "&3&lLoohp&6&lJames"
-    Name: "[loohpjames]"
-    Description: "&eLink to author's website!"
-  '3':
     ParsePlayer: sender
     Keyword: "(?i)\\[gametime\\]"
     ParseKeyword: false
@@ -514,7 +495,7 @@ CustomPlaceholders:
       ReplaceText: "%player_world_time_24%"
     Name: "[gametime]"
     Description: "&eShows the current time of the world you are in!"
-  '4':
+  '3':
     ParsePlayer: viewer
     Keyword: "(?i)\\[match: *([^\\[\\]]*)\\]"
     ParseKeyword: false
@@ -532,7 +513,7 @@ CustomPlaceholders:
       ReplaceText: "&b[&e$1&b]"
     Name: "[match:<Text>]"
     Description: "&eExample of using Regex matching groups Text"
-  '5':
+  '4':
     ParsePlayer: sender
     Keyword: "(?i)\\[time\\]"
     ParseKeyword: false
@@ -549,7 +530,7 @@ CustomPlaceholders:
       ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
     Name: "[time]"
     Description: "&eShows the current time of the server in the real world!"
-  '6':
+  '5':
     ParsePlayer: sender
     Keyword: "(?i)\\[pos\\]"
     ParseKeyword: false
@@ -566,7 +547,7 @@ CustomPlaceholders:
       ReplaceText: '&bWorld: &f%player_world% &eX:&f%player_x% &eY:&f%player_y% &eZ:&f%player_z%'
     Name: "[pos]"
     Description: "&eShows your current position!"
-  '7':
+  '6':
     ParsePlayer: sender
     Keyword: "(?i)\\[ping\\]"
     ParseKeyword: false

@@ -546,7 +546,7 @@ CustomPlaceholders:
       Value: ''
     Replace:
       Enable: true
-      ReplaceText: '%server_time_dd/MM/yyyy HH:mm:ss zzz%'
+      ReplaceText: '%servertime_dd/MM/yyyy HH:mm:ss zzz%'
     Name: "[time]"
     Description: "&eShows the current time of the server in the real world!"
   '6':

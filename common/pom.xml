@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.2.11.0</version>
+	<version>4.2.12.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -302,11 +302,6 @@
 		<repository>
 			<id>loohp-repo</id>
 			<url>https://repo.loohpjames.com/repository</url>
-		</repository>
-		<repository>
-			<id>maven_central</id>
-			<name>Maven Central</name>
-			<url>https://repo.maven.apache.org/maven2/</url>
 		</repository>
 	</repositories>
 
@@ -734,6 +729,12 @@
 		<dependency>
 			<groupId>com.loohp</groupId>
 			<artifactId>InteractiveChat-V1_21</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.loohp</groupId>
+			<artifactId>InteractiveChat-V1_21_1</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>

@@ -24,28 +24,30 @@ import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import su.nightexpress.excellentenchants.config.Config;
-import su.nightexpress.excellentenchants.hook.impl.ProtocolHook;
+import su.nightexpress.excellentenchants.hook.HookPlugin;
+import su.nightexpress.excellentenchants.util.EnchantUtils;
 import su.nightexpress.nightcore.util.Plugins;
 
 public class ExcellentEnchantsHook {
 
     public static void init() {
         Plugin excellentEnchants = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
-        if (Config.ENCHANTMENTS_DISPLAY_MODE.get() == 2 && Plugins.isLoaded("ProtocolLib")) {
+        if (Config.isDescriptionEnabled() && (Plugins.isInstalled(HookPlugin.PACKET_EVENTS) || Plugins.isInstalled(HookPlugin.PROTOCOL_LIB))) {
             InteractiveChatAPI.registerItemStackTransformProvider(excellentEnchants, 1, (itemStack, uuid) -> {
                 ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
-                boolean isCreative = icPlayer != null && icPlayer.isLocal() && icPlayer.getLocalPlayer().getGameMode().equals(GameMode.CREATIVE);
-                return setExcellentEnchantsLore(itemStack, isCreative);
+                return setExcellentEnchantsLore(itemStack, icPlayer);
             });
         }
     }
 
-    public static ItemStack setExcellentEnchantsLore(ItemStack itemStack, boolean isCreative) {
-        return ProtocolHook.update(itemStack, isCreative);
+    public static ItemStack setExcellentEnchantsLore(ItemStack itemStack, ICPlayer icPlayer) {
+        if (icPlayer.isLocal() && !EnchantUtils.canUpdateDisplay(icPlayer.getLocalPlayer())) {
+            return itemStack;
+        }
+        return EnchantUtils.addDescription(itemStack);
     }
 
 }

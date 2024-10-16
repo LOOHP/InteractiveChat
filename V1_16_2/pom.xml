@@ -21,6 +21,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>nms-repo</id>
+            <url>https://repo.codemc.io/repository/nms/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -33,7 +37,7 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.2.1-SNAPSHOT</version>
+            <version>5.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

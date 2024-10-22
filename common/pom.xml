@@ -365,6 +365,7 @@
 			<artifactId>ProtocolLib</artifactId>
 			<version>5.3.0</version>
 			<scope>provided</scope>
+			<classifier>all</classifier>
 		</dependency>
 		<dependency>
 			<groupId>CMIAPI</groupId>

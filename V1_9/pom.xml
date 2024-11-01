@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.loohp</groupId>
         <artifactId>InteractiveChat-Parent</artifactId>
-        <version>4.2.12.0</version>
+        <version>4.2.13.0</version>
     </parent>
 
     <artifactId>InteractiveChat-V1_9</artifactId>

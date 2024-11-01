@@ -284,7 +284,7 @@
 		</repository>
 		<repository>
 			<id>viaversion-repo</id>
-			<url>https://repo.viaversion.com/everything/</url>
+			<url>https://repo.viaversion.com/</url>
 		</repository>
 		<repository>
 			<id>CodeMC</id>
@@ -310,6 +310,10 @@
 			<id>maven_central</id>
 			<name>Maven Central</name>
 			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>nms-repo</id>
+			<url>https://repo.codemc.io/repository/nms/</url>
 		</repository>
 	</repositories>
 
@@ -359,7 +363,7 @@
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib</artifactId>
-			<version>5.2.1-SNAPSHOT</version>
+			<version>5.3.0</version>
 			<scope>provided</scope>
 			<classifier>all</classifier>
 		</dependency>
@@ -505,13 +509,13 @@
 		<dependency>
 			<groupId>com.discordsrv</groupId>
 			<artifactId>discordsrv</artifactId>
-			<version>1.28.0-SNAPSHOT</version>
+			<version>1.28.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.MylesIsCool</groupId>
-			<artifactId>ViaVersion</artifactId>
-			<version>4.6.2</version>
+			<groupId>com.viaversion</groupId>
+			<artifactId>viaversion-api</artifactId>
+			<version>[5.0.0,6.0.0)</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -557,14 +561,14 @@
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-4.2.1.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.2.2.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.nightcore</groupId>
 			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/nightcore-2.6.3.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.6.4.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.geysermc.floodgate</groupId>

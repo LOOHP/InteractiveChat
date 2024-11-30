@@ -126,7 +126,7 @@ public class V1_19 extends NMSWrapper {
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
-    private Method paperPlayerChatMessageWithResultMethod;
+    private Method paperChatDecoratorResultComponentMethod;
 
     public V1_19() {
         try {
@@ -142,8 +142,7 @@ public class V1_19 extends NMSWrapper {
         try {
             //paper
             paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 4).findFirst().orElse(null);
-            //noinspection JavaReflectionMemberAccess
-            paperPlayerChatMessageWithResultMethod = PlayerChatMessage.class.getMethod("withResult", Class.forName("net.minecraft.network.chat.ChatDecorator$Result"));
+            paperChatDecoratorResultComponentMethod = Class.forName("net.minecraft.network.chat.ChatDecorator$Result").getMethod("component");
         } catch (NoSuchMethodException | ClassNotFoundException ignore) {
         }
     }
@@ -434,13 +433,14 @@ public class V1_19 extends NMSWrapper {
 
     @Override
     public boolean modernChatSigningHasWithResult() {
-        return paperPlayerChatMessageWithResultMethod != null;
+        return paperChatDecoratorResultComponentMethod != null;
     }
 
     @Override
     public PlayerChatMessage modernChatSigningWithResult(Object playerChatMessage, Object result) {
         try {
-            return (PlayerChatMessage) paperPlayerChatMessageWithResultMethod.invoke(playerChatMessage, result);
+            IChatBaseComponent component = (IChatBaseComponent) paperChatDecoratorResultComponentMethod.invoke(result);
+            return modernChatSigningWithUnsignedContent(playerChatMessage, component);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

@@ -100,7 +100,7 @@ public class V1_9 extends NMSWrapper {
             craftMapViewIsContextualMethod = CraftMapView.class.getDeclaredMethod("isContextual");
             playerConnectionHandleCommandMethod = PlayerConnection.class.getDeclaredMethod("handleCommand", String.class);
             craftSkullMetaProfileField = Class.forName("org.bukkit.craftbukkit.v1_9_R1.inventory.CraftMetaSkull").getDeclaredField("profile");
-            entityPlayerCanChatColorField = EntityPlayer.class.getDeclaredField("cc");
+            entityPlayerCanChatColorField = EntityPlayer.class.getDeclaredField("cg");
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

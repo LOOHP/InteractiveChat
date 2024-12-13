@@ -374,13 +374,15 @@ public class InteractiveChat extends JavaPlugin {
 
     public static void closeInventoryViews(Inventory inventory) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            Inventory topInventory = player.getOpenInventory().getTopInventory();
-            if (topInventory.equals(inventory)) {
-                player.closeInventory();
-                if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
-                    InventoryUtils.restorePlayerInventory(player);
+            plugin.getScheduler().runAtEntity(player, (task) -> {
+                Inventory topInventory = player.getOpenInventory().getTopInventory();
+                if (topInventory.equals(inventory)) {
+                    player.closeInventory();
+                    if (InteractiveChat.viewingInv1.remove(player.getUniqueId()) != null) {
+                        InventoryUtils.restorePlayerInventory(player);
+                    }
                 }
-            }
+            });
         }
     }
 

@@ -425,7 +425,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (data == null || data.getInventoryDisplayLayout() == 0) {
                         Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
                         if (inv != null) {
-                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.openInventory(inv));
+                            InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
                         } else {
                             player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
@@ -433,7 +433,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
                         Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
                         if (inv != null && inv2 != null) {
-                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+                            InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> {
                                 player.openInventory(inv);
                                 InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
                                 InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
@@ -447,7 +447,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewender": {
                     Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
                     if (inv != null) {
-                        InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.openInventory(inv));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -456,7 +456,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewitem": {
                     Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
                     if (inv != null) {
-                        InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.openInventory(inv));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -465,7 +465,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewmap":
                     ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
                     if (map != null) {
-                        InteractiveChat.plugin.getScheduler().runNextTick((task) -> MapViewer.showMap(player, map));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> MapViewer.showMap(player, map));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }

@@ -30,15 +30,16 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable {
 
     public static void countdownBossBar(BossBarUpdater updater, int ticks, int removeDelay) {
-        final int[] tick = {0};
+        AtomicInteger tick = new AtomicInteger(0);
         InteractiveChat.plugin.getScheduler().runTimerAsync((outer) -> {
-            tick[0]++;
+            tick.getAndIncrement();
             BossBar bossbar = updater.getBossBar();
-            float current = 1 - (float) tick[0] / (float) ticks;
+            float current = 1 - (float) tick.get() / (float) ticks;
             bossbar.progress(Math.max(current, 0));
             if (current < 0) {
                 outer.cancel();

@@ -67,7 +67,17 @@ public class EcoHook {
     }
 
     public static Future<ItemStack> setEcoLore(ItemStack itemStack, Player player) {
-        return CompletableFuture.completedFuture(setEcoLore0(itemStack.clone(), player));
+        InteractiveChat plugin = InteractiveChat.getPlugin(InteractiveChat.class);
+        if (!InteractiveChat.ecoSetLoreOnMainThread || plugin.getScheduler().isGlobalTickThread()) {
+            return CompletableFuture.completedFuture(setEcoLore0(itemStack.clone(), player));
+        } else {
+            CompletableFuture<ItemStack> future = new CompletableFuture<>();
+            plugin.getScheduler().runAtEntity(player, (task) -> {
+                setEcoLore0(itemStack.clone(), player);
+                future.complete(itemStack);
+            });
+            return future;
+        }
     }
 
     private static ItemStack setEcoLore0(ItemStack itemStack, Player player) {

@@ -157,7 +157,7 @@ public class InventoryEvents implements Listener {
                             displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
                         }
 
-                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> {
+                        InteractiveChat.plugin.getScheduler().runAtEntityLater(player, (task) -> {
                             ValuePairs<Inventory, String> opened;
                             String hash = InteractiveChat.viewingInv1.remove(player.getUniqueId());
                             if (hash != null) {
@@ -179,7 +179,7 @@ public class InventoryEvents implements Listener {
     public void onInventoryClickHighest(InventoryClickEvent event) {
         if (CANCELLED_INVENTORY.remove(event)) {
             event.setCancelled(true);
-            InteractiveChat.plugin.getScheduler().runAtEntity(event.getWhoClicked(), (task) -> ((Player) event.getWhoClicked()).updateInventory(), 5);
+            InteractiveChat.plugin.getScheduler().runAtEntityLater(event.getWhoClicked(), (task) -> ((Player) event.getWhoClicked()).updateInventory(), 5);
         }
     }
 

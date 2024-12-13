@@ -64,10 +64,10 @@ public class PlayernameDisplay implements Listener {
 
     public static void setup() {
         Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((outer) -> {
             int valid = flag.get();
             Collection<ReplaceTextBundle> names = getNames();
-            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+            InteractiveChat.plugin.getScheduler().runNextTick((inner) -> {
                 if (flag.get() == valid) {
                     PlayernameDisplay.names = names;
                 }

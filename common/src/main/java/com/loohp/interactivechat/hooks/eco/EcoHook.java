@@ -67,11 +67,7 @@ public class EcoHook {
     }
 
     public static Future<ItemStack> setEcoLore(ItemStack itemStack, Player player) {
-        if (!InteractiveChat.ecoSetLoreOnMainThread || Bukkit.isPrimaryThread()) {
-            return CompletableFuture.completedFuture(setEcoLore0(itemStack.clone(), player));
-        } else {
-            return Bukkit.getScheduler().callSyncMethod(InteractiveChat.plugin, () -> setEcoLore0(itemStack.clone(), player));
-        }
+        return CompletableFuture.completedFuture(setEcoLore0(itemStack.clone(), player));
     }
 
     private static ItemStack setEcoLore0(ItemStack itemStack, Player player) {

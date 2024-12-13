@@ -4,6 +4,7 @@ version: ${project.version}
 main: com.loohp.interactivechat.InteractiveChat
 api-version: 1.13
 description: Make the chat interactive
+folia-supported: true
 softdepend:
   - Essentials
   - EssentialsDiscord

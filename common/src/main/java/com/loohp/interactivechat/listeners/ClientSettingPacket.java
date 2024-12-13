@@ -73,9 +73,9 @@ public class ClientSettingPacket {
         boolean colorSettings = NMS.getInstance().getColorSettingsFromClientInformationPacket(packet);
         boolean originalColorSettings = PlayerUtils.canChatColor(player);
         if (originalColorSettings && !colorSettings) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled"))), 5);
+            InteractiveChat.plugin.getScheduler().runLater((task) -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsDisabled"))), 5);
         } else if (!originalColorSettings && colorSettings) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled"))), 5);
+            InteractiveChat.plugin.getScheduler().runLater((task) -> player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', ConfigManager.getConfig().getString("Messages.ColorsReEnabled"))), 5);
         }
     }
 

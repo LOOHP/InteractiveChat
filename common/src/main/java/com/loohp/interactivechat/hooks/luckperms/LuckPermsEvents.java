@@ -41,7 +41,7 @@ public class LuckPermsEvents {
             UUID uuid = event.getUser().getUniqueId();
             if (!scheduledReset.contains(uuid)) {
                 scheduledReset.add(uuid);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                InteractiveChat.plugin.getScheduler().runLater(() -> {
                     PlayerUtils.resetPermissionCache(uuid);
                     scheduledReset.remove(uuid);
                 }, 1);

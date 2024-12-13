@@ -72,6 +72,10 @@
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<relocations>
 								<relocation>
+									<pattern>com.tcoded.folialib</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.com.tcoded.folialib</shadedPattern>
+								</relocation>
+								<relocation>
 									<pattern>net.kyori</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.net.kyori</shadedPattern>
 								</relocation>
@@ -318,6 +322,12 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.github.technicallycoded</groupId>
+			<artifactId>FoliaLib</artifactId>
+			<version>0.4.3</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.github.Carleslc.Simple-YAML</groupId>
 			<artifactId>Simple-Yaml</artifactId>

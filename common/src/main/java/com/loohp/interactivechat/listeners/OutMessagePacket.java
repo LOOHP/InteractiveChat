@@ -575,7 +575,7 @@ public class OutMessagePacket implements Listener {
 
             if (sender.isPresent() && !sender.get().isLocal()) {
                 if (isFiltered) {
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
+                    InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> {
                         SERVICE.execute(() -> {
                             processPacket(receiver, determinedSender, packet, messageUUID, false, packetHandler);
                         }, receiver, messageUUID);
@@ -673,7 +673,7 @@ public class OutMessagePacket implements Listener {
             PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, component, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            InteractiveChat.plugin.getScheduler().runLater((task) -> {
                 InteractiveChat.keyTime.remove(rawMessageKey);
                 InteractiveChat.keyPlayer.remove(rawMessageKey);
             }, 10);

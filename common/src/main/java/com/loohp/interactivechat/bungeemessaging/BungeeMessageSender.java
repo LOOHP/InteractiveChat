@@ -61,7 +61,7 @@ public class BungeeMessageSender {
     protected static short inventoryScheme = 0;
 
     static {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
             int size = sent.size();
             for (int i = size; i > 500; i--) {
                 sent.remove(sent.firstKey());

@@ -69,19 +69,19 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.chat(message));
+                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.chat(message));
                         } else {
                             if (!ModernChatSigningUtils.isChatMessageIllegal(message)) {
                                 event.setReadOnly(false);
                                 event.setCancelled(true);
                                 event.setReadOnly(true);
                                 if (player.isConversing()) {
-                                    Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
+                                    InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.acceptConversationInput(message));
                                     if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                                        Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> ModernChatSigningUtils.detectRateSpam(player, message));
+                                        InteractiveChat.plugin.getScheduler().runAsync((task) -> ModernChatSigningUtils.detectRateSpam(player, message));
                                     }
                                 } else {
-                                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                                    InteractiveChat.plugin.getScheduler().runAsync((task) -> {
                                         try {
                                             Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
                                             PlayerUtils.chatAsPlayer(player, message, decorated);
@@ -104,7 +104,7 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
                                 PlayerUtils.dispatchCommandAsPlayer(player, command);
                                 if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
                                     ModernChatSigningUtils.detectRateSpam(player, command);

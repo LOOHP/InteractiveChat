@@ -69,7 +69,7 @@ public class PlayerDataManager implements Listener {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runAsync((task) -> {
             if (!database.playerExists(playerUUID)) {
                 database.createPlayer(playerUUID, player.getName());
             }
@@ -82,7 +82,7 @@ public class PlayerDataManager implements Listener {
     public void onLeave(PlayerQuitEvent event) {
         PlayerData pd = data.remove(event.getPlayer().getUniqueId());
         if (pd != null) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> pd.save());
+            InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
         }
     }
 

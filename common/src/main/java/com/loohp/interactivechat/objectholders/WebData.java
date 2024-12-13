@@ -79,7 +79,7 @@ public class WebData {
     }
 
     private void run() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
             reload();
         }, 18000, 18000);
     }

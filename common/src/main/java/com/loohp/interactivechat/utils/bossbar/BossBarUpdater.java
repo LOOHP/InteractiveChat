@@ -27,30 +27,24 @@ import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Flag;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 
 public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable {
 
     public static void countdownBossBar(BossBarUpdater updater, int ticks, int removeDelay) {
-        new BukkitRunnable() {
-            int tick = 0;
-
-            @Override
-            public void run() {
-                tick++;
-                BossBar bossbar = updater.getBossBar();
-                float current = 1 - (float) tick / (float) ticks;
-                bossbar.progress(Math.max(current, 0));
-                if (current < 0) {
-                    this.cancel();
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> updater.close(), removeDelay);
-                }
+        final int[] tick = {0};
+        InteractiveChat.plugin.getScheduler().runTimerAsync((outer) -> {
+            tick[0]++;
+            BossBar bossbar = updater.getBossBar();
+            float current = 1 - (float) tick[0] / (float) ticks;
+            bossbar.progress(Math.max(current, 0));
+            if (current < 0) {
+                outer.cancel();
+                InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> updater.close(), removeDelay);
             }
-        }.runTaskTimerAsynchronously(InteractiveChat.plugin, 0, 1);
+        }, 0, 1);
     }
 
     public static BossBarUpdater update(BossBar bossbar, Player... players) {

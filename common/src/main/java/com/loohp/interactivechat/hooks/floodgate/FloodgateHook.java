@@ -162,7 +162,7 @@ public class FloodgateHook implements Listener {
         } else {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player, command));
+                InteractiveChat.plugin.getScheduler().runNextTick((task) -> PlayerUtils.dispatchCommandAsPlayer(player, command));
             }
         }
     }

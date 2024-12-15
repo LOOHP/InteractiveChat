@@ -23,7 +23,6 @@ package com.loohp.interactivechat.listeners;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.utils.FilledMapUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -42,7 +41,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapView;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -66,30 +64,27 @@ public class MapViewer implements Listener {
             NMS.getInstance().sendFakeMainHandSlot(player, item);
 
             MAP_VIEWERS.put(player, item);
-            
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ItemStack itemStack = MAP_VIEWERS.get(player);
-                    if (itemStack != null && itemStack.equals(item)) {
-                        if (!player.getInventory().containsAtLeast(itemStack, 1)) {
-                            byte[] colors = FilledMapUtils.getColors(mapView, player);
-                            List<MapCursor> mapCursors = FilledMapUtils.getCursors(mapView, player);
-                            Iterator<MapCursor> itr = mapCursors.iterator();
-                            while (itr.hasNext()) {
-                                MapCursor mapCursor = itr.next();
-                                int type = mapCursor.getRawType();
-                                if (type == 0 || type == 6 || type == 7) {
-                                    itr.remove();
-                                }
+
+            InteractiveChat.plugin.getScheduler().runTimer((outer) -> {
+                ItemStack itemStack = MAP_VIEWERS.get(player);
+                if (itemStack != null && itemStack.equals(item)) {
+                    if (!player.getInventory().containsAtLeast(itemStack, 1)) {
+                        byte[] colors = FilledMapUtils.getColors(mapView, player);
+                        List<MapCursor> mapCursors = FilledMapUtils.getCursors(mapView, player);
+                        Iterator<MapCursor> itr = mapCursors.iterator();
+                        while (itr.hasNext()) {
+                            MapCursor mapCursor = itr.next();
+                            int type = mapCursor.getRawType();
+                            if (type == 0 || type == 6 || type == 7) {
+                                itr.remove();
                             }
-                            NMS.getInstance().sendFakeMapUpdate(player, mapId, mapCursors, colors);
                         }
-                    } else {
-                        this.cancel();
+                        NMS.getInstance().sendFakeMapUpdate(player, mapId, mapCursors, colors);
                     }
+                } else {
+                    outer.cancel();
                 }
-            }.runTaskTimer(InteractiveChat.plugin, 0, 1);
+            }, 0, 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +106,7 @@ public class MapViewer implements Listener {
     public void onInventory(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            InteractiveChat.plugin.getScheduler().runLater((task) -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
@@ -141,7 +136,7 @@ public class MapViewer implements Listener {
         if (removed) {
             if (player.getInventory().equals(event.getClickedInventory()) && slot >= 9) {
                 ItemStack item = player.getInventory().getItem(slot);
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setItem(slot, item), 1);
+                InteractiveChat.plugin.getScheduler().runLater((task) -> player.getInventory().setItem(slot, item), 1);
             } else {
                 event.setCursor(null);
             }
@@ -167,7 +162,7 @@ public class MapViewer implements Listener {
         if (removed) {
             player.getInventory().setHeldItemSlot(lastSlot);
             NMS.getInstance().sendFakeMainHandSlot(player, player.getInventory().getItemInHand());
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setHeldItemSlot(slot), 1);
+            InteractiveChat.plugin.getScheduler().runLater((task) -> player.getInventory().setHeldItemSlot(slot), 1);
         }
     }
 
@@ -180,7 +175,7 @@ public class MapViewer implements Listener {
         Player player = event.getPlayer();
 
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            InteractiveChat.plugin.getScheduler().runLater((task) -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {

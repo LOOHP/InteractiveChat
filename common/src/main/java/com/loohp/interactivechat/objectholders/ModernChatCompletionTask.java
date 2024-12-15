@@ -60,7 +60,7 @@ public class ModernChatCompletionTask implements Listener {
     }
 
     private void run() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
             if (InteractiveChat.chatTabCompletionsEnabled) {
                 for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
                     Set<String> tab = ConcurrentHashMap.newKeySet();

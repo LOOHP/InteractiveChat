@@ -37,14 +37,14 @@ public class ItemStackUtils {
     private static final ItemStack AIR = new ItemStack(Material.AIR);
 
     public static Component getDisplayName(ItemStack itemstack) {
-        return getDisplayName(itemstack, ChatColor.WHITE);
+        return getDisplayName(itemstack, true);
     }
 
-    public static Component getDisplayName(ItemStack itemstack, ChatColor defaultRarityColor) {
-        return getDisplayName(itemstack, defaultRarityColor, true);
+    public static Component getDisplayName(ItemStack itemstack, boolean applyStyle) {
+        return getDisplayName(itemstack, applyStyle, true);
     }
 
-    public static Component getDisplayName(ItemStack itemstack, ChatColor defaultRarityColor, boolean removeClickAndHover) {
+    public static Component getDisplayName(ItemStack itemstack, boolean applyStyle, boolean removeClickAndHover) {
         if (itemstack == null) {
             itemstack = AIR.clone();
         }
@@ -53,16 +53,15 @@ public class ItemStackUtils {
 
         Component component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(itemstack));
 
-        if (itemMeta != null && itemMeta.hasDisplayName()) {
-            component = component.decorate(TextDecoration.ITALIC);
-        }
+        if (applyStyle) {
+            if (itemMeta != null && itemMeta.hasDisplayName()) {
+                component = component.decorate(TextDecoration.ITALIC);
+            }
 
-        ChatColor rarityChatColor = NMS.getInstance().getRarityColor(itemstack);
-        if (rarityChatColor.equals(ChatColor.WHITE)) {
-            rarityChatColor = defaultRarityColor;
-        }
-        if (rarityChatColor != null) {
-            component = component.colorIfAbsent(ColorUtils.toTextColor(rarityChatColor));
+            ChatColor rarityChatColor = NMS.getInstance().getRarityColor(itemstack);
+            if (rarityChatColor != null) {
+                component = component.colorIfAbsent(ColorUtils.toTextColor(rarityChatColor));
+            }
         }
 
         if (removeClickAndHover) {

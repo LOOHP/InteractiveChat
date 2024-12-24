@@ -51,7 +51,7 @@ public class SenderFinder {
             String msg = entry.getKey();
             if (chat.contains(msg)) {
                 UUID uuid = entry.getValue();
-                Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(msg), 5);
+                InteractiveChat.plugin.getScheduler().runLaterAsync(() -> InteractiveChat.messages.remove(msg), 5);
                 ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
                 if (wplayer != null) {
                     return Optional.of(wplayer);
@@ -73,7 +73,7 @@ public class SenderFinder {
         if (mostsimular != null) {
             UUID uuid = InteractiveChat.messages.get(mostsimular);
             String finalmostsimular = mostsimular;
-            Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
+            InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> InteractiveChat.messages.remove(finalmostsimular), 5);
             ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
             if (wplayer != null) {
                 return Optional.of(wplayer);

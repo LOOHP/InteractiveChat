@@ -144,22 +144,20 @@ public class V1_9_4 extends NMSWrapper {
 
     @Override
     public Component getItemStackDisplayName(ItemStack itemStack) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return null;
-        }
-        String displayName = meta.getDisplayName();
-        return displayName == null ? null : LegacyComponentSerializer.legacySection().deserialize(displayName);
+        net.minecraft.server.v1_9_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
+        return LegacyComponentSerializer.legacySection().deserialize(nmsItemStack.getName());
     }
 
     @Override
     public void setItemStackDisplayName(ItemStack itemStack, Component component) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return;
+        net.minecraft.server.v1_9_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
+        String displayName = LegacyComponentSerializer.legacySection().serialize(component);
+        nmsItemStack.c(displayName);
+        ItemStack modifiedStack = toBukkitCopy(nmsItemStack);
+        ItemMeta meta = modifiedStack.getItemMeta();
+        if (meta != null) {
+            itemStack.setItemMeta(meta);
         }
-        meta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(component));
-        itemStack.setItemMeta(meta);
     }
 
     @Override

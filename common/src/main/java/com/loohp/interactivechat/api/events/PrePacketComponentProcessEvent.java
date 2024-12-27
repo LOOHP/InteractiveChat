@@ -54,7 +54,7 @@ public class PrePacketComponentProcessEvent extends Event {
         this.sender = sender;
     }
 
-    public Player getReciver() {
+    public Player getReceiver() {
         return reciever;
     }
 

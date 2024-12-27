@@ -181,18 +181,10 @@ public class V1_16_4 extends NMSWrapper {
 
     @Override
     public void setItemStackDisplayName(ItemStack itemStack, Component component) {
-        IChatBaseComponent nmsComponent = IChatBaseComponent.ChatSerializer.a(GsonComponentSerializer.gson().serialize(component));
+        IChatBaseComponent nmsComponent = CraftChatMessage.fromJSON(GsonComponentSerializer.gson().serialize(component));
         net.minecraft.server.v1_16_R3.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        NBTTagCompound nbt = nmsItemStack.save(new NBTTagCompound());
-        NBTTagCompound merge = new NBTTagCompound();
-        NBTTagCompound tag = new NBTTagCompound();
-        NBTTagCompound display = new NBTTagCompound();
-        display.setString("Name", GsonComponentSerializer.gson().serialize(component));
-        tag.set("display", display);
-        merge.set("tag", tag);
-        nbt.a(merge);
-        net.minecraft.server.v1_16_R3.ItemStack modifiedNmsItemStack = net.minecraft.server.v1_16_R3.ItemStack.a(nbt);
-        ItemStack modifiedStack = toBukkitCopy(modifiedNmsItemStack);
+        nmsItemStack.a(nmsComponent);
+        ItemStack modifiedStack = toBukkitCopy(nmsItemStack);
         ItemMeta meta = modifiedStack.getItemMeta();
         if (meta != null) {
             itemStack.setItemMeta(meta);

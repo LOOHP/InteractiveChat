@@ -595,7 +595,7 @@ public class OutMessagePacket implements Listener {
             component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Registry.ID_PATTERN_REPLACEMENT);
 
             UUID preEventSenderUUID = sender.isPresent() ? sender.get().getUniqueId() : null;
-            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);
+            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(!Bukkit.isPrimaryThread(), receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(preEvent);
             if (preEvent.getSender() != null) {
                 Player newsender = Bukkit.getPlayer(preEvent.getSender());

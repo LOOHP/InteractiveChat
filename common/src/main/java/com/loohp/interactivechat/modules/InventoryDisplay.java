@@ -169,7 +169,7 @@ public class InventoryDisplay {
             NMS.getInstance().setItemStackDisplayName(exp, expText);
         } else {
             ItemMeta expMeta = exp.getItemMeta();
-            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
+            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).getResult().replaceFirst("%s|%d", level + ""));
             exp.setItemMeta(expMeta);
         }
         inv.setItem(1, exp);
@@ -273,7 +273,7 @@ public class InventoryDisplay {
             NMS.getInstance().setItemStackDisplayName(exp, expText);
         } else {
             ItemMeta expMeta = exp.getItemMeta();
-            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
+            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).getResult().replaceFirst("%s|%d", level + ""));
             exp.setItemMeta(expMeta);
         }
         inv.setItem(37, exp);

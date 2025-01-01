@@ -186,7 +186,8 @@ public class InteractiveChatComponentSerializer {
         public Component translate(Component component, String language) {
             if (component instanceof TranslatableComponent) {
                 TranslatableComponent trans = (TranslatableComponent) component;
-                Component translated = Component.text(LanguageUtils.getTranslation(trans.key(), language)).style(trans.style()).children(trans.children()).clickEvent(trans.clickEvent()).hoverEvent(trans.hoverEvent());
+                LanguageUtils.TranslationResult translationResult = LanguageUtils.getTranslation(trans.key(), language);
+                Component translated = Component.text(translationResult.getResultOrFallback(trans.fallback())).style(trans.style()).children(trans.children()).clickEvent(trans.clickEvent()).hoverEvent(trans.hoverEvent());
                 for (TranslationArgument with : trans.arguments()) {
                     translated = translated.replaceText(TextReplacementConfig.builder().match("%+[0-9]*\\$?[sd]").replacement(with).times(1).build());
                 }

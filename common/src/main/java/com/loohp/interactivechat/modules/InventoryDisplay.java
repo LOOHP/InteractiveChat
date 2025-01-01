@@ -1,8 +1,8 @@
 /*
  * This file is part of InteractiveChat.
  *
- * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
- * Copyright (C) 2022. Contributors
+ * Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2020 - 2025. Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ public class InventoryDisplay {
             NMS.getInstance().setItemStackDisplayName(exp, expText);
         } else {
             ItemMeta expMeta = exp.getItemMeta();
-            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
+            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).getResult().replaceFirst("%s|%d", level + ""));
             exp.setItemMeta(expMeta);
         }
         inv.setItem(1, exp);
@@ -273,7 +273,7 @@ public class InventoryDisplay {
             NMS.getInstance().setItemStackDisplayName(exp, expText);
         } else {
             ItemMeta expMeta = exp.getItemMeta();
-            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).replaceFirst("%s|%d", level + ""));
+            expMeta.setDisplayName(ChatColor.YELLOW + LanguageUtils.getTranslation(getLevelTranslation(level), InteractiveChat.language).getResult().replaceFirst("%s|%d", level + ""));
             exp.setItemMeta(expMeta);
         }
         inv.setItem(37, exp);

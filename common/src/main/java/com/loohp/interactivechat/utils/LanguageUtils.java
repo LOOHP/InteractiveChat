@@ -1,8 +1,8 @@
 /*
  * This file is part of InteractiveChat.
  *
- * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
- * Copyright (C) 2022. Contributors
+ * Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2020 - 2025. Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -382,16 +382,45 @@ public class LanguageUtils {
         return Collections.unmodifiableSet(translations.keySet());
     }
 
-    public static String getTranslation(String translationKey, String language) {
+    public static TranslationResult getTranslation(String translationKey, String language) {
         try {
             Map<String, String> mapping = translations.get(language);
             if (language.equals("en_us")) {
-                return mapping.getOrDefault(translationKey, translationKey);
+                String result = mapping.getOrDefault(translationKey, translationKey);
+                boolean hasTranslation = mapping.containsKey(translationKey);
+                return new TranslationResult(result, hasTranslation);
+            } else if (mapping == null) {
+                return getTranslation(translationKey, "en_us");
             } else {
-                return mapping == null ? getTranslation(translationKey, "en_us") : mapping.getOrDefault(translationKey, getTranslation(translationKey, "en_us"));
+                String result = mapping.getOrDefault(translationKey, getTranslation(translationKey, "en_us").getResult());
+                boolean hasTranslation = mapping.containsKey(translationKey);
+                return new TranslationResult(result, hasTranslation);
             }
         } catch (Exception e) {
-            return translationKey;
+            return new TranslationResult(translationKey, false);
+        }
+    }
+
+    public static class TranslationResult {
+
+        private final String result;
+        private final boolean hasTranslation;
+
+        public TranslationResult(String result, boolean hasTranslation) {
+            this.result = result;
+            this.hasTranslation = hasTranslation;
+        }
+
+        public String getResultOrFallback(String fallback) {
+            return hasTranslation ? result : (fallback == null ? result : fallback);
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public boolean hasTranslation() {
+            return hasTranslation;
         }
     }
 

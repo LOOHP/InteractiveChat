@@ -1,8 +1,8 @@
 /*
- * This file is part of InteractiveChat.
+ * This file is part of InteractiveChat-Abstraction.
  *
- * Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
- * Copyright (C) 2022. Contributors
+ * Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
+ * Copyright (C) 2020 - 2025. Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

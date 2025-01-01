@@ -1,8 +1,8 @@
 <!--
   ~ This file is part of InteractiveChat.
   ~
-  ~ Copyright (C) 2022. LoohpJames <jamesloohp@gmail.com>
-  ~ Copyright (C) 2022. Contributors
+  ~ Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
+  ~ Copyright (C) 2020 - 2025. Contributors
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.2.15.0</version>
+	<version>4.2.16.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>

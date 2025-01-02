@@ -60,7 +60,7 @@ public class EssentialsNicknames implements Listener {
             }
         });
 
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runLater((task) -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 loadNicks(player);
             }
@@ -80,7 +80,7 @@ public class EssentialsNicknames implements Listener {
     public void onEssentialsReload(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().equalsIgnoreCase("/essentials reload")) {
             if (event.getPlayer().hasPermission("essentials.essentials")) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                InteractiveChat.plugin.getScheduler().runLater((task) -> {
                     prefix = essen.getConfig().getString("nickname-prefix");
                 }, 40);
             }
@@ -100,7 +100,7 @@ public class EssentialsNicknames implements Listener {
     @EventHandler
     public void onEssentialsJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runLater((task) -> {
             loadNicks(player);
         }, 100);
     }

@@ -67,9 +67,9 @@ public class InventoryEvents implements Listener {
         if (hash != null) {
             Inventory fakeInv = InteractiveChat.inventoryDisplay1Lower.get(hash);
             if (fakeInv == null) {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.closeInventory());
+                InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.closeInventory());
             } else {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> InventoryUtils.sendFakePlayerInventory(player, fakeInv, true, false));
+                InteractiveChat.plugin.getScheduler().runNextTick((task) -> InventoryUtils.sendFakePlayerInventory(player, fakeInv, true, false));
             }
         }
         if (event.getView().getTopInventory() == null) {
@@ -157,7 +157,7 @@ public class InventoryEvents implements Listener {
                             displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
                         }
 
-                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                        InteractiveChat.plugin.getScheduler().runAtEntityLater(player, (task) -> {
                             ValuePairs<Inventory, String> opened;
                             String hash = InteractiveChat.viewingInv1.remove(player.getUniqueId());
                             if (hash != null) {
@@ -179,7 +179,7 @@ public class InventoryEvents implements Listener {
     public void onInventoryClickHighest(InventoryClickEvent event) {
         if (CANCELLED_INVENTORY.remove(event)) {
             event.setCancelled(true);
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> ((Player) event.getWhoClicked()).updateInventory(), 5);
+            InteractiveChat.plugin.getScheduler().runAtEntityLater(event.getWhoClicked(), (task) -> ((Player) event.getWhoClicked()).updateInventory(), 5);
         }
     }
 
@@ -193,7 +193,7 @@ public class InventoryEvents implements Listener {
         if (topInventory != null) {
             ValuePairs<Inventory, String> opened = InteractiveChat.containerDisplay.remove(topInventory);
             if (opened != null) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                InteractiveChat.plugin.getScheduler().runAtEntityLater(player, (task) -> {
                     player.openInventory(opened.getFirst());
                     String hash = opened.getSecond();
                     if (hash != null) {

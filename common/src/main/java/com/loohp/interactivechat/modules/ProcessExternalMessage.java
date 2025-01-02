@@ -340,7 +340,7 @@ public class ProcessExternalMessage {
             }
         }
 
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runLater((task) -> {
             InteractiveChat.keyTime.remove(rawMessageKey);
             InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);

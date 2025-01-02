@@ -74,7 +74,7 @@ public class ServerPingListener implements Listener {
             }
         });
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
             REQUESTS.entrySet().removeIf(entry -> System.currentTimeMillis() > entry.getValue());
         }, 0, 20);
     }

@@ -160,7 +160,7 @@ public class V1_12 extends NMSWrapper {
     @Override
     public Component getItemStackDisplayName(ItemStack itemStack) {
         net.minecraft.server.v1_12_R1.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return LegacyComponentSerializer.legacySection().deserialize(nmsItemStack.getName());
+        return l(nmsItemStack.getName());
     }
 
     @Override
@@ -185,7 +185,7 @@ public class V1_12 extends NMSWrapper {
         if (lore == null) {
             return Collections.emptyList();
         }
-        return lore.stream().map(s -> LegacyComponentSerializer.legacySection().deserialize(s)).collect(Collectors.toList());
+        return lore.stream().map(s -> l(s)).collect(Collectors.toList());
     }
 
     @Override
@@ -206,7 +206,7 @@ public class V1_12 extends NMSWrapper {
         net.minecraft.server.v1_12_R1.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(itemStack);
         ItemSkull skull = (ItemSkull) nmsItemStack.getItem();
         String owner = skull.b(nmsItemStack);
-        return LegacyComponentSerializer.legacySection().deserialize(owner);
+        return l(owner);
     }
 
     @Override

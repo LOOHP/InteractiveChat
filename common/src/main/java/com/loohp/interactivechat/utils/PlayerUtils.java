@@ -49,7 +49,7 @@ public class PlayerUtils implements Listener {
     private static final Map<UUID, Map<String, PermissionCache>> PERMISSION_CACHE = new ConcurrentHashMap<>();
 
     static {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
             long now = System.currentTimeMillis();
             Iterator<Entry<UUID, Map<String, PermissionCache>>> itr0 = PERMISSION_CACHE.entrySet().iterator();
             while (itr0.hasNext()) {
@@ -102,7 +102,7 @@ public class PlayerUtils implements Listener {
             return result;
         } else {
             CompletableFuture<Boolean> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+            InteractiveChat.plugin.getScheduler().runAsync((task) -> {
                 Map<String, PermissionCache> map = PERMISSION_CACHE.get(uuid);
                 if (map == null) {
                     PERMISSION_CACHE.putIfAbsent(uuid, new ConcurrentHashMap<>());

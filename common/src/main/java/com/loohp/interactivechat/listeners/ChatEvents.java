@@ -358,7 +358,7 @@ public class ChatEvents implements Listener {
 
         String mapKey = ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage()));
         InteractiveChat.messages.put(mapKey, player.getUniqueId());
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(mapKey), 60);
+        InteractiveChat.plugin.getScheduler().runLater((task) -> InteractiveChat.messages.remove(mapKey), 60);
 
         if (InteractiveChat.bungeecordMode) {
             try {

@@ -62,7 +62,7 @@ public class VentureChatInjection implements Listener {
     public void onPluginEnable(PluginEnableEvent event) {
         if (init) {
             if (event.getPlugin().getName().equalsIgnoreCase("VentureChat")) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                InteractiveChat.plugin.getScheduler().runLater((task) -> {
                     _init_();
                     Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
                 }, 100);

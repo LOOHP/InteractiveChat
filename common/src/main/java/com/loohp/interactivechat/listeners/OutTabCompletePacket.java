@@ -59,7 +59,7 @@ public class OutTabCompletePacket {
     private static AtomicReference<Map<String, UUID>> playernames = new AtomicReference<>(new HashMap<>());
 
     public static void tabCompleteListener() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync((outer) -> {
             if (InteractiveChat.useTooltipOnTab) {
                 Map<String, UUID> playernames = new HashMap<>();
                 for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
@@ -72,7 +72,7 @@ public class OutTabCompletePacket {
                         playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
                     }
                 }
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames.set(playernames));
+                InteractiveChat.plugin.getScheduler().runNextTick((inner) -> OutTabCompletePacket.playernames.set(playernames));
             }
         }, 0, 100);
 

@@ -24,9 +24,13 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.utils.ComponentFlattening;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.DataComponentValue;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.querz.nbt.io.NamedTag;
 import org.bukkit.Material;
@@ -39,6 +43,7 @@ import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,9 +71,27 @@ public abstract class NMSWrapper {
     }
 
     static final ItemStack ITEM_STACK_AIR = new ItemStack(Material.AIR);
+    static final Style STYLE_ALL_FALSE = Style.style()
+            .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            .decoration(TextDecoration.UNDERLINED, TextDecoration.State.FALSE)
+            .decoration(TextDecoration.STRIKETHROUGH, TextDecoration.State.FALSE)
+            .decoration(TextDecoration.OBFUSCATED, TextDecoration.State.FALSE)
+            .build();
 
     static PacketContainer p(Object packet) {
         return PacketContainer.fromPacket(packet);
+    }
+
+    static Component l(String text) {
+        List<Component> children = new ArrayList<>(ComponentFlattening.flatten(LegacyComponentSerializer.legacySection().deserialize(text)).children());
+        for (int i = 0; i < children.size(); i++) {
+            Component child = children.get(i);
+            if (child.color() != null) {
+                children.set(i, child.style(child.style().merge(STYLE_ALL_FALSE, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)));
+            }
+        }
+        return Component.empty().children(children);
     }
 
     public abstract boolean getColorSettingsFromClientInformationPacket(PacketContainer packet);

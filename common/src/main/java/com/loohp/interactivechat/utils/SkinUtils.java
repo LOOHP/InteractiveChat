@@ -32,6 +32,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -70,7 +71,15 @@ public class SkinUtils {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
                     head = Bukkit.getUnsafe().modifyItemStack(head, "minecraft:player_head[minecraft:profile={properties:[{name:\"textures\",value:\"" + base64 + "\"}]}]");
                 } else {
-                    head = Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner: {Properties: {textures: [{Value: \"" + base64 + "\"}]}}}");
+                    UUID skullUuid = UUID.nameUUIDFromBytes(base64.getBytes(StandardCharsets.UTF_8));
+                    String id;
+                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+                        int[] array = UUIDUtils.toIntArray(skullUuid);
+                        id = "[I;" + array[0] + "," + array[1] + "," + array[2] + "," + array[3] + "]";
+                    } else {
+                        id = "\"" + skullUuid + "\"";
+                    }
+                    head = Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner:{Id:" + id + ",Properties:{textures:[{Value: \"" + base64 + "\"}]}}}");
                 }
             }
         } catch (Throwable ignore) {

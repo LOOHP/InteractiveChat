@@ -631,10 +631,6 @@ public class OutMessagePacket implements Listener {
 
             component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
 
-            if (InteractiveChat.useItem) {
-                component = ItemDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
-            }
-
             if (InteractiveChat.useInventory) {
                 component = InventoryDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
             }
@@ -645,6 +641,10 @@ public class OutMessagePacket implements Listener {
 
             if (InteractiveChat.clickableCommands) {
                 component = CommandsDisplay.process(component);
+            }
+
+            if (InteractiveChat.useItem) {
+                component = ItemDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
             }
 
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {

@@ -99,6 +99,9 @@ permissions:
   interactivechat.dumpnbt:
     description: Debug command, allows you to display the item of the item in your hand
     default: op
+  interactivechat.dumpcmd:
+    description: Debug command, allows you to display the item of the item in your hand
+    default: op
   interactivechat.bedrock.events:
     description: Allow floodgate geyser bedrock players to access chat events menu
     default: true

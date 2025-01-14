@@ -416,6 +416,30 @@ public class Commands implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("dumpcmd") && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
+            if (sender.hasPermission("interactivechat.dumpcmd")) {
+                if (sender instanceof Player) {
+                    @SuppressWarnings("deprecation")
+                    ItemStack itemStack = ((Player) sender).getEquipment().getItemInHand();
+                    if (itemStack == null) {
+                        itemStack = new ItemStack(Material.AIR);
+                    }
+                    String components = ItemNBTUtils.getNMSItemStackCommandComponent(itemStack);
+                    if (args.length > 1) {
+                        String colorReplacement = args[1];
+                        components = components.replace(String.valueOf(ChatColorUtils.COLOR_CHAR), colorReplacement);
+                    }
+                    InteractiveChatAPI.sendMessageUnprocessed(sender, components);
+                    Bukkit.getConsoleSender().sendMessage(components);
+                } else {
+                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                }
+            } else {
+                sender.sendMessage(InteractiveChat.noPermissionMessage);
+            }
+            return true;
+        }
+
         if (sender instanceof Player && args.length > 1) {
             Player player = (Player) sender;
             switch (args[0].toLowerCase()) {

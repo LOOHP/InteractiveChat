@@ -6,6 +6,10 @@ Options:
   ShowCancelledNotice: true
   ExtraProxiedPacketProcessingDelay: 0
   PluginMessagePacketVerbose: false
+  #Changing this option requires a restart, must be larger than 4 (Default is 8)
+  AsyncChatThreadPoolExecutorCoreSize: 8
+  #Changing this option requires a restart, must be larger than AsyncChatThreadPoolExecutorCoreSize (Default is 16)
+  AsyncChatThreadPoolExecutorMaxSize: 16
 
 Messages:
   NoPermission: "&cYou do not have permission to use that command!"

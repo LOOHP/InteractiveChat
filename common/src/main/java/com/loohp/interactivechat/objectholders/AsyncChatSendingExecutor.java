@@ -63,7 +63,9 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
 
     public AsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
         ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
-        this.executor = new ThreadPoolExecutor(8, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
+        int coreSize = Math.max(4, InteractiveChat.asyncChatThreadPoolExecutorCoreSize);
+        int maxSize = Math.max(coreSize, InteractiveChat.asyncChatThreadPoolExecutorMaxSize);
+        this.executor = new ThreadPoolExecutor(coreSize, maxSize, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
         this.executeLock = new ReentrantLock(true);
         this.executionWaitTime = executionWaitTime;
         this.killThreadAfter = killThreadAfter;

@@ -132,6 +132,8 @@ public class InteractiveChat extends JavaPlugin {
 
     public static int extraProxiedPacketProcessingDelay;
     public static boolean pluginMessagePacketVerbose;
+    public static int asyncChatThreadPoolExecutorCoreSize;
+    public static int asyncChatThreadPoolExecutorMaxSize;
 
     public static Boolean essentialsHook = false;
     public static Boolean essentialsDiscordHook = false;

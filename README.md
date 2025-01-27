@@ -1,7 +1,9 @@
 [![Build Status](https://ci.loohpjames.com/job/InteractiveChat/badge/icon)](https://ci.loohpjames.com/job/InteractiveChat/)
 # InteractiveChat
 
-https://www.spigotmc.org/resources/75870/
+https://www.spigotmc.org/resources/75870/<br>
+https://modrinth.com/plugin/interactivechat/<br>
+https://hangar.papermc.io/LOOHP/InteractiveChat/
 
 Shows your item in hand, inventory content and ender chest content with your friends! Even across servers in your global bungeecord chat! This plugin also allows you to create your own interactive keywords for your players to use in chat!
 

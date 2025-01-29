@@ -140,6 +140,7 @@ public class V1_21_4 extends NMSWrapper {
     private final Method playerConnectionIsChatMessageIllegalMethod;
     private final Method playerConnectionHandleCommandMethod;
     private final Field craftSkullMetaProfileField;
+    private final Field renderDataCursorsField;
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
@@ -152,6 +153,7 @@ public class V1_21_4 extends NMSWrapper {
             playerConnectionIsChatMessageIllegalMethod = ReflectionUtils.findDeclaredMethod(PlayerConnection.class, new Class<?>[] {String.class}, "isChatMessageIllegal", "d");
             playerConnectionHandleCommandMethod = PlayerConnection.class.getDeclaredMethod("handleCommand", String.class);
             craftSkullMetaProfileField = Class.forName("org.bukkit.craftbukkit.v1_21_R3.inventory.CraftMetaSkull").getDeclaredField("profile");
+            renderDataCursorsField = RenderData.class.getField("cursors");
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -323,11 +325,16 @@ public class V1_21_4 extends NMSWrapper {
         return renderData.buffer;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<MapCursor> getCursors(MapView mapView, Player player) {
-        CraftMapView craftMapView = (CraftMapView) mapView;
-        RenderData renderData = craftMapView.render((CraftPlayer) player);
-        return renderData.cursors;
+        try {
+            CraftMapView craftMapView = (CraftMapView) mapView;
+            RenderData renderData = craftMapView.render((CraftPlayer) player);
+            return (List<MapCursor>) renderDataCursorsField.get(renderData);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

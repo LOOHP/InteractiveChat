@@ -23,6 +23,7 @@ package com.loohp.interactivechat.objectholders;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -58,7 +59,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     private final Map<UUID, Map<UUID, OutboundPacket>> waitingPackets;
     private final Map<UUID, Long> lastSuccessfulCheck;
 
-    private final List<Integer> taskIds;
+    private final List<WrappedTask> taskIds;
     private final AtomicBoolean isValid;
 
     public AsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
@@ -126,10 +127,8 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     @Override
     public synchronized void close() throws Exception {
         isValid.set(false);
-        for (int id : taskIds) {
-            if (id >= 0) {
-                Bukkit.getScheduler().cancelTask(id);
-            }
+        for (WrappedTask task : taskIds) {
+            InteractiveChat.plugin.getScheduler().cancelTask(task);
         }
         executor.shutdown();
     }
@@ -198,8 +197,8 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
         }, "InteractiveChat Async ChatPacket Ordered Sending Thread").start();
     }
 
-    private int packetSender() {
-        return Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+    private WrappedTask packetSender() {
+        return InteractiveChat.plugin.getScheduler().runTimer(() -> {
             while (!sendingQueue.isEmpty()) {
                 OutboundPacket out = sendingQueue.poll();
                 try {
@@ -210,7 +209,7 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                     e.printStackTrace();
                 }
             }
-        }, 0, 1).getTaskId();
+        }, 0, 1);
     }
 
     private void monitor() {

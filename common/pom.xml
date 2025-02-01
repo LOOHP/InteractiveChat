@@ -535,7 +535,7 @@
 			<artifactId>velocity</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/velocity-3.4.0-SNAPSHOT-454.jar</systemPath>
+			<systemPath>${basedir}/lib/velocity-3.4.0-SNAPSHOT-469.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.luckperms</groupId>
@@ -554,21 +554,21 @@
 			<artifactId>eco</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/eco-6.74.4-all.jar</systemPath>
+			<systemPath>${basedir}/lib/eco-6.75.2-all.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress</groupId>
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-4.3.1.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.3.3.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.nightcore</groupId>
 			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/nightcore-2.7.3.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.7.3.1.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.geysermc.floodgate</groupId>

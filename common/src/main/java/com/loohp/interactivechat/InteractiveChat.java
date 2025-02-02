@@ -31,13 +31,15 @@ import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
+import com.loohp.interactivechat.hooks.bedrock.floodgate.FloodgateHookPlatform;
+import com.loohp.interactivechat.hooks.bedrock.geyser.GeyserHookPlatform;
 import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
 import com.loohp.interactivechat.hooks.dynmap.DynmapListener;
 import com.loohp.interactivechat.hooks.eco.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.excellentenchants.ExcellentEnchantsHook;
-import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
+import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
@@ -148,7 +150,7 @@ public class InteractiveChat extends JavaPlugin {
     public static Boolean luckPermsHook = false;
     public static Boolean mysqlPDBHook = false;
     public static Boolean chatControlRedHook = false;
-    public static Boolean floodgateHook = false;
+    public static Boolean bedrockHook = false;
     public static Boolean tritonHook = false;
 
     public static Permission perms = null;
@@ -605,10 +607,16 @@ public class InteractiveChat extends JavaPlugin {
             chatControlRedHook = true;
         }
 
-        if (isPluginEnabled("floodgate")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Floodgate!");
-            getServer().getPluginManager().registerEvents(new FloodgateHook(), this);
-            floodgateHook = true;
+        if (isPluginEnabled("Geyser-Spigot") || isPluginEnabled("floodgate")) {
+            if (isPluginEnabled("floodgate")) {
+                getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Floodgate!");
+                BedrockHook.setBedrockHookPlatform(new FloodgateHookPlatform());
+            } else {
+                getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into Geyser!");
+                BedrockHook.setBedrockHookPlatform(new GeyserHookPlatform());
+            }
+            getServer().getPluginManager().registerEvents(new BedrockHook(), this);
+            bedrockHook = true;
         }
 
         if (isPluginEnabled("Triton")) {

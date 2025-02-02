@@ -18,7 +18,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.loohp.interactivechat.hooks.floodgate;
+package com.loohp.interactivechat.hooks.bedrock;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.events.PreChatPacketSendEvent;
@@ -42,19 +42,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.SimpleForm;
-import org.geysermc.floodgate.api.FloodgateApi;
-import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FloodgateHook implements Listener {
+public class BedrockHook implements Listener {
 
-    private static Map<UUID, List<Component>> CHAT_MESSAGES = new ConcurrentHashMap<>();
+    private static final Map<UUID, List<Component>> CHAT_MESSAGES = new ConcurrentHashMap<>();
+
+    private static BedrockHookPlatform PLATFORM;
+
+    public static void setBedrockHookPlatform(BedrockHookPlatform bedrockHookPlatform) {
+        PLATFORM = bedrockHookPlatform;
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChatPacket(PreChatPacketSendEvent event) {
@@ -73,19 +78,15 @@ public class FloodgateHook implements Listener {
         CHAT_MESSAGES.remove(event.getPlayer().getUniqueId());
     }
 
-    public static synchronized void addChatMessage(UUID uuid, Component component) {
-        if (!isFloodgatePlayer(uuid)) {
+    public static void addChatMessage(UUID uuid, Component component) {
+        if (!isBedrockPlayer(uuid)) {
             return;
         }
-        List<Component> list = CHAT_MESSAGES.get(uuid);
-        if (list == null) {
-            CHAT_MESSAGES.put(uuid, list = Collections.synchronizedList(new LimitedQueue<>(30)));
-        }
-        list.add(component);
+        CHAT_MESSAGES.computeIfAbsent(uuid, k -> Collections.synchronizedList(new LimitedQueue<>(30))).add(component);
     }
 
-    public static boolean isFloodgatePlayer(UUID uuid) {
-        return FloodgateApi.getInstance().isFloodgatePlayer(uuid);
+    public static boolean isBedrockPlayer(UUID uuid) {
+        return PLATFORM.isBedrockPlayer(uuid);
     }
 
     public static void sendRecentChatMessagesForm(UUID uuid) {
@@ -93,8 +94,13 @@ public class FloodgateHook implements Listener {
         List<Component> list = CHAT_MESSAGES.get(uuid);
         if (list != null) {
             builder.content(InteractiveChat.bedrockEventsMenuContent);
-            List<Component> components = new ArrayList<>(list);
-            Collections.reverse(components);
+            List<Component> components;
+            synchronized (list) {
+                components = new ArrayList<>(list.size());
+                for (ListIterator<Component> itr = list.listIterator(list.size()); itr.hasPrevious();) {
+                    components.add(itr.previous());
+                }
+            }
             for (Component component : components) {
                 builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(component, InteractiveChat.language));
             }
@@ -106,7 +112,7 @@ public class FloodgateHook implements Listener {
                 sendEventsForm(uuid, components.get(index));
             });
         }
-        FloodgateApi.getInstance().sendForm(uuid, builder);
+        PLATFORM.sendForm(uuid, builder);
     }
 
     public static void sendEventsForm(UUID uuid, Component message) {
@@ -134,7 +140,7 @@ public class FloodgateHook implements Listener {
                 handleRunCommand(uuid, command);
             }
         }).closedOrInvalidResultHandler(() -> sendRecentChatMessagesForm(uuid));
-        FloodgateApi.getInstance().sendForm(uuid, builder);
+        PLATFORM.sendForm(uuid, builder);
     }
 
     private static void handleSuggestCommand(UUID uuid, Component clickComponent, Component message, String suggestedCommand) {
@@ -144,16 +150,13 @@ public class FloodgateHook implements Listener {
         }
         CustomForm.Builder builder = CustomForm.builder().title(InteractiveChat.bedrockEventsMenuRunSuggested)
                 .input(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(clickComponent, InteractiveChat.language), suggestedCommand, suggestedCommand)
-                .validResultHandler(response -> {
-                    handleRunCommand(uuid, response.asInput());
-                })
+                .validResultHandler(response -> handleRunCommand(uuid, response.asInput()))
                 .closedOrInvalidResultHandler(() -> sendEventsForm(uuid, message));
-        FloodgateApi.getInstance().sendForm(uuid, builder);
+        PLATFORM.sendForm(uuid, builder);
     }
 
     private static void handleRunCommand(UUID uuid, String command) {
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(uuid);
-        if (floodgatePlayer.isFromProxy() && InteractiveChat.bungeecordMode) {
+        if (PLATFORM.isBedrockPlayerFromProxy(uuid) && InteractiveChat.bungeecordMode) {
             try {
                 BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
             } catch (Exception e) {

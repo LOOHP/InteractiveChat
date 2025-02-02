@@ -25,7 +25,7 @@ import com.loohp.interactivechat.api.events.InteractiveChatConfigReloadEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
+import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
@@ -372,13 +372,13 @@ public class Commands implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (InteractiveChat.floodgateHook && args[0].equalsIgnoreCase("events")) {
+        if (InteractiveChat.bedrockHook && args[0].equalsIgnoreCase("events")) {
             if (sender.hasPermission("interactivechat.bedrock.events")) {
                 if (sender instanceof Player) {
                     Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
                         UUID uuid = ((Player) sender).getUniqueId();
-                        if (FloodgateHook.isFloodgatePlayer(uuid)) {
-                            FloodgateHook.sendRecentChatMessagesForm(uuid);
+                        if (BedrockHook.isBedrockPlayer(uuid)) {
+                            BedrockHook.sendRecentChatMessagesForm(uuid);
                         } else {
                             sender.sendMessage(InteractiveChat.noPermissionMessage);
                         }
@@ -509,7 +509,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             return tab;
         }
 
-        BooleanSupplier isBedrock = () -> InteractiveChat.floodgateHook && sender instanceof Player && FloodgateHook.isFloodgatePlayer(((Player) sender).getUniqueId());
+        BooleanSupplier isBedrock = () -> InteractiveChat.bedrockHook && sender instanceof Player && BedrockHook.isBedrockPlayer(((Player) sender).getUniqueId());
 
         if (sender instanceof Player && args.length > 1 && (("chat".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.chat")) || ("parse".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.parse")))) {
             if (InteractiveChat.version.isLegacy()) {

@@ -24,6 +24,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.JsonElement;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
+import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.NativeJsonConverter;
 import com.loohp.interactivechat.utils.ReflectionUtils;
@@ -81,13 +82,18 @@ import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutTabComplete;
 import net.minecraft.network.protocol.game.PacketPlayOutWindowItems;
 import net.minecraft.resources.MinecraftKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.entity.player.EnumChatVisibility;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemSkullPlayer;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.World;
 import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.minecraft.world.level.saveddata.maps.MapIcon;
 import net.minecraft.world.level.saveddata.maps.MapId;
@@ -96,6 +102,7 @@ import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_21_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R1.boss.CraftBossBar;
@@ -108,6 +115,8 @@ import org.bukkit.craftbukkit.v1_21_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MainHand;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -128,6 +137,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -734,5 +744,44 @@ public class V1_21_1 extends NMSWrapper {
         WorldMap.b b = new WorldMap.b(0, 0, 128, 128, colors);
         PacketPlayOutMap packet = new PacketPlayOutMap(new MapId(mapId), (byte) 0, false, Optional.of(mapIcons), Optional.of(b));
         ((CraftPlayer) player).getHandle().c.sendPacket(packet);
+    }
+
+    @Override
+    public InternalOfflinePlayerInfo loadOfflinePlayer(UUID uuid, Inventory inventory, Inventory enderchest) {
+        MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer worldServer = server.a(World.i);
+        if (worldServer == null) {
+            return null;
+        }
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+        GameProfile profile = new GameProfile(offline.getUniqueId(), offline.getName() != null ? offline.getName() : offline.getUniqueId().toString());
+        ClientInformation dummyInfo = new ClientInformation("en_us", 1, EnumChatVisibility.c, false, 0, EntityPlayer.bH, true, false);
+        EntityPlayer player = new EntityPlayer(server, worldServer, profile, dummyInfo);
+        player.R().a();
+
+        NBTTagCompound loadedData = player.d.ah().t.b(player).orElse(null);
+        if (loadedData == null) {
+            return null;
+        }
+
+        player.g(loadedData);
+        player.a(loadedData);
+        player.c(loadedData);
+
+        Player p = player.getBukkitEntity();
+        PlayerInventory playerInventory = p.getInventory();
+
+        int selectedSlot = playerInventory.getHeldItemSlot();
+        boolean rightHanded = p.getMainHand().equals(MainHand.RIGHT);
+        int xpLevel = p.getLevel();
+
+        for (int slot = 0; slot < Math.min(playerInventory.getSize(), inventory.getSize()); slot++) {
+            inventory.setItem(slot, playerInventory.getItem(slot));
+        }
+        for (int slot = 0; slot < Math.min(p.getEnderChest().getSize(), enderchest.getSize()); slot++) {
+            enderchest.setItem(slot, p.getEnderChest().getItem(slot));
+        }
+
+        return new InternalOfflinePlayerInfo(selectedSlot, rightHanded, xpLevel, inventory, enderchest);
     }
 }

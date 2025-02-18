@@ -23,6 +23,7 @@ package com.loohp.interactivechat.nms;
 import com.comphenix.protocol.events.PacketContainer;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
+import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -44,18 +45,22 @@ import net.minecraft.server.v1_16_R2.ChatComponentText;
 import net.minecraft.server.v1_16_R2.Criterion;
 import net.minecraft.server.v1_16_R2.CriterionTriggerImpossible;
 import net.minecraft.server.v1_16_R2.EntityInsentient;
+import net.minecraft.server.v1_16_R2.EntityPlayer;
 import net.minecraft.server.v1_16_R2.EnumItemSlot;
+import net.minecraft.server.v1_16_R2.IChatBaseComponent;
+import net.minecraft.server.v1_16_R2.ItemArmor;
+import net.minecraft.server.v1_16_R2.ItemSkullPlayer;
+import net.minecraft.server.v1_16_R2.MapIcon;
+import net.minecraft.server.v1_16_R2.MinecraftKey;
+import net.minecraft.server.v1_16_R2.MinecraftServer;
 import net.minecraft.server.v1_16_R2.MojangsonParser;
 import net.minecraft.server.v1_16_R2.NBTBase;
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagList;
-import net.minecraft.server.v1_16_R2.IChatBaseComponent;
 import net.minecraft.server.v1_16_R2.NonNullList;
 import net.minecraft.server.v1_16_R2.PacketPlayInSettings;
 import net.minecraft.server.v1_16_R2.PacketPlayOutAdvancements;
-import net.minecraft.server.v1_16_R2.MinecraftKey;
-import net.minecraft.server.v1_16_R2.EntityPlayer;
 import net.minecraft.server.v1_16_R2.PacketPlayOutEntityEquipment;
 import net.minecraft.server.v1_16_R2.PacketPlayOutMap;
 import net.minecraft.server.v1_16_R2.PacketPlayOutSetSlot;
@@ -63,13 +68,15 @@ import net.minecraft.server.v1_16_R2.PacketPlayOutTabComplete;
 import net.minecraft.server.v1_16_R2.PacketPlayOutTitle;
 import net.minecraft.server.v1_16_R2.PacketPlayOutWindowItems;
 import net.minecraft.server.v1_16_R2.PlayerConnection;
-import net.minecraft.server.v1_16_R2.ItemArmor;
-import net.minecraft.server.v1_16_R2.ItemSkullPlayer;
-import net.minecraft.server.v1_16_R2.MapIcon;
+import net.minecraft.server.v1_16_R2.PlayerInteractManager;
+import net.minecraft.server.v1_16_R2.World;
+import net.minecraft.server.v1_16_R2.WorldServer;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R2.boss.CraftBossBar;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
@@ -79,6 +86,8 @@ import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MainHand;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -101,6 +110,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -606,5 +616,43 @@ public class V1_16_2 extends NMSWrapper {
         List<MapIcon> mapIcons = toNMSMapIconList(mapCursors);
         PacketPlayOutMap packet = new PacketPlayOutMap(mapId, (byte) 0, false, false, mapIcons, colors, 0, 0, 128, 128);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    @Override
+    public InternalOfflinePlayerInfo loadOfflinePlayer(UUID uuid, Inventory inventory, Inventory enderchest) {
+        MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer worldServer = server.getWorldServer(World.OVERWORLD);
+        if (worldServer == null) {
+            return null;
+        }
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+        GameProfile profile = new GameProfile(offline.getUniqueId(), offline.getName() != null ? offline.getName() : offline.getUniqueId().toString());
+        PlayerInteractManager interactManager = new PlayerInteractManager(worldServer);
+        EntityPlayer player = new EntityPlayer(server, worldServer, profile, interactManager);
+        player.getAdvancementData().a();
+
+        NBTTagCompound loadedData = player.server.getPlayerList().playerFileData.load(player);
+        if (loadedData == null) {
+            return null;
+        }
+
+        player.load(loadedData);
+        player.loadData(loadedData);
+
+        Player p = player.getBukkitEntity();
+        PlayerInventory playerInventory = p.getInventory();
+
+        int selectedSlot = playerInventory.getHeldItemSlot();
+        boolean rightHanded = p.getMainHand().equals(MainHand.RIGHT);
+        int xpLevel = p.getLevel();
+
+        for (int slot = 0; slot < Math.min(playerInventory.getSize(), inventory.getSize()); slot++) {
+            inventory.setItem(slot, playerInventory.getItem(slot));
+        }
+        for (int slot = 0; slot < Math.min(p.getEnderChest().getSize(), enderchest.getSize()); slot++) {
+            enderchest.setItem(slot, p.getEnderChest().getItem(slot));
+        }
+
+        return new InternalOfflinePlayerInfo(selectedSlot, rightHanded, xpLevel, inventory, enderchest);
     }
 }

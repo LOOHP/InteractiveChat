@@ -25,17 +25,14 @@ import com.loohp.interactivechat.api.events.ICPlayerJoinEvent;
 import com.loohp.interactivechat.api.events.ICPlayerQuitEvent;
 import com.loohp.interactivechat.api.events.OfflineICPlayerCreationEvent;
 import com.loohp.interactivechat.api.events.OfflineICPlayerUpdateEvent;
+import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.utils.InventoryUtils;
-import com.loohp.interactivechat.utils.ItemNBTUtils;
 import net.craftersland.data.bridge.PD;
 import net.craftersland.data.bridge.objects.DatabaseEnderchestData;
 import net.craftersland.data.bridge.objects.DatabaseExperienceData;
 import net.craftersland.data.bridge.objects.DatabaseInventoryData;
-import net.querz.nbt.io.NBTUtil;
-import net.querz.nbt.io.NamedTag;
-import net.querz.nbt.io.SNBTUtil;
-import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,8 +43,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -213,12 +208,18 @@ public class ICPlayerFactory {
         return null;
     }
 
+    public static OfflineICPlayer getOfflineICPlayer(OfflinePlayer offlinePlayer) {
+        if (offlinePlayer.isOnline()) {
+            return getICPlayer(offlinePlayer.getPlayer());
+        }
+        return getOfflineICPlayer(offlinePlayer.getUniqueId());
+    }
+
     public static OfflineICPlayer getOfflineICPlayer(UUID uuid) {
         ICPlayer icplayer = getICPlayer(uuid);
         if (icplayer != null) {
             return icplayer;
         }
-        File dat = new File(Bukkit.getWorlds().get(0).getWorldFolder().getAbsolutePath() + "/playerdata", uuid.toString() + ".dat");
         boolean mysqlPDBInventorySync = false;
         boolean mysqlPDBArmorSync = false;
         boolean mysqlPDBEnderChestSync = false;
@@ -244,59 +245,22 @@ public class ICPlayerFactory {
                 mysqlPDBExpSync = false;
             }
         }
-        if (!dat.exists() && !mysqlPDBInventorySync && !mysqlPDBArmorSync && !mysqlPDBEnderChestSync && !mysqlPDBExpSync) {
-            OfflineICPlayer offlineICPlayer = getReferenced(uuid);
-            if (offlineICPlayer == null) {
-                offlineICPlayer = new OfflineICPlayer(uuid);
-                OfflineICPlayerCreationEvent event = new OfflineICPlayerCreationEvent(offlineICPlayer);
-                Bukkit.getPluginManager().callEvent(event);
-                REFERENCED_OFFLINE_PLAYERS.put(uuid, new WeakReference<>(offlineICPlayer));
-            } else {
-                OfflineICPlayerUpdateEvent event = new OfflineICPlayerUpdateEvent(offlineICPlayer);
-                Bukkit.getPluginManager().callEvent(event);
-            }
-            return offlineICPlayer;
-        }
         try {
             int selectedSlot = 0;
             boolean rightHanded = true;
             int xpLevel = 0;
             Inventory inventory = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 45);
             Inventory enderchest = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.getDefaultEnderChestSize());
-            if (dat.exists()) {
-                NamedTag nbtData = NBTUtil.read(dat);
-                CompoundTag rootTag = (CompoundTag) nbtData.getTag();
-                selectedSlot = rootTag.getInt("SelectedItemSlot");
-                rightHanded = !rootTag.containsKey("LeftHanded") || !rootTag.getBoolean("LeftHanded");
-                xpLevel = rootTag.getInt("XpLevel");
-                for (CompoundTag entry : rootTag.getListTag("Inventory").asTypedList(CompoundTag.class)) {
-                    int slot = entry.getByte("Slot");
-                    entry.remove("Slot");
-                    ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
-                    if (slot == 100) {
-                        slot = 36;
-                    } else if (slot == 101) {
-                        slot = 37;
-                    } else if (slot == 102) {
-                        slot = 38;
-                    } else if (slot == 103) {
-                        slot = 39;
-                    } else if (slot == -106) {
-                        slot = 40;
-                    }
-                    if (slot >= 0 && slot < inventory.getSize()) {
-                        inventory.setItem(slot, item);
-                    }
-                }
-                for (CompoundTag entry : rootTag.getListTag("EnderItems").asTypedList(CompoundTag.class)) {
-                    int slot = entry.getByte("Slot");
-                    entry.remove("Slot");
-                    ItemStack item = ItemNBTUtils.getItemFromNBTJson(SNBTUtil.toSNBT(entry));
-                    if (slot >= 0 && slot < enderchest.getSize()) {
-                        enderchest.setItem(slot, item);
-                    }
-                }
+
+            InternalOfflinePlayerInfo info = NMS.getInstance().loadOfflinePlayer(uuid, inventory, enderchest);
+            if (info != null) {
+                selectedSlot = info.getSelectedSlot();
+                rightHanded = info.isRightHanded();
+                xpLevel = info.getXpLevel();
+                inventory = info.getInventory();
+                enderchest = info.getEnderchest();
             }
+
             if (mysqlPDBInventorySync || mysqlPDBArmorSync) {
                 DatabaseInventoryData invData = PD.instance.getInventoryStorageHandler().getData(dummyPlayer);
                 if (mysqlPDBInventorySync) {
@@ -343,7 +307,7 @@ public class ICPlayerFactory {
                 Bukkit.getPluginManager().callEvent(event);
             }
             return offlineICPlayer;
-        } catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
             return null;
         }

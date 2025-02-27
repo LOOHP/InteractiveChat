@@ -63,6 +63,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -413,7 +414,16 @@ public class InteractiveChatBungee extends Plugin implements Listener {
         event.setCancelled(true);
 
         try {
-            Server senderServer = (Server) event.getSender();
+            Connection source = event.getSender();
+
+            if (!(source instanceof Server)) {
+                if (source instanceof ProxiedPlayer) {
+                    ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] Suspicious client to server plugin message recieved from " + ((ProxiedPlayer) source).getName() + ", they might be using a modified client for exploits.");
+                }
+                return;
+            }
+
+            Server senderServer = (Server) source;
             SocketAddress senderServerAddress = event.getSender().getSocketAddress();
 
             byte[] packet = Arrays.copyOf(event.getData(), event.getData().length);

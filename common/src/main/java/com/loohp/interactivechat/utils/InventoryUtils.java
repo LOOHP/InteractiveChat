@@ -21,11 +21,13 @@
 package com.loohp.interactivechat.utils;
 
 import com.loohp.interactivechat.nms.NMS;
+import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -36,6 +38,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class InventoryUtils {
+
+    public static final boolean CAN_USE_DROPPER_TYPE = platformSupportsDropperHolder();
+
+    private static boolean platformSupportsDropperHolder() {
+        Inventory inventory = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryType.DROPPER, "Title");
+        return inventory.getHolder() instanceof ICInventoryHolder;
+    }
 
     private static final ItemStack ITEM_STACK_AIR = new ItemStack(Material.AIR);
 
@@ -77,23 +86,23 @@ public class InventoryUtils {
         }
     }
 
-    public static Inventory fromBase64(String data, InventoryType type, String title) throws IOException {
+    public static Inventory fromBase64(String data, InventoryType type, String title, InventoryHolder holder) throws IOException {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             Inventory inventory;
             if (type.equals(InventoryType.CHEST)) {
                 if (title == null || title.equals("")) {
-                    inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
+                    inventory = Bukkit.getServer().createInventory(holder, dataInput.readInt());
                 } else {
-                    inventory = Bukkit.getServer().createInventory(null, dataInput.readInt(), title);
+                    inventory = Bukkit.getServer().createInventory(holder, dataInput.readInt(), title);
                 }
             } else {
                 dataInput.readInt();
                 if (title == null || title.equals("")) {
-                    inventory = Bukkit.getServer().createInventory(null, type);
+                    inventory = Bukkit.getServer().createInventory(holder, type);
                 } else {
-                    inventory = Bukkit.getServer().createInventory(null, type, title);
+                    inventory = Bukkit.getServer().createInventory(holder, type, title);
                 }
             }
 
@@ -109,8 +118,8 @@ public class InventoryUtils {
         }
     }
 
-    public static Inventory fromBase64(String data, String title) throws IOException {
-        return fromBase64(data, InventoryType.CHEST, title);
+    public static Inventory fromBase64(String data, String title, InventoryHolder holder) throws IOException {
+        return fromBase64(data, InventoryType.CHEST, title, holder);
     }
 
 }

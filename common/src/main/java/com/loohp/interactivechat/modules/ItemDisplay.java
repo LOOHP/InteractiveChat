@@ -37,6 +37,7 @@ import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
+import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.ItemStackUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -274,7 +275,7 @@ public class ItemDisplay {
                         inv.setItem(13, isAir ? null : originalItem);
                         InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
                     } else {
-                        Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryType.DROPPER, title);
+                        Inventory inv = InventoryUtils.CAN_USE_DROPPER_TYPE ? Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryType.DROPPER, title) : Bukkit.createInventory(ICInventoryHolder.INSTANCE, 27, title);
                         ItemStack empty = InteractiveChat.itemFrame1.clone();
                         if (item.getType().equals(InteractiveChat.itemFrame1.getType())) {
                             empty = InteractiveChat.itemFrame2.clone();
@@ -287,7 +288,7 @@ public class ItemDisplay {
                         for (int j = 0; j < inv.getSize(); j++) {
                             inv.setItem(j, empty);
                         }
-                        inv.setItem(4, isAir ? null : originalItem);
+                        inv.setItem(inv.getSize() / 2, isAir ? null : originalItem);
                         InteractiveChatAPI.addInventoryToItemShareList(SharedType.ITEM, sha1, inv);
                     }
                 }

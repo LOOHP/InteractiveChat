@@ -32,6 +32,7 @@ import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -87,7 +88,7 @@ public class OutTabCompletePacket {
     }
 
     private static void addPacketListener() {
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params()
+        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params()
                 .optionAsync()
                 .plugin(InteractiveChat.plugin)
                 .listenerPriority(ListenerPriority.HIGHEST)

@@ -51,6 +51,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibAsyncChatSendingExecutor;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ChatComponentType;
@@ -285,7 +286,7 @@ public class OutMessagePacket {
     }
 
     private static int getChatFieldsSize() {
-        PacketContainer chatPacket = InteractiveChat.protocolManager.createPacket(
+        PacketContainer chatPacket = ProtocolLibPlatform.protocolManager.createPacket(
                 InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ?
                         PacketType.Play.Server.SYSTEM_CHAT :
                         PacketType.Play.Server.CHAT
@@ -353,7 +354,7 @@ public class OutMessagePacket {
                 .listenerPriority(ListenerPriority.MONITOR)
                 .types(PACKET_HANDLERS.keySet());
 
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(params) {
+        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(params) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 handlePacketSending(event);

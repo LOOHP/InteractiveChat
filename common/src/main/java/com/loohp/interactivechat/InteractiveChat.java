@@ -644,8 +644,6 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new Updater(), this);
         }
 
-        ClientSettingPacket.clientSettingsListener();
-
         playerDataManager = new PlayerDataManager(this, database);
         nicknameManager = new NicknameManager(uuid -> InteractiveChatAPI.getNicknames(uuid), () -> InteractiveChatAPI.getOnlineICPlayers().stream().filter(each -> each.isLocal()).map(each -> each.getUniqueId()).collect(Collectors.toSet()), 5000, (uuid, nicknames) -> {
             if (InteractiveChat.bungeecordMode) {

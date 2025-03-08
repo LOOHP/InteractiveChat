@@ -9,6 +9,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.listeners.packet.ClientSettingsHandler;
 import com.loohp.interactivechat.nms.NMS;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
@@ -28,7 +29,7 @@ public class ClientSettingPacket {
             params.types(PacketType.Play.Client.SETTINGS);
         }
 
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(params) {
+        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(params) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 // do nothing

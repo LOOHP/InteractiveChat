@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.listeners.PaperChatEvents;
+import com.loohp.interactivechat.listeners.packet.protocollib.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.packet.protocollib.OutMessagePacket;
 import com.loohp.interactivechat.listeners.packet.protocollib.OutTabCompletePacket;
 import com.loohp.interactivechat.listeners.packet.protocollib.RedispatchSignedPacket;
@@ -44,6 +45,8 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
         if (!version.isLegacy()) {
             OutTabCompletePacket.tabCompleteListener();
         }
+
+        ClientSettingPacket.clientSettingsListener();
     }
 
     @Override

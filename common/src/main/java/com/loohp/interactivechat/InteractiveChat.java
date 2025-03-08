@@ -43,7 +43,7 @@ import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
-import com.loohp.interactivechat.listeners.ClientSettingPacket;
+import com.loohp.interactivechat.listeners.protocollib.ClientSettingPacket;
 import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.OutMessagePacket;

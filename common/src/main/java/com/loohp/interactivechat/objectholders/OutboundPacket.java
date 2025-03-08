@@ -20,15 +20,20 @@
 
 package com.loohp.interactivechat.objectholders;
 
-import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.entity.Player;
 
 public class OutboundPacket {
 
     private final Player reciever;
-    private final PacketContainer packet;
+    private final Object packet;
 
-    public OutboundPacket(Player reciever, PacketContainer packet) {
+    /**
+     * Simple outbound packet class, used to store packets that will be sent later on to a player.
+     *
+     * @param reciever Receiver of the packet.
+     * @param packet Will be cast to the platform-dependent object later. For ProtocolLib: PacketContainer. For PacketEvents: PacketWrapper.
+     */
+    public OutboundPacket(Player reciever, Object packet) {
         this.reciever = reciever;
         this.packet = packet;
     }
@@ -37,7 +42,7 @@ public class OutboundPacket {
         return reciever;
     }
 
-    public PacketContainer getPacket() {
+    public Object getPacket() {
         return packet;
     }
 

@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.listeners.protocollib;
+package com.loohp.interactivechat.listeners.packet.protocollib;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.ConfigManager;
+import com.loohp.interactivechat.listeners.packet.ClientSettingsHandler;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.MCVersion;
@@ -35,30 +36,16 @@ public class ClientSettingPacket {
 
             @Override
             public void onPacketReceiving(PacketEvent event) {
-                handlePacketReceiving(event);
+                if (event.isPlayerTemporary()) return;
+
+                PacketContainer packet = event.getPacket();
+                Player player = event.getPlayer();
+
+                boolean colorSettings = NMS.getInstance().getColorSettingsFromClientInformationPacket(packet);
+                boolean originalColorSettings = PlayerUtils.canChatColor(player);
+
+                ClientSettingsHandler.handlePacketReceiving(colorSettings, originalColorSettings, player);
             }
         });
-    }
-
-    public static void handlePacketReceiving(PacketEvent event) {
-        if (event.isPlayerTemporary()) {
-            return;
-        }
-
-        PacketContainer packet = event.getPacket();
-        Player player = event.getPlayer();
-        boolean colorSettings = NMS.getInstance().getColorSettingsFromClientInformationPacket(packet);
-        boolean originalColorSettings = PlayerUtils.canChatColor(player);
-
-        if (originalColorSettings && !colorSettings) {
-            sendMessageLater(player, ConfigManager.getConfig().getString("Messages.ColorsDisabled"));
-        } else if (!originalColorSettings && colorSettings) {
-            sendMessageLater(player, ConfigManager.getConfig().getString("Messages.ColorsReEnabled"));
-        }
-    }
-
-    private static void sendMessageLater(Player player, String message) {
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () ->
-                player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', message)), 5);
     }
 }

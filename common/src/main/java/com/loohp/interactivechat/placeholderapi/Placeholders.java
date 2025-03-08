@@ -69,6 +69,8 @@ public class Placeholders extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer offlineplayer, String identifier) {
+        if (offlineplayer != null) return null; // offlinePlayer can be null
+
         if (identifier.equals("mentiontoggle")) {
             PlayerData pd;
             if (offlineplayer.isOnline()) {

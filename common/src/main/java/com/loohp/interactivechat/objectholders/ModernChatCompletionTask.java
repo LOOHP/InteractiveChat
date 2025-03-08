@@ -20,7 +20,6 @@
 
 package com.loohp.interactivechat.objectholders;
 
-import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Sets;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
@@ -86,13 +85,11 @@ public class ModernChatCompletionTask implements Listener {
                     List<String> remove = new ArrayList<>(Sets.difference(oldList, tab));
 
                     if (!add.isEmpty()) {
-                        PacketContainer chatCompletionPacket1 = NMS.getInstance().createCustomTabCompletionPacket(CustomTabCompletionAction.ADD, add);
-                        InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket1);
+                        InteractiveChat.protocolPlatform.sendTabCompletionPacket(tabCompleter, CustomTabCompletionAction.ADD, add);
                     }
 
                     if (!remove.isEmpty()) {
-                        PacketContainer chatCompletionPacket2 = NMS.getInstance().createCustomTabCompletionPacket(CustomTabCompletionAction.REMOVE, remove);
-                        InteractiveChat.protocolManager.sendServerPacket(tabCompleter, chatCompletionPacket2);
+                        InteractiveChat.protocolPlatform.sendTabCompletionPacket(tabCompleter, CustomTabCompletionAction.REMOVE, remove);
                     }
 
                     remove.forEach(oldList::remove);

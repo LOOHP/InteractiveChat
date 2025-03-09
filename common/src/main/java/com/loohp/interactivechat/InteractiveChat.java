@@ -63,6 +63,7 @@ import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
+import com.loohp.interactivechat.platform.packetevents.PacketEventsPlatform;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -517,10 +518,12 @@ public class InteractiveChat extends JavaPlugin {
 
         if (selectedProtocolPlugin.equalsIgnoreCase("ProtocolLib") && Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
             getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found ProtocolLib on the server, initialising provider.");
+
             protocolPlatform = new ProtocolLibPlatform();
         } else if (selectedProtocolPlugin.equalsIgnoreCase("PacketEvents") && Bukkit.getPluginManager().isPluginEnabled("packetevents")) {
             getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found PacketEvents on the server, initialising provider.");
-            // TODO
+
+            protocolPlatform = new PacketEventsPlatform();
         } else {
             throw new IllegalStateException("Attempted to initialise InteractiveChat when no available protocol plugin was found! Configured: " + selectedProtocolPlugin + " - Is the plugin installed?");
         }
@@ -624,9 +627,13 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         if (isPluginEnabled("VentureChat")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
-            VentureChatInjection._init_();
-            ventureChatHook = true;
+            if (protocolPlatform instanceof ProtocolLibPlatform) {
+                getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+                VentureChatInjection._init_();
+                ventureChatHook = true;
+            } else {
+                getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Cannot inject into VentureChat: You have selected the protocol platform as PacketEvents, when this hook requires ProtocolLib!\nYou can adjust this in the config.yml under Settings.");
+            }
         }
 
         if (isPluginEnabled("dynmap")) {

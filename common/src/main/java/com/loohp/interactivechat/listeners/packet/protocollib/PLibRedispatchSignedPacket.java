@@ -36,7 +36,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.ExecutionException;
 
-public class RedispatchSignedPacket {
+public class PLibRedispatchSignedPacket {
 
     public static void packetListener() {
         PacketType[] packetTypes = getPacketTypes();

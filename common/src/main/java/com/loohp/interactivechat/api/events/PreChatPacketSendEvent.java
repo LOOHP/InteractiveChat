@@ -20,7 +20,6 @@
 
 package com.loohp.interactivechat.api.events;
 
-import com.comphenix.protocol.events.PacketContainer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -43,15 +42,15 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
     }
 
     private final Player reciever;
-    private final PacketContainer packet;
+    private final Object packet;
     private final Component component;
     private final UUID sender;
-    private final PacketContainer original;
-    private PacketContainer originalModified;
+    private final Object original;
+    private Object originalModified;
     private boolean sendOriginalIfCancelled;
     private boolean cancel;
 
-    public PreChatPacketSendEvent(boolean async, Player reciever, PacketContainer packet, Component component, UUID sender, PacketContainer original, boolean sendOriginalIfCancelled, boolean cancelled) {
+    public PreChatPacketSendEvent(boolean async, Player reciever, Object packet, Component component, UUID sender, Object original, boolean sendOriginalIfCancelled, boolean cancelled) {
         super(async);
         this.reciever = reciever;
         this.packet = packet;
@@ -80,7 +79,12 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         return sender;
     }
 
-    public PacketContainer getPacket() {
+    /**
+     * This will either be ProtocolLib's PacketContainer, or PacketEvent's PacketWrapper<?>.
+     *
+     * @return The modified chat packet Object.
+     */
+    public Object getPacket() {
         return packet;
     }
 
@@ -88,10 +92,15 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         return component;
     }
 
-    public PacketContainer getOriginal() {
-        if (originalModified == null) {
-            originalModified = original.deepClone();
-        }
+    /**
+     * Like getPacket(), this will either be ProtocolLib's PacketContainer, or PacketEvent's PacketWrapper<?>.
+     *
+     * @return The chat packet, before any applied modifications.
+     */
+    public Object getOriginal() {
+        /*if (originalModified == null) {
+            originalModified = original.deepClone(); // todo - decide what to better do here.
+        }*/
         return originalModified;
     }
 

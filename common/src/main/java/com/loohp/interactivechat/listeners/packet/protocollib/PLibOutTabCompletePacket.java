@@ -55,7 +55,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class OutTabCompletePacket {
+public class PLibOutTabCompletePacket {
 
     private static final AtomicReference<Map<String, UUID>> playernames = new AtomicReference<>(new HashMap<>());
 
@@ -71,7 +71,7 @@ public class OutTabCompletePacket {
                 for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
                     addPlayerNames(playernames, player);
                 }
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> OutTabCompletePacket.playernames.set(playernames));
+                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PLibOutTabCompletePacket.playernames.set(playernames));
             }
         }, 0, 100);
     }

@@ -25,6 +25,7 @@ import com.comphenix.protocol.events.ListeningWhitelist;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -38,13 +39,13 @@ public class VentureChatInjection implements Listener {
 
     public static void _init_() {
         Bukkit.getPluginManager().registerEvents(new VentureChatInjection(), InteractiveChat.plugin);
-        InteractiveChat.protocolManager.getPacketListeners().forEach(each -> {
+        ProtocolLibPlatform.protocolManager.getPacketListeners().forEach(each -> {
             if (each.getPlugin().getName().equals("VentureChat")) {
                 ListeningWhitelist whitelist = each.getSendingWhitelist();
                 if (whitelist.getTypes().stream().anyMatch(type -> {String name = type.name(); return name.equals("CHAT") || name.equals("SYSTEM_CHAT") || name.equals("CHAT_PREVIEW");})) {
                     if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
                         packetListener = each;
-                        InteractiveChat.protocolManager.removePacketListener(each);
+                        ProtocolLibPlatform.protocolManager.removePacketListener(each);
                     }
                 }
             }

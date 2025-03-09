@@ -1,20 +1,16 @@
-package com.loohp.interactivechat.platform.protocollib;
+package com.loohp.interactivechat.platform.packetevents;
 
-import com.comphenix.protocol.events.PacketContainer;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.AsyncChatSendingExecutor;
 import com.loohp.interactivechat.objectholders.OutboundPacket;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongSupplier;
 
-public class ProtocolLibAsyncChatSendingExecutor extends AsyncChatSendingExecutor {
-    public ProtocolLibAsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
+public class PacketEventsAsyncChatSendingExecutor extends AsyncChatSendingExecutor {
+    public PacketEventsAsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
         super(executionWaitTime, killThreadAfter);
     }
 
@@ -25,7 +21,9 @@ public class ProtocolLibAsyncChatSendingExecutor extends AsyncChatSendingExecuto
                 OutboundPacket out = sendingQueue.poll();
                 try {
                     if (out.getReciever().isOnline()) {
-                        ProtocolLibPlatform.protocolManager.sendServerPacket(out.getReciever(), (PacketContainer) out.getPacket(), false);
+                        PacketWrapper<?> wrapper = (PacketWrapper<?>) out.getPacket();
+
+                        PacketEvents.getAPI().getPlayerManager().sendPacket(out.getReciever(), wrapper);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

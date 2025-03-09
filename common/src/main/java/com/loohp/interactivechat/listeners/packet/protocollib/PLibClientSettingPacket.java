@@ -6,17 +6,14 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.listeners.packet.ClientSettingsHandler;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
-import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class ClientSettingPacket {
+public class PLibClientSettingPacket {
 
     public static void clientSettingsListener() {
         PacketAdapter.AdapterParameteters params = PacketAdapter.params()

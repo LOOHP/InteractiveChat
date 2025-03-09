@@ -46,7 +46,6 @@ import com.loohp.interactivechat.modules.PlayernameDisplay;
 import com.loohp.interactivechat.modules.ProcessAccurateSender;
 import com.loohp.interactivechat.modules.ProcessCommands;
 import com.loohp.interactivechat.modules.SenderFinder;
-import com.loohp.interactivechat.objectholders.AsyncChatSendingExecutor;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ProcessSenderResult;
@@ -71,7 +70,6 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +82,7 @@ import java.util.stream.Collectors;
 
 import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
 
-public class OutMessagePacket {
+public class PLibOutMessagePacket {
     private static final Map<PacketType, PacketHandler> PACKET_HANDLERS = new HashMap<>();
 
     static {
@@ -573,7 +571,7 @@ public class OutMessagePacket {
                                 " that is " + jsonLength + " characters long (Longer than maximum allowed in a chat packet), " +
                                 "sending original unmodified message instead! [THIS IS NOT A BUG]");
                     }
-                    PacketContainer originalPacketModified = sendEvent.getOriginal();
+                    PacketContainer originalPacketModified = (PacketContainer) sendEvent.getOriginal();
                     SERVICE.send(originalPacketModified, receiver, messageUUID);
                     return;
                 }

@@ -20,7 +20,6 @@
 
 package com.loohp.interactivechat.objectholders;
 
-import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
 import org.bukkit.Bukkit;
@@ -100,7 +99,24 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         }
     }
 
-    public abstract void send(Object packet, Player player, UUID id);
+    public void send(Object packet, Player player, UUID id) {
+        // No need to cast to PacketContainer. packetSender() will cast to PacketContainer later, and this method's packet variable will always be a PacketContainer.
+        // If someone is supplying something that *isn't* a PacketContainer, then it's layer 8.
+        OutboundPacket outboundPacket = new OutboundPacket(player, packet);
+
+        Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
+        if (queue == null) {
+            sendingQueue.add(outboundPacket);
+        } else {
+            if (queue.stream().anyMatch(each -> each.getId().equals(id))) {
+                waitingPackets.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
+                Map<UUID, OutboundPacket> waitingMap = waitingPackets.get(player.getUniqueId());
+                waitingMap.put(id, outboundPacket);
+            } else {
+                sendingQueue.add(outboundPacket);
+            }
+        }
+    }
 
     public void discard(UUID player, UUID id) {
         Queue<MessageOrderInfo> queue = messagesOrder.get(player);

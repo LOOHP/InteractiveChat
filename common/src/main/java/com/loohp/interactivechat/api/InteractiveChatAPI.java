@@ -20,10 +20,6 @@
 
 package com.loohp.interactivechat.api;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.modules.ItemDisplay;
@@ -35,11 +31,8 @@ import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
-import com.loohp.interactivechat.utils.MCVersion;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,7 +45,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,37 +100,7 @@ public class InteractiveChatAPI {
      * @param component
      */
     public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, Component component) {
-        String json = InteractiveChatComponentSerializer.gson().serialize(component);
-        if (sender instanceof Player) {
-            PacketContainer packet;
-            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
-                packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.SYSTEM_CHAT);
-                if (packet.getStrings().size() > 0) {
-                    packet.getStrings().write(0, json);
-                } else {
-                    packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-                }
-                if (packet.getBooleans().size() > 0) {
-                    packet.getBooleans().write(0, false);
-                } else {
-                    packet.getIntegers().write(0, 1);
-                }
-            } else {
-                packet = InteractiveChat.protocolManager.createPacket(PacketType.Play.Server.CHAT);
-                if (!InteractiveChat.version.isLegacy() || InteractiveChat.version.equals(MCVersion.V1_12)) {
-                    packet.getChatTypes().write(0, ChatType.SYSTEM);
-                } else {
-                    packet.getBytes().write(0, (byte) 1);
-                }
-                packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
-                if (packet.getUUIDs().size() > 0) {
-                    packet.getUUIDs().write(0, uuid);
-                }
-            }
-            InteractiveChat.protocolManager.sendServerPacket((Player) sender, packet, false);
-        } else {
-            sender.spigot().sendMessage(ComponentSerializer.parse(json));
-        }
+        InteractiveChat.protocolPlatform.sendUnprocessedChatMessage(sender, uuid, component);
     }
 
     /**

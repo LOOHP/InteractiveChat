@@ -33,6 +33,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!-- Add the global dmulloy2 repository. Makes it easier than declaring the same repository in all the sub-module XMLs. -->
+    <repositories>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
+        </repository>
+    </repositories>
+
     <modules>
         <module>abstraction</module>
         <module>V1_8</module>

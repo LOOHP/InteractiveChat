@@ -287,6 +287,8 @@ public class ConfigManager {
 
         InteractiveChat.ecoSetLoreOnMainThread = getConfig().getBoolean("Settings.Hooks.EcoSetLoreOnMainThread");
 
+        InteractiveChat.selectedProtocolPlugin = getConfig().getString("Settings.ProtocolPlatformPlugin");
+
         InteractiveChat.placeholderList.clear();
         if (InteractiveChat.useItem) {
             String name = InteractiveChat.itemName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Name"));

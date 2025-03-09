@@ -72,7 +72,7 @@ public class PEOutMessagePacket implements PacketListener {
                         0,
                         false
                 ),
-                (packet, component, type, field, sender) -> {
+                (packet, component, type, field, sender, event) -> {
                     boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
                     String json = legacyRGB ?
@@ -83,6 +83,7 @@ public class PEOutMessagePacket implements PacketListener {
                     WrapperPlayServerDisguisedChat chatPacket = (WrapperPlayServerDisguisedChat) packet;
                     chatPacket.setMessage((Component) type.convertTo(component, legacyRGB));
 
+                    event.setLastUsedWrapper(chatPacket);
                     return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                 }
         ));
@@ -117,7 +118,7 @@ public class PEOutMessagePacket implements PacketListener {
                             Component component = packet.readComponent();
                             return new PacketAccessorResult(component, ChatComponentType.AdventureComponent, 0, false);
                         },
-                        (packet, component, type, field, sender) -> {
+                        (packet, component, type, field, sender, event) -> {
                             boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
                             String json = legacyRGB ?
@@ -162,6 +163,7 @@ public class PEOutMessagePacket implements PacketListener {
                                 }
                             }
 
+                            event.setLastUsedWrapper(packet);
                             return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                         }
                 )
@@ -184,7 +186,7 @@ public class PEOutMessagePacket implements PacketListener {
                                 Component component = packet.readComponent();
                                 return new PacketAccessorResult(component, ChatComponentType.AdventureComponent, 0, false);
                             },
-                            (packet, component, type, field, sender) -> {
+                            (packet, component, type, field, sender, event) -> {
                                 boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
                                 String json = legacyRGB ?
@@ -197,6 +199,8 @@ public class PEOutMessagePacket implements PacketListener {
                                 titlePacket.setTitle((Component) type.convertTo(component, legacyRGB));
 
                                 if (sender == null) sender = UUID_NIL;
+
+                                event.setLastUsedWrapper(titlePacket);
                                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                             }
                     )
@@ -211,7 +215,7 @@ public class PEOutMessagePacket implements PacketListener {
                     Component component = packet.readComponent();
                     return new PacketAccessorResult(component, ChatComponentType.AdventureComponent, 0, false);
                 },
-                (packet, component, type, field, sender) -> {
+                (packet, component, type, field, sender, event) -> {
                     boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
                     String json = legacyRGB ?
@@ -229,6 +233,7 @@ public class PEOutMessagePacket implements PacketListener {
                         ((WrapperPlayServerActionBar) packet).setActionBarText(component);
                     }
 
+                    event.setLastUsedWrapper(packet);
                     return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                 }
         );
@@ -437,7 +442,9 @@ public class PEOutMessagePacket implements PacketListener {
             Bukkit.getPluginManager().callEvent(postEvent);
             component = postEvent.getComponent();
 
-            PacketWriterResult packetWriterResult = packetHandler.getWriter().apply(packet, component, type, packetAccessorResult.getField(), sender.map(ICPlayer::getUniqueId).orElse(null));
+            PacketWriterResult packetWriterResult = packetHandler.getWriter().apply(packet, component, type, packetAccessorResult.getField(), sender.map(ICPlayer::getUniqueId).orElse(null), event);
+            event.markForReEncode(true);
+
             boolean longerThanMaxLength = packetWriterResult.isTooLong();
             UUID postEventSenderUUID = packetWriterResult.getSender();
             int jsonLength = packetWriterResult.getJsonLength();
@@ -523,6 +530,6 @@ public class PEOutMessagePacket implements PacketListener {
     }
 
     public interface PacketWriter {
-        MessagePacketHandler.PacketWriterResult apply(PacketWrapper<?> packet, Component component, ChatComponentType type, int field, UUID sender);
+        MessagePacketHandler.PacketWriterResult apply(PacketWrapper<?> packet, Component component, ChatComponentType type, int field, UUID sender, PacketSendEvent event);
     }
 }

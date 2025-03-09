@@ -1,6 +1,7 @@
 package com.loohp.interactivechat.platform.packetevents;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.protocol.chat.ChatTypes;
 import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage;
 import com.github.retrooper.packetevents.protocol.chat.message.ChatMessageLegacy;
@@ -10,6 +11,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCh
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTabComplete;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.bungeemessaging.packet.packetevents.PEServerPingListener;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEOutMessagePacket;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
@@ -25,9 +27,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class PacketEventsPlatform implements ProtocolPlatform {
+
     @Override
     public void initialise() {
         new PEOutMessagePacket().messageListeners();
+    }
+
+    @Override
+    public void onBungeecordEnabled() {
+        PacketEvents.getAPI().getEventManager().registerListener(new PEServerPingListener(), PacketListenerPriority.NORMAL);
     }
 
     @Override

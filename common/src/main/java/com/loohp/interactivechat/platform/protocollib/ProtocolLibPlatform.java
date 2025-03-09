@@ -8,6 +8,7 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.bungeemessaging.packet.protocollib.PLibServerPingListener;
 import com.loohp.interactivechat.listeners.packet.protocollib.PLibClientSettingPacket;
 import com.loohp.interactivechat.listeners.packet.protocollib.PLibOutMessagePacket;
 import com.loohp.interactivechat.listeners.packet.protocollib.PLibOutTabCompletePacket;
@@ -52,6 +53,11 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
         }
 
         PLibClientSettingPacket.clientSettingsListener();
+    }
+
+    @Override
+    public void onBungeecordEnabled() {
+        PLibServerPingListener.listen();
     }
 
     @Override

@@ -12,6 +12,8 @@ public interface ProtocolPlatform {
 
     void initialise();
 
+    void onBungeecordEnabled();
+
     void sendTabCompletionPacket(Player player, CustomTabCompletionAction action, List<String> list);
 
     void sendUnprocessedChatMessage(CommandSender sender, UUID uuid, Component component);

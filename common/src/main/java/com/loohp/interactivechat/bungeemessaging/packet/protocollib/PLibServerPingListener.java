@@ -18,7 +18,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.loohp.interactivechat.bungeemessaging;
+package com.loohp.interactivechat.bungeemessaging.packet.protocollib;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unchecked")
-public class ServerPingListener implements Listener {
+public class PLibServerPingListener implements Listener {
 
     public static final Map<Player, Long> REQUESTS = new ConcurrentHashMap<>();
     public static String json;
@@ -48,7 +48,7 @@ public class ServerPingListener implements Listener {
         json.put("minecraftVersion", InteractiveChat.version.getNumber());
         json.put("exactMinecraftVersion", InteractiveChat.exactMinecraftVersion);
         json.put("protocol", Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION);
-        ServerPingListener.json = json.toJSONString();
+        PLibServerPingListener.json = json.toJSONString();
     }
 
     public static void listen() {

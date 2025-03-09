@@ -23,7 +23,7 @@ package com.loohp.interactivechat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
-import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
+import com.loohp.interactivechat.bungeemessaging.packet.protocollib.PLibServerPingListener;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
@@ -447,8 +447,8 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Registering Plugin Messaging Channels for bungeecord...");
             getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
             getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", bungeeMessageListener = new BungeeMessageListener(this));
-            getServer().getPluginManager().registerEvents(new ServerPingListener(), this);
-            ServerPingListener.listen();
+            getServer().getPluginManager().registerEvents(new PLibServerPingListener(), this);
+            PLibServerPingListener.listen();
 
             Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
                 if (parsePAPIOnMainThread) {

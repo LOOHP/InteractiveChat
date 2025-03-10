@@ -20,11 +20,13 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.viaversion.viaversion.api.Via;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -162,6 +164,8 @@ public class PlayerUtils implements Listener {
         return NMS.getInstance().canChatColor(player);
     }
 
+    // This method isn't actually used, but I still adapted it to support PE and PLib.
+    // After all, who knows... maybe someone wants to use this while using InteractiveChat's API...
     public static int getProtocolVersion(Player player) {
         int protocolVersion = -1;
         if (InteractiveChat.viaVersionHook) {
@@ -169,8 +173,9 @@ public class PlayerUtils implements Listener {
         } else if (InteractiveChat.protocolSupportHook) {
             protocolVersion = protocolsupport.api.ProtocolSupportAPI.getProtocolVersion(player).getId();
         } else {
-            protocolVersion = InteractiveChat.protocolManager.getProtocolVersion(player);
+            protocolVersion = InteractiveChat.protocolPlatform.getProtocolVersion(player);
         }
+
         return protocolVersion;
     }
 

@@ -20,4 +20,6 @@ public interface ProtocolPlatform {
 
     boolean hasChatSigning();
 
+    int getProtocolVersion(Player player);
+
 }

@@ -40,6 +40,11 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
     }
 
     @Override
+    public int getProtocolVersion(Player player) {
+        return protocolManager.getProtocolVersion(player);
+    }
+
+    @Override
     public void initialise() {
         protocolManager = ProtocolLibrary.getProtocolManager();
 

@@ -95,4 +95,9 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     public boolean hasChatSigning() {
         return InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19);
     }
+
+    @Override
+    public int getProtocolVersion(Player player) {
+        return PacketEvents.getAPI().getProtocolManager().getClientVersion(player).getProtocolVersion();
+    }
 }

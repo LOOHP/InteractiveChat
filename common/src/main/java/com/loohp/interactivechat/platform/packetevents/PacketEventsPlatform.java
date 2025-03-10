@@ -14,6 +14,7 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.packet.packetevents.PEServerPingListener;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEClientSettingsPacket;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEOutMessagePacket;
+import com.loohp.interactivechat.listeners.packet.packetevents.PEOutTabCompletePacket;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -27,12 +28,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.loohp.interactivechat.InteractiveChat.version;
+
 public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
     public void initialise() {
         PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.MONITOR);
         PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.NORMAL);
+
+        if (!version.isLegacy()) {
+            PacketEvents.getAPI().getEventManager().registerListener(new PEOutTabCompletePacket(), PacketListenerPriority.HIGH);
+        }
     }
 
     @Override

@@ -380,6 +380,7 @@ public class PLibOutMessagePacket {
             event.setReadOnly(false);
             event.setCancelled(true);
             event.setReadOnly(readOnly);
+
             UUID messageUUID = UUID.randomUUID();
             ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);
 

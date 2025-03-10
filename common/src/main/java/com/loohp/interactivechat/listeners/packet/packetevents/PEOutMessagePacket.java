@@ -253,7 +253,6 @@ public class PEOutMessagePacket implements PacketListener {
             InteractiveChat.messagesCounter.getAndIncrement();
 
             Player receiver = event.getPlayer();
-            PacketWrapper<?> wrapper = event.getLastUsedWrapper();
             event.setCancelled(true);
             UUID messageUUID = UUID.randomUUID();
             ICPlayer determinedSender = packetHandler.getDeterminedSenderFunction().apply(event);

@@ -20,11 +20,11 @@
 
 package com.loohp.interactivechat;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.settings.PacketEventsSettings;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
-import com.loohp.interactivechat.bungeemessaging.packet.packetevents.PEServerPingListener;
-import com.loohp.interactivechat.bungeemessaging.packet.protocollib.PLibServerPingListener;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
@@ -46,6 +46,7 @@ import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.PaperChatEvents;
 import com.loohp.interactivechat.listeners.PlayerEvents;
+import com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.MentionDisplay;
@@ -73,6 +74,7 @@ import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import github.scarsz.discordsrv.DiscordSRV;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -530,6 +532,8 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         protocolPlatform.initialise();
+        // Used across both platforms.
+        OutTabCompletePacketHandler.init();
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
             if (ModernChatCompletionTask.isSupported()) {

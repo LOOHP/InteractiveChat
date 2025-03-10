@@ -55,39 +55,11 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.*;
+
 public class PLibOutTabCompletePacket {
 
-    private static final AtomicReference<Map<String, UUID>> playernames = new AtomicReference<>(new HashMap<>());
-
     public static void tabCompleteListener() {
-        schedulePlayernamesUpdate();
-        addPacketListener();
-    }
-
-    private static void schedulePlayernamesUpdate() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
-            if (InteractiveChat.useTooltipOnTab) {
-                Map<String, UUID> playernames = new HashMap<>();
-                for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
-                    addPlayerNames(playernames, player);
-                }
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PLibOutTabCompletePacket.playernames.set(playernames));
-            }
-        }, 0, 100);
-    }
-
-    private static void addPlayerNames(Map<String, UUID> playernames, ICPlayer player) {
-        playernames.put(ChatColorUtils.stripColor(player.getName()), player.getUniqueId());
-        if (!player.getName().equals(player.getDisplayName())) {
-            playernames.put(ChatColorUtils.stripColor(player.getDisplayName()), player.getUniqueId());
-        }
-        List<String> names = InteractiveChatAPI.getNicknames(player.getUniqueId());
-        for (String name : names) {
-            playernames.put(ChatColorUtils.stripColor(name), player.getUniqueId());
-        }
-    }
-
-    private static void addPacketListener() {
         ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params()
                 .optionAsync()
                 .plugin(InteractiveChat.plugin)
@@ -142,25 +114,6 @@ public class PLibOutTabCompletePacket {
             }
         }
         return suggestion;
-    }
-
-    private static ICPlayer findICPlayer(String text) {
-        for (Entry<String, UUID> entry : playernames.get().entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(text)) {
-                return ICPlayerFactory.getICPlayer(entry.getValue());
-            }
-        }
-        return null;
-    }
-
-    private static Component createComponent(ICPlayer icplayer, Player tabCompleter) {
-        Component component = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip)));
-        if (!PlayerUtils.canChatColor(tabCompleter)) {
-            component = ComponentStyling.stripColor(component);
-        }
-
-
-        return component;
     }
 
     private static String serializeComponent(Component component) {

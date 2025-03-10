@@ -26,6 +26,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.listeners.packet.RedispatchedSignPacketHandler;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
@@ -112,12 +113,8 @@ public class PLibRedispatchSignedPacket {
         event.setReadOnly(false);
         event.setCancelled(true);
         event.setReadOnly(true);
-        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-            PlayerUtils.dispatchCommandAsPlayer(player, command);
-            if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                ModernChatSigningUtils.detectRateSpam(player, command);
-            }
-        });
+
+        RedispatchedSignPacketHandler.redispatchCommand(player, command);
     }
 
     private static void redispatchChatMessage(PacketEvent event, Player player, String message) {
@@ -125,29 +122,12 @@ public class PLibRedispatchSignedPacket {
             event.setReadOnly(false);
             event.setCancelled(true);
             event.setReadOnly(true);
-            if (player.isConversing()) {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.acceptConversationInput(message));
-                if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> ModernChatSigningUtils.detectRateSpam(player, message));
-                }
-            } else {
-                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
-                    try {
-                        Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
-                        PlayerUtils.chatAsPlayer(player, message, decorated);
-                        if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                            ModernChatSigningUtils.detectRateSpam(player, message);
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
+
+            RedispatchedSignPacketHandler.redispatchChatMessage(player, message);
         }
     }
 
     private static void handleServerDataPacket(PacketEvent event) {
-        Player player = event.getPlayer();
         PacketContainer packet = event.getPacket();
         if (event.getPacketType().equals(PacketType.Play.Server.SERVER_DATA)) {
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {

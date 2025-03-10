@@ -15,6 +15,7 @@ import com.loohp.interactivechat.bungeemessaging.packet.packetevents.PEServerPin
 import com.loohp.interactivechat.listeners.packet.packetevents.PEClientSettingsPacket;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEOutMessagePacket;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEOutTabCompletePacket;
+import com.loohp.interactivechat.listeners.packet.packetevents.PERedispatchSignedPacket;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -36,6 +37,10 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     public void initialise() {
         PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.MONITOR);
         PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.NORMAL);
+
+        if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            PacketEvents.getAPI().getEventManager().registerListener(new PERedispatchSignedPacket(), PacketListenerPriority.HIGHEST);
+        }
 
         if (!version.isLegacy()) {
             PacketEvents.getAPI().getEventManager().registerListener(new PEOutTabCompletePacket(), PacketListenerPriority.HIGH);
@@ -84,11 +89,6 @@ public class PacketEventsPlatform implements ProtocolPlatform {
             String json = InteractiveChatComponentSerializer.gson().serialize(component);
             sender.spigot().sendMessage(ComponentSerializer.parse(json));
         }
-    }
-
-    @Override
-    public void dispose() {
-
     }
 
     @Override

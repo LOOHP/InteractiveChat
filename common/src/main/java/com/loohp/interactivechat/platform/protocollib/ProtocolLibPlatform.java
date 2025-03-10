@@ -105,9 +105,4 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
             sender.spigot().sendMessage(ComponentSerializer.parse(json));
         }
     }
-
-    @Override
-    public void dispose() {
-
-    }
 }

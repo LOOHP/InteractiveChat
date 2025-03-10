@@ -18,8 +18,6 @@ public interface ProtocolPlatform {
 
     void sendUnprocessedChatMessage(CommandSender sender, UUID uuid, Component component);
 
-    void dispose();
-
     boolean hasChatSigning();
 
 }

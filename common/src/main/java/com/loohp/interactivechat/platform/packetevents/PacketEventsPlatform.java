@@ -12,6 +12,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSy
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTabComplete;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.packet.packetevents.PEServerPingListener;
+import com.loohp.interactivechat.listeners.packet.packetevents.PEClientSettingsPacket;
 import com.loohp.interactivechat.listeners.packet.packetevents.PEOutMessagePacket;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
@@ -30,7 +31,8 @@ public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
     public void initialise() {
-        new PEOutMessagePacket().messageListeners();
+        PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.MONITOR);
+        PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.NORMAL);
     }
 
     @Override

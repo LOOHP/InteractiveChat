@@ -449,11 +449,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
             getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", bungeeMessageListener = new BungeeMessageListener(this));
 
-            if (protocolPlatform instanceof ProtocolLibPlatform) {
-                PLibServerPingListener.listen();
-            } else {
-                PEServerPingListener.listen();
-            }
+            protocolPlatform.onBungeecordEnabled();
 
             Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
                 if (parsePAPIOnMainThread) {

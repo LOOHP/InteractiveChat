@@ -14,6 +14,8 @@ public class PEClientSettingsPacket implements PacketListener {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        if (event.getPacketType() != PacketType.Configuration.Client.CLIENT_SETTINGS) return;
+
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
             WrapperConfigClientSettings packet = new WrapperConfigClientSettings(event);
 

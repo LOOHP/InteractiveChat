@@ -6,6 +6,7 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.chat.ChatType;
 import com.github.retrooper.packetevents.protocol.chat.ChatTypes;
+import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -32,10 +33,8 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -44,6 +43,38 @@ import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
 public class PEOutMessagePacket implements PacketListener {
 
     private static final Map<PacketTypeCommon, PacketHandler> PACKET_HANDLERS = new HashMap<>();
+    private static Method setDisguisedChatMessageMethod;
+    private static Method setChatMessageContentMethod;
+    private static Method setSystemChatMessageMethod;
+    private static Method setTitleMethod;
+    private static Method setTitleTextMethod;
+    private static Method setSubtitleTextMethod;
+    private static Method setActionBarTextMethod;
+
+    static {
+        try {
+            // well.
+            // Thanks to PE's AMAZING decision to shade Adventure AND NOT RELOCATE IT, we have to do reflection.
+            // we then use even more reflection to turn IC's shaded (and relocated) components into the native adventure component (which PE would support),
+            // otherwise you get a bunch of NoSuchMethodErrors because we can't supply our own shaded adventure components.
+            setDisguisedChatMessageMethod = Arrays.stream(WrapperPlayServerDisguisedChat.class.getMethods())
+                    .filter(each -> each.getName().equals("setMessage") && each.getParameterCount() == 1).findFirst().get();
+            setChatMessageContentMethod = Arrays.stream(ChatMessage.class.getMethods())
+                    .filter(each -> each.getName().equals("setChatContent") && each.getParameterCount() == 1).findFirst().get();
+            setSystemChatMessageMethod = Arrays.stream(WrapperPlayServerSystemChatMessage.class.getMethods())
+                    .filter(each -> each.getName().equals("setMessage") && each.getParameterCount() == 1).findFirst().get();
+            setTitleMethod = Arrays.stream(WrapperPlayServerTitle.class.getMethods())
+                    .filter(each -> each.getName().equals("setTitle") && each.getParameterCount() == 1).findFirst().get();
+            setTitleTextMethod = Arrays.stream(WrapperPlayServerSetTitleText.class.getMethods())
+                    .filter(each -> each.getName().equals("setTitle") && each.getParameterCount() == 1).findFirst().get();
+            setSubtitleTextMethod = Arrays.stream(WrapperPlayServerSetTitleSubtitle.class.getMethods())
+                    .filter(each -> each.getName().equals("setSubtitle") && each.getParameterCount() == 1).findFirst().get();
+            setActionBarTextMethod = Arrays.stream(WrapperPlayServerActionBar.class.getMethods())
+                    .filter(each -> each.getName().equals("setActionBarText") && each.getParameterCount() == 1).findFirst().get();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 
     public PEOutMessagePacket() {
         initializePacketHandlers();
@@ -70,17 +101,24 @@ public class PEOutMessagePacket implements PacketListener {
                         false
                 ),
                 (packet, component, type, field, sender) -> {
-                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                    try {
+                        boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
-                    String json = legacyRGB ?
-                            InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                            InteractiveChatComponentSerializer.gson().serialize(component);
-                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                        String json = legacyRGB ?
+                                InteractiveChatComponentSerializer.legacyGson().serialize(component) :
+                                InteractiveChatComponentSerializer.gson().serialize(component);
+                        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
 
-                    WrapperPlayServerDisguisedChat chatPacket = (WrapperPlayServerDisguisedChat) packet;
-                    chatPacket.setMessage((Component) type.convertTo(component, legacyRGB));
+                        WrapperPlayServerDisguisedChat chatPacket = (WrapperPlayServerDisguisedChat) packet;
+                        setDisguisedChatMessageMethod.invoke(chatPacket, type.convertTo(component, legacyRGB));
 
-                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                        return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    // This should never happen!
+                    return null;
                 }
         ));
     }
@@ -126,15 +164,18 @@ public class PEOutMessagePacket implements PacketListener {
                                 try {
                                     if (packet instanceof WrapperPlayServerChatMessage) {
                                         WrapperPlayServerChatMessage chatMessage = (WrapperPlayServerChatMessage) packet;
-                                        chatMessage.getMessage().setChatContent((Component) type.convertTo(component, legacyRGB));
+                                        setChatMessageContentMethod.invoke(chatMessage.getMessage(), type.convertTo(component, legacyRGB));
                                     } else {
                                         WrapperPlayServerSystemChatMessage chatMessage = (WrapperPlayServerSystemChatMessage) packet;
-                                        chatMessage.setMessage((Component) type.convertTo(component, legacyRGB));
+                                        setSystemChatMessageMethod.invoke(chatMessage, type.convertTo(component, legacyRGB));
                                     }
                                 } catch (Throwable e) {
                                     try {
                                         if (packet instanceof WrapperPlayServerChatMessage) {
-                                            ((WrapperPlayServerChatMessage) packet).getMessage().setChatContent(component);
+                                            setChatMessageContentMethod.invoke(
+                                                    ((WrapperPlayServerChatMessage) packet).getMessage(),
+                                                    NativeAdventureConverter.componentToNative(component, legacyRGB)
+                                            );
                                         } else {
                                             ((WrapperPlayServerSystemChatMessage) packet).setMessageJson(json);
                                         }
@@ -182,20 +223,26 @@ public class PEOutMessagePacket implements PacketListener {
                                 return new PacketAccessorResult(component, ChatComponentType.AdventureComponent, 0, false);
                             },
                             (packet, component, type, field, sender) -> {
-                                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                                try {
+                                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
-                                String json = legacyRGB ?
-                                        InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                                        InteractiveChatComponentSerializer.gson().serialize(component);
-                                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
-                                        json.length() > InteractiveChat.packetStringMaxLength;
+                                    String json = legacyRGB ?
+                                            InteractiveChatComponentSerializer.legacyGson().serialize(component) :
+                                            InteractiveChatComponentSerializer.gson().serialize(component);
+                                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
+                                            json.length() > InteractiveChat.packetStringMaxLength;
 
-                                WrapperPlayServerTitle titlePacket = (WrapperPlayServerTitle) packet;
-                                titlePacket.setTitle((Component) type.convertTo(component, legacyRGB));
+                                    WrapperPlayServerTitle titlePacket = (WrapperPlayServerTitle) packet;
+                                    setTitleMethod.invoke(titlePacket, type.convertTo(component, legacyRGB));
 
-                                if (sender == null) sender = UUID_NIL;
+                                    if (sender == null) sender = UUID_NIL;
 
-                                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                return null;
                             }
                     )
             );
@@ -210,24 +257,39 @@ public class PEOutMessagePacket implements PacketListener {
                     return new PacketAccessorResult(component, ChatComponentType.AdventureComponent, 0, false);
                 },
                 (packet, component, type, field, sender) -> {
-                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                    try {
+                        boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
-                    String json = legacyRGB ?
-                            InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                            InteractiveChatComponentSerializer.gson().serialize(component);
-                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                        String json = legacyRGB ?
+                                InteractiveChatComponentSerializer.legacyGson().serialize(component) :
+                                InteractiveChatComponentSerializer.gson().serialize(component);
+                        boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
 
-                    Component convertedType = (Component) type.convertTo(component, legacyRGB);
+                        Object convertedType = type.convertTo(component, legacyRGB);
 
-                    if (packet instanceof WrapperPlayServerSetTitleText) {
-                        ((WrapperPlayServerSetTitleText) packet).setTitle(convertedType);
-                    } else if (packet instanceof WrapperPlayServerSetTitleSubtitle) {
-                        ((WrapperPlayServerSetTitleSubtitle) packet).setSubtitle(convertedType);
-                    } else if (packet instanceof WrapperPlayServerActionBar) {
-                        ((WrapperPlayServerActionBar) packet).setActionBarText(component);
+                        if (packet instanceof WrapperPlayServerSetTitleText) {
+                            setTitleTextMethod.invoke(
+                                    packet,
+                                    convertedType
+                            );
+                        } else if (packet instanceof WrapperPlayServerSetTitleSubtitle) {
+                            setSubtitleTextMethod.invoke(
+                                    packet,
+                                    convertedType
+                            );
+                        } else if (packet instanceof WrapperPlayServerActionBar) {
+                            setActionBarTextMethod.invoke(
+                                    packet,
+                                    convertedType
+                            );
+                        }
+
+                        return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
-                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                    return null;
                 }
         );
     }

@@ -20,18 +20,31 @@ import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static com.loohp.interactivechat.InteractiveChat.version;
 
 public class PacketEventsPlatform implements ProtocolPlatform {
+
+    private static final Constructor<?> v1_16_chatMessageConstructor;
+    private static final Constructor<?> legacyChatMessageConstructor;
+
+    static {
+        v1_16_chatMessageConstructor = Arrays.stream(ChatMessage_v1_16.class.getConstructors())
+                .filter(each -> each.getParameterCount() == 3).findFirst().get();
+        legacyChatMessageConstructor = Arrays.stream(ChatMessageLegacy.class.getConstructors())
+                .filter(each -> each.getParameterCount() == 2).findFirst().get();
+    }
 
     @Override
     public void initialise() {
@@ -69,25 +82,38 @@ public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
     public void sendUnprocessedChatMessage(CommandSender sender, UUID uuid, Component component) {
-        if (sender instanceof Player) {
-            PacketWrapper<?> packet;
-            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
-                packet = new WrapperPlayServerSystemChatMessage(false, component);
-            } else {
-                ChatMessage message;
-                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
-                    message = new ChatMessage_v1_16(component, ChatTypes.SYSTEM, uuid);
+        try {
+            if (sender instanceof Player) {
+
+                PacketWrapper<?> packet;
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
+                    packet = new WrapperPlayServerSystemChatMessage(false, component);
                 } else {
-                    message = new ChatMessageLegacy(component, ChatTypes.SYSTEM);
+                    Object nativeComponent = NativeAdventureConverter.componentToNative(component, false);
+                    ChatMessage message;
+                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
+                        message = (ChatMessage) v1_16_chatMessageConstructor.newInstance(
+                                nativeComponent,
+                                ChatTypes.SYSTEM,
+                                uuid
+                        );
+                    } else {
+                        message = (ChatMessage) legacyChatMessageConstructor.newInstance(
+                                nativeComponent,
+                                ChatTypes.SYSTEM
+                        );
+                    }
+
+                    packet = new WrapperPlayServerChatMessage(message);
                 }
 
-                packet = new WrapperPlayServerChatMessage(message);
+                PacketEvents.getAPI().getPlayerManager().sendPacket(sender, packet);
+            } else {
+                String json = InteractiveChatComponentSerializer.gson().serialize(component);
+                sender.spigot().sendMessage(ComponentSerializer.parse(json));
             }
-
-            PacketEvents.getAPI().getPlayerManager().sendPacket(sender, packet);
-        } else {
-            String json = InteractiveChatComponentSerializer.gson().serialize(component);
-            sender.spigot().sendMessage(ComponentSerializer.parse(json));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

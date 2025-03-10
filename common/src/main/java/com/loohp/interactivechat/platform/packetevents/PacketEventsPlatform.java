@@ -38,11 +38,14 @@ public class PacketEventsPlatform implements ProtocolPlatform {
 
     private static final Constructor<?> v1_16_chatMessageConstructor;
     private static final Constructor<?> legacyChatMessageConstructor;
+    private static final Constructor<?> commandMatchConstructor;
 
     static {
         v1_16_chatMessageConstructor = Arrays.stream(ChatMessage_v1_16.class.getConstructors())
                 .filter(each -> each.getParameterCount() == 3).findFirst().get();
         legacyChatMessageConstructor = Arrays.stream(ChatMessageLegacy.class.getConstructors())
+                .filter(each -> each.getParameterCount() == 2).findFirst().get();
+        commandMatchConstructor = Arrays.stream(WrapperPlayServerTabComplete.CommandMatch.class.getConstructors())
                 .filter(each -> each.getParameterCount() == 2).findFirst().get();
     }
 
@@ -67,17 +70,25 @@ public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
     public void sendTabCompletionPacket(Player player, CustomTabCompletionAction action, List<String> list) {
-        List<WrapperPlayServerTabComplete.CommandMatch> suggestions = new ArrayList<>();
-        for (String cmd : list) {
-            suggestions.add(new WrapperPlayServerTabComplete.CommandMatch(cmd, null));
-        }
+        try {
+            List<WrapperPlayServerTabComplete.CommandMatch> suggestions = new ArrayList<>();
+            for (String cmd : list) {
+                WrapperPlayServerTabComplete.CommandMatch match = (WrapperPlayServerTabComplete.CommandMatch) commandMatchConstructor.newInstance(
+                        cmd,
+                        null
+                );
+                suggestions.add(match);
+            }
 
-        WrapperPlayServerTabComplete packet = new WrapperPlayServerTabComplete(
-                null,
-                new WrapperPlayServerTabComplete.CommandRange(0, list.size()),
-                suggestions
-        );
-        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+            WrapperPlayServerTabComplete packet = new WrapperPlayServerTabComplete(
+                    null,
+                    new WrapperPlayServerTabComplete.CommandRange(0, list.size()),
+                    suggestions
+            );
+            PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

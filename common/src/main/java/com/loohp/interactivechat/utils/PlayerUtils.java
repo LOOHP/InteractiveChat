@@ -20,13 +20,11 @@
 
 package com.loohp.interactivechat.utils;
 
-import com.github.retrooper.packetevents.PacketEvents;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
-import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.viaversion.viaversion.api.Via;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

@@ -65,7 +65,6 @@ import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.placeholderapi.Placeholders;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
-import com.loohp.interactivechat.platform.packetevents.PacketEventsPlatform;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.updater.Updater;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -74,7 +73,6 @@ import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import github.scarsz.discordsrv.DiscordSRV;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -351,8 +349,6 @@ public class InteractiveChat extends JavaPlugin {
 
     public static boolean ecoSetLoreOnMainThread = false;
 
-    public static String selectedProtocolPlugin = "PacketEvents";
-
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;
     public static PlaceholderCooldownManager placeholderCooldownManager;
@@ -519,16 +515,15 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
 
-        if (selectedProtocolPlugin.equalsIgnoreCase("ProtocolLib") && Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found ProtocolLib on the server, initialising provider.");
+        // checks if protocolplatform hasn't been initialised through another plugin
+        if (protocolPlatform == null && Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+            if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+                getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found ProtocolLib on the server, initialising provider.");
 
-            protocolPlatform = new ProtocolLibPlatform();
-        } else if (selectedProtocolPlugin.equalsIgnoreCase("PacketEvents") && Bukkit.getPluginManager().isPluginEnabled("packetevents")) {
-            getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found PacketEvents on the server, initialising provider.");
-
-            protocolPlatform = new PacketEventsPlatform();
-        } else {
-            throw new IllegalStateException("Attempted to initialise InteractiveChat when no available protocol plugin was found! Configured: " + selectedProtocolPlugin + " - Is the plugin installed?");
+                protocolPlatform = new ProtocolLibPlatform();
+            } else {
+                throw new IllegalStateException("Attempted to initialise InteractiveChat when no protocol provider was found. Please install ProtocolLib, or the PacketEvents addon at https://github.com/TerraByteDev/InteractiveChat-PacketEvents");
+            }
         }
 
         protocolPlatform.initialise();

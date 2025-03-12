@@ -24,7 +24,6 @@ softdepend:
   - floodgate
   - ExcellentEnchants
   - ProtocolLib
-  - packetevents
 depend: [PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

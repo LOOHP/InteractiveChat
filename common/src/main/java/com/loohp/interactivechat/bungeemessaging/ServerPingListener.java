@@ -18,7 +18,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.loohp.interactivechat.bungeemessaging.packet.protocollib;
+package com.loohp.interactivechat.bungeemessaging;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -33,7 +33,7 @@ import org.bukkit.Bukkit;
 import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.*;
 
 @SuppressWarnings("unchecked")
-public class PLibServerPingListener {
+public class ServerPingListener {
 
     public static void listen() {
         ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Handshake.Client.SET_PROTOCOL)) {

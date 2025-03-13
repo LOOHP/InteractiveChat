@@ -8,11 +8,11 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.bungeemessaging.packet.protocollib.PLibServerPingListener;
-import com.loohp.interactivechat.listeners.packet.protocollib.PLibClientSettingPacket;
-import com.loohp.interactivechat.listeners.packet.protocollib.PLibOutMessagePacket;
-import com.loohp.interactivechat.listeners.packet.protocollib.PLibOutTabCompletePacket;
-import com.loohp.interactivechat.listeners.packet.protocollib.PLibRedispatchSignedPacket;
+import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
+import com.loohp.interactivechat.listeners.packet.listeners.PLibClientSettingPacket;
+import com.loohp.interactivechat.listeners.packet.listeners.PLibOutMessagePacket;
+import com.loohp.interactivechat.listeners.packet.listeners.PLibOutTabCompletePacket;
+import com.loohp.interactivechat.listeners.packet.listeners.PLibRedispatchSignedPacket;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
@@ -62,7 +62,7 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
 
     @Override
     public void onBungeecordEnabled() {
-        PLibServerPingListener.listen();
+        ServerPingListener.listen();
     }
 
     @Override

@@ -18,7 +18,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.loohp.interactivechat.listeners.packet.protocollib;
+package com.loohp.interactivechat.listeners.packet.listeners;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -30,12 +30,7 @@ import com.loohp.interactivechat.listeners.packet.RedispatchedSignPacketHandler;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.ModernChatSigningUtils;
-import com.loohp.interactivechat.utils.PlayerUtils;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.util.concurrent.ExecutionException;
 
 public class PLibRedispatchSignedPacket {
 

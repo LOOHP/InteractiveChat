@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.listeners.packet.protocollib;
+package com.loohp.interactivechat.listeners.packet.listeners;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;

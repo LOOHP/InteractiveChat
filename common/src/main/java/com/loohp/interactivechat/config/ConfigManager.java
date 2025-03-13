@@ -22,6 +22,7 @@ package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.datafixer.ConfigDataFixer;
+import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
@@ -286,7 +287,7 @@ public class ConfigManager {
         InteractiveChat.playerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 
         InteractiveChat.ecoSetLoreOnMainThread = getConfig().getBoolean("Settings.Hooks.EcoSetLoreOnMainThread");
-        
+
         InteractiveChat.placeholderList.clear();
         if (InteractiveChat.useItem) {
             String name = InteractiveChat.itemName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Name"));

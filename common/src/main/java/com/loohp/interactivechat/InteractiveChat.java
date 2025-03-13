@@ -20,8 +20,6 @@
 
 package com.loohp.interactivechat;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.settings.PacketEventsSettings;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;

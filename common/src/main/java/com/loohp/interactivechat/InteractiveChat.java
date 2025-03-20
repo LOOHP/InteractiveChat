@@ -519,12 +519,14 @@ public class InteractiveChat extends JavaPlugin {
                 getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found ProtocolLib on the server, initialising provider.");
 
                 protocolPlatform = new ProtocolLibPlatform();
+                protocolPlatform.initialise();
             } else {
                 throw new IllegalStateException("Attempted to initialise InteractiveChat when no protocol provider was found. Please install ProtocolLib, or the PacketEvents addon at https://github.com/TerraByteDev/InteractiveChat-PacketEvents");
             }
+        } else {
+            getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] ProtocolProvider has been overridden by " + protocolPlatform.getClass().getName());
         }
 
-        protocolPlatform.initialise();
         // Used across both platforms.
         OutTabCompletePacketHandler.init();
 

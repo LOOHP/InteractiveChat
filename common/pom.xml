@@ -590,6 +590,7 @@
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
 			<version>1.15.11</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.loohp</groupId>

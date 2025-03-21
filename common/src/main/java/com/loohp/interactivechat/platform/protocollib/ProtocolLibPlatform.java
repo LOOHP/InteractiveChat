@@ -22,6 +22,7 @@ import net.kyori.adventure.text.Component;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -42,6 +43,11 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
     @Override
     public int getProtocolVersion(Player player) {
         return protocolManager.getProtocolVersion(player);
+    }
+
+    @Override
+    public JavaPlugin getRegisteredPlugin() {
+        return InteractiveChat.plugin;
     }
 
     @Override

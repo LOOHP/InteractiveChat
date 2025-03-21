@@ -98,10 +98,7 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
      * @return The chat packet, before any applied modifications.
      */
     public Object getOriginal() {
-        /*if (originalModified == null) {
-            originalModified = original.deepClone(); // todo - decide what to better do here.
-        }*/
-        return originalModified;
+        return original;
     }
 
     public boolean sendOriginalIfCancelled() {

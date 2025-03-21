@@ -626,14 +626,10 @@ public class InteractiveChat extends JavaPlugin {
             tritonHook = true;
         }
 
-        if (isPluginEnabled("VentureChat")) {
-            if (protocolPlatform instanceof ProtocolLibPlatform) {
-                getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
-                VentureChatInjection._init_();
-                ventureChatHook = true;
-            } else {
-                getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Cannot inject into VentureChat: You have selected the protocol platform as PacketEvents, when this hook requires ProtocolLib!\nYou can adjust this in the config.yml under Settings.");
-            }
+        if (isPluginEnabled("VentureChat") && isPluginEnabled("ProtocolLib")) {
+            getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
+            VentureChatInjection._init_();
+            ventureChatHook = true;
         }
 
         if (isPluginEnabled("dynmap")) {

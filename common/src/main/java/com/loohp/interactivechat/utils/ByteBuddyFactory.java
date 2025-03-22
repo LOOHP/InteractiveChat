@@ -7,10 +7,10 @@ import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 public final class ByteBuddyFactory {
     private static final ByteBuddyFactory INSTANCE = new ByteBuddyFactory();
 
-    public ByteBuddyFactory() {
+    private ByteBuddyFactory() {
     }
 
-    public static ByteBuddyFactory i() {
+    public static ByteBuddyFactory getInstance() {
         return INSTANCE;
     }
 

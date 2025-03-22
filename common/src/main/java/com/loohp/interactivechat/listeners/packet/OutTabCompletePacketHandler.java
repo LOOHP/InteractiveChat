@@ -13,6 +13,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class OutTabCompletePacketHandler {
 
-    public static final AtomicReference<Map<String, UUID>> playerNames = new AtomicReference<>(new HashMap<>());
+    public static final AtomicReference<Map<String, UUID>> playerNames = new AtomicReference<>(Collections.emptyMap());
 
     public static void init() {
         schedulePlayerNamesUpdate();
@@ -64,7 +65,6 @@ public class OutTabCompletePacketHandler {
         if (!PlayerUtils.canChatColor(tabCompleter)) {
             component = ComponentStyling.stripColor(component);
         }
-
         return component;
     }
 }

@@ -51,7 +51,7 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
     }
 
     @Override
-    public void initialise() {
+    public void initialize() {
         protocolManager = ProtocolLibrary.getProtocolManager();
 
         PLibOutMessagePacket.messageListeners();
@@ -67,7 +67,7 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
     }
 
     @Override
-    public void onBungeecordEnabled() {
+    public void onBungeecordModeEnabled() {
         ServerPingListener.listen();
     }
 

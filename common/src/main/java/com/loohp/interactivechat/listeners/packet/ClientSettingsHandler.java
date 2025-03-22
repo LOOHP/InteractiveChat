@@ -30,7 +30,8 @@ public class ClientSettingsHandler {
     }
 
     private static void sendMessageLater(Player player, String message) {
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () ->
-                player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', message)), 5);
+        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', message));
+        }, 5);
     }
 }

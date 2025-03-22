@@ -27,6 +27,7 @@ import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
 import com.loohp.interactivechat.debug.Debug;
+import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.hooks.bedrock.floodgate.FloodgateHookPlatform;
 import com.loohp.interactivechat.hooks.bedrock.geyser.GeyserHookPlatform;
 import com.loohp.interactivechat.hooks.discordsrv.DiscordSRVEvents;
@@ -35,15 +36,14 @@ import com.loohp.interactivechat.hooks.eco.EcoHook;
 import com.loohp.interactivechat.hooks.essentials.EssentialsDiscord;
 import com.loohp.interactivechat.hooks.essentials.EssentialsNicknames;
 import com.loohp.interactivechat.hooks.excellentenchants.ExcellentEnchantsHook;
-import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
-import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.listeners.InventoryEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.PaperChatEvents;
 import com.loohp.interactivechat.listeners.PlayerEvents;
+import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
@@ -436,6 +436,18 @@ public class InteractiveChat extends JavaPlugin {
             return;
         }
 
+        // checks if protocolplatform hasn't been initialised through another plugin
+        if (protocolPlatform == null && isPluginEnabled("ProtocolLib")) {
+            if (isPluginEnabled("ProtocolLib")) {
+                getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] No custom ProtocolProvider provided, using default ProtocolLib provider.");
+                protocolPlatform = new ProtocolLibPlatform();
+            } else {
+                throw new IllegalStateException("Attempted to initialise InteractiveChat when no protocol provider was found. Please install ProtocolLib, or the PacketEvents addon at https://github.com/TerraByteDev/InteractiveChat-PacketEvents");
+            }
+        } else {
+            getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Using ProtocolProvider " + protocolPlatform.getClass().getName() + " in " + protocolPlatform.getRegisteredPlugin().getName());
+        }
+
         getCommand("interactivechat").setExecutor(new Commands());
 
         bungeecordMode = ConfigManager.getConfig().getBoolean("Settings.Bungeecord");
@@ -445,7 +457,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
             getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", bungeeMessageListener = new BungeeMessageListener(this));
 
-            protocolPlatform.onBungeecordEnabled();
+            protocolPlatform.onBungeecordModeEnabled();
 
             Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
                 if (parsePAPIOnMainThread) {
@@ -513,21 +525,7 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
 
-        // checks if protocolplatform hasn't been initialised through another plugin
-        if (protocolPlatform == null && Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-                getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Found ProtocolLib on the server, initialising provider.");
-
-                protocolPlatform = new ProtocolLibPlatform();
-                protocolPlatform.initialise();
-            } else {
-                throw new IllegalStateException("Attempted to initialise InteractiveChat when no protocol provider was found. Please install ProtocolLib, or the PacketEvents addon at https://github.com/TerraByteDev/InteractiveChat-PacketEvents");
-            }
-        } else {
-            getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] ProtocolProvider has been overridden by " + protocolPlatform.getClass().getName());
-        }
-
-        // Used across both platforms.
+        protocolPlatform.initialize();
         OutTabCompletePacketHandler.init();
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
@@ -672,7 +670,7 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (queueRemoteUpdate && Bukkit.getOnlinePlayers().size() > 0) {
+            if (queueRemoteUpdate && !Bukkit.getOnlinePlayers().isEmpty()) {
                 try {
                     if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values())) {
                         queueRemoteUpdate = false;

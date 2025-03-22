@@ -11,9 +11,11 @@ import java.util.UUID;
 
 public interface ProtocolPlatform {
 
-    void initialise();
+    Plugin getRegisteredPlugin();
 
-    void onBungeecordEnabled();
+    void initialize();
+
+    void onBungeecordModeEnabled();
 
     void sendTabCompletionPacket(Player player, CustomTabCompletionAction action, List<String> list);
 
@@ -22,7 +24,5 @@ public interface ProtocolPlatform {
     boolean hasChatSigning();
 
     int getProtocolVersion(Player player);
-
-    Plugin getRegisteredPlugin();
 
 }

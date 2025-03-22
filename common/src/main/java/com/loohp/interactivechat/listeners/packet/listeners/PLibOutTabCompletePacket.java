@@ -28,8 +28,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
+import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.mojang.brigadier.Message;
@@ -42,7 +42,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.*;
+import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.createComponent;
+import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.findICPlayer;
 
 public class PLibOutTabCompletePacket {
 
@@ -68,9 +69,9 @@ public class PLibOutTabCompletePacket {
     private static void processPacket(PacketEvent event) {
         PacketContainer packet = event.getPacket();
         Player tabCompleter = event.getPlayer();
-        ValuePairs<Integer, ?> pair = NMS.getInstance().readCommandSuggestionPacket(packet);
-        int id = pair.getFirst();
-        Suggestions suggestions = (Suggestions) pair.getSecond();
+        CommandSuggestion<?> pair = NMS.getInstance().readCommandSuggestionPacket(packet);
+        int id = pair.getPosition();
+        Suggestions suggestions = pair.getSuggestion(Suggestions.class);
         StringRange range = suggestions.getRange();
 
         List<Suggestion> newMatches = new ArrayList<>();

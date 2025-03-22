@@ -60,7 +60,7 @@ public abstract class DummyPlayer implements Player {
         ElementMatcher.Junction<MethodDescription> callbackFilter = ElementMatchers.not(ElementMatchers.isAbstract());
 
         try {
-            return ByteBuddyFactory.i()
+            return ByteBuddyFactory.getInstance()
                     .createSubclass(DummyPlayer.class, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
                     .name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler")
                     .implement(Player.class)

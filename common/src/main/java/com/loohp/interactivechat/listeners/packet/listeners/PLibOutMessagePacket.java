@@ -87,10 +87,7 @@ public class PLibOutMessagePacket {
 
     static {
         initializePacketHandlers();
-        SERVICE = new ProtocolLibAsyncChatSendingExecutor(
-                () -> (long) (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 2000,
-                5000
-        );
+        SERVICE = new ProtocolLibAsyncChatSendingExecutor(() -> (long) (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 2000, 5000);
     }
 
     private static void initializePacketHandlers() {
@@ -101,197 +98,145 @@ public class PLibOutMessagePacket {
     }
 
     private static void initializeModernPacketHandlers() {
-        PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(
-                event -> InteractiveChat.chatListener,
-                packet -> {
-                    ChatComponentType type = ChatComponentType.IChatBaseComponent;
-                    int field = 0;
-                    return new PacketAccessorResult(
-                            type.convertFrom(packet.getModifier().read(field)),
-                            type,
-                            field,
-                            false
-                    );
-                },
-                (packet, component, type, field, sender) -> {
-                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-                    String json = legacyRGB ?
-                            InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                            InteractiveChatComponentSerializer.gson().serialize(component);
-                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
-                            json.length() > InteractiveChat.packetStringMaxLength;
-                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
-                }
-        ));
+        PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(event -> InteractiveChat.chatListener, packet -> {
+            ChatComponentType type = ChatComponentType.IChatBaseComponent;
+            int field = 0;
+            return new PacketAccessorResult(type.convertFrom(packet.getModifier().read(field)), type, field, false);
+        }, (packet, component, type, field, sender) -> {
+            boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+            String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+            boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+            packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+            return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+        }));
     }
 
     private static void initializeCommonPacketHandlers() {
         int chatFieldsSize = getChatFieldsSize();
         PacketHandler modernTitleHandler = createModernTitleHandler();
 
-        PACKET_HANDLERS.put(
-                InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ?
-                        PacketType.Play.Server.SYSTEM_CHAT :
-                        PacketType.Play.Server.CHAT,
-                new PacketHandler(
-                        event -> {
-                            if (event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
-                                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
-                                    ChatType type = event.getPacket().getChatTypes().read(0);
-                                    return type == null || type.equals(ChatType.GAME_INFO) ?
-                                            InteractiveChat.titleListener :
-                                            InteractiveChat.chatListener;
-                                } else {
-                                    byte type = event.getPacket().getBytes().read(0);
-                                    return type == (byte) 2 ?
-                                            InteractiveChat.titleListener :
-                                            InteractiveChat.chatListener;
-                                }
-                            }
-                            int position = event.getPacket().getBooleans().size() > 0 ?
-                                    event.getPacket().getBooleans().read(0) ? 2 : 0 :
-                                    event.getPacket().getIntegers().read(0);
-                            return position == 2 ?
-                                    InteractiveChat.titleListener :
-                                    InteractiveChat.chatListener;
-                        },
-                        packet -> {
-                            Component component = null;
-                            ChatComponentType type = null;
-                            int field = -1;
-                            search:
-                            for (ChatComponentType t : ChatComponentType.byPriority()) {
-                                for (int i = 0; i < packet.getModifier().size(); i++) {
-                                    Object obj = packet.getModifier().read(i);
-                                    if (!CustomArrayUtils.allNull(obj) &&
-                                            packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
-                                        try {
-                                            component = t.convertFrom(obj);
-                                        } catch (Throwable e) {
-                                            System.err.println(t.toString(obj));
-                                            e.printStackTrace();
-                                            break search;
-                                        }
-                                        field = i;
-                                        type = t;
-                                        break search;
-                                    }
-                                }
-                            }
-                            return new PacketAccessorResult(component, type, field, false);
-                        },
-                        (packet, component, type, field, sender) -> {
-                            boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-                            String json = legacyRGB ?
-                                    InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                                    InteractiveChatComponentSerializer.gson().serialize(component);
-                            boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
-                                    json.length() > InteractiveChat.packetStringMaxLength;
-                            if (type.canHandle(component)) {
-                                try {
-                                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-                                } catch (Throwable e) {
-                                    try {
-                                        if (packet.getChatComponents().size() > 0) {
-                                            WrappedChatComponent wcc =
-                                                    WrappedChatComponent.fromJson(json);
-                                            for (int i = 0; i < chatFieldsSize; i++) {
-                                                packet.getModifier().write(i, null);
-                                            }
-                                            packet.getChatComponents().write(0, wcc);
-                                        } else if (packet.getStrings().size() > 0) {
-                                            for (int i = 0; i < chatFieldsSize; i++) {
-                                                packet.getModifier().write(i, null);
-                                            }
-                                            packet.getStrings().write(0, json);
-                                        }
-                                    } catch (Throwable ignore) {}
-                                }
-                            }
-                            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
-                                if (sender != null) {
-                                    if (packet.getUUIDs().size() > 0) {
-                                        packet.getUUIDs().write(0, sender);
-                                    }
-                                }
-                            } else {
-                                if (sender == null) {
-                                    sender = UUID_NIL;
-                                }
-                                if (packet.getUUIDs().size() > 0) {
-                                    packet.getUUIDs().write(0, sender);
-                                }
-                            }
-                            return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+        PACKET_HANDLERS.put(InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ? PacketType.Play.Server.SYSTEM_CHAT : PacketType.Play.Server.CHAT, new PacketHandler(event -> {
+            if (event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
+                    ChatType type = event.getPacket().getChatTypes().read(0);
+                    return type == null || type.equals(ChatType.GAME_INFO) ? InteractiveChat.titleListener : InteractiveChat.chatListener;
+                } else {
+                    byte type = event.getPacket().getBytes().read(0);
+                    return type == (byte) 2 ? InteractiveChat.titleListener : InteractiveChat.chatListener;
+                }
+            }
+            int position = event.getPacket().getBooleans().size() > 0 ? event.getPacket().getBooleans().read(0) ? 2 : 0 : event.getPacket().getIntegers().read(0);
+            return position == 2 ? InteractiveChat.titleListener : InteractiveChat.chatListener;
+        }, packet -> {
+            Component component = null;
+            ChatComponentType type = null;
+            int field = -1;
+            search:
+            for (ChatComponentType t : ChatComponentType.byPriority()) {
+                for (int i = 0; i < packet.getModifier().size(); i++) {
+                    Object obj = packet.getModifier().read(i);
+                    if (!CustomArrayUtils.allNull(obj) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                        try {
+                            component = t.convertFrom(obj);
+                        } catch (Throwable e) {
+                            System.err.println(t.toString(obj));
+                            e.printStackTrace();
+                            break search;
                         }
-                )
-        );
+                        field = i;
+                        type = t;
+                        break search;
+                    }
+                }
+            }
+            return new PacketAccessorResult(component, type, field, false);
+        }, (packet, component, type, field, sender) -> {
+            boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+            String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+            boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+            if (type.canHandle(component)) {
+                try {
+                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                } catch (Throwable e) {
+                    try {
+                        if (packet.getChatComponents().size() > 0) {
+                            WrappedChatComponent wcc = WrappedChatComponent.fromJson(json);
+                            for (int i = 0; i < chatFieldsSize; i++) {
+                                packet.getModifier().write(i, null);
+                            }
+                            packet.getChatComponents().write(0, wcc);
+                        } else if (packet.getStrings().size() > 0) {
+                            for (int i = 0; i < chatFieldsSize; i++) {
+                                packet.getModifier().write(i, null);
+                            }
+                            packet.getStrings().write(0, json);
+                        }
+                    } catch (Throwable ignore) {}
+                }
+            }
+            if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                if (sender != null) {
+                    if (packet.getUUIDs().size() > 0) {
+                        packet.getUUIDs().write(0, sender);
+                    }
+                }
+            } else {
+                if (sender == null) {
+                    sender = UUID_NIL;
+                }
+                if (packet.getUUIDs().size() > 0) {
+                    packet.getUUIDs().write(0, sender);
+                }
+            }
+            return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+        }));
 
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_TITLE_TEXT, modernTitleHandler);
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_SUBTITLE_TEXT, modernTitleHandler);
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_ACTION_BAR_TEXT, modernTitleHandler);
         } else {
-            PACKET_HANDLERS.put(
-                    PacketType.Play.Server.TITLE,
-                    new PacketHandler(
-                            event -> {
-                                TitleAction type = event.getPacket().getTitleActions().read(0);
-                                return type != null && !type.equals(TitleAction.RESET) &&
-                                        !type.equals(TitleAction.CLEAR) && !type.equals(TitleAction.TIMES) && InteractiveChat.titleListener;
-                            },
-                            packet -> {
-                                Component component = null;
-                                ChatComponentType type = null;
-                                int field = -1;
-                                search:
-                                for (ChatComponentType t : ChatComponentType.byPriority()) {
-                                    for (int i = 0; i < packet.getModifier().size(); i++) {
-                                        if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) &&
-                                                packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
-                                            try {
-                                                component = t.convertFrom(packet.getModifier().read(i));
-                                            } catch (Throwable e) {
-                                                System.err.println(t.toString(packet.getModifier().read(i)));
-                                                e.printStackTrace();
-                                                break search;
-                                            }
-                                            field = i;
-                                            type = t;
-                                            break search;
-                                        }
-                                    }
-                                }
-                                return new PacketAccessorResult(component, type, field, false);
-                            },
-                            (packet, component, type, field, sender) -> {
-                                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-                                String json = legacyRGB ?
-                                        InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                                        InteractiveChatComponentSerializer.gson().serialize(component);
-                                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
-                                        json.length() > InteractiveChat.packetStringMaxLength;
-                                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-                                if (sender == null) {
-                                    sender = UUID_NIL;
-                                }
-                                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            PACKET_HANDLERS.put(PacketType.Play.Server.TITLE, new PacketHandler(event -> {
+                TitleAction type = event.getPacket().getTitleActions().read(0);
+                return type != null && !type.equals(TitleAction.RESET) && !type.equals(TitleAction.CLEAR) && !type.equals(TitleAction.TIMES) && InteractiveChat.titleListener;
+            }, packet -> {
+                Component component = null;
+                ChatComponentType type = null;
+                int field = -1;
+                search:
+                for (ChatComponentType t : ChatComponentType.byPriority()) {
+                    for (int i = 0; i < packet.getModifier().size(); i++) {
+                        if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                            try {
+                                component = t.convertFrom(packet.getModifier().read(i));
+                            } catch (Throwable e) {
+                                System.err.println(t.toString(packet.getModifier().read(i)));
+                                e.printStackTrace();
+                                break search;
                             }
-                    )
-            );
+                            field = i;
+                            type = t;
+                            break search;
+                        }
+                    }
+                }
+                return new PacketAccessorResult(component, type, field, false);
+            }, (packet, component, type, field, sender) -> {
+                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                if (sender == null) {
+                    sender = UUID_NIL;
+                }
+                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            }));
         }
     }
 
     private static int getChatFieldsSize() {
-        PacketContainer chatPacket = ProtocolLibPlatform.protocolManager.createPacket(
-                InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ?
-                        PacketType.Play.Server.SYSTEM_CHAT :
-                        PacketType.Play.Server.CHAT
-        );
-        List<String> matches = ChatComponentType.byPriority().stream()
-                .map(ChatComponentType::getMatchingRegex)
-                .collect(Collectors.toList());
+        PacketContainer chatPacket = ProtocolLibPlatform.protocolManager.createPacket(InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ? PacketType.Play.Server.SYSTEM_CHAT : PacketType.Play.Server.CHAT);
+        List<String> matches = ChatComponentType.byPriority().stream().map(ChatComponentType::getMatchingRegex).collect(Collectors.toList());
         int chatFieldsSize;
         for (chatFieldsSize = 1; chatFieldsSize < chatPacket.getModifier().size(); chatFieldsSize++) {
             String clazz = chatPacket.getModifier().getField(chatFieldsSize).getType().getName();
@@ -304,46 +249,38 @@ public class PLibOutMessagePacket {
     }
 
     private static PacketHandler createModernTitleHandler() {
-        return new PacketHandler(
-                event -> InteractiveChat.titleListener,
-                packet -> {
-                    Component component = null;
-                    ChatComponentType type = null;
-                    int field = -1;
-                    search:
-                    for (ChatComponentType t : ChatComponentType.byPriority()) {
-                        for (int i = 0; i < packet.getModifier().size(); i++) {
-                            if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) &&
-                                    packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
-                                try {
-                                    component = t.convertFrom(packet.getModifier().read(i));
-                                } catch (Throwable e) {
-                                    System.err.println(t.toString(packet.getModifier().read(i)));
-                                    e.printStackTrace();
-                                    break search;
-                                }
-                                field = i;
-                                type = t;
-                                break search;
-                            }
+        return new PacketHandler(event -> InteractiveChat.titleListener, packet -> {
+            Component component = null;
+            ChatComponentType type = null;
+            int field = -1;
+            search:
+            for (ChatComponentType t : ChatComponentType.byPriority()) {
+                for (int i = 0; i < packet.getModifier().size(); i++) {
+                    if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                        try {
+                            component = t.convertFrom(packet.getModifier().read(i));
+                        } catch (Throwable e) {
+                            System.err.println(t.toString(packet.getModifier().read(i)));
+                            e.printStackTrace();
+                            break search;
                         }
+                        field = i;
+                        type = t;
+                        break search;
                     }
-                    return new PacketAccessorResult(component, type, field, false);
-                },
-                (packet, component, type, field, sender) -> {
-                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-                    String json = legacyRGB ?
-                            InteractiveChatComponentSerializer.legacyGson().serialize(component) :
-                            InteractiveChatComponentSerializer.gson().serialize(component);
-                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong &&
-                            json.length() > InteractiveChat.packetStringMaxLength;
-                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-                    if (sender == null) {
-                        sender = UUID_NIL;
-                    }
-                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                 }
-        );
+            }
+            return new PacketAccessorResult(component, type, field, false);
+        }, (packet, component, type, field, sender) -> {
+            boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+            String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+            boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+            packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+            if (sender == null) {
+                sender = UUID_NIL;
+            }
+            return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+        });
     }
 
     public static void messageListeners() {

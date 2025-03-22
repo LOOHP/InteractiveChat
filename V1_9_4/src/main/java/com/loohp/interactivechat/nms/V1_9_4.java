@@ -21,10 +21,10 @@
 package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
-import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.kyori.adventure.key.Key;
@@ -122,7 +122,7 @@ public class V1_9_4 extends NMSWrapper {
     }
 
     @Override
-    public ValuePairs<Integer, ?> readCommandSuggestionPacket(PacketContainer packet) {
+    public CommandSuggestion<?> readCommandSuggestionPacket(PacketContainer packet) {
         throw new UnsupportedOperationException();
     }
 

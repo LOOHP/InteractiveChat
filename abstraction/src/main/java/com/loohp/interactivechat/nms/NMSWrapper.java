@@ -21,10 +21,10 @@
 package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
-import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -98,7 +98,7 @@ public abstract class NMSWrapper {
 
     public abstract boolean getColorSettingsFromClientInformationPacket(PacketContainer packet);
 
-    public abstract ValuePairs<Integer, ?> readCommandSuggestionPacket(PacketContainer packet);
+    public abstract CommandSuggestion<?> readCommandSuggestionPacket(PacketContainer packet);
 
     public abstract PacketContainer createCommandSuggestionPacket(int id, Object suggestions);
 

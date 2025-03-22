@@ -23,7 +23,8 @@ softdepend:
   - ChatControlRed
   - floodgate
   - ExcellentEnchants
-depend: [ProtocolLib, PlaceholderAPI, Vault]
+  - ProtocolLib
+depend: [PlaceholderAPI, Vault]
 prefix: InteractiveChat
 
 commands:

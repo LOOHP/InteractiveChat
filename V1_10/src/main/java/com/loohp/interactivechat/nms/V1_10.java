@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
@@ -122,7 +123,7 @@ public class V1_10 extends NMSWrapper {
     }
 
     @Override
-    public ValuePairs<Integer, ?> readCommandSuggestionPacket(PacketContainer packet) {
+    public CommandSuggestion<?> readCommandSuggestionPacket(PacketContainer packet) {
         throw new UnsupportedOperationException();
     }
 

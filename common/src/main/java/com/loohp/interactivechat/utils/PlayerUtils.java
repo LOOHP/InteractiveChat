@@ -61,7 +61,7 @@ public class PlayerUtils implements Listener {
                     map.values().removeIf(permissionCache -> permissionCache.getTime() + 180000 < now);
                 }
             }
-        }, 0, 600);
+        }, 1, 600);
     }
 
     public static void chatAsPlayer(Player player, String message) {

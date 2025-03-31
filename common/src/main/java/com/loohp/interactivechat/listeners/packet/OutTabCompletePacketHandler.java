@@ -35,9 +35,9 @@ public class OutTabCompletePacketHandler {
                 for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
                     addPlayerNames(names, player);
                 }
-                InteractiveChat.plugin.getScheduler().runNextTick(() -> playerNames.set(names));
+                InteractiveChat.plugin.getScheduler().runNextTick((task) -> playerNames.set(names));
             }
-        }, 0, 100);
+        }, 1, 100);
     }
 
     private static void addPlayerNames(Map<String, UUID> playernames, ICPlayer player) {

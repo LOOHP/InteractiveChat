@@ -96,7 +96,7 @@ public class ModernChatCompletionTask implements Listener {
                     oldList.addAll(add);
                 }
             }
-        }, 0, 10);
+        }, 1, 10);
     }
 
 }

@@ -58,7 +58,7 @@ public class MentionPair {
                 task.cancel();
                 InteractiveChat.mentionPair.remove(this);
             }
-        }, 0, 5);
+        }, 1, 5);
     }
 
     @Override

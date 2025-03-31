@@ -45,7 +45,7 @@ public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable 
                 outer.cancel();
                 InteractiveChat.plugin.getScheduler().runLaterAsync(task -> updater.close(), removeDelay);
             }
-        }, 0, 1);
+        }, 1, 1);
     }
 
     public static BossBarUpdater update(BossBar bossbar, Player... players) {

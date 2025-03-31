@@ -84,7 +84,7 @@ public class MapViewer implements Listener {
                 } else {
                     outer.cancel();
                 }
-            }, 0, 1);
+            }, 1, 1);
         } catch (Exception e) {
             e.printStackTrace();
         }

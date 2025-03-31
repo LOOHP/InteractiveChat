@@ -480,7 +480,7 @@ public class InteractiveChat extends JavaPlugin {
                         PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameClickValue);
                     }
                 }
-            }, 0, 100);
+            }, 1, 100);
 
             InteractiveChat.plugin.getScheduler().runTimer(() -> {
                 Map<UUID, Boolean> vanishStates = new HashMap<>();
@@ -496,7 +496,7 @@ public class InteractiveChat extends JavaPlugin {
                         e.printStackTrace();
                     }
                 });
-            }, 0, 40);
+            }, 1, 40);
         }
 
         BiConsumer<String, Inventory> inventoryRemovalListener = (hash, inv) -> {
@@ -688,7 +688,7 @@ public class InteractiveChat extends JavaPlugin {
                     e.printStackTrace();
                 }
             }
-        }, 0, 100);
+        }, 1, 100);
 
         try {
             Logger logger = LogManager.getRootLogger();
@@ -724,7 +724,7 @@ public class InteractiveChat extends JavaPlugin {
             inventoryDisplay1Lower.cleanUp();
             enderDisplay.cleanUp();
             mapDisplay.cleanUp();
-        }, 0, 1200);
+        }, 1, 1200);
     }
 
     public PlatformScheduler getScheduler() {

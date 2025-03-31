@@ -50,7 +50,7 @@ public class DataTypeIO {
         switch (encodingScheme) {
             case 0:
                 String data = readString(in, charset);
-                return InventoryUtils.fromBase64(data, title);
+                return InventoryUtils.fromBase64(data, title, holder);
             case 1:
                 int size = in.readInt();
                 Inventory inventory;

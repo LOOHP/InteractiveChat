@@ -455,14 +455,18 @@ public class InteractiveChatVelocity {
         if (!event.getIdentifier().getId().equals("interchat:main")) {
             return;
         }
+
+        event.setResult(ForwardResult.handled());
+
         try {
             ChannelMessageSource source = event.getSource();
 
             if (!(source instanceof ServerConnection)) {
+                if (source instanceof Player) {
+                    getLogger().info(TextColor.RED + "[InteractiveChat] Suspicious client to server plugin message recieved from " + ((Player) source).getGameProfile().getName() + ", they might be using a modified client for exploits.");
+                }
                 return;
             }
-
-            event.setResult(ForwardResult.handled());
 
             RegisteredServer server = ((ServerConnection) source).getServer();
             String senderServer = server.getServerInfo().getName();

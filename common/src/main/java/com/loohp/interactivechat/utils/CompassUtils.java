@@ -31,8 +31,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompassUtils {
 
@@ -51,9 +55,14 @@ public class CompassUtils {
         }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static ItemStack hideLodestoneCompassPosition(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return itemStack;
+        }
+        ItemMeta itemMeta = itemStack.getItemMeta();
         if (isLodestoneCompass(itemStack)) {
-            CompassMeta compassMeta = (CompassMeta) itemStack.getItemMeta();
+            CompassMeta compassMeta = (CompassMeta) itemMeta;
             if (compassMeta.hasLodestone()) {
                 Location location = compassMeta.getLodestone();
                 World world = location.getWorld() == null ? Bukkit.getWorlds().get(0) : location.getWorld();
@@ -61,8 +70,8 @@ public class CompassUtils {
                 itemStack = itemStack.clone();
                 itemStack.setItemMeta(compassMeta);
             }
-        } else if (itemStack.getItemMeta() instanceof BlockStateMeta) {
-            BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
+        } else if (itemMeta instanceof BlockStateMeta) {
+            BlockStateMeta meta = (BlockStateMeta) itemMeta;
             BlockState state = meta.getBlockState();
             if (state instanceof InventoryHolder) {
                 hideLodestoneCompassesPosition(((InventoryHolder) state).getInventory());
@@ -70,26 +79,47 @@ public class CompassUtils {
                 itemStack = itemStack.clone();
                 itemStack.setItemMeta(meta);
             }
+        } else if (itemMeta instanceof BundleMeta) {
+            BundleMeta meta = (BundleMeta) itemMeta;
+            List<ItemStack> items = new ArrayList<>(meta.getItems());
+            items.replaceAll(CompassUtils::hideLodestoneCompassPosition);
+            meta.setItems(items);
+            itemStack = itemStack.clone();
+            itemStack.setItemMeta(meta);
         }
         return itemStack;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void hideLodestoneCompassesPosition(Inventory inventory) {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
                 if (isLodestoneCompass(itemStack)) {
                     inventory.setItem(i, hideLodestoneCompassPosition(itemStack));
-                } else if (itemStack.getItemMeta() instanceof BlockStateMeta) {
-                    BlockStateMeta meta = (BlockStateMeta) itemStack.getItemMeta();
-                    BlockState state = meta.getBlockState();
-                    if (state instanceof InventoryHolder) {
-                        Inventory container = ((InventoryHolder) state).getInventory();
-                        if (inventory != container) {
-                            hideLodestoneCompassesPosition(container);
-                            meta.setBlockState(state);
-                            itemStack.setItemMeta(meta);
+                } else {
+                    ItemMeta itemMeta = itemStack.getItemMeta();
+                    if (itemMeta instanceof BlockStateMeta) {
+                        BlockStateMeta meta = (BlockStateMeta) itemMeta;
+                        BlockState state = meta.getBlockState();
+                        if (state instanceof InventoryHolder) {
+                            Inventory container = ((InventoryHolder) state).getInventory();
+                            if (inventory != container) {
+                                hideLodestoneCompassesPosition(container);
+                                meta.setBlockState(state);
+                                itemStack = itemStack.clone();
+                                itemStack.setItemMeta(meta);
+                                inventory.setItem(i, itemStack);
+                            }
                         }
+                    } else if (itemMeta instanceof BundleMeta) {
+                        BundleMeta meta = (BundleMeta) itemMeta;
+                        List<ItemStack> items = new ArrayList<>(meta.getItems());
+                        items.replaceAll(CompassUtils::hideLodestoneCompassPosition);
+                        meta.setItems(items);
+                        itemStack = itemStack.clone();
+                        itemStack.setItemMeta(meta);
+                        inventory.setItem(i, itemStack);
                     }
                 }
             }

@@ -21,9 +21,10 @@
 package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
-import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class NMSWrapper {
@@ -96,7 +98,7 @@ public abstract class NMSWrapper {
 
     public abstract boolean getColorSettingsFromClientInformationPacket(PacketContainer packet);
 
-    public abstract ValuePairs<Integer, ?> readCommandSuggestionPacket(PacketContainer packet);
+    public abstract CommandSuggestion<?> readCommandSuggestionPacket(PacketContainer packet);
 
     public abstract PacketContainer createCommandSuggestionPacket(int id, Object suggestions);
 
@@ -203,5 +205,7 @@ public abstract class NMSWrapper {
     public abstract void sendFakeMainHandSlot(Player player, ItemStack item);
 
     public abstract void sendFakeMapUpdate(Player player, int mapId, List<MapCursor> mapCursors, byte[] colors);
+
+    public abstract InternalOfflinePlayerInfo loadOfflinePlayer(UUID uuid, Inventory inventory, Inventory enderchest);
 
 }

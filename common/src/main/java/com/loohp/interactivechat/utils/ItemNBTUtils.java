@@ -20,14 +20,20 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.google.gson.Gson;
 import com.loohp.interactivechat.nms.NMS;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.event.DataComponentValue;
+import net.kyori.adventure.text.serializer.gson.GsonDataComponentValue;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ItemNBTUtils {
+
+    private static final Gson GSON = new Gson();
 
     public static ItemStack getItemFromNBTJson(String json) {
         return NMS.getInstance().getItemFromNBTJson(json);
@@ -35,6 +41,27 @@ public class ItemNBTUtils {
 
     public static String getNMSItemStackJson(ItemStack itemStack) {
         return NMS.getInstance().getNMSItemStackJson(itemStack);
+    }
+
+    public static String getNMSItemStackCommandComponent(ItemStack itemStack) {
+        Map<Key, DataComponentValue> components = getNMSItemStackDataComponents(itemStack);
+        List<String> componentStrings = new ArrayList<>(components.size());
+        for (Map.Entry<Key, DataComponentValue> entry : components.entrySet()) {
+            Key key = entry.getKey();
+            DataComponentValue value = entry.getValue();
+            if (value instanceof DataComponentValue.Removed) {
+                componentStrings.add("!" + key);
+            } else if (value instanceof GsonDataComponentValue) {
+                componentStrings.add(key + "=" + GSON.toJson(((GsonDataComponentValue) value).element()));
+            } else if (value instanceof DataComponentValue.TagSerializable) {
+                componentStrings.add(key + "=" + ((DataComponentValue.TagSerializable) value).asBinaryTag().string());
+            }
+        }
+        String namespacedKey = NMS.getInstance().getNMSItemStackNamespacedKey(itemStack).asString();
+        if (componentStrings.isEmpty()) {
+            return namespacedKey;
+        }
+        return namespacedKey + "[" + String.join(",", componentStrings) + "]";
     }
 
     public static Key getNMSItemStackNamespacedKey(ItemStack itemStack) {

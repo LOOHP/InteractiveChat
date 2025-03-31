@@ -22,6 +22,7 @@ package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.datafixer.ConfigDataFixer;
+import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
@@ -89,8 +90,10 @@ public class ConfigManager {
 
     @SuppressWarnings("deprecation")
     public static void loadConfig() {
-        InteractiveChat.extraProxiedPacketProcessingDelay =  getConfig().getInt("Options.ExtraProxiedPacketProcessingDelay");
-        InteractiveChat.pluginMessagePacketVerbose =  getConfig().getBoolean("Options.PluginMessagePacketVerbose");
+        InteractiveChat.extraProxiedPacketProcessingDelay = getConfig().getInt("Options.ExtraProxiedPacketProcessingDelay");
+        InteractiveChat.pluginMessagePacketVerbose = getConfig().getBoolean("Options.PluginMessagePacketVerbose");
+        InteractiveChat.asyncChatThreadPoolExecutorCoreSize = getConfig().getInt("Options.AsyncChatThreadPoolExecutorCoreSize");
+        InteractiveChat.asyncChatThreadPoolExecutorMaxSize = getConfig().getInt("Options.AsyncChatThreadPoolExecutorMaxSize");
 
         InteractiveChat.commandsEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Commands").toUpperCase());
         InteractiveChat.chatEventPriority = EventPriority.valueOf(getConfig().getString("Settings.EventPriorities.Chat").toUpperCase());

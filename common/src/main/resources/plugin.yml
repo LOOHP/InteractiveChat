@@ -24,7 +24,8 @@ softdepend:
   - ChatControlRed
   - floodgate
   - ExcellentEnchants
-depend: [ProtocolLib, PlaceholderAPI, Vault]
+  - ProtocolLib
+depend: [PlaceholderAPI, Vault]
 prefix: InteractiveChat
 
 commands:
@@ -98,6 +99,9 @@ permissions:
     description: Allows you to receive update notifications
     default: op
   interactivechat.dumpnbt:
+    description: Debug command, allows you to display the item of the item in your hand
+    default: op
+  interactivechat.dumpcmd:
     description: Debug command, allows you to display the item of the item in your hand
     default: op
   interactivechat.bedrock.events:

@@ -25,7 +25,7 @@
 	<groupId>com.loohp</groupId>
 	<artifactId>InteractiveChat</artifactId>
 	<name>InteractiveChat</name>
-	<version>4.2.16.0</version>
+	<version>4.3.0.0</version>
 
 	<description>Shows your item in hand, inventory contents and enderchest contents as well as placeholders in the chat!</description>
 	<url>https://github.com/LOOHP/InteractiveChat</url>
@@ -122,6 +122,10 @@
 								<relocation>
 									<pattern>org.objectweb</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.org.objectweb</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>net.bytebuddy</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.net.bytebuddy</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
@@ -545,7 +549,7 @@
 			<artifactId>velocity</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/velocity-3.4.0-SNAPSHOT-454.jar</systemPath>
+			<systemPath>${basedir}/lib/velocity-3.4.0-SNAPSHOT-469.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.luckperms</groupId>
@@ -564,27 +568,39 @@
 			<artifactId>eco</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/eco-6.74.4-all.jar</systemPath>
+			<systemPath>${basedir}/lib/eco-6.75.2-all.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress</groupId>
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-4.3.1.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-4.3.3.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.nightcore</groupId>
 			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/nightcore-2.7.3.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.7.3.1.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.geysermc.geyser</groupId>
+			<artifactId>api</artifactId>
+			<version>2.4.2-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.geysermc.floodgate</groupId>
 			<artifactId>api</artifactId>
 			<version>2.2.3-SNAPSHOT</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.15.11</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.loohp</groupId>

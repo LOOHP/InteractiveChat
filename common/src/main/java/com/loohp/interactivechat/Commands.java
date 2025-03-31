@@ -25,7 +25,7 @@ import com.loohp.interactivechat.api.events.InteractiveChatConfigReloadEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
-import com.loohp.interactivechat.hooks.floodgate.FloodgateHook;
+import com.loohp.interactivechat.hooks.bedrock.BedrockHook;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
@@ -372,13 +372,13 @@ public class Commands implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (InteractiveChat.floodgateHook && args[0].equalsIgnoreCase("events")) {
+        if (InteractiveChat.bedrockHook && args[0].equalsIgnoreCase("events")) {
             if (sender.hasPermission("interactivechat.bedrock.events")) {
                 if (sender instanceof Player) {
                     InteractiveChat.plugin.getScheduler().runAsync((task) -> {
                         UUID uuid = ((Player) sender).getUniqueId();
-                        if (FloodgateHook.isFloodgatePlayer(uuid)) {
-                            FloodgateHook.sendRecentChatMessagesForm(uuid);
+                        if (BedrockHook.isBedrockPlayer(uuid)) {
+                            BedrockHook.sendRecentChatMessagesForm(uuid);
                         } else {
                             sender.sendMessage(InteractiveChat.noPermissionMessage);
                         }
@@ -407,6 +407,30 @@ public class Commands implements CommandExecutor, TabCompleter {
                     }
                     InteractiveChatAPI.sendMessageUnprocessed(sender, nbt);
                     Bukkit.getConsoleSender().sendMessage(nbt);
+                } else {
+                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                }
+            } else {
+                sender.sendMessage(InteractiveChat.noPermissionMessage);
+            }
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("dumpcmd") && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
+            if (sender.hasPermission("interactivechat.dumpcmd")) {
+                if (sender instanceof Player) {
+                    @SuppressWarnings("deprecation")
+                    ItemStack itemStack = ((Player) sender).getEquipment().getItemInHand();
+                    if (itemStack == null) {
+                        itemStack = new ItemStack(Material.AIR);
+                    }
+                    String components = ItemNBTUtils.getNMSItemStackCommandComponent(itemStack);
+                    if (args.length > 1) {
+                        String colorReplacement = args[1];
+                        components = components.replace(String.valueOf(ChatColorUtils.COLOR_CHAR), colorReplacement);
+                    }
+                    InteractiveChatAPI.sendMessageUnprocessed(sender, components);
+                    Bukkit.getConsoleSender().sendMessage(components);
                 } else {
                     sender.sendMessage(InteractiveChat.noConsoleMessage);
                 }
@@ -485,7 +509,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             return tab;
         }
 
-        BooleanSupplier isBedrock = () -> InteractiveChat.floodgateHook && sender instanceof Player && FloodgateHook.isFloodgatePlayer(((Player) sender).getUniqueId());
+        BooleanSupplier isBedrock = () -> InteractiveChat.bedrockHook && sender instanceof Player && BedrockHook.isBedrockPlayer(((Player) sender).getUniqueId());
 
         if (sender instanceof Player && args.length > 1 && (("chat".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.chat")) || ("parse".equalsIgnoreCase(args[0]) && sender.hasPermission("interactivechat.parse")))) {
             if (InteractiveChat.version.isLegacy()) {

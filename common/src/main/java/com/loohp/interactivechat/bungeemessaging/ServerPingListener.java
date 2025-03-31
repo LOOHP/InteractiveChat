@@ -26,33 +26,17 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.registry.Registry;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.json.simple.JSONObject;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.*;
 
 @SuppressWarnings("unchecked")
-public class ServerPingListener implements Listener {
-
-    public static final Map<Player, Long> REQUESTS = new ConcurrentHashMap<>();
-    public static String json;
-
-    static {
-        JSONObject json = new JSONObject();
-        json.put("present", true);
-        json.put("version", InteractiveChat.plugin.getDescription().getVersion());
-        json.put("minecraftVersion", InteractiveChat.version.getNumber());
-        json.put("exactMinecraftVersion", InteractiveChat.exactMinecraftVersion);
-        json.put("protocol", Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION);
-        ServerPingListener.json = json.toJSONString();
-    }
+public class ServerPingListener {
 
     public static void listen() {
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Handshake.Client.SET_PROTOCOL)) {
+        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Handshake.Client.SET_PROTOCOL)) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 PacketContainer packet = event.getPacket();
@@ -62,7 +46,7 @@ public class ServerPingListener implements Listener {
                 }
             }
         });
-        InteractiveChat.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Status.Server.SERVER_INFO)) {
+        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Status.Server.SERVER_INFO)) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 PacketContainer packet = event.getPacket();

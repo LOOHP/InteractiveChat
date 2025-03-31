@@ -20,18 +20,19 @@
 
 package com.loohp.interactivechat.objectholders;
 
-import com.comphenix.net.bytebuddy.description.method.MethodDescription;
-import com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import com.comphenix.net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy.Default;
-import com.comphenix.net.bytebuddy.implementation.MethodDelegation;
-import com.comphenix.net.bytebuddy.implementation.bind.annotation.AllArguments;
-import com.comphenix.net.bytebuddy.implementation.bind.annotation.Origin;
-import com.comphenix.net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import com.comphenix.net.bytebuddy.implementation.bind.annotation.This;
-import com.comphenix.net.bytebuddy.matcher.ElementMatcher;
-import com.comphenix.net.bytebuddy.matcher.ElementMatchers;
-import com.comphenix.protocol.utility.ByteBuddyFactory;
+import com.loohp.interactivechat.utils.ByteBuddyFactory;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -60,7 +61,7 @@ public abstract class DummyPlayer implements Player {
 
         try {
             return ByteBuddyFactory.getInstance()
-                    .createSubclass(DummyPlayer.class, Default.IMITATE_SUPER_CLASS)
+                    .createSubclass(DummyPlayer.class, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
                     .name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler")
                     .implement(Player.class)
                     .method(callbackFilter)
@@ -91,12 +92,12 @@ public abstract class DummyPlayer implements Player {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
     @Override
-    public UUID getUniqueId() {
+    public @NotNull UUID getUniqueId() {
         return uuid;
     }
 

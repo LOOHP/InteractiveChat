@@ -43,7 +43,7 @@ public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable 
             bossbar.progress(Math.max(current, 0));
             if (current < 0) {
                 outer.cancel();
-                InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> updater.close(), removeDelay);
+                InteractiveChat.plugin.getScheduler().runLaterAsync(task -> updater.close(), removeDelay);
             }
         }, 0, 1);
     }

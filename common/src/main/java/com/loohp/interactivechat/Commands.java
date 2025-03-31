@@ -87,7 +87,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 ConfigManager.reloadConfig();
                 InteractiveChat.placeholderCooldownManager.reloadPlaceholders();
                 PlayerUtils.resetAllPermissionCache();
-                InteractiveChat.plugin.getScheduler().runAsync((task) -> InteractiveChat.playerDataManager.reload());
+                InteractiveChat.plugin.getScheduler().runAsync(task -> InteractiveChat.playerDataManager.reload());
                 if (InteractiveChat.bungeecordMode) {
                     try {
                         BungeeMessageSender.reloadBungeeConfig(System.currentTimeMillis());
@@ -107,7 +107,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("interactivechat.update")) {
                 sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
                 sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
-                InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+                InteractiveChat.plugin.getScheduler().runAsync(task -> {
                     UpdaterResponse version = Updater.checkUpdate();
                     if (version.getResult().equals("latest")) {
                         if (version.isDevBuildLatest()) {
@@ -133,11 +133,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                         if (pd.isMentionDisabled()) {
                             pd.setMentionDisabled(false);
-                            InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                            InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                             sender.sendMessage(InteractiveChat.mentionEnable);
                         } else {
                             pd.setMentionDisabled(true);
-                            InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                            InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                             sender.sendMessage(InteractiveChat.mentionDisable);
                         }
                         if (InteractiveChat.bungeecordMode) {
@@ -157,11 +157,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                             PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                             if (pd.isMentionDisabled()) {
                                 pd.setMentionDisabled(false);
-                                InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                                InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                                 sender.sendMessage(InteractiveChat.mentionEnable);
                             } else {
                                 pd.setMentionDisabled(true);
-                                InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                                InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                                 sender.sendMessage(InteractiveChat.mentionDisable);
                             }
                             if (InteractiveChat.bungeecordMode) {
@@ -198,7 +198,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                             Player player = (Player) sender;
                             PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                             pd.setInventoryDisplayLayout(layout);
-                            InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                            InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                             sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
                             if (InteractiveChat.bungeecordMode) {
                                 try {
@@ -220,7 +220,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 }
                                 PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                                 pd.setInventoryDisplayLayout(layout);
-                                InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+                                InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
                                 sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
                                 if (InteractiveChat.bungeecordMode) {
                                     try {
@@ -302,7 +302,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     String str = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                     Player player = (Player) sender;
                     Optional<ICPlayer> icplayer = Optional.of(ICPlayerFactory.getICPlayer(player));
-                    InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+                    InteractiveChat.plugin.getScheduler().runAsync(task -> {
                         String text = str;
                         try {
                             long unix = System.currentTimeMillis();
@@ -359,7 +359,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 if (args.length > 1) {
                     if (sender instanceof Player) {
                         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                        InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+                        InteractiveChat.plugin.getScheduler().runNextTick(task -> {
                             ((Player) sender).chat(message);
                         });
                     } else {
@@ -375,7 +375,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         if (InteractiveChat.bedrockHook && args[0].equalsIgnoreCase("events")) {
             if (sender.hasPermission("interactivechat.bedrock.events")) {
                 if (sender instanceof Player) {
-                    InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+                    InteractiveChat.plugin.getScheduler().runAsync(task -> {
                         UUID uuid = ((Player) sender).getUniqueId();
                         if (BedrockHook.isBedrockPlayer(uuid)) {
                             BedrockHook.sendRecentChatMessagesForm(uuid);
@@ -449,7 +449,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (data == null || data.getInventoryDisplayLayout() == 0) {
                         Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
                         if (inv != null) {
-                            InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
+                            InteractiveChat.plugin.getScheduler().runAtEntity(player, task -> player.openInventory(inv));
                         } else {
                             player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
@@ -457,7 +457,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
                         Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
                         if (inv != null && inv2 != null) {
-                            InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> {
+                            InteractiveChat.plugin.getScheduler().runAtEntity(player, task -> {
                                 player.openInventory(inv);
                                 InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
                                 InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
@@ -471,7 +471,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewender": {
                     Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
                     if (inv != null) {
-                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, task -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -480,7 +480,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewitem": {
                     Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
                     if (inv != null) {
-                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> player.openInventory(inv));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, task -> player.openInventory(inv));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -489,7 +489,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewmap":
                     ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
                     if (map != null) {
-                        InteractiveChat.plugin.getScheduler().runAtEntity(player, (task) -> MapViewer.showMap(player, map));
+                        InteractiveChat.plugin.getScheduler().runAtEntity(player, task -> MapViewer.showMap(player, map));
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }

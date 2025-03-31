@@ -30,7 +30,7 @@ public class ClientSettingsHandler {
     }
 
     private static void sendMessageLater(Player player, String message) {
-        InteractiveChat.plugin.getScheduler().runLater((task) -> {
+        InteractiveChat.plugin.getScheduler().runLater(task -> {
             player.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', message));
         }, 5);
     }

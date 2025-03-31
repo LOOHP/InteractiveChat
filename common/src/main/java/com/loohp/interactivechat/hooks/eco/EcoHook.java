@@ -72,7 +72,7 @@ public class EcoHook {
             return CompletableFuture.completedFuture(setEcoLore0(itemStack.clone(), player));
         } else {
             CompletableFuture<ItemStack> future = new CompletableFuture<>();
-            plugin.getScheduler().runAtEntity(player, (task) -> {
+            plugin.getScheduler().runAtEntity(player, task -> {
                 setEcoLore0(itemStack.clone(), player);
                 future.complete(itemStack);
             });

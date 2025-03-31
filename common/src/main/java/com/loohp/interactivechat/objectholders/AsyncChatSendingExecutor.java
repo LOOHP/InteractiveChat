@@ -130,7 +130,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
     public synchronized void close() throws Exception {
         isValid.set(false);
         for (WrappedTask task : taskIds) {
-            InteractiveChat.plugin.getScheduler().cancelTask(task);
+            InteractiveChat.plugin.getScheduler().cancelTasktask;
         }
         executor.shutdown();
     }

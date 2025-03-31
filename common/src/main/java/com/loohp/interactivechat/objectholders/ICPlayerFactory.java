@@ -103,7 +103,7 @@ public class ICPlayerFactory {
             }
         }, InteractiveChat.plugin);
 
-        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
+        InteractiveChat.plugin.getScheduler().runTimerAsync(task -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
     }
 
     public static RemotePlayerCreateResult createOrUpdateRemoteICPlayer(String server, String name, UUID uuid, boolean rightHanded, int selectedSlot, int experienceLevel, Inventory inventory, Inventory enderchest, boolean vanished) {

@@ -340,7 +340,7 @@ public class ProcessExternalMessage {
             }
         }
 
-        InteractiveChat.plugin.getScheduler().runLater((task) -> {
+        InteractiveChat.plugin.getScheduler().runLater(task -> {
             InteractiveChat.keyTime.remove(rawMessageKey);
             InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);

@@ -98,7 +98,7 @@ public class Updater implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runLaterAsync(task -> {
             if (InteractiveChat.updaterEnabled) {
                 Player player = event.getPlayer();
                 if (player.hasPermission("interactivechat.update")) {

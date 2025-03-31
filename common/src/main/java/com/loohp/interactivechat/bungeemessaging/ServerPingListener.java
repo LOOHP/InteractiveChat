@@ -58,7 +58,7 @@ public class ServerPingListener {
             }
         });
 
-        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync(task -> {
             REQUESTS.entrySet().removeIf(entry -> System.currentTimeMillis() > entry.getValue());
         }, 0, 20);
     }

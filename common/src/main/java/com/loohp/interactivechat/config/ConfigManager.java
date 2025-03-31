@@ -425,7 +425,7 @@ public class ConfigManager {
 
         InteractiveChat.language = getConfig().getString("Settings.Language");
 
-        InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runAsync(task -> {
             LanguageUtils.loadTranslations(InteractiveChat.language);
             if (WebData.getInstance() == null) {
                 WebData.newInstance();

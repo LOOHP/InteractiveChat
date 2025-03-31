@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 public class RedispatchedSignPacketHandler {
 
     public static void redispatchCommand(Player player, String command) {
-        InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+        InteractiveChat.plugin.getScheduler().runNextTick(task -> {
             PlayerUtils.dispatchCommandAsPlayer(player, command);
             if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
                 ModernChatSigningUtils.detectRateSpam(player, command);
@@ -30,12 +30,12 @@ public class RedispatchedSignPacketHandler {
      */
     public static void redispatchChatMessage(Player player, String message) {
         if (player.isConversing()) {
-            InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.acceptConversationInput(message));
+            InteractiveChat.plugin.getScheduler().runNextTick(task -> player.acceptConversationInput(message));
             if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                InteractiveChat.plugin.getScheduler().runAsync((task) -> ModernChatSigningUtils.detectRateSpam(player, message));
+                InteractiveChat.plugin.getScheduler().runAsync(task -> ModernChatSigningUtils.detectRateSpam(player, message));
             }
         } else {
-            InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+            InteractiveChat.plugin.getScheduler().runAsync(task -> {
                 try {
                     Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
                     PlayerUtils.chatAsPlayer(player, message, decorated);

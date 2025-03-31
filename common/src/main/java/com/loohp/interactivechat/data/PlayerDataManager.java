@@ -69,7 +69,7 @@ public class PlayerDataManager implements Listener {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
 
-        InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runAsync(task -> {
             if (!database.playerExists(playerUUID)) {
                 database.createPlayer(playerUUID, player.getName());
             }
@@ -82,7 +82,7 @@ public class PlayerDataManager implements Listener {
     public void onLeave(PlayerQuitEvent event) {
         PlayerData pd = data.remove(event.getPlayer().getUniqueId());
         if (pd != null) {
-            InteractiveChat.plugin.getScheduler().runAsync((task) -> pd.save());
+            InteractiveChat.plugin.getScheduler().runAsync(task -> pd.save());
         }
     }
 

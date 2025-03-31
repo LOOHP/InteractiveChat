@@ -79,7 +79,7 @@ public class WebData {
     }
 
     private void run() {
-        InteractiveChat.plugin.getScheduler().runTimerAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runTimerAsync(task -> {
             reload();
         }, 18000, 18000);
     }

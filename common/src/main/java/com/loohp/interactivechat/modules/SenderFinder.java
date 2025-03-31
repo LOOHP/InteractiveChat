@@ -73,7 +73,7 @@ public class SenderFinder {
         if (mostsimular != null) {
             UUID uuid = InteractiveChat.messages.get(mostsimular);
             String finalmostsimular = mostsimular;
-            InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> InteractiveChat.messages.remove(finalmostsimular), 5);
+            InteractiveChat.plugin.getScheduler().runLaterAsync(task -> InteractiveChat.messages.remove(finalmostsimular), 5);
             ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
             if (wplayer != null) {
                 return Optional.of(wplayer);

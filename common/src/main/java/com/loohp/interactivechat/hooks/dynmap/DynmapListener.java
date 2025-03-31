@@ -66,7 +66,7 @@ public class DynmapListener implements Listener {
     public void onPluginEnable(PluginEnableEvent event) {
         if (init) {
             if (event.getPlugin().getName().equalsIgnoreCase("dynmap")) {
-                InteractiveChat.plugin.getScheduler().runLater((task) -> {
+                InteractiveChat.plugin.getScheduler().runLater(task -> {
                     _init_();
                     Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into Dynmap!");
                 }, 100);

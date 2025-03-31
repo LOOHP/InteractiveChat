@@ -373,7 +373,7 @@ public class InteractiveChat extends JavaPlugin {
 
     public static void closeInventoryViews(Inventory inventory) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            plugin.getScheduler().runAtEntity(player, (task) -> {
+            plugin.getScheduler().runAtEntity(player, task -> {
                 Inventory topInventory = player.getOpenInventory().getTopInventory();
                 if (topInventory.equals(inventory)) {
                     player.closeInventory();
@@ -468,7 +468,7 @@ public class InteractiveChat extends JavaPlugin {
 
             InteractiveChat.plugin.getScheduler().runTimerAsync((outer) -> {
                 if (parsePAPIOnMainThread) {
-                    InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+                    InteractiveChat.plugin.getScheduler().runNextTick(task -> {
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameHoverText);
                             PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameClickValue);
@@ -500,7 +500,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         BiConsumer<String, Inventory> inventoryRemovalListener = (hash, inv) -> {
-            InteractiveChat.plugin.getScheduler().runNextTick((task) -> closeInventoryViews(inv));
+            InteractiveChat.plugin.getScheduler().runNextTick(task -> closeInventoryViews(inv));
         };
         itemDisplay.registerRemovalListener(inventoryRemovalListener);
         inventoryDisplay.registerRemovalListener(inventoryRemovalListener);
@@ -509,7 +509,7 @@ public class InteractiveChat extends JavaPlugin {
         enderDisplay.registerRemovalListener(inventoryRemovalListener);
 
         mapDisplay.registerRemovalListener((hash, item) -> {
-            InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+            InteractiveChat.plugin.getScheduler().runNextTick(task -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     boolean removed = MapViewer.MAP_VIEWERS.remove(player, item);
                     if (removed) {

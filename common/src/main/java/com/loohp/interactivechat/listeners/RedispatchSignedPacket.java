@@ -68,19 +68,19 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.chat(message));
+                            InteractiveChat.plugin.getScheduler().runNextTick(task -> player.chat(message));
                         } else {
                             if (!ModernChatSigningUtils.isChatMessageIllegal(message)) {
                                 event.setReadOnly(false);
                                 event.setCancelled(true);
                                 event.setReadOnly(true);
                                 if (player.isConversing()) {
-                                    InteractiveChat.plugin.getScheduler().runNextTick((task) -> player.acceptConversationInput(message));
+                                    InteractiveChat.plugin.getScheduler().runNextTick(task -> player.acceptConversationInput(message));
                                     if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
-                                        InteractiveChat.plugin.getScheduler().runAsync((task) -> ModernChatSigningUtils.detectRateSpam(player, message));
+                                        InteractiveChat.plugin.getScheduler().runAsync(task -> ModernChatSigningUtils.detectRateSpam(player, message));
                                     }
                                 } else {
-                                    InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+                                    InteractiveChat.plugin.getScheduler().runAsync(task -> {
                                         try {
                                             Object decorated = ModernChatSigningUtils.getChatDecorator(player, LegacyComponentSerializer.legacySection().deserialize(message)).get();
                                             PlayerUtils.chatAsPlayer(player, message, decorated);
@@ -103,7 +103,7 @@ public class RedispatchSignedPacket {
                             event.setReadOnly(false);
                             event.setCancelled(true);
                             event.setReadOnly(true);
-                            InteractiveChat.plugin.getScheduler().runNextTick((task) -> {
+                            InteractiveChat.plugin.getScheduler().runNextTick(task -> {
                                 PlayerUtils.dispatchCommandAsPlayer(player, command);
                                 if (!InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets) {
                                     ModernChatSigningUtils.detectRateSpam(player, command);

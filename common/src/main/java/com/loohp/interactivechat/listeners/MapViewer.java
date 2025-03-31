@@ -106,7 +106,7 @@ public class MapViewer implements Listener {
     public void onInventory(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            InteractiveChat.plugin.getScheduler().runLater((task) -> {
+            InteractiveChat.plugin.getScheduler().runLater(task -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
@@ -136,7 +136,7 @@ public class MapViewer implements Listener {
         if (removed) {
             if (player.getInventory().equals(event.getClickedInventory()) && slot >= 9) {
                 ItemStack item = player.getInventory().getItem(slot);
-                InteractiveChat.plugin.getScheduler().runLater((task) -> player.getInventory().setItem(slot, item), 1);
+                InteractiveChat.plugin.getScheduler().runLater(task -> player.getInventory().setItem(slot, item), 1);
             } else {
                 event.setCursor(null);
             }
@@ -162,7 +162,7 @@ public class MapViewer implements Listener {
         if (removed) {
             player.getInventory().setHeldItemSlot(lastSlot);
             NMS.getInstance().sendFakeMainHandSlot(player, player.getInventory().getItemInHand());
-            InteractiveChat.plugin.getScheduler().runLater((task) -> player.getInventory().setHeldItemSlot(slot), 1);
+            InteractiveChat.plugin.getScheduler().runLater(task -> player.getInventory().setHeldItemSlot(slot), 1);
         }
     }
 
@@ -175,7 +175,7 @@ public class MapViewer implements Listener {
         Player player = event.getPlayer();
 
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            InteractiveChat.plugin.getScheduler().runLater((task) -> {
+            InteractiveChat.plugin.getScheduler().runLater(task -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {

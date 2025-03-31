@@ -165,7 +165,7 @@ public class BedrockHook implements Listener {
         } else {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                InteractiveChat.plugin.getScheduler().runNextTick((task) -> PlayerUtils.dispatchCommandAsPlayer(player, command));
+                InteractiveChat.plugin.getScheduler().runNextTick(task -> PlayerUtils.dispatchCommandAsPlayer(player, command));
             }
         }
     }

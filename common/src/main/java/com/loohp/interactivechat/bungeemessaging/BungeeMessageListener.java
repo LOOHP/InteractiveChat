@@ -103,7 +103,7 @@ public class BungeeMessageListener implements PluginMessageListener {
             return;
         }
 
-        InteractiveChat.plugin.getScheduler().runAsync((task) -> {
+        InteractiveChat.plugin.getScheduler().runAsync(task -> {
             try {
                 ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 

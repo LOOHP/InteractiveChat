@@ -400,7 +400,7 @@ public class PLibOutMessagePacket {
 
             if (sender.isPresent() && !sender.get().isLocal()) {
                 if (isFiltered) {
-                    InteractiveChat.plugin.getScheduler().runLaterAsync((task) -> {
+                    InteractiveChat.plugin.getScheduler().runLaterAsync(task -> {
                         SERVICE.execute(() -> {
                             processPacket(receiver, determinedSender, packet, messageUUID, false, packetHandler);
                         }, receiver, messageUUID);
@@ -496,7 +496,7 @@ public class PLibOutMessagePacket {
             PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, component, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
-            InteractiveChat.plugin.getScheduler().runLater((task) -> {
+            InteractiveChat.plugin.getScheduler().runLater(task -> {
                 InteractiveChat.keyTime.remove(rawMessageKey);
                 InteractiveChat.keyPlayer.remove(rawMessageKey);
             }, 10);

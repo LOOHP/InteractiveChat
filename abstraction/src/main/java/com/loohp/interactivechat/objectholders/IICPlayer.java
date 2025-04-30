@@ -1,5 +1,5 @@
 /*
- * This file is part of InteractiveChat-Abstraction.
+ * This file is part of InteractiveChat4.
  *
  * Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
  * Copyright (C) 2020 - 2025. Contributors

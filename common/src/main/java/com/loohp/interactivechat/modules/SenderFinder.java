@@ -26,6 +26,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -51,7 +52,7 @@ public class SenderFinder {
             String msg = entry.getKey();
             if (chat.contains(msg)) {
                 UUID uuid = entry.getValue();
-                Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(msg), 5);
+                Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(msg), 5);
                 ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
                 if (wplayer != null) {
                     return Optional.of(wplayer);
@@ -73,7 +74,7 @@ public class SenderFinder {
         if (mostsimular != null) {
             UUID uuid = InteractiveChat.messages.get(mostsimular);
             String finalmostsimular = mostsimular;
-            Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
+            Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(finalmostsimular), 5);
             ICPlayer wplayer = ICPlayerFactory.getICPlayer(uuid);
             if (wplayer != null) {
                 return Optional.of(wplayer);

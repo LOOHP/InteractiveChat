@@ -25,7 +25,6 @@ import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
-import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -80,7 +79,6 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityInsentient;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.player.EnumChatVisibility;
-import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemSkullPlayer;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.saveddata.maps.MapIcon;
@@ -263,12 +261,6 @@ public class V1_20_2 extends NMSWrapper {
         ItemSkullPlayer skull = (ItemSkullPlayer) nmsItemStack.d();
         IChatBaseComponent owner = skull.m(nmsItemStack);
         return GsonComponentSerializer.gson().deserialize(CraftChatMessage.toJSON(owner));
-    }
-
-    @Override
-    public boolean isArmor(ItemStack itemStack) {
-        net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return nmsItemStack.d() instanceof ItemArmor;
     }
 
     @Override

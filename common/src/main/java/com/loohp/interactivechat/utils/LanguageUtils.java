@@ -24,6 +24,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICMaterial;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -72,7 +73,7 @@ public class LanguageUtils {
     @SuppressWarnings("unchecked")
     public static void loadTranslations(String language) {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] Loading languages...");
-        Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
             while (lock.get()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(1);

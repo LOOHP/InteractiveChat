@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.api.events;
 
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -42,7 +43,7 @@ public class ICPlayerEvent extends Event {
     protected final boolean isRemote;
 
     public ICPlayerEvent(ICPlayer player, boolean isRemote) {
-        super(!Bukkit.isPrimaryThread());
+        super(!Scheduler.isPrimaryThread());
         this.player = player;
         this.isRemote = isRemote;
     }

@@ -22,6 +22,7 @@ package com.loohp.interactivechat.objectholders;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.platformscheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -57,7 +58,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
     public final Map<UUID, Map<UUID, OutboundPacket>> waitingPackets;
     private final Map<UUID, Long> lastSuccessfulCheck;
 
-    private final List<Integer> taskIds;
+    private final List<ScheduledTask> tasks;
     private final AtomicBoolean isValid;
 
     public AsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
@@ -71,12 +72,12 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         this.executingTasks = new ConcurrentHashMap<>();
         this.sendingQueue = new ConcurrentLinkedQueue<>();
         this.messagesOrder = new ConcurrentHashMap<>();
-        this.taskIds = new ArrayList<>();
+        this.tasks = new ArrayList<>();
         this.isValid = new AtomicBoolean(true);
         this.waitingPackets = new ConcurrentHashMap<>();
         this.lastSuccessfulCheck = new ConcurrentHashMap<>();
 
-        taskIds.add(packetSender());
+        tasks.add(packetSender());
         packetOrderSender();
         monitor();
     }
@@ -128,9 +129,9 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
     @Override
     public synchronized void close() throws Exception {
         isValid.set(false);
-        for (int id : taskIds) {
-            if (id >= 0) {
-                Bukkit.getScheduler().cancelTask(id);
+        for (ScheduledTask task : tasks) {
+            if (!task.isCancelled()) {
+                task.cancel();
             }
         }
         executor.shutdown();
@@ -200,7 +201,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         }, "InteractiveChat Async ChatPacket Ordered Sending Thread").start();
     }
 
-    public abstract int packetSender();
+    public abstract ScheduledTask packetSender();
 
     private void monitor() {
         new Thread(() -> {

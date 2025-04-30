@@ -21,7 +21,8 @@
 package com.loohp.interactivechat.objectholders;
 
 import com.loohp.interactivechat.InteractiveChat;
-import org.bukkit.Bukkit;
+import com.loohp.platformscheduler.ScheduledTask;
+import com.loohp.platformscheduler.Scheduler;
 
 import java.util.UUID;
 
@@ -30,13 +31,13 @@ public class MentionPair {
     private final UUID sender;
     private final UUID receiver;
     private final long timestamp;
-    private final int taskid;
+    private final ScheduledTask task;
 
     public MentionPair(UUID sender, UUID reciever) {
         this.sender = sender;
         this.receiver = reciever;
         this.timestamp = System.currentTimeMillis();
-        this.taskid = run();
+        this.task = run();
     }
 
     public UUID getSender() {
@@ -48,17 +49,17 @@ public class MentionPair {
     }
 
     public void remove() {
-        Bukkit.getScheduler().cancelTask(taskid);
+        task.cancel();
         InteractiveChat.mentionPair.remove(this);
     }
 
-    private int run() {
-        return Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+    private ScheduledTask run() {
+        return Scheduler.runTaskTimer(InteractiveChat.plugin, () -> {
             if ((System.currentTimeMillis() - timestamp) > 3000) {
-                Bukkit.getScheduler().cancelTask(taskid);
+                task.cancel();
                 InteractiveChat.mentionPair.remove(this);
             }
-        }, 0, 5).getTaskId();
+        }, 0, 5);
     }
 
     @Override
@@ -67,8 +68,8 @@ public class MentionPair {
         int result = 1;
         result = prime * result + ((receiver == null) ? 0 : receiver.hashCode());
         result = prime * result + ((sender == null) ? 0 : sender.hashCode());
-        result = prime * result + taskid;
-        result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = prime * result + task.hashCode();
+        result = prime * result + Long.hashCode(timestamp);
         return result;
     }
 
@@ -95,7 +96,7 @@ public class MentionPair {
         } else if (!sender.equals(other.sender)) {
             return false;
         }
-        if (taskid != other.taskid) {
+        if (!task.equals(other.task)) {
             return false;
         }
         return timestamp == other.timestamp;

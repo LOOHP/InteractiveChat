@@ -72,6 +72,10 @@
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<relocations>
 								<relocation>
+									<pattern>com.loohp.platformscheduler</pattern>
+									<shadedPattern>com.loohp.interactivechat.libs.com.loohp.platformscheduler</shadedPattern>
+								</relocation>
+								<relocation>
 									<pattern>net.kyori</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.net.kyori</shadedPattern>
 								</relocation>
@@ -323,6 +327,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.loohp</groupId>
+			<artifactId>PlatformScheduler</artifactId>
+			<version>1.0.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.github.Carleslc.Simple-YAML</groupId>
 			<artifactId>Simple-Yaml</artifactId>
 			<version>1.8.1</version>
@@ -477,37 +487,37 @@
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-gson</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-legacy</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-plain</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-api</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-nbt</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-minimessage</artifactId>
-			<version>4.18.0</version>
+			<version>4.21.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -781,6 +791,12 @@
 		<dependency>
 			<groupId>com.loohp</groupId>
 			<artifactId>InteractiveChat-V1_21_4</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.loohp</groupId>
+			<artifactId>InteractiveChat-V1_21_5</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>

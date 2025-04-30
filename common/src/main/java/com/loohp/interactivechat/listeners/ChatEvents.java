@@ -35,6 +35,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.TimeUtils;
+import com.loohp.platformscheduler.Scheduler;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -358,7 +359,7 @@ public class ChatEvents implements Listener {
 
         String mapKey = ChatColorUtils.stripColor(ChatColorUtils.translateAlternateColorCodes('&', event.getMessage()));
         InteractiveChat.messages.put(mapKey, player.getUniqueId());
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(mapKey), 60);
+        Scheduler.runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(mapKey), 60);
 
         if (InteractiveChat.bungeecordMode) {
             try {

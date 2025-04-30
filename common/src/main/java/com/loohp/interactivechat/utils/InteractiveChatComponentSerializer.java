@@ -77,10 +77,8 @@ public class InteractiveChatComponentSerializer {
                 GsonComponentSerializer.builder()
                         .legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER)
                         .editOptions(builder -> builder
-                                .value(JSONOptions.SHOW_ITEM_HOVER_DATA_MODE, JSONOptions.ShowItemHoverDataMode.EMIT_EITHER)
+                                .values(JSONOptions.compatibility())
                                 .value(JSONOptions.EMIT_RGB, true)
-                                .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.BOTH)
-                                .value(JSONOptions.EMIT_DEFAULT_ITEM_HOVER_QUANTITY, true)
                                 .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, isProxyEnvironment() || isBukkitAboveV1_20_3())
                                 .build()
                         )
@@ -90,10 +88,8 @@ public class InteractiveChatComponentSerializer {
                 GsonComponentSerializer.builder()
                         .legacyHoverEventSerializer(LEGACY_HOVER_SERIALIZER)
                         .editOptions(builder -> builder
-                                .value(JSONOptions.SHOW_ITEM_HOVER_DATA_MODE, JSONOptions.ShowItemHoverDataMode.EMIT_EITHER)
+                                .values(JSONOptions.compatibility())
                                 .value(JSONOptions.EMIT_RGB, false)
-                                .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.BOTH)
-                                .value(JSONOptions.EMIT_DEFAULT_ITEM_HOVER_QUANTITY, true)
                                 .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, false)
                                 .build()
                         )

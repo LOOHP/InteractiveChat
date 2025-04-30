@@ -70,6 +70,7 @@ import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.platformscheduler.Scheduler;
 import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -459,14 +460,14 @@ public class InteractiveChat extends JavaPlugin {
 
             protocolPlatform.onBungeecordModeEnabled();
 
-            Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            Scheduler.runTaskTimerAsynchronously(plugin, () -> {
                 if (parsePAPIOnMainThread) {
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        Scheduler.runTask(plugin, () -> {
                             PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameHoverText);
                             PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameClickValue);
-                        }
-                    });
+                        }, player);
+                    }
                 } else {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         PlaceholderParser.parse(ICPlayerFactory.getICPlayer(player), usePlayerNameHoverText);
@@ -475,14 +476,14 @@ public class InteractiveChat extends JavaPlugin {
                 }
             }, 0, 100);
 
-            Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            Scheduler.runTaskTimer(plugin, () -> {
                 Map<UUID, Boolean> vanishStates = new HashMap<>();
                 for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
                     if (player.isLocal()) {
                         vanishStates.put(player.getUniqueId(), player.isVanished());
                     }
                 }
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                Scheduler.runTaskAsynchronously(plugin, () -> {
                     try {
                         BungeeMessageSender.updatePlayersVanished(System.currentTimeMillis(), vanishStates);
                     } catch (Exception e) {
@@ -493,7 +494,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         BiConsumer<String, Inventory> inventoryRemovalListener = (hash, inv) -> {
-            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> closeInventoryViews(inv));
+            Scheduler.runTask(InteractiveChat.plugin, () -> closeInventoryViews(inv));
         };
         itemDisplay.registerRemovalListener(inventoryRemovalListener);
         inventoryDisplay.registerRemovalListener(inventoryRemovalListener);
@@ -502,15 +503,15 @@ public class InteractiveChat extends JavaPlugin {
         enderDisplay.registerRemovalListener(inventoryRemovalListener);
 
         mapDisplay.registerRemovalListener((hash, item) -> {
-            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Scheduler.runTask(InteractiveChat.plugin, () -> {
                     boolean removed = MapViewer.MAP_VIEWERS.remove(player, item);
                     if (removed) {
                         //noinspection deprecation
                         player.getInventory().setItemInHand(player.getInventory().getItemInHand());
                     }
-                }
-            });
+                }, player);
+            }
         });
 
         YamlFile storage = ConfigManager.getStorageConfig();
@@ -527,7 +528,9 @@ public class InteractiveChat extends JavaPlugin {
 
         // Register the packet listener only if it is our own (ProtocolLib).
         // An external provider must initialize ONCE the external plugin is initialized.
-        if (protocolPlatform instanceof ProtocolLibPlatform) protocolPlatform.initialize();
+        if (protocolPlatform instanceof ProtocolLibPlatform) {
+            protocolPlatform.initialize();
+        }
         OutTabCompletePacketHandler.init();
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
@@ -671,7 +674,7 @@ public class InteractiveChat extends JavaPlugin {
 
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] InteractiveChat has been Enabled!");
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+        Scheduler.runTaskTimerAsynchronously(this, () -> {
             if (queueRemoteUpdate && !Bukkit.getOnlinePlayers().isEmpty()) {
                 try {
                     if (BungeeMessageSender.resetAndForwardPlaceholderList(System.currentTimeMillis(), InteractiveChat.placeholderList.values())) {
@@ -709,7 +712,7 @@ public class InteractiveChat extends JavaPlugin {
     }
 
     private void gc() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+        Scheduler.runTaskTimerAsynchronously(this, () -> {
             itemDisplay.cleanUp();
             inventoryDisplay.cleanUp();
             inventoryDisplay1Upper.cleanUp();

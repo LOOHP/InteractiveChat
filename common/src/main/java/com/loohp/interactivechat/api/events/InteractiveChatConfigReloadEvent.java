@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.api.events;
 
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -38,7 +39,7 @@ public class InteractiveChatConfigReloadEvent extends Event {
     }
 
     public InteractiveChatConfigReloadEvent() {
-        super(!Bukkit.isPrimaryThread());
+        super(!Scheduler.isPrimaryThread());
     }
 
     public HandlerList getHandlers() {

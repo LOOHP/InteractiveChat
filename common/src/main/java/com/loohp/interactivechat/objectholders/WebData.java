@@ -27,6 +27,7 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.utils.HTTPRequestUtils;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -79,7 +80,7 @@ public class WebData {
     }
 
     private void run() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             reload();
         }, 18000, 18000);
     }

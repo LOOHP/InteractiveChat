@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.listeners.packet.listeners;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
@@ -62,7 +63,9 @@ import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -80,7 +83,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.PacketAccessorResult;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.PacketWriterResult;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.SCHEDULING_SERVICE;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.SERVICE;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.UUID_NIL;
 
 public class PLibOutMessagePacket {
     private static final Map<PacketType, PacketHandler> PACKET_HANDLERS = new HashMap<>();
@@ -92,41 +99,233 @@ public class PLibOutMessagePacket {
 
     private static void initializePacketHandlers() {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
-            initializeModernPacketHandlers();
+            PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(event -> {
+                return InteractiveChat.chatListener;
+            }, packet -> {
+                ChatComponentType type = ChatComponentType.IChatBaseComponent;
+                int field = 0;
+                Component component = type.convertFrom(packet.getModifier().read(field));
+                return new PacketAccessorResult(component, type, field, false);
+            }, (packet, component, type, field, sender) -> {
+                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            }));
         }
-        initializeCommonPacketHandlers();
-    }
 
-    private static void initializeModernPacketHandlers() {
-        PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(event -> InteractiveChat.chatListener, packet -> {
-            ChatComponentType type = ChatComponentType.IChatBaseComponent;
-            int field = 0;
-            return new PacketAccessorResult(type.convertFrom(packet.getModifier().read(field)), type, field, false);
-        }, (packet, component, type, field, sender) -> {
-            boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
-            String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
-            boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
-            packet.getModifier().write(field, type.convertTo(component, legacyRGB));
-            return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
-        }));
-    }
+        if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            PACKET_HANDLERS.put(PacketType.Play.Server.CHAT, new PacketHandler(event -> {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    return InteractiveChat.chatListener;
+                }
+                int position;
+                if (event.getPacket().getIntegers().size() > 0) {
+                    if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_21_5)) {
+                        position = event.getPacket().getIntegers().read(1);
+                    } else {
+                        position = event.getPacket().getIntegers().read(0);
+                    }
+                } else {
+                    Object chatType = event.getPacket().getModifier().read(1);
+                    position = ModernChatSigningUtils.getChatMessageType(chatType);
+                }
+                if (position == 2) {
+                    return InteractiveChat.titleListener;
+                } else {
+                    return InteractiveChat.chatListener;
+                }
+            }, event -> {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    UUID uuid = event.getPacket().getUUIDs().read(0);
+                    if (uuid != null) {
+                        return ICPlayerFactory.getICPlayer(uuid);
+                    }
+                }
+                return null;
+            }, packet -> {
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    ChatComponentType type = ChatComponentType.IChatBaseComponent;
+                    int field = 4;
+                    Component component;
+                    Object unsignedContent = packet.getModifier().read(field);
+                    if (unsignedContent == null) {
+                        component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(3)));
+                    } else {
+                        component = type.convertFrom(unsignedContent);
+                    }
+                    return new PacketAccessorResult(component, type, field, false);
+                } else {
+                    if (packet.getModifier().getField(0).getType().getName().equalsIgnoreCase("net.minecraft.network.chat.PlayerChatMessage")) {
+                        Object playerChatMessage = packet.getModifier().read(0);
+                        Optional<?> unsignedContent = ModernChatSigningUtils.getUnsignedContent(playerChatMessage);
+                        ChatComponentType type = ChatComponentType.IChatBaseComponent;
+                        Component component;
+                        if (unsignedContent.isPresent()) {
+                            component = type.convertFrom(unsignedContent.get());
+                        } else {
+                            Object signedContent = ModernChatSigningUtils.getSignedContent(playerChatMessage);
+                            if (signedContent instanceof String) {
+                                component = PlainTextComponentSerializer.plainText().deserialize((String) signedContent);
+                            } else {
+                                component = type.convertFrom(signedContent);
+                            }
+                        }
+                        return new PacketAccessorResult(component, type, Integer.MIN_VALUE, false);
+                    } else {
+                        int positionOfSignedContent = 0;
+                        if (!packet.getModifier().getField(0).getName().equals("a")) {
+                            for (int i = 0; i < packet.getModifier().size(); i++) {
+                                if (packet.getModifier().getField(i).getName().equals("a")) {
+                                    positionOfSignedContent = i;
+                                    break;
+                                }
+                            }
+                            if (positionOfSignedContent == 0) {
+                                throw new RuntimeException("Unable to find index of field \"a\"");
+                            }
+                            for (ChatComponentType t : ChatComponentType.byPriority()) {
+                                for (int i = 0; i < positionOfSignedContent; i++) {
+                                    if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                                        try {
+                                            Component component = t.convertFrom(packet.getModifier().read(i));
+                                            return new PacketAccessorResult(component, t, i, true);
+                                        } catch (Throwable e) {
+                                            System.err.println(t.toString(packet.getModifier().read(i)));
+                                            e.printStackTrace();
+                                            return null;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        int field = positionOfSignedContent + 1;
+                        Optional<?> unsignedContent = (Optional<?>) packet.getModifier().read(field);
+                        ChatComponentType type = ChatComponentType.IChatBaseComponent;
+                        Component component;
+                        if (unsignedContent.isPresent()) {
+                            component = type.convertFrom(unsignedContent.get());
+                        } else {
+                            component = type.convertFrom(packet.getModifier().read(positionOfSignedContent));
+                        }
+                        return new PacketAccessorResult(component, type, field, false);
+                    }
+                }
+            }, (packet, component, type, field, sender) -> {
+                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
+                    if (sender != null) {
+                        packet.getUUIDs().write(0, sender);
+                    }
+                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                } else {
+                    if (field == Integer.MIN_VALUE) {
+                        Object chatMessage = ModernChatSigningUtils.withUnsignedContent(packet.getModifier().read(0), type.convertTo(component, legacyRGB));
+                        packet.getModifier().write(0, chatMessage);
+                    } else {
+                        if (packet.getModifier().getField(field).getType().equals(Optional.class)) {
+                            packet.getModifier().write(field, Optional.of(type.convertTo(component, legacyRGB)));
+                        } else {
+                            packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                        }
+                        if (sender == null) {
+                            sender = UUID_NIL;
+                        }
+                        if (packet.getUUIDs().size() > 0) {
+                            packet.getUUIDs().write(0, sender);
+                        }
+                    }
+                }
+                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            }));
 
-    private static void initializeCommonPacketHandlers() {
-        int chatFieldsSize = getChatFieldsSize();
-        PacketHandler modernTitleHandler = createModernTitleHandler();
+            if (InteractiveChat.version.isOlderOrEqualTo(MCVersion.V1_19)) {
+                //noinspection deprecation
+                PACKET_HANDLERS.put(PacketType.Play.Server.CHAT_PREVIEW, new PacketHandler(event -> {
+                    return InteractiveChat.chatListener;
+                }, event -> {
+                    return ICPlayerFactory.getICPlayer(event.getPlayer());
+                }, packet -> {
+                    Component component = null;
+                    ChatComponentType type = null;
+                    int field = -1;
+                    search:
+                    for (ChatComponentType t : ChatComponentType.byPriority()) {
+                        for (int i = 1; i < packet.getModifier().size(); i++) {
+                            if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                                try {
+                                    component = t.convertFrom(packet.getModifier().read(i));
+                                } catch (Throwable e) {
+                                    System.err.println(t.toString(packet.getModifier().read(i)));
+                                    e.printStackTrace();
+                                    break search;
+                                }
+                                field = i;
+                                type = t;
+                                break search;
+                            }
+                        }
+                    }
+                    return new PacketAccessorResult(component, type, field, true);
+                }, (packet, component, type, field, sender) -> {
+                    if (InteractiveChat.chatPreviewRemoveClickAndHover) {
+                        component = ComponentStyling.stripEvents(component);
+                    }
+                    boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                    String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                    boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                    if (sender == null) {
+                        sender = UUID_NIL;
+                    }
+                    return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+                }));
+            }
+        }
 
+        int chatFieldsSize;
+
+        PacketContainer chatPacket = ProtocolLibrary.getProtocolManager().createPacket(InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ? PacketType.Play.Server.SYSTEM_CHAT : PacketType.Play.Server.CHAT);
+        List<String> matches = ChatComponentType.byPriority().stream().map(each -> each.getMatchingRegex()).collect(Collectors.toList());
+        for (chatFieldsSize = 1; chatFieldsSize < chatPacket.getModifier().size(); chatFieldsSize++) {
+            String clazz = chatPacket.getModifier().getField(chatFieldsSize).getType().getName();
+            if (matches.stream().noneMatch(each -> clazz.matches(each))) {
+                chatFieldsSize--;
+                break;
+            }
+        }
+
+        int finalChatFieldsSize = chatFieldsSize;
         PACKET_HANDLERS.put(InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19) ? PacketType.Play.Server.SYSTEM_CHAT : PacketType.Play.Server.CHAT, new PacketHandler(event -> {
             if (event.getPacketType().equals(PacketType.Play.Server.CHAT)) {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
                     ChatType type = event.getPacket().getChatTypes().read(0);
-                    return type == null || type.equals(ChatType.GAME_INFO) ? InteractiveChat.titleListener : InteractiveChat.chatListener;
+                    if (type == null || type.equals(ChatType.GAME_INFO)) {
+                        return InteractiveChat.titleListener;
+                    }
                 } else {
                     byte type = event.getPacket().getBytes().read(0);
-                    return type == (byte) 2 ? InteractiveChat.titleListener : InteractiveChat.chatListener;
+                    if (type == (byte) 2) {
+                        return InteractiveChat.titleListener;
+                    }
+                }
+                return InteractiveChat.chatListener;
+            } else {
+                int position;
+                if (event.getPacket().getBooleans().size() > 0) {
+                    position = event.getPacket().getBooleans().read(0) ? 2 : 0;
+                } else {
+                    position = event.getPacket().getIntegers().read(0);
+                }
+                if (position == 2) {
+                    return InteractiveChat.titleListener;
+                } else {
+                    return InteractiveChat.chatListener;
                 }
             }
-            int position = event.getPacket().getBooleans().size() > 0 ? event.getPacket().getBooleans().read(0) ? 2 : 0 : event.getPacket().getIntegers().read(0);
-            return position == 2 ? InteractiveChat.titleListener : InteractiveChat.chatListener;
         }, packet -> {
             Component component = null;
             ChatComponentType type = null;
@@ -161,17 +360,18 @@ public class PLibOutMessagePacket {
                     try {
                         if (packet.getChatComponents().size() > 0) {
                             WrappedChatComponent wcc = WrappedChatComponent.fromJson(json);
-                            for (int i = 0; i < chatFieldsSize; i++) {
+                            for (int i = 0; i < finalChatFieldsSize; i++) {
                                 packet.getModifier().write(i, null);
                             }
                             packet.getChatComponents().write(0, wcc);
                         } else if (packet.getStrings().size() > 0) {
-                            for (int i = 0; i < chatFieldsSize; i++) {
+                            for (int i = 0; i < finalChatFieldsSize; i++) {
                                 packet.getModifier().write(i, null);
                             }
                             packet.getStrings().write(0, json);
                         }
-                    } catch (Throwable ignore) {}
+                    } catch (Throwable ignore) {
+                    }
                 }
             }
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
@@ -192,13 +392,51 @@ public class PLibOutMessagePacket {
         }));
 
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
+            PacketHandler modernTitleHandler = new PacketHandler(event -> {
+                return InteractiveChat.titleListener;
+            }, packet -> {
+                Component component = null;
+                ChatComponentType type = null;
+                int field = -1;
+                search:
+                for (ChatComponentType t : ChatComponentType.byPriority()) {
+                    for (int i = 0; i < packet.getModifier().size(); i++) {
+                        if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
+                            try {
+                                component = t.convertFrom(packet.getModifier().read(i));
+                            } catch (Throwable e) {
+                                System.err.println(t.toString(packet.getModifier().read(i)));
+                                e.printStackTrace();
+                                break search;
+                            }
+                            field = i;
+                            type = t;
+                            break search;
+                        }
+                    }
+                }
+                return new PacketAccessorResult(component, type, field, false);
+            }, (packet, component, type, field, sender) -> {
+                boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
+                String json = legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
+                boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
+                packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                if (sender == null) {
+                    sender = UUID_NIL;
+                }
+                return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
+            });
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_TITLE_TEXT, modernTitleHandler);
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_SUBTITLE_TEXT, modernTitleHandler);
             PACKET_HANDLERS.put(PacketType.Play.Server.SET_ACTION_BAR_TEXT, modernTitleHandler);
         } else {
+            //noinspection deprecation
             PACKET_HANDLERS.put(PacketType.Play.Server.TITLE, new PacketHandler(event -> {
                 TitleAction type = event.getPacket().getTitleActions().read(0);
-                return type != null && !type.equals(TitleAction.RESET) && !type.equals(TitleAction.CLEAR) && !type.equals(TitleAction.TIMES) && InteractiveChat.titleListener;
+                if (type == null || type.equals(TitleAction.RESET) || type.equals(TitleAction.CLEAR) || type.equals(TitleAction.TIMES)) {
+                    return false;
+                }
+                return InteractiveChat.titleListener;
             }, packet -> {
                 Component component = null;
                 ChatComponentType type = null;
@@ -400,7 +638,7 @@ public class PLibOutMessagePacket {
 
             if (sender.isPresent() && !sender.get().isLocal()) {
                 if (isFiltered) {
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
+                    Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
                         SERVICE.execute(() -> {
                             processPacket(receiver, determinedSender, packet, messageUUID, false, packetHandler);
                         }, receiver, messageUUID);
@@ -418,7 +656,7 @@ public class PLibOutMessagePacket {
             component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Registry.ID_PATTERN_REPLACEMENT);
 
             UUID preEventSenderUUID = sender.map(ICPlayer::getUniqueId).orElse(null);
-            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(!Bukkit.isPrimaryThread(), receiver, component, preEventSenderUUID);
+            PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(!Scheduler.isPrimaryThread(), receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(preEvent);
             if (preEvent.getSender() != null) {
                 Player newsender = Bukkit.getPlayer(preEvent.getSender());
@@ -496,7 +734,7 @@ public class PLibOutMessagePacket {
             PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, component, postEventSenderUUID, originalPacket, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                 InteractiveChat.keyTime.remove(rawMessageKey);
                 InteractiveChat.keyPlayer.remove(rawMessageKey);
             }, 10);

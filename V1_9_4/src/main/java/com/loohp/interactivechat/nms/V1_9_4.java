@@ -39,7 +39,6 @@ import net.minecraft.server.v1_9_R2.EntityPlayer;
 import net.minecraft.server.v1_9_R2.EnumItemSlot;
 import net.minecraft.server.v1_9_R2.IChatBaseComponent;
 import net.minecraft.server.v1_9_R2.Item;
-import net.minecraft.server.v1_9_R2.ItemArmor;
 import net.minecraft.server.v1_9_R2.ItemSkull;
 import net.minecraft.server.v1_9_R2.MapIcon;
 import net.minecraft.server.v1_9_R2.MinecraftKey;
@@ -201,12 +200,6 @@ public class V1_9_4 extends NMSWrapper {
         ItemSkull skull = (ItemSkull) nmsItemStack.getItem();
         String owner = skull.a(nmsItemStack);
         return l(owner);
-    }
-
-    @Override
-    public boolean isArmor(ItemStack itemStack) {
-        net.minecraft.server.v1_9_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return nmsItemStack.getItem() instanceof ItemArmor;
     }
 
     @Override

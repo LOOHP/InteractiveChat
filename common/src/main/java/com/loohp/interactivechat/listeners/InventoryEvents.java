@@ -27,6 +27,7 @@ import com.loohp.interactivechat.objectholders.ICMaterial;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.platformscheduler.Scheduler;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
@@ -67,9 +68,9 @@ public class InventoryEvents implements Listener {
         if (hash != null) {
             Inventory fakeInv = InteractiveChat.inventoryDisplay1Lower.get(hash);
             if (fakeInv == null) {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.closeInventory());
+                Scheduler.runTask(InteractiveChat.plugin, () -> player.closeInventory(), player);
             } else {
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> InventoryUtils.sendFakePlayerInventory(player, fakeInv, true, false));
+                Scheduler.runTask(InteractiveChat.plugin, () -> InventoryUtils.sendFakePlayerInventory(player, fakeInv, true, false), player);
             }
         }
         if (event.getView().getTopInventory() == null) {
@@ -157,7 +158,7 @@ public class InventoryEvents implements Listener {
                             displayInventory.setItem(i + 9, containerItem == null ? null : containerItem.clone());
                         }
 
-                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                        Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                             ValuePairs<Inventory, String> opened;
                             String hash = InteractiveChat.viewingInv1.remove(player.getUniqueId());
                             if (hash != null) {
@@ -168,7 +169,7 @@ public class InventoryEvents implements Listener {
                             }
                             InteractiveChat.containerDisplay.put(displayInventory, opened);
                             player.openInventory(displayInventory);
-                        }, 2);
+                        }, 2, player);
                     }
                 }
             }
@@ -179,7 +180,8 @@ public class InventoryEvents implements Listener {
     public void onInventoryClickHighest(InventoryClickEvent event) {
         if (CANCELLED_INVENTORY.remove(event)) {
             event.setCancelled(true);
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> ((Player) event.getWhoClicked()).updateInventory(), 5);
+            Player player = (Player) event.getWhoClicked();
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> player.updateInventory(), 5, player);
         }
     }
 
@@ -193,7 +195,7 @@ public class InventoryEvents implements Listener {
         if (topInventory != null) {
             ValuePairs<Inventory, String> opened = InteractiveChat.containerDisplay.remove(topInventory);
             if (opened != null) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                     player.openInventory(opened.getFirst());
                     String hash = opened.getSecond();
                     if (hash != null) {
@@ -203,7 +205,7 @@ public class InventoryEvents implements Listener {
                             InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
                         }
                     }
-                }, 2);
+                }, 2, player);
             }
         }
     }

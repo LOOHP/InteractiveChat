@@ -209,6 +209,7 @@ public class ItemDisplay {
 
         amountString = String.valueOf(itemAmount);
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
+
         ShowItem showItem;
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_5)) {
             if (item.getType().equals(Material.AIR)) {
@@ -220,6 +221,7 @@ public class ItemDisplay {
             String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
             showItem = tag == null ? ShowItem.showItem(key, itemAmount) : ShowItem.showItem(key, itemAmount, BinaryTagHolder.binaryTagHolder(tag));
         }
+
         HoverEvent<ShowItem> hoverEvent = HoverEvent.showItem(showItem);
         String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, rawTitle));
         String sha1 = HashUtils.createSha1(title, item);

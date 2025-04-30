@@ -26,6 +26,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -63,7 +64,7 @@ public class VentureChatInjection implements Listener {
     public void onPluginEnable(PluginEnableEvent event) {
         if (init) {
             if (event.getPlugin().getName().equalsIgnoreCase("VentureChat")) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                     _init_();
                     Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "[InteractiveChat] InteractiveChat has injected into VentureChat!");
                 }, 100);

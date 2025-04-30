@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.api.events;
 
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -43,7 +44,7 @@ public class ProxyCustomDataRecievedEvent extends Event {
     private final byte[] data;
 
     public ProxyCustomDataRecievedEvent(String channel, byte[] data) {
-        super(!Bukkit.isPrimaryThread());
+        super(!Scheduler.isPrimaryThread());
         this.channel = channel;
         this.data = data;
     }

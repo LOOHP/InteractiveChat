@@ -122,8 +122,6 @@ public abstract class NMSWrapper {
 
     public abstract Component getSkullOwner(ItemStack itemStack);
 
-    public abstract boolean isArmor(ItemStack itemStack);
-
     public abstract boolean isWearable(ItemStack itemStack);
 
     public abstract boolean hasBlockEntityTag(ItemStack itemStack);

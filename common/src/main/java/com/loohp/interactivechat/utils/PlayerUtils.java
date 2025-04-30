@@ -25,6 +25,7 @@ import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.PermissionCache;
+import com.loohp.platformscheduler.Scheduler;
 import com.viaversion.viaversion.api.Via;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,7 +50,7 @@ public class PlayerUtils implements Listener {
     private static final Map<UUID, Map<String, PermissionCache>> PERMISSION_CACHE = new ConcurrentHashMap<>();
 
     static {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             long now = System.currentTimeMillis();
             Iterator<Entry<UUID, Map<String, PermissionCache>>> itr0 = PERMISSION_CACHE.entrySet().iterator();
             while (itr0.hasNext()) {
@@ -69,7 +70,7 @@ public class PlayerUtils implements Listener {
     }
 
     public static void chatAsPlayer(Player player, String message, Object unsignedContentOrResult) {
-        if (Bukkit.isPrimaryThread()) {
+        if (Scheduler.isPrimaryThread()) {
             player.chat(message);
         } else {
             NMS.getInstance().chatAsPlayerAsync(player, message, unsignedContentOrResult);
@@ -102,7 +103,7 @@ public class PlayerUtils implements Listener {
             return result;
         } else {
             CompletableFuture<Boolean> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+            Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
                 Map<String, PermissionCache> map = PERMISSION_CACHE.get(uuid);
                 if (map == null) {
                     PERMISSION_CACHE.putIfAbsent(uuid, new ConcurrentHashMap<>());

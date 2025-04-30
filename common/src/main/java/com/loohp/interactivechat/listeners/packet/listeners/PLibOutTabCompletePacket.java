@@ -63,7 +63,7 @@ public class PLibOutTabCompletePacket {
     }
 
     private static boolean shouldProcessPacket(PacketEvent event) {
-        return !event.isFiltered() && !event.isCancelled() && event.getPacketType().equals(PacketType.Play.Server.TAB_COMPLETE) && !event.isPlayerTemporary();
+        return event.isFiltered() && !event.isCancelled() && event.getPacketType().equals(PacketType.Play.Server.TAB_COMPLETE) && !event.isPlayerTemporary();
     }
 
     private static void processPacket(PacketEvent event) {

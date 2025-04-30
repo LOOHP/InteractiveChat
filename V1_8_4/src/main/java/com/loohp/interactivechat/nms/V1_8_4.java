@@ -25,7 +25,6 @@ import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
 import com.loohp.interactivechat.objectholders.InternalOfflinePlayerInfo;
-import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.kyori.adventure.key.Key;
@@ -39,7 +38,6 @@ import net.minecraft.server.v1_8_R3.EntityInsentient;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.Item;
-import net.minecraft.server.v1_8_R3.ItemArmor;
 import net.minecraft.server.v1_8_R3.ItemSkull;
 import net.minecraft.server.v1_8_R3.MapIcon;
 import net.minecraft.server.v1_8_R3.MinecraftKey;
@@ -199,12 +197,6 @@ public class V1_8_4 extends NMSWrapper {
         ItemSkull skull = (ItemSkull) nmsItemStack.getItem();
         String owner = skull.a(nmsItemStack);
         return l(owner);
-    }
-
-    @Override
-    public boolean isArmor(ItemStack itemStack) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return nmsItemStack.getItem() instanceof ItemArmor;
     }
 
     @Override

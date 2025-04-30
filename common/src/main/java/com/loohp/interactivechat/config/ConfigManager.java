@@ -36,6 +36,7 @@ import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -425,7 +426,7 @@ public class ConfigManager {
 
         InteractiveChat.language = getConfig().getString("Settings.Language");
 
-        Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
             LanguageUtils.loadTranslations(InteractiveChat.language);
             if (WebData.getInstance() == null) {
                 WebData.newInstance();

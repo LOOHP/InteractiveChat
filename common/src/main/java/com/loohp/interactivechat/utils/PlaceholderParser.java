@@ -26,6 +26,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.ValuePairs;
+import com.loohp.platformscheduler.Scheduler;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -47,7 +48,7 @@ public class PlaceholderParser {
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("[%]([^%]+)[%]");
 
     static {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             if (InteractiveChat.bungeecordMode) {
                 if (InteractiveChat.useTooltipOnTab) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -59,10 +60,14 @@ public class PlaceholderParser {
     }
 
     public static String parse(OfflineICPlayer offlineICPlayer, String str) {
-        if (InteractiveChat.parsePAPIOnMainThread && !Bukkit.isPrimaryThread()) {
+        if (InteractiveChat.parsePAPIOnMainThread && !Scheduler.isPrimaryThread()) {
             try {
                 CompletableFuture<String> future = new CompletableFuture<>();
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> future.complete(parse0(offlineICPlayer, str)));
+                if (offlineICPlayer.isOnline() && offlineICPlayer.getPlayer().isLocal()) {
+                    Scheduler.runTask(InteractiveChat.plugin, () -> future.complete(parse0(offlineICPlayer, str)), offlineICPlayer.getPlayer().getLocalPlayer());
+                } else {
+                    Scheduler.runTask(InteractiveChat.plugin, () -> future.complete(parse0(offlineICPlayer, str)));
+                }
                 return future.get(1500, TimeUnit.MILLISECONDS);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();

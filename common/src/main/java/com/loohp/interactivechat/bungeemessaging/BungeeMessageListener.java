@@ -49,6 +49,7 @@ import com.loohp.interactivechat.utils.DataTypeIO;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -88,7 +89,7 @@ public class BungeeMessageListener implements PluginMessageListener {
 
     public void addToComplete(UUID uuid, CompletableFuture<?> future) {
         toComplete.put(uuid, future);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+        Scheduler.runTaskLaterAsynchronously(plugin, () -> {
             CompletableFuture<?> f = toComplete.remove(uuid);
             if (f != null && !f.isDone() && !f.isCompletedExceptionally() && !f.isCancelled()) {
                 f.completeExceptionally(new TimeoutException("The proxy did not respond in time"));
@@ -103,7 +104,7 @@ public class BungeeMessageListener implements PluginMessageListener {
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
             try {
                 ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 
@@ -252,7 +253,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                             break;
                         }
                         InteractiveChat.messages.put(message, uuid3);
-                        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(message), 60);
+                        Scheduler.runTaskLater(InteractiveChat.plugin, () -> InteractiveChat.messages.remove(message), 60);
                         break;
                     case 0x07:
                         int cooldownType = input.readByte();
@@ -430,7 +431,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                         String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                         Player player4 = Bukkit.getPlayer(playerUUID5);
                         if (player4 != null) {
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command));
+                            Scheduler.runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command), player4);
                         }
                         break;
                     case 0xFF:

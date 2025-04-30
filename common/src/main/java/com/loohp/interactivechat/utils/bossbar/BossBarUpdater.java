@@ -22,6 +22,8 @@ package com.loohp.interactivechat.utils.bossbar;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.platformscheduler.ScheduledRunnable;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Flag;
@@ -36,7 +38,7 @@ import java.util.Set;
 public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable {
 
     public static void countdownBossBar(BossBarUpdater updater, int ticks, int removeDelay) {
-        new BukkitRunnable() {
+        new ScheduledRunnable() {
             int tick = 0;
 
             @Override
@@ -47,7 +49,7 @@ public abstract class BossBarUpdater implements BossBar.Listener, AutoCloseable 
                 bossbar.progress(Math.max(current, 0));
                 if (current < 0) {
                     this.cancel();
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> updater.close(), removeDelay);
+                    Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> updater.close(), removeDelay);
                 }
             }
         }.runTaskTimerAsynchronously(InteractiveChat.plugin, 0, 1);

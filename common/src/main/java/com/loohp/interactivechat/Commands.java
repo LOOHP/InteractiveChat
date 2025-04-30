@@ -45,6 +45,7 @@ import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.platformscheduler.Scheduler;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -87,7 +88,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 ConfigManager.reloadConfig();
                 InteractiveChat.placeholderCooldownManager.reloadPlaceholders();
                 PlayerUtils.resetAllPermissionCache();
-                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
+                Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> InteractiveChat.playerDataManager.reload());
                 if (InteractiveChat.bungeecordMode) {
                     try {
                         BungeeMessageSender.reloadBungeeConfig(System.currentTimeMillis());
@@ -107,7 +108,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("interactivechat.update")) {
                 sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
                 sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
-                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
                     UpdaterResponse version = Updater.checkUpdate();
                     if (version.getResult().equals("latest")) {
                         if (version.isDevBuildLatest()) {
@@ -133,11 +134,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                         if (pd.isMentionDisabled()) {
                             pd.setMentionDisabled(false);
-                            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                            Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                             sender.sendMessage(InteractiveChat.mentionEnable);
                         } else {
                             pd.setMentionDisabled(true);
-                            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                            Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                             sender.sendMessage(InteractiveChat.mentionDisable);
                         }
                         if (InteractiveChat.bungeecordMode) {
@@ -157,11 +158,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                             PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                             if (pd.isMentionDisabled()) {
                                 pd.setMentionDisabled(false);
-                                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                                Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                                 sender.sendMessage(InteractiveChat.mentionEnable);
                             } else {
                                 pd.setMentionDisabled(true);
-                                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                                Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                                 sender.sendMessage(InteractiveChat.mentionDisable);
                             }
                             if (InteractiveChat.bungeecordMode) {
@@ -198,7 +199,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                             Player player = (Player) sender;
                             PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                             pd.setInventoryDisplayLayout(layout);
-                            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                            Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                             sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
                             if (InteractiveChat.bungeecordMode) {
                                 try {
@@ -220,7 +221,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 }
                                 PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                                 pd.setInventoryDisplayLayout(layout);
-                                Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
+                                Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
                                 sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
                                 if (InteractiveChat.bungeecordMode) {
                                     try {
@@ -302,7 +303,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     String str = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                     Player player = (Player) sender;
                     Optional<ICPlayer> icplayer = Optional.of(ICPlayerFactory.getICPlayer(player));
-                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                    Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
                         String text = str;
                         try {
                             long unix = System.currentTimeMillis();
@@ -358,10 +359,9 @@ public class Commands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("interactivechat.chat")) {
                 if (args.length > 1) {
                     if (sender instanceof Player) {
+                        Player player = (Player) sender;
                         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
-                            ((Player) sender).chat(message);
-                        });
+                        Scheduler.runTask(InteractiveChat.plugin, () -> player.chat(message), player);
                     } else {
                         sender.sendMessage(InteractiveChat.noConsoleMessage);
                     }
@@ -375,7 +375,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         if (InteractiveChat.bedrockHook && args[0].equalsIgnoreCase("events")) {
             if (sender.hasPermission("interactivechat.bedrock.events")) {
                 if (sender instanceof Player) {
-                    Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> {
+                    Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
                         UUID uuid = ((Player) sender).getUniqueId();
                         if (BedrockHook.isBedrockPlayer(uuid)) {
                             BedrockHook.sendRecentChatMessagesForm(uuid);
@@ -449,7 +449,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (data == null || data.getInventoryDisplayLayout() == 0) {
                         Inventory inv = InteractiveChat.inventoryDisplay.get(hash);
                         if (inv != null) {
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+                            Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                         } else {
                             player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
@@ -457,11 +457,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
                         Inventory inv2 = InteractiveChat.inventoryDisplay1Lower.get(hash);
                         if (inv != null && inv2 != null) {
-                            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+                            Scheduler.runTask(InteractiveChat.plugin, () -> {
                                 player.openInventory(inv);
                                 InventoryUtils.sendFakePlayerInventory(player, inv2, true, false);
                                 InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
-                            });
+                            }, player);
                         } else {
                             player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
@@ -471,7 +471,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewender": {
                     Inventory inv = InteractiveChat.enderDisplay.get(args[1]);
                     if (inv != null) {
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+                        Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -480,7 +480,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewitem": {
                     Inventory inv = InteractiveChat.itemDisplay.get(args[1]);
                     if (inv != null) {
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> player.openInventory(inv));
+                        Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
@@ -489,7 +489,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 case "viewmap":
                     ItemStack map = InteractiveChat.mapDisplay.get(args[1]);
                     if (map != null) {
-                        Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map));
+                        Scheduler.runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map), player);
                     } else {
                         player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }

@@ -8,6 +8,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -29,13 +30,13 @@ public class OutTabCompletePacketHandler {
     }
 
     private static void schedulePlayerNamesUpdate() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             if (InteractiveChat.useTooltipOnTab) {
                 Map<String, UUID> names = new HashMap<>();
                 for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
                     addPlayerNames(names, player);
                 }
-                Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> playerNames.set(names));
+                Scheduler.runTask(InteractiveChat.plugin, () -> playerNames.set(names));
             }
         }, 0, 100);
     }

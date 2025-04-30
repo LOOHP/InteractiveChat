@@ -30,6 +30,7 @@ import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentReplacing;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -64,10 +65,10 @@ public class PlayernameDisplay implements Listener {
 
     public static void setup() {
         Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             int valid = flag.get();
             Collection<ReplaceTextBundle> names = getNames();
-            Bukkit.getScheduler().runTask(InteractiveChat.plugin, () -> {
+            Scheduler.runTask(InteractiveChat.plugin, () -> {
                 if (flag.get() == valid) {
                     PlayernameDisplay.names = names;
                 }

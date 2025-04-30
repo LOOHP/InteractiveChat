@@ -23,6 +23,7 @@ package com.loohp.interactivechat.hooks.essentials;
 import com.earth2me.essentials.Essentials;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
+import com.loohp.platformscheduler.Scheduler;
 import net.ess3.api.events.NickChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -60,7 +61,7 @@ public class EssentialsNicknames implements Listener {
             }
         });
 
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 loadNicks(player);
             }
@@ -80,7 +81,7 @@ public class EssentialsNicknames implements Listener {
     public void onEssentialsReload(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().equalsIgnoreCase("/essentials reload")) {
             if (event.getPlayer().hasPermission("essentials.essentials")) {
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+                Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                     prefix = essen.getConfig().getString("nickname-prefix");
                 }, 40);
             }
@@ -100,7 +101,7 @@ public class EssentialsNicknames implements Listener {
     @EventHandler
     public void onEssentialsJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+        Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
             loadNicks(player);
         }, 100);
     }

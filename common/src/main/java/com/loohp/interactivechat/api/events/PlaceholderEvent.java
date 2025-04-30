@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.api.events;
 
 import com.loohp.interactivechat.objectholders.ICPlayer;
+import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -48,7 +49,7 @@ public class PlaceholderEvent extends Event implements Cancellable {
     protected boolean isCancelled;
 
     public PlaceholderEvent(ICPlayer sender, Player receiver, Component component, long timeSent) {
-        super(!Bukkit.isPrimaryThread());
+        super(!Scheduler.isPrimaryThread());
         this.sender = sender;
         this.receiver = receiver;
         this.component = component;

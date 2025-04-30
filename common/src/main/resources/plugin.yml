@@ -3,6 +3,7 @@ author: loohp
 version: ${project.version}
 main: com.loohp.interactivechat.InteractiveChat
 api-version: 1.13
+folia-supported: true
 description: Make the chat interactive
 softdepend:
   - Essentials

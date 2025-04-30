@@ -23,6 +23,8 @@ package com.loohp.interactivechat.listeners;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.utils.FilledMapUtils;
+import com.loohp.platformscheduler.ScheduledRunnable;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -67,7 +69,7 @@ public class MapViewer implements Listener {
 
             MAP_VIEWERS.put(player, item);
             
-            new BukkitRunnable() {
+            new ScheduledRunnable() {
                 @Override
                 public void run() {
                     ItemStack itemStack = MAP_VIEWERS.get(player);
@@ -89,7 +91,7 @@ public class MapViewer implements Listener {
                         this.cancel();
                     }
                 }
-            }.runTaskTimer(InteractiveChat.plugin, 0, 1);
+            }.runTaskTimer(InteractiveChat.plugin, 0, 1, player);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,13 +113,13 @@ public class MapViewer implements Listener {
     public void onInventory(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
                     NMS.getInstance().sendFakeMainHandSlot(player, player.getInventory().getItemInHand());
                 }
-            }, 1);
+            }, 1, player);
         } else {
             boolean removed = MAP_VIEWERS.remove(player) != null;
 
@@ -141,7 +143,7 @@ public class MapViewer implements Listener {
         if (removed) {
             if (player.getInventory().equals(event.getClickedInventory()) && slot >= 9) {
                 ItemStack item = player.getInventory().getItem(slot);
-                Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setItem(slot, item), 1);
+                Scheduler.runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setItem(slot, item), 1, player);
             } else {
                 event.setCursor(null);
             }
@@ -167,7 +169,7 @@ public class MapViewer implements Listener {
         if (removed) {
             player.getInventory().setHeldItemSlot(lastSlot);
             NMS.getInstance().sendFakeMainHandSlot(player, player.getInventory().getItemInHand());
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setHeldItemSlot(slot), 1);
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> player.getInventory().setHeldItemSlot(slot), 1, player);
         }
     }
 
@@ -180,13 +182,13 @@ public class MapViewer implements Listener {
         Player player = event.getPlayer();
 
         if (player.getGameMode().equals(GameMode.CREATIVE)) {
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                 boolean removed = MAP_VIEWERS.remove(player) != null;
 
                 if (removed) {
                     NMS.getInstance().sendFakeMainHandSlot(player, player.getInventory().getItemInHand());
                 }
-            }, 1);
+            }, 1, player);
         } else {
             boolean removed = MAP_VIEWERS.remove(player) != null;
 

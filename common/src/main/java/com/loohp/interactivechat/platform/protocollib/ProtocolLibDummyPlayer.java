@@ -1,5 +1,5 @@
 /*
- * This file is part of InteractiveChat.
+ * This file is part of InteractiveChat4.
  *
  * Copyright (C) 2020 - 2025. LoohpJames <jamesloohp@gmail.com>
  * Copyright (C) 2020 - 2025. Contributors
@@ -18,32 +18,31 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.loohp.interactivechat.objectholders;
+package com.loohp.interactivechat.platform.protocollib;
 
-import com.loohp.interactivechat.utils.ByteBuddyFactory;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.This;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
+import com.comphenix.net.bytebuddy.description.method.MethodDescription;
+import com.comphenix.net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import com.comphenix.net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy.Default;
+import com.comphenix.net.bytebuddy.implementation.MethodDelegation;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.AllArguments;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.Origin;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import com.comphenix.net.bytebuddy.implementation.bind.annotation.This;
+import com.comphenix.net.bytebuddy.matcher.ElementMatcher;
+import com.comphenix.net.bytebuddy.matcher.ElementMatchers;
+import com.comphenix.protocol.utility.ByteBuddyFactory;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public abstract class DummyPlayer implements Player {
+public abstract class ProtocolLibDummyPlayer implements Player {
 
-    private static final Constructor<? extends DummyPlayer> CONSTRUCTOR = setupProxyPlayerConstructor(true);
+    private static final Constructor<? extends ProtocolLibDummyPlayer> CONSTRUCTOR = setupProxyPlayerConstructor(true);
 
-    private static Constructor<? extends DummyPlayer> setupProxyPlayerConstructor(boolean init) {
+    private static Constructor<? extends ProtocolLibDummyPlayer> setupProxyPlayerConstructor(boolean init) {
         if (init) {
             try {
                 return setupProxyPlayerConstructor(false);
@@ -61,13 +60,13 @@ public abstract class DummyPlayer implements Player {
 
         try {
             return ByteBuddyFactory.getInstance()
-                    .createSubclass(DummyPlayer.class, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
-                    .name(DummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler")
+                    .createSubclass(ProtocolLibDummyPlayer.class, Default.IMITATE_SUPER_CLASS)
+                    .name(ProtocolLibDummyPlayer.class.getPackage().getName() + ".DummyPlayerInvocationHandler")
                     .implement(Player.class)
                     .method(callbackFilter)
                     .intercept(implementation)
                     .make()
-                    .load(DummyPlayer.class.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .load(ProtocolLibDummyPlayer.class.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded()
                     .getDeclaredConstructor(String.class, UUID.class);
         } catch (NoSuchMethodException e) {
@@ -75,7 +74,7 @@ public abstract class DummyPlayer implements Player {
         }
     }
 
-    public static DummyPlayer newInstance(String name, UUID uuid) {
+    public static ProtocolLibDummyPlayer newInstance(String name, UUID uuid) {
         try {
             return CONSTRUCTOR.newInstance(name, uuid);
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
@@ -86,18 +85,18 @@ public abstract class DummyPlayer implements Player {
     private final String name;
     private final UUID uuid;
 
-    public DummyPlayer(String name, UUID uuid) {
+    public ProtocolLibDummyPlayer(String name, UUID uuid) {
         this.name = name;
         this.uuid = uuid;
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return name;
     }
 
     @Override
-    public @NotNull UUID getUniqueId() {
+    public UUID getUniqueId() {
         return uuid;
     }
 

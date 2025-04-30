@@ -123,10 +123,6 @@
 									<pattern>org.objectweb</pattern>
 									<shadedPattern>com.loohp.interactivechat.libs.org.objectweb</shadedPattern>
 								</relocation>
-								<relocation>
-									<pattern>net.bytebuddy</pattern>
-									<shadedPattern>com.loohp.interactivechat.libs.net.bytebuddy</shadedPattern>
-								</relocation>
 							</relocations>
 						</configuration>
 					</execution>
@@ -595,12 +591,6 @@
 			<artifactId>api</artifactId>
 			<version>2.2.3-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy</artifactId>
-			<version>1.15.11</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.loohp</groupId>

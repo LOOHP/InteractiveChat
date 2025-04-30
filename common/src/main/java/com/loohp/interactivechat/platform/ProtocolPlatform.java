@@ -45,4 +45,6 @@ public interface ProtocolPlatform {
 
     int getProtocolVersion(Player player);
 
+    Player newTemporaryPlayer(String name, UUID uuid);
+
 }

@@ -229,7 +229,7 @@ public class ICPlayerFactory {
         if (playerName == null) {
             playerName = "";
         }
-        Player dummyPlayer = DummyPlayer.newInstance(playerName, uuid);
+        Player dummyPlayer = InteractiveChat.protocolPlatform.newTemporaryPlayer(playerName, uuid);
         if (InteractiveChat.mysqlPDBHook) {
             mysqlPDBInventorySync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareInventory");
             mysqlPDBArmorSync = PD.instance.getConfigHandler().getBoolean("General.enableModules.shareArmor");

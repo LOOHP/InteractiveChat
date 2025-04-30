@@ -66,6 +66,11 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
     }
 
     @Override
+    public Player newTemporaryPlayer(String name, UUID uuid) {
+        return ProtocolLibDummyPlayer.newInstance(name, uuid);
+    }
+
+    @Override
     public Plugin getRegisteredPlugin() {
         return InteractiveChat.plugin;
     }

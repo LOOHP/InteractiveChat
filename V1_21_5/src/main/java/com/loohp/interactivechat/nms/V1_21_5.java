@@ -765,7 +765,7 @@ public class V1_21_5 extends NMSWrapper {
         GameProfile profile = new GameProfile(offline.getUniqueId(), offline.getName() != null ? offline.getName() : offline.getUniqueId().toString());
         ClientInformation dummyInfo = new ClientInformation("en_us", 1, EnumChatVisibility.c, false, 0, EntityPlayer.bu, true, false, ParticleStatus.c);
         EntityPlayer player = new EntityPlayer(server, worldServer, profile, dummyInfo);
-        player.S().a();
+        player.R().a();
 
         NBTTagCompound loadedData = player.g.ag().t.b(player).orElse(null);
         if (loadedData == null) {

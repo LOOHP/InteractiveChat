@@ -442,6 +442,7 @@ public class InteractiveChat extends JavaPlugin {
             if (isPluginEnabled("ProtocolLib")) {
                 getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] No custom ProtocolProvider provided, using default ProtocolLib provider.");
                 protocolPlatform = new ProtocolLibPlatform();
+                protocolPlatform.initialize();
             } else {
                 throw new IllegalStateException("Attempted to initialise InteractiveChat when no protocol provider was found. Please install ProtocolLib, or the PacketEvents addon at https://github.com/TerraByteDev/InteractiveChat-PacketEvents");
             }
@@ -526,11 +527,6 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
 
-        // Register the packet listener only if it is our own (ProtocolLib).
-        // An external provider must initialize ONCE the external plugin is initialized.
-        if (protocolPlatform instanceof ProtocolLibPlatform) {
-            protocolPlatform.initialize();
-        }
         OutTabCompletePacketHandler.init();
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {

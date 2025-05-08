@@ -43,7 +43,6 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -52,8 +51,11 @@ import static com.loohp.interactivechat.InteractiveChat.version;
 
 public class ProtocolLibPlatform implements ProtocolPlatform {
 
-    @Nullable
     public static ProtocolManager protocolManager;
+
+    public ProtocolLibPlatform() {
+        protocolManager = ProtocolLibrary.getProtocolManager();
+    }
 
     @Override
     public boolean hasChatSigning() {
@@ -77,8 +79,6 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
 
     @Override
     public void initialize() {
-        protocolManager = ProtocolLibrary.getProtocolManager();
-
         PLibOutMessagePacket.messageListeners();
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
             PLibRedispatchSignedPacket.packetListener();

@@ -29,11 +29,10 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.platformscheduler.Scheduler;
-import org.bukkit.Bukkit;
 
-import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.*;
+import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.REQUESTS;
+import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.json;
 
-@SuppressWarnings("unchecked")
 public class ServerPingListener {
 
     public static void listen() {

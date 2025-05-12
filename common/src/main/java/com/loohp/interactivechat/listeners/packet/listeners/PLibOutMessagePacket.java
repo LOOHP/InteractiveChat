@@ -147,7 +147,7 @@ public class PLibOutMessagePacket {
             }, packet -> {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                     ChatComponentType type = ChatComponentType.IChatBaseComponent;
-                    int field = 4;
+                    int field = InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_21_5) ? 5 : 4;
                     Component component;
                     Object unsignedContent = packet.getModifier().read(field);
                     if (unsignedContent == null) {

@@ -438,7 +438,7 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         // checks if protocolplatform hasn't been initialised through another plugin
-        if (protocolPlatform == null && isPluginEnabled("ProtocolLib")) {
+        if (protocolPlatform == null) {
             if (isPluginEnabled("ProtocolLib")) {
                 getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] No custom ProtocolProvider provided, using default ProtocolLib provider.");
                 protocolPlatform = new ProtocolLibPlatform();

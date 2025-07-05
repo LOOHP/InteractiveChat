@@ -22,7 +22,6 @@ package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.datafixer.ConfigDataFixer;
-import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;

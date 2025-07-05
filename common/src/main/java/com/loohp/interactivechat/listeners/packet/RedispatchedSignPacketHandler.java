@@ -25,7 +25,6 @@ import com.loohp.interactivechat.utils.ModernChatSigningUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.ExecutionException;

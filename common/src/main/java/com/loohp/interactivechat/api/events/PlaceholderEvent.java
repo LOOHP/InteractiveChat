@@ -23,7 +23,6 @@ package com.loohp.interactivechat.api.events;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;

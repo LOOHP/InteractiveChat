@@ -24,7 +24,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.platformscheduler.Scheduler;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 /**

@@ -26,7 +26,7 @@
 
     <groupId>com.loohp</groupId>
     <artifactId>InteractiveChat-Parent</artifactId>
-    <version>4.3.0.0</version>
+    <version>4.3.1.0</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -75,6 +75,8 @@
         <module>V1_21_3</module>
         <module>V1_21_4</module>
         <module>V1_21_5</module>
+        <module>V1_21_6</module>
+        <module>V1_21_7</module>
         <module>common</module>
     </modules>
 </project>

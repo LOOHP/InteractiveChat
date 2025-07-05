@@ -31,7 +31,6 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;

@@ -25,7 +25,6 @@ import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.platformscheduler.ScheduledRunnable;
 import com.loohp.platformscheduler.Scheduler;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -44,7 +43,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapView;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
 import java.util.List;

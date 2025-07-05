@@ -21,7 +21,6 @@
 package com.loohp.interactivechat.utils;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.function.Predicate;
 
 public class CollectionUtils {

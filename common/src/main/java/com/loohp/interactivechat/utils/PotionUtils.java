@@ -24,7 +24,6 @@ import com.loohp.interactivechat.InteractiveChat;
 import org.bukkit.potion.PotionType;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public class PotionUtils {

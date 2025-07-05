@@ -25,7 +25,6 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.event.user.UserDataRecalculateEvent;
-import org.bukkit.Bukkit;
 
 import java.util.Collections;
 import java.util.HashSet;

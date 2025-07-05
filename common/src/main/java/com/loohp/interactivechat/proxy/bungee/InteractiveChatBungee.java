@@ -418,7 +418,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
 
             if (!(source instanceof Server)) {
                 if (source instanceof ProxiedPlayer) {
-                    ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] Suspicious client to server plugin message recieved from " + ((ProxiedPlayer) source).getName() + ", they might be using a modified client for exploits.");
+                    ProxyServer.getInstance().getLogger().info(ChatColor.RED + "[InteractiveChat] Suspicious client to server plugin message received from " + ((ProxiedPlayer) source).getName() + ", they might be using a modified client for exploits.");
                 }
                 return;
             }

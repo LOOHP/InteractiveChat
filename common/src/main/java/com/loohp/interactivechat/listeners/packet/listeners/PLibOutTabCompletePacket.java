@@ -98,7 +98,7 @@ public class PLibOutTabCompletePacket {
             if (icplayer != null) {
                 Component component = createComponent(icplayer, tabCompleter);
                 String json = serializeComponent(component);
-                return new Suggestion(range, text, (Message) WrappedChatComponent.fromJson(json).getHandle());
+                return new Suggestion(range, text, (Message) NMS.getInstance().deserializeChatComponent(json));
             }
         }
         return suggestion;
@@ -111,6 +111,6 @@ public class PLibOutTabCompletePacket {
     private static Suggestion processTooltipSuggestion(Suggestion suggestion, StringRange range, String text, int pos) {
         String tooltip = text.substring(pos + 1);
         text = text.substring(0, pos);
-        return new Suggestion(range, text, (Message) WrappedChatComponent.fromJson(tooltip).getHandle());
+        return new Suggestion(range, text, (Message) NMS.getInstance().deserializeChatComponent(tooltip));
     }
 }

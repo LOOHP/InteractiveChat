@@ -38,6 +38,7 @@ import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.platform.ProtocolPlatform;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.WrappedChatComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
@@ -113,7 +114,7 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
                 if (packet.getStrings().size() > 0) {
                     packet.getStrings().write(0, json);
                 } else {
-                    packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+                    packet.getChatComponents().write(0, WrappedChatComponentUtils.fromJson(json));
                 }
 
                 if (packet.getBooleans().size() > 0) {
@@ -130,7 +131,7 @@ public class ProtocolLibPlatform implements ProtocolPlatform {
                     packet.getBytes().write(0, (byte) 1);
                 }
 
-                packet.getChatComponents().write(0, WrappedChatComponent.fromJson(json));
+                packet.getChatComponents().write(0, WrappedChatComponentUtils.fromJson(json));
                 if (packet.getUUIDs().size() > 0) {
                     packet.getUUIDs().write(0, uuid);
                 }

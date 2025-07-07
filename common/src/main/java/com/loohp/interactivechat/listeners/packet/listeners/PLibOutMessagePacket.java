@@ -53,18 +53,7 @@ import com.loohp.interactivechat.objectholders.ProcessSenderResult;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibAsyncChatSendingExecutor;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.interactivechat.registry.Registry;
-import com.loohp.interactivechat.utils.ChatColorUtils;
-import com.loohp.interactivechat.utils.ChatComponentType;
-import com.loohp.interactivechat.utils.ComponentFont;
-import com.loohp.interactivechat.utils.ComponentModernizing;
-import com.loohp.interactivechat.utils.ComponentReplacing;
-import com.loohp.interactivechat.utils.ComponentStyling;
-import com.loohp.interactivechat.utils.CustomArrayUtils;
-import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
-import com.loohp.interactivechat.utils.JsonUtils;
-import com.loohp.interactivechat.utils.MCVersion;
-import com.loohp.interactivechat.utils.ModernChatSigningUtils;
-import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.*;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -359,7 +348,7 @@ public class PLibOutMessagePacket {
                 } catch (Throwable e) {
                     try {
                         if (packet.getChatComponents().size() > 0) {
-                            WrappedChatComponent wcc = WrappedChatComponent.fromJson(json);
+                            WrappedChatComponent wcc = WrappedChatComponentUtils.fromJson(json);
                             for (int i = 0; i < finalChatFieldsSize; i++) {
                                 packet.getModifier().write(i, null);
                             }

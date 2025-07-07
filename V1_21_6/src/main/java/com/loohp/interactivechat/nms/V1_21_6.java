@@ -809,4 +809,14 @@ public class V1_21_6 extends NMSWrapper {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public Object deserializeChatComponent(String json) {
+        return CraftChatMessage.fromJSON(json);
+    }
+
+    @Override
+    public String serializeChatComponent(Object handle) {
+        return CraftChatMessage.toJSON((IChatBaseComponent) handle);
+    }
 }

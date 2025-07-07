@@ -206,4 +206,8 @@ public abstract class NMSWrapper {
 
     public abstract InternalOfflinePlayerInfo loadOfflinePlayer(UUID uuid, Inventory inventory, Inventory enderchest);
 
+    public abstract Object deserializeChatComponent(String json);
+
+    public abstract String serializeChatComponent(Object handle);
+
 }

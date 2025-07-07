@@ -34,6 +34,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.kyori.adventure.key.Key;
@@ -164,6 +165,7 @@ public class V1_21_5 extends NMSWrapper {
             playerConnectionHandleCommandMethod = PlayerConnection.class.getDeclaredMethod("handleCommand", String.class);
             craftSkullMetaProfileField = Class.forName("org.bukkit.craftbukkit.v1_21_R4.inventory.CraftMetaSkull").getDeclaredField("profile");
             renderDataCursorsField = RenderData.class.getField("cursors");
+            DataResult<String> a;
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -791,5 +793,15 @@ public class V1_21_5 extends NMSWrapper {
         }
 
         return new InternalOfflinePlayerInfo(selectedSlot, rightHanded, xpLevel, inventory, enderchest);
+    }
+
+    @Override
+    public Object deserializeChatComponent(String json) {
+        return CraftChatMessage.fromJSON(json);
+    }
+
+    @Override
+    public String serializeChatComponent(Object handle) {
+        return CraftChatMessage.toJSON((IChatBaseComponent) handle);
     }
 }

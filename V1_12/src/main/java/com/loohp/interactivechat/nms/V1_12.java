@@ -627,4 +627,14 @@ public class V1_12 extends NMSWrapper {
 
         return new InternalOfflinePlayerInfo(selectedSlot, rightHanded, xpLevel, inventory, enderchest);
     }
+
+    @Override
+    public Object deserializeChatComponent(String json) {
+        return IChatBaseComponent.ChatSerializer.a(json);
+    }
+
+    @Override
+    public String serializeChatComponent(Object handle) {
+        return IChatBaseComponent.ChatSerializer.a((IChatBaseComponent) handle);
+    }
 }

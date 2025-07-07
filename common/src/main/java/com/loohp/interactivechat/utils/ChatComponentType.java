@@ -20,7 +20,7 @@
 
 package com.loohp.interactivechat.utils;
 
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.loohp.interactivechat.nms.NMS;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -35,11 +35,11 @@ import java.util.function.Predicate;
 public enum ChatComponentType {
 
     IChatBaseComponent(".*(?:net\\.minecraft\\..*\\.IChatBaseComponent|net\\.minecraft\\.network\\.chat\\.Component).*", object -> {
-        return InteractiveChatComponentSerializer.gson().deserialize(WrappedChatComponent.fromHandle(object).getJson());
+        return InteractiveChatComponentSerializer.gson().deserialize(NMS.getInstance().serializeChatComponent(object));
     }, (component, legacyRGB) -> {
-        return WrappedChatComponent.fromJson(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component)).getHandle();
+        return NMS.getInstance().deserializeChatComponent(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
     }, object -> {
-        return WrappedChatComponent.fromHandle(object).getJson();
+        return NMS.getInstance().serializeChatComponent(object);
     }, component -> {
         return true;
     }),

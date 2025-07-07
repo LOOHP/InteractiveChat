@@ -26,7 +26,6 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
 import com.loohp.interactivechat.listeners.packet.listeners.PLibClientSettingPacket;

@@ -25,7 +25,6 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.CommandSuggestion;

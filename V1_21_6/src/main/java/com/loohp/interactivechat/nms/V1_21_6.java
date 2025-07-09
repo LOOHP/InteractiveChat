@@ -155,6 +155,7 @@ public class V1_21_6 extends NMSWrapper {
     private final Field craftSkullMetaProfileField;
     private final Field renderDataCursorsField;
     private final Method nmsEntityPlayerLoadMethod;
+    private final Field nmsEntityPlayerServerField;
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
@@ -169,6 +170,7 @@ public class V1_21_6 extends NMSWrapper {
             craftSkullMetaProfileField = Class.forName("org.bukkit.craftbukkit.v1_21_R5.inventory.CraftMetaSkull").getDeclaredField("profile");
             renderDataCursorsField = RenderData.class.getField("cursors");
             nmsEntityPlayerLoadMethod = EntityPlayer.class.getDeclaredMethod("a", ValueInput.class);
+            nmsEntityPlayerServerField = ReflectionUtils.findDeclaredField(EntityPlayer.class, MinecraftServer.class, "server", "cW");
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -769,6 +771,7 @@ public class V1_21_6 extends NMSWrapper {
     public InternalOfflinePlayerInfo loadOfflinePlayer(UUID uuid, Inventory inventory, Inventory enderchest) {
         try {
             nmsEntityPlayerLoadMethod.setAccessible(true);
+            nmsEntityPlayerServerField.setAccessible(true);
 
             MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
             WorldServer worldServer = server.a(World.i);
@@ -781,7 +784,8 @@ public class V1_21_6 extends NMSWrapper {
             EntityPlayer player = new EntityPlayer(server, worldServer, profile, dummyInfo);
             player.S().a();
 
-            ValueInput loadedData = player.cW.ag().t.a(player, ProblemReporter.a).orElse(null);
+            MinecraftServer minecraftServer = (MinecraftServer) nmsEntityPlayerServerField.get(player);
+            ValueInput loadedData = minecraftServer.ag().t.a(player, ProblemReporter.a).orElse(null);
             if (loadedData == null) {
                 return null;
             }

@@ -430,7 +430,7 @@ public class V1_21_6 extends NMSWrapper {
                 Key key = entry.getKey();
                 DataComponentValue value = entry.getValue();
                 MinecraftKey minecraftKey = MinecraftKey.a(key.namespace(), key.value());
-                Optional<DataComponentType<?>> optType = BuiltInRegistries.aq.b(minecraftKey);
+                Optional<DataComponentType<?>> optType = BuiltInRegistries.am.b(minecraftKey);
                 if (optType.isPresent()) {
                     DataComponentType<?> type = optType.get();
                     if (value instanceof DataComponentValue.Removed) {

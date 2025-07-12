@@ -347,6 +347,7 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean skipDetectSpamRateWhenDispatchingUnsignedPackets = false;
 
     public static boolean ecoSetLoreOnMainThread = false;
+    public static boolean excellentEnchantsStripEnchantments = false;
 
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;

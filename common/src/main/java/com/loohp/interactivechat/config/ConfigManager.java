@@ -287,6 +287,7 @@ public class ConfigManager {
         InteractiveChat.playerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
 
         InteractiveChat.ecoSetLoreOnMainThread = getConfig().getBoolean("Settings.Hooks.EcoSetLoreOnMainThread");
+        InteractiveChat.excellentEnchantsStripEnchantments = getConfig().getBoolean("Settings.Hooks.ExcellentEnchantsStripEnchantments");
 
         InteractiveChat.placeholderList.clear();
         if (InteractiveChat.useItem) {

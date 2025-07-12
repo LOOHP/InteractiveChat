@@ -164,6 +164,9 @@ public class ICPlayerFactory {
     }
 
     public static ICPlayer getICPlayer(Player player) {
+        if (player == null) {
+            return null;
+        }
         ICPlayer icplayer = ICPLAYERS.get(player.getUniqueId());
         if (icplayer != null) {
             return icplayer;
@@ -172,6 +175,9 @@ public class ICPlayerFactory {
     }
 
     public static ICPlayer getICPlayer(UUID uuid) {
+        if (uuid == null) {
+            return null;
+        }
         ICPlayer icplayer = ICPLAYERS.get(uuid);
         if (icplayer != null) {
             return icplayer;
@@ -184,6 +190,9 @@ public class ICPlayerFactory {
     }
 
     public static ICPlayer getICPlayer(String name) {
+        if (name == null) {
+            return null;
+        }
         for (ICPlayer player : ICPLAYERS.values()) {
             if (player.getName().toLowerCase().startsWith(name.toLowerCase())) {
                 return player;
@@ -197,6 +206,9 @@ public class ICPlayerFactory {
     }
 
     public static ICPlayer getICPlayerExact(String name) {
+        if (name == null) {
+            return null;
+        }
         for (ICPlayer player : ICPLAYERS.values()) {
             if (player.getName().equalsIgnoreCase(name)) {
                 return player;
@@ -210,6 +222,9 @@ public class ICPlayerFactory {
     }
 
     public static OfflineICPlayer getOfflineICPlayer(OfflinePlayer offlinePlayer) {
+        if (offlinePlayer == null) {
+            return null;
+        }
         if (offlinePlayer.isOnline()) {
             return getICPlayer(offlinePlayer.getPlayer());
         }
@@ -217,6 +232,9 @@ public class ICPlayerFactory {
     }
 
     public static OfflineICPlayer getOfflineICPlayer(UUID uuid) {
+        if (uuid == null) {
+            return null;
+        }
         ICPlayer icplayer = getICPlayer(uuid);
         if (icplayer != null) {
             return icplayer;

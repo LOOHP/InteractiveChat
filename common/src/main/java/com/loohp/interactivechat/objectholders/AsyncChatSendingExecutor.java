@@ -47,6 +47,11 @@ import java.util.function.LongSupplier;
 
 public abstract class AsyncChatSendingExecutor implements AutoCloseable {
 
+    private static final int MAX_WAITING_PACKETS_PER_PLAYER = 1000;
+    private static final int MAX_MESSAGE_ORDER_PER_PLAYER = 500;
+    private static final int MAX_SENDING_QUEUE_SIZE = 10000;
+    private static final long CLEANUP_INTERVAL_MS = 30000;
+
     private final LongSupplier executionWaitTime;
     private final long killThreadAfter;
 
@@ -60,6 +65,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
 
     private final List<ScheduledTask> tasks;
     private final AtomicBoolean isValid;
+    private volatile long lastCleanupTime;
 
     public AsyncChatSendingExecutor(LongSupplier executionWaitTime, long killThreadAfter) {
         ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Processing Thread #%d").build();
@@ -76,6 +82,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         this.isValid = new AtomicBoolean(true);
         this.waitingPackets = new ConcurrentHashMap<>();
         this.lastSuccessfulCheck = new ConcurrentHashMap<>();
+        this.lastCleanupTime = System.currentTimeMillis();
 
         tasks.add(packetSender());
         packetOrderSender();
@@ -90,7 +97,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
             Optional<MessageOrderInfo> optInfo = queue.stream().filter(each -> each.getId().equals(id)).findFirst();
             if (optInfo.isPresent()) {
                 optInfo.get().setTime(System.currentTimeMillis());
-            } else {
+            } else if (queue.size() < MAX_MESSAGE_ORDER_PER_PLAYER) {
                 queue.add(new MessageOrderInfo(id, System.currentTimeMillis()));
             }
             Future<?> future = executor.submit(runnable);
@@ -105,6 +112,10 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         // If someone is supplying something that *isn't* a PacketContainer, then it's layer 8.
         OutboundPacket outboundPacket = new OutboundPacket(player, packet);
 
+        if (sendingQueue.size() >= MAX_SENDING_QUEUE_SIZE) {
+            return;
+        }
+        
         Queue<MessageOrderInfo> queue = messagesOrder.get(player.getUniqueId());
         if (queue == null) {
             sendingQueue.add(outboundPacket);
@@ -112,7 +123,11 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
             if (queue.stream().anyMatch(each -> each.getId().equals(id))) {
                 waitingPackets.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
                 Map<UUID, OutboundPacket> waitingMap = waitingPackets.get(player.getUniqueId());
-                waitingMap.put(id, outboundPacket);
+                if (waitingMap.size() < MAX_WAITING_PACKETS_PER_PLAYER) {
+                    waitingMap.put(id, outboundPacket);
+                } else {
+                    sendingQueue.add(outboundPacket);
+                }
             } else {
                 sendingQueue.add(outboundPacket);
             }
@@ -141,13 +156,62 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         return isValid.get();
     }
 
+    private void performPeriodicCleanup(long currentTime) {
+        if (currentTime - lastCleanupTime > CLEANUP_INTERVAL_MS) {
+            waitingPackets.entrySet().removeIf(entry -> {
+                UUID playerUUID = entry.getKey();
+                if (Bukkit.getPlayer(playerUUID) == null) {
+                    return true;
+                }
+                Map<UUID, OutboundPacket> playerPackets = entry.getValue();
+                if (playerPackets.size() > MAX_WAITING_PACKETS_PER_PLAYER) {
+                    Iterator<Entry<UUID, OutboundPacket>> iterator = playerPackets.entrySet().iterator();
+                    int toRemove = playerPackets.size() - MAX_WAITING_PACKETS_PER_PLAYER;
+                    for (int i = 0; i < toRemove && iterator.hasNext(); i++) {
+                        iterator.next();
+                        iterator.remove();
+                    }
+                }
+                return playerPackets.isEmpty();
+            });
+
+            messagesOrder.entrySet().removeIf(entry -> {
+                UUID playerUUID = entry.getKey();
+                if (Bukkit.getPlayer(playerUUID) == null) {
+                    return true;
+                }
+                Queue<MessageOrderInfo> queue = entry.getValue();
+                if (queue.size() > MAX_MESSAGE_ORDER_PER_PLAYER) {
+                    int toRemove = queue.size() - MAX_MESSAGE_ORDER_PER_PLAYER;
+                    for (int i = 0; i < toRemove; i++) {
+                        queue.poll();
+                    }
+                }
+                return queue.isEmpty();
+            });
+
+            lastSuccessfulCheck.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
+            
+            if (sendingQueue.size() > MAX_SENDING_QUEUE_SIZE) {
+                int toRemove = sendingQueue.size() - MAX_SENDING_QUEUE_SIZE;
+                for (int i = 0; i < toRemove; i++) {
+                    sendingQueue.poll();
+                }
+            }
+            
+            lastCleanupTime = currentTime;
+        }
+    }
+
     private void packetOrderSender() {
         new Thread(() -> {
             while (true) {
+                long currentTime = System.currentTimeMillis();
+                performPeriodicCleanup(currentTime);
+                
                 Iterator<Entry<UUID, Map<UUID, OutboundPacket>>> itr = waitingPackets.entrySet().iterator();
                 while (itr.hasNext()) {
                     Entry<UUID, Map<UUID, OutboundPacket>> entry = itr.next();
-                    long time = System.currentTimeMillis();
                     UUID playerUUID = entry.getKey();
                     if (Bukkit.getPlayer(playerUUID) == null) {
                         itr.remove();
@@ -170,17 +234,17 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
                                 sendingQueue.add(outboundPacket);
                                 playerWaitingPackets.remove(id);
                                 orderingQueue.remove(messageOrderInfo);
-                                lastSuccessfulCheck.put(playerUUID, time);
+                                lastSuccessfulCheck.put(playerUUID, currentTime);
                             } else {
                                 if (playerWaitingPackets.isEmpty()) {
-                                    lastSuccessfulCheck.put(playerUUID, time);
+                                    lastSuccessfulCheck.put(playerUUID, currentTime);
                                 } else {
                                     Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
                                     if (lastSuccessful == null) {
-                                        lastSuccessfulCheck.put(playerUUID, time);
-                                    } else if ((lastSuccessful + executionWaitTime.getAsLong()) < time) {
+                                        lastSuccessfulCheck.put(playerUUID, currentTime);
+                                    } else if ((lastSuccessful + executionWaitTime.getAsLong()) < currentTime) {
                                         orderingQueue.poll();
-                                        lastSuccessfulCheck.put(playerUUID, time);
+                                        lastSuccessfulCheck.put(playerUUID, currentTime);
                                     }
                                 }
                             }
@@ -192,7 +256,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
                     break;
                 }
                 try {
-                    TimeUnit.NANOSECONDS.sleep(5000);
+                    TimeUnit.MILLISECONDS.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;

@@ -97,7 +97,7 @@ public class ICPlayerFactory {
                     if (!REMOTE_UUID.contains(uuid)) {
                         ICPlayer icplayer = ICPLAYERS.remove(uuid);
                         if (icplayer != null && LOGGING_IN.remove(uuid) == null) {
-                            Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, false));
+                            Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, false)));
                         }
                     }
                 }

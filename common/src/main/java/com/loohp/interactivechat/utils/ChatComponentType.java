@@ -28,6 +28,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -84,6 +85,10 @@ public enum ChatComponentType {
         return true;
     });
 
+    private static final ConcurrentHashMap<Object, String> SERIALIZE_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Component> DESERIALIZE_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Object> DESERIALIZE_NMS_CACHE = new ConcurrentHashMap<>();
+
     private static final List<ChatComponentType> BY_PRIORITY = Collections.unmodifiableList(Arrays.asList(AdventureComponent, NativeAdventureComponent, JsonString, BaseComponentArray, IChatBaseComponent));
 
     public static List<ChatComponentType> byPriority() {
@@ -135,6 +140,16 @@ public enum ChatComponentType {
 
     public String toString(Object object) {
         return toJsonString(object);
+    }
+
+    public static void clearCache() {
+        SERIALIZE_CACHE.clear();
+        DESERIALIZE_CACHE.clear();
+        DESERIALIZE_NMS_CACHE.clear();
+    }
+
+    public static int getCacheSize() {
+        return SERIALIZE_CACHE.size() + DESERIALIZE_CACHE.size() + DESERIALIZE_NMS_CACHE.size();
     }
 
 }

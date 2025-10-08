@@ -30,7 +30,7 @@
         <version>4.3.3.0</version>
     </parent>
 
-    <artifactId>InteractiveChat-V1_17</artifactId>
+    <artifactId>InteractiveChat-V1_21_9</artifactId>
 
     <repositories>
         <repository>
@@ -40,10 +40,6 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>nms-repo</id>
-            <url>https://repo.codemc.io/repository/nms/</url>
         </repository>
     </repositories>
 
@@ -99,13 +95,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.21.9-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.21.9-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

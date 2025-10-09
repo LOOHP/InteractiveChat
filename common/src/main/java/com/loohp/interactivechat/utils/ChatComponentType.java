@@ -117,21 +117,22 @@ public enum ChatComponentType {
         if (object == null) {
             return null;
         }
-        return converterFrom.apply(object);
+        return DESERIALIZE_CACHE.computeIfAbsent(object.toString(), key -> converterFrom.apply(object));
     }
 
     public Object convertTo(Component component, boolean legacyRGB) {
         if (component == null) {
             return null;
         }
-        return converterTo.apply(component, legacyRGB);
+        String cacheKey = component.toString() + ":" + legacyRGB;
+        return DESERIALIZE_NMS_CACHE.computeIfAbsent(cacheKey, key -> converterTo.apply(component, legacyRGB));
     }
 
     public String toJsonString(Object object) {
         if (object == null) {
             return null;
         }
-        return toJsonString.apply(object);
+        return SERIALIZE_CACHE.computeIfAbsent(object, key -> toJsonString.apply(object));
     }
 
     public boolean canHandle(Component component) {

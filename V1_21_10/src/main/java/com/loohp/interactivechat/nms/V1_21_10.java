@@ -786,7 +786,7 @@ public class V1_21_10 extends NMSWrapper {
             player.U().a();
 
             MinecraftServer minecraftServer = (MinecraftServer) nmsEntityPlayerServerField.get(player);
-            NBTTagCompound loadedNbt = minecraftServer.am().s.load(player).orElse(null);
+            NBTTagCompound loadedNbt = minecraftServer.am().s.a(player.gA()).orElse(null);
             if (loadedNbt == null) {
                 return null;
             }

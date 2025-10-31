@@ -159,7 +159,8 @@ public class BedrockHook implements Listener {
     private static void handleRunCommand(UUID uuid, String command) {
         if (PLATFORM.isBedrockPlayerFromProxy(uuid) && InteractiveChat.bungeecordMode) {
             try {
-                BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
+                //BungeeMessageSender.executeProxyCommand(System.currentTimeMillis(), uuid, command);
+                // TODO: Maybe implementing a token to be used to authenticate the messages
             } catch (Exception e) {
                 e.printStackTrace();
             }

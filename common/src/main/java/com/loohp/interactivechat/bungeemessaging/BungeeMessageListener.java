@@ -427,12 +427,14 @@ public class BungeeMessageListener implements PluginMessageListener {
                         }
                         break;
                     case 0x15:
-                        UUID playerUUID5 = DataTypeIO.readUUID(input);
-                        String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                        Player player4 = Bukkit.getPlayer(playerUUID5);
-                        if (player4 != null) {
-                            Scheduler.runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command), player4);
-                        }
+                        Bukkit.getConsoleSender().sendMessage("IC Inbound - 0x15  via " + pluginMessagingPlayer.getName() + " was discarded for security reasons.");
+                        // TODO: Maybe implementing a token to be used to authenticate the messages
+                        //UUID playerUUID5 = DataTypeIO.readUUID(input);
+                        //String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                        //Player player4 = Bukkit.getPlayer(playerUUID5);
+                        //if (player4 != null) {
+                        //    Scheduler.runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command), player4);
+                        //}
                         break;
                     case 0xFF:
                         String customChannel = DataTypeIO.readString(input, StandardCharsets.UTF_8);

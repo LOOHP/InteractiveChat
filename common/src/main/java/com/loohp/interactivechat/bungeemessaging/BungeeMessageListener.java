@@ -43,6 +43,7 @@ import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
+import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.objectholders.ValueTrios;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
@@ -427,11 +428,16 @@ public class BungeeMessageListener implements PluginMessageListener {
                         }
                         break;
                     case 0x15:
-                        UUID playerUUID5 = DataTypeIO.readUUID(input);
-                        String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                        Player player4 = Bukkit.getPlayer(playerUUID5);
-                        if (player4 != null) {
-                            Scheduler.runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command), player4);
+                        UUID commandKey = DataTypeIO.readUUID(input);
+                        boolean needBackendExecution = input.readBoolean();
+                        ValuePairs<UUID, String> commandData = BungeeMessageSender.consumeAuthorizedCommand(commandKey);
+                        if (needBackendExecution && commandData != null) {
+                            UUID playerUUID5 = commandData.getFirst();
+                            String command = commandData.getSecond();
+                            Player player4 = Bukkit.getPlayer(playerUUID5);
+                            if (player4 != null) {
+                                Scheduler.runTask(InteractiveChat.plugin, () -> PlayerUtils.dispatchCommandAsPlayer(player4, command), player4);
+                            }
                         }
                         break;
                     case 0xFF:

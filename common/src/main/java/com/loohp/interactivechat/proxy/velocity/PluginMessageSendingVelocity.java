@@ -518,11 +518,11 @@ public class PluginMessageSendingVelocity {
         }
     }
 
-    public static void executeBackendCommand(UUID player, String command, RegisteredServer server) throws IOException {
+    public static void respondExecuteProxyCommand(UUID commandKey, boolean needBackendExecution, RegisteredServer server) throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
-        DataTypeIO.writeUUID(output, player);
-        DataTypeIO.writeString(output, command, StandardCharsets.UTF_8);
+        DataTypeIO.writeUUID(output, commandKey);
+        output.writeBoolean(needBackendExecution);
 
         int packetNumber = InteractiveChatVelocity.random.nextInt();
         int packetId = 0x15;

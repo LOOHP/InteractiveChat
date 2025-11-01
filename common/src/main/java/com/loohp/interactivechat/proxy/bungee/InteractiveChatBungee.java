@@ -559,13 +559,13 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                         break;
                                 }
                             case 0x15:
+                                UUID commandKey = DataTypeIO.readUUID(input);
                                 UUID playerUUID = DataTypeIO.readUUID(input);
                                 String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                 ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(playerUUID);
                                 if (proxiedPlayer != null) {
-                                    if (!ProxyServer.getInstance().getPluginManager().dispatchCommand(proxiedPlayer, command)) {
-                                        PluginMessageSendingBungee.executeBackendCommand(playerUUID, command, senderServer.getInfo());
-                                    }
+                                    boolean needBackendExecution = !ProxyServer.getInstance().getPluginManager().dispatchCommand(proxiedPlayer, command);
+                                    PluginMessageSendingBungee.respondExecuteProxyCommand(commandKey, needBackendExecution, senderServer.getInfo());
                                 }
                                 break;
                         }

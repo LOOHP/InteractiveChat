@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.bungeemessaging;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
@@ -51,6 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class BungeeMessageSender {
@@ -58,10 +61,13 @@ public class BungeeMessageSender {
     public static final Pattern VALID_CUSTOM_CHANNEL = Pattern.compile("[a-z]+:[a-z0-9_]+");
     private static final Random random = new Random();
     private static final ConcurrentSkipListMap<Long, Set<String>> sent = new ConcurrentSkipListMap<>();
+    private static final Map<UUID, ValuePairs<UUID, String>> authorizedCommands;
     protected static short itemStackScheme = 0;
     protected static short inventoryScheme = 0;
 
     static {
+        Cache<UUID, ValuePairs<UUID, String>> authorizedCommandsCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).build();
+        authorizedCommands = authorizedCommandsCache.asMap();
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             int size = sent.size();
             for (int i = size; i > 500; i--) {
@@ -78,12 +84,16 @@ public class BungeeMessageSender {
         return inventoryScheme;
     }
 
+    public static ValuePairs<UUID, String> consumeAuthorizedCommand(UUID key) {
+        return authorizedCommands.remove(key);
+    }
+
     public static boolean forwardData(long time, int packetId, byte[] data) throws Exception {
         long index = (time << 16) + packetId;
         String hash = HashUtils.createSha1String(new ByteArrayInputStream(data));
 
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        if (players.size() == 0) {
+        if (players.isEmpty()) {
             return false;
         }
         Player player = players.stream().skip(random.nextInt(players.size())).findAny().orElse(null);
@@ -344,7 +354,10 @@ public class BungeeMessageSender {
     }
 
     public static boolean executeProxyCommand(long time, UUID player, String command) throws Exception {
+        UUID commandKey = UUID.randomUUID();
+        authorizedCommands.put(commandKey, new ValuePairs<>(player, command));
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        DataTypeIO.writeUUID(out, commandKey);
         DataTypeIO.writeUUID(out, player);
         DataTypeIO.writeString(out, command, StandardCharsets.UTF_8);
         return forwardData(time, 0x15, out.toByteArray());

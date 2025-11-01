@@ -463,7 +463,7 @@ public class InteractiveChatVelocity {
 
             if (!(source instanceof ServerConnection)) {
                 if (source instanceof Player) {
-                    getLogger().info(TextColor.RED + "[InteractiveChat] Suspicious client to server plugin message recieved from " + ((Player) source).getGameProfile().getName() + ", they might be using a modified client for exploits.");
+                    getLogger().info(TextColor.RED + "[InteractiveChat] Suspicious client to server plugin message received from " + ((Player) source).getGameProfile().getName() + ", they might be using a modified client for exploits.");
                 }
                 return;
             }
@@ -604,13 +604,13 @@ public class InteractiveChatVelocity {
                                         break;
                                 }
                             case 0x15:
+                                UUID commandKey = DataTypeIO.readUUID(input);
                                 UUID playerUUID = DataTypeIO.readUUID(input);
                                 String command = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                 Optional<Player> optPlayer = proxyServer.getPlayer(playerUUID);
                                 if (optPlayer.isPresent()) {
-                                    if (!proxyServer.getCommandManager().executeImmediatelyAsync(optPlayer.get(), command).get()) {
-                                        PluginMessageSendingVelocity.executeBackendCommand(playerUUID, command, server);
-                                    }
+                                    boolean needBackendExecution = !proxyServer.getCommandManager().executeImmediatelyAsync(optPlayer.get(), command).get();
+                                    PluginMessageSendingVelocity.respondExecuteProxyCommand(commandKey, needBackendExecution, server);
                                 }
                                 break;
                         }

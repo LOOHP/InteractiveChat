@@ -148,7 +148,7 @@ public class PLibOutMessagePacket {
                     Component component;
                     Object unsignedContent = packet.getModifier().read(field);
                     if (unsignedContent == null) {
-                        component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(3)));
+                        component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(field - 1)));
                     } else {
                         component = type.convertFrom(unsignedContent);
                     }

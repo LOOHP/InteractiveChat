@@ -61,7 +61,7 @@ Replace `VERSION` with the version number.
 
 ## Official Addons
 
-- [InteractiveChat-DiscordSRV-Addon](https://www.spigotmc.org/resources/83917/) (Adds InteractiveChat functionalities to DiscordSRV)
+- [InteractiveChat-DiscordSRV-Addon](https://github.com/LOOHP/InteractiveChat-DiscordSRV-Addon) (Adds InteractiveChat functionalities to DiscordSRV)
 
 ## Partnerships
 

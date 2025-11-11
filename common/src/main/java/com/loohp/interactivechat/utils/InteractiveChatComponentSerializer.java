@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +68,8 @@ public class InteractiveChatComponentSerializer {
     private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
 
     private static final Pattern LEGACY_ID_PATTERN = Pattern.compile("^interactivechat:legacy_hover/id_(.*?)/damage_([0-9]*)$");
+    private static final ConcurrentHashMap<String, Component> DESERIALIZE_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Component, String> SERIALIZE_CACHE = new ConcurrentHashMap<>();
 
     private static final LegacyHoverEventSerializer LEGACY_HOVER_SERIALIZER;
 
@@ -162,6 +165,15 @@ public class InteractiveChatComponentSerializer {
 
     private InteractiveChatComponentSerializer() {
 
+    }
+
+    public static void clearCache() {
+        DESERIALIZE_CACHE.clear();
+        SERIALIZE_CACHE.clear();
+    }
+
+    public static int getCacheSize() {
+        return DESERIALIZE_CACHE.size() + SERIALIZE_CACHE.size();
     }
 
     public static class InteractiveChatBungeecordAPILegacyComponentSerializer implements ComponentSerializer<Component, Component, String> {
@@ -372,17 +384,20 @@ public class InteractiveChatComponentSerializer {
 
         @Override
         public @NotNull Component deserialize(@NotNull String input) {
-            return instance.deserialize(input);
+            return DESERIALIZE_CACHE.computeIfAbsent(input, instance::deserialize);
         }
 
         @Override
         public @Nullable Component deserializeOr(@Nullable String input, @Nullable Component fallback) {
-            return instance.deserializeOr(input, fallback);
+            if (input == null) {
+                return fallback;
+            }
+            return DESERIALIZE_CACHE.computeIfAbsent(input, instance::deserialize);
         }
 
         @Override
         public @NotNull String serialize(@NotNull Component component) {
-            return instance.serialize(component);
+            return SERIALIZE_CACHE.computeIfAbsent(component, instance::serialize);
         }
 
         @Override

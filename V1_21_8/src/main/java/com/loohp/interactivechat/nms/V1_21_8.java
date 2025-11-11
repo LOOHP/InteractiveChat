@@ -143,10 +143,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class V1_21_8 extends NMSWrapper {
+
+    private static final ConcurrentHashMap<Object, String> SERIALIZE_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Object> DESERIALIZE_CACHE = new ConcurrentHashMap<>();
 
     private final Method craftMapViewIsContextualMethod;
     private final Method playerConnectionDetectRateSpamMethod;
@@ -816,11 +820,20 @@ public class V1_21_8 extends NMSWrapper {
 
     @Override
     public Object deserializeChatComponent(String json) {
-        return CraftChatMessage.fromJSON(json);
+        return DESERIALIZE_CACHE.computeIfAbsent(json, CraftChatMessage::fromJSON);
     }
 
     @Override
     public String serializeChatComponent(Object handle) {
-        return CraftChatMessage.toJSON((IChatBaseComponent) handle);
+        return SERIALIZE_CACHE.computeIfAbsent(handle, obj -> CraftChatMessage.toJSON((IChatBaseComponent) obj));
+    }
+
+    public static void clearCache() {
+        SERIALIZE_CACHE.clear();
+        DESERIALIZE_CACHE.clear();
+    }
+
+    public static int getCacheSize() {
+        return SERIALIZE_CACHE.size() + DESERIALIZE_CACHE.size();
     }
 }

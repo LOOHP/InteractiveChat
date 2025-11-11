@@ -586,12 +586,7 @@ public class PLibOutMessagePacket {
 
             component = ComponentModernizing.modernize(component);
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
-            try {
-                if (legacyText.isEmpty() || InteractiveChat.messageToIgnore.stream().anyMatch(legacyText::matches)) {
-                    SERVICE.send(packet, receiver, messageUUID);
-                    return;
-                }
-            } catch (Exception e) {
+            if (legacyText.isEmpty() || InteractiveChat.messageToIgnore.stream().anyMatch(legacyText::matches)) {
                 SERVICE.send(packet, receiver, messageUUID);
                 return;
             }
@@ -601,39 +596,39 @@ public class PLibOutMessagePacket {
                 return;
             }
 
-            Optional<ICPlayer> sender = Optional.ofNullable(determinedSender);
+            ICPlayer sender = determinedSender;
             String rawMessageKey = PlainTextComponentSerializer.plainText().serializeOr(component, "");
-            InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
-            Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
-            long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
+            Long timeKey = InteractiveChat.keyTime.putIfAbsent(rawMessageKey, System.currentTimeMillis());
+            long unix = timeKey != null ? timeKey : System.currentTimeMillis();
             ProcessSenderResult commandSender = ProcessCommands.process(component);
-            if (!sender.isPresent()) {
+            if (sender == null) {
                 if (commandSender.getSender() != null) {
                     ICPlayer icplayer = ICPlayerFactory.getICPlayer(commandSender.getSender());
                     if (icplayer != null) {
-                        sender = Optional.of(icplayer);
+                        sender = icplayer;
                     }
                 }
             }
 
             ProcessSenderResult chatSender = null;
-            if (!sender.isPresent()) {
+            if (sender == null) {
                 if (InteractiveChat.useAccurateSenderFinder) {
                     chatSender = ProcessAccurateSender.process(component);
                     if (chatSender.getSender() != null) {
                         ICPlayer icplayer = ICPlayerFactory.getICPlayer(chatSender.getSender());
                         if (icplayer != null) {
-                            sender = Optional.of(icplayer);
+                            sender = icplayer;
                         }
                     }
                 }
             }
 
-            if (!sender.isPresent() && !InteractiveChat.useAccurateSenderFinder) {
-                sender = SenderFinder.getSender(component, rawMessageKey);
+            if (sender == null && !InteractiveChat.useAccurateSenderFinder) {
+                Optional<ICPlayer> optionalSender = SenderFinder.getSender(component, rawMessageKey);
+                sender = optionalSender.orElse(null);
             }
 
-            if (sender.isPresent() && !sender.get().isLocal()) {
+            if (sender != null && !sender.isLocal()) {
                 if (isFiltered) {
                     Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
                         SERVICE.execute(() -> {
@@ -648,23 +643,25 @@ public class PLibOutMessagePacket {
             if (chatSender != null) {
                 component = chatSender.getComponent();
             }
-            sender.ifPresent(icPlayer -> InteractiveChat.keyPlayer.put(rawMessageKey, icPlayer));
+            if (sender != null) {
+                InteractiveChat.keyPlayer.put(rawMessageKey, sender);
+            }
 
             component = ComponentReplacing.replace(component, Registry.ID_PATTERN.pattern(), Registry.ID_PATTERN_REPLACEMENT);
 
-            UUID preEventSenderUUID = sender.map(ICPlayer::getUniqueId).orElse(null);
+            UUID preEventSenderUUID = sender != null ? sender.getUniqueId() : null;
             PrePacketComponentProcessEvent preEvent = new PrePacketComponentProcessEvent(!Scheduler.isPrimaryThread(), receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(preEvent);
             if (preEvent.getSender() != null) {
                 Player newsender = Bukkit.getPlayer(preEvent.getSender());
                 if (newsender != null) {
-                    sender = Optional.of(ICPlayerFactory.getICPlayer(newsender));
+                    sender = ICPlayerFactory.getICPlayer(newsender);
                 }
             }
             component = preEvent.getComponent();
 
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {
-                if (!sender.isPresent() || PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
+                if (sender == null || PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
                     component = ComponentFont.parseFont(component);
                 }
             }
@@ -674,27 +671,27 @@ public class PLibOutMessagePacket {
             }
 
             if (InteractiveChat.usePlayerName) {
-                component = PlayernameDisplay.process(component, sender, receiver, unix);
+                component = PlayernameDisplay.process(component, Optional.ofNullable(sender), receiver, unix);
             }
 
-            if (InteractiveChat.allowMention && sender.isPresent()) {
+            if (InteractiveChat.allowMention && sender != null) {
                 PlayerData data = InteractiveChat.playerDataManager.getPlayerData(receiver);
                 if (data == null || !data.isMentionDisabled()) {
-                    component = MentionDisplay.process(component, receiver, sender.get(), unix, true);
+                    component = MentionDisplay.process(component, receiver, sender, unix, true);
                 }
             }
             component = ComponentReplacing.replace(component, Registry.MENTION_TAG_CONVERTER.getReversePattern().pattern(), true, (result, components) -> {
                 return LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.mentionHighlightOthers)).replaceText(TextReplacementConfig.builder().matchLiteral("{MentionedPlayer}").replacement(PlainTextComponentSerializer.plainText().deserialize(result.group(2))).build());
             });
 
-            component = CustomPlaceholderDisplay.process(component, sender, receiver, InteractiveChat.placeholderList.values(), unix);
+            component = CustomPlaceholderDisplay.process(component, Optional.ofNullable(sender), receiver, InteractiveChat.placeholderList.values(), unix);
 
             if (InteractiveChat.useInventory) {
-                component = InventoryDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
+                component = InventoryDisplay.process(component, Optional.ofNullable(sender), receiver, packetAccessorResult.isPreview(), unix);
             }
 
             if (InteractiveChat.useEnder) {
-                component = EnderchestDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
+                component = EnderchestDisplay.process(component, Optional.ofNullable(sender), receiver, packetAccessorResult.isPreview(), unix);
             }
 
             if (InteractiveChat.clickableCommands) {
@@ -702,11 +699,11 @@ public class PLibOutMessagePacket {
             }
 
             if (InteractiveChat.useItem) {
-                component = ItemDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
+                component = ItemDisplay.process(component, Optional.ofNullable(sender), receiver, packetAccessorResult.isPreview(), unix);
             }
 
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {
-                if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {
+                if (sender == null || PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.customfont.translate", true, 250)) {
                     component = ComponentFont.parseFont(component);
                 }
             }
@@ -716,14 +713,14 @@ public class PLibOutMessagePacket {
             }
 
             if (InteractiveChat.tritonHook) {
-                component = TritonHook.parseLanguageChat(sender.map(ICPlayer::getUniqueId).orElse(null), component);
+                component = TritonHook.parseLanguageChat(sender != null ? sender.getUniqueId() : null, component);
             }
 
             PostPacketComponentProcessEvent postEvent = new PostPacketComponentProcessEvent(true, receiver, component, preEventSenderUUID);
             Bukkit.getPluginManager().callEvent(postEvent);
             component = postEvent.getComponent();
 
-            PacketWriterResult packetWriterResult = packetHandler.getWriter().apply(packet, component, type, field, sender.map(ICPlayer::getUniqueId).orElse(null));
+            PacketWriterResult packetWriterResult = packetHandler.getWriter().apply(packet, component, type, field, sender != null ? sender.getUniqueId() : null);
             boolean longerThanMaxLength = packetWriterResult.isTooLong();
             UUID postEventSenderUUID = packetWriterResult.getSender();
             int jsonLength = packetWriterResult.getJsonLength();

@@ -98,10 +98,10 @@ public class PLibOutMessagePacket {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
             PACKET_HANDLERS.put(PacketType.Play.Server.DISGUISED_CHAT, new PacketHandler(event -> {
                 return InteractiveChat.chatListener;
-            }, packet -> {
+            }, (packet, player) -> {
                 ChatComponentType type = ChatComponentType.IChatBaseComponent;
                 int field = 0;
-                Component component = type.convertFrom(packet.getModifier().read(field));
+                Component component = type.convertFrom(packet.getModifier().read(field), player);
                 return new PacketAccessorResult(component, type, field, false);
             }, (packet, component, type, field, sender) -> {
                 boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
@@ -141,7 +141,7 @@ public class PLibOutMessagePacket {
                     }
                 }
                 return null;
-            }, packet -> {
+            }, (packet, player) -> {
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                     ChatComponentType type = ChatComponentType.IChatBaseComponent;
                     int field = InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_21_5) ? 5 : 4;
@@ -150,7 +150,7 @@ public class PLibOutMessagePacket {
                     if (unsignedContent == null) {
                         component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(field - 1)));
                     } else {
-                        component = type.convertFrom(unsignedContent);
+                        component = type.convertFrom(unsignedContent, player);
                     }
                     return new PacketAccessorResult(component, type, field, false);
                 } else {
@@ -160,13 +160,13 @@ public class PLibOutMessagePacket {
                         ChatComponentType type = ChatComponentType.IChatBaseComponent;
                         Component component;
                         if (unsignedContent.isPresent()) {
-                            component = type.convertFrom(unsignedContent.get());
+                            component = type.convertFrom(unsignedContent.get(), player);
                         } else {
                             Object signedContent = ModernChatSigningUtils.getSignedContent(playerChatMessage);
                             if (signedContent instanceof String) {
                                 component = PlainTextComponentSerializer.plainText().deserialize((String) signedContent);
                             } else {
-                                component = type.convertFrom(signedContent);
+                                component = type.convertFrom(signedContent, player);
                             }
                         }
                         return new PacketAccessorResult(component, type, Integer.MIN_VALUE, false);
@@ -186,7 +186,7 @@ public class PLibOutMessagePacket {
                                 for (int i = 0; i < positionOfSignedContent; i++) {
                                     if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                                         try {
-                                            Component component = t.convertFrom(packet.getModifier().read(i));
+                                            Component component = t.convertFrom(packet.getModifier().read(i), player);
                                             return new PacketAccessorResult(component, t, i, true);
                                         } catch (Throwable e) {
                                             System.err.println(t.toString(packet.getModifier().read(i)));
@@ -202,9 +202,9 @@ public class PLibOutMessagePacket {
                         ChatComponentType type = ChatComponentType.IChatBaseComponent;
                         Component component;
                         if (unsignedContent.isPresent()) {
-                            component = type.convertFrom(unsignedContent.get());
+                            component = type.convertFrom(unsignedContent.get(), player);
                         } else {
-                            component = type.convertFrom(packet.getModifier().read(positionOfSignedContent));
+                            component = type.convertFrom(packet.getModifier().read(positionOfSignedContent), player);
                         }
                         return new PacketAccessorResult(component, type, field, false);
                     }
@@ -245,7 +245,7 @@ public class PLibOutMessagePacket {
                     return InteractiveChat.chatListener;
                 }, event -> {
                     return ICPlayerFactory.getICPlayer(event.getPlayer());
-                }, packet -> {
+                }, (packet, player) -> {
                     Component component = null;
                     ChatComponentType type = null;
                     int field = -1;
@@ -254,7 +254,7 @@ public class PLibOutMessagePacket {
                         for (int i = 1; i < packet.getModifier().size(); i++) {
                             if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                                 try {
-                                    component = t.convertFrom(packet.getModifier().read(i));
+                                    component = t.convertFrom(packet.getModifier().read(i), player);
                                 } catch (Throwable e) {
                                     System.err.println(t.toString(packet.getModifier().read(i)));
                                     e.printStackTrace();
@@ -323,7 +323,7 @@ public class PLibOutMessagePacket {
                     return InteractiveChat.chatListener;
                 }
             }
-        }, packet -> {
+        }, (packet, player) -> {
             Component component = null;
             ChatComponentType type = null;
             int field = -1;
@@ -333,7 +333,7 @@ public class PLibOutMessagePacket {
                     Object obj = packet.getModifier().read(i);
                     if (!CustomArrayUtils.allNull(obj) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                         try {
-                            component = t.convertFrom(obj);
+                            component = t.convertFrom(obj, player);
                         } catch (Throwable e) {
                             System.err.println(t.toString(obj));
                             e.printStackTrace();
@@ -391,7 +391,7 @@ public class PLibOutMessagePacket {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
             PacketHandler modernTitleHandler = new PacketHandler(event -> {
                 return InteractiveChat.titleListener;
-            }, packet -> {
+            }, (packet, player) -> {
                 Component component = null;
                 ChatComponentType type = null;
                 int field = -1;
@@ -400,7 +400,7 @@ public class PLibOutMessagePacket {
                     for (int i = 0; i < packet.getModifier().size(); i++) {
                         if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                             try {
-                                component = t.convertFrom(packet.getModifier().read(i));
+                                component = t.convertFrom(packet.getModifier().read(i), player);
                             } catch (Throwable e) {
                                 System.err.println(t.toString(packet.getModifier().read(i)));
                                 e.printStackTrace();
@@ -434,7 +434,7 @@ public class PLibOutMessagePacket {
                     return false;
                 }
                 return InteractiveChat.titleListener;
-            }, packet -> {
+            }, (packet, player) -> {
                 Component component = null;
                 ChatComponentType type = null;
                 int field = -1;
@@ -443,7 +443,7 @@ public class PLibOutMessagePacket {
                     for (int i = 0; i < packet.getModifier().size(); i++) {
                         if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                             try {
-                                component = t.convertFrom(packet.getModifier().read(i));
+                                component = t.convertFrom(packet.getModifier().read(i), player);
                             } catch (Throwable e) {
                                 System.err.println(t.toString(packet.getModifier().read(i)));
                                 e.printStackTrace();
@@ -484,7 +484,7 @@ public class PLibOutMessagePacket {
     }
 
     private static PacketHandler createModernTitleHandler() {
-        return new PacketHandler(event -> InteractiveChat.titleListener, packet -> {
+        return new PacketHandler(event -> InteractiveChat.titleListener, (packet, player) -> {
             Component component = null;
             ChatComponentType type = null;
             int field = -1;
@@ -493,7 +493,7 @@ public class PLibOutMessagePacket {
                 for (int i = 0; i < packet.getModifier().size(); i++) {
                     if (!CustomArrayUtils.allNull(packet.getModifier().read(i)) && packet.getModifier().getField(i).getType().getName().matches(t.getMatchingRegex())) {
                         try {
-                            component = t.convertFrom(packet.getModifier().read(i));
+                            component = t.convertFrom(packet.getModifier().read(i), player);
                         } catch (Throwable e) {
                             System.err.println(t.toString(packet.getModifier().read(i)));
                             e.printStackTrace();
@@ -574,7 +574,7 @@ public class PLibOutMessagePacket {
                 return;
             }
 
-            PacketAccessorResult packetAccessorResult = packetHandler.getAccessor().apply(packet);
+            PacketAccessorResult packetAccessorResult = packetHandler.getAccessor().apply(packet, receiver);
             Component component = packetAccessorResult.getComponent();
             ChatComponentType type = packetAccessorResult.getType();
             int field = packetAccessorResult.getField();
@@ -583,7 +583,7 @@ public class PLibOutMessagePacket {
                 SERVICE.send(packet, receiver, messageUUID);
                 return;
             }
-
+            System.out.println("1: " + InteractiveChatComponentSerializer.gson().serialize(component));
             component = ComponentModernizing.modernize(component);
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
             try {
@@ -802,9 +802,8 @@ public class PLibOutMessagePacket {
         }
     }
 
-    public interface PacketAccessor extends Function<PacketContainer, PacketAccessorResult> {
-        @Override
-        PacketAccessorResult apply(PacketContainer packet);
+    public interface PacketAccessor {
+        PacketAccessorResult apply(PacketContainer packet, Player player);
     }
 
     public interface PacketWriter {

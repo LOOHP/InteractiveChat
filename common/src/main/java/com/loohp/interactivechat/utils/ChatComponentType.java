@@ -24,61 +24,61 @@ import com.loohp.interactivechat.nms.NMS;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public enum ChatComponentType {
 
-    IChatBaseComponent(".*(?:net\\.minecraft\\..*\\.IChatBaseComponent|net\\.minecraft\\.network\\.chat\\.Component).*", object -> {
-        return InteractiveChatComponentSerializer.gson().deserialize(NMS.getInstance().serializeChatComponent(object));
+    IChatBaseComponent(".*(?:net\\.minecraft\\..*\\.IChatBaseComponent|net\\.minecraft\\.network\\.chat\\.Component).*", (object, player) -> {
+        return InteractiveChatComponentSerializer.gson().deserialize(NMS.getInstance().serializeChatComponent(object, player));
     }, (component, legacyRGB) -> {
         return NMS.getInstance().deserializeChatComponent(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
-    }, object -> {
-        return NMS.getInstance().serializeChatComponent(object);
+    }, (object, player) -> {
+        return NMS.getInstance().serializeChatComponent(object, player);
     }, component -> {
         return true;
     }),
 
-    BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", object -> {
+    BaseComponentArray(".*\\[Lnet\\.md_5\\.bungee\\.api\\.chat\\.BaseComponent.*", (object, player) -> {
         return InteractiveChatComponentSerializer.gson().deserialize(ComponentSerializer.toString((BaseComponent[]) object));
     }, (component, legacyRGB) -> {
         return ComponentSerializer.parse(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
-    }, object -> {
+    }, (object, player) -> {
         return ComponentSerializer.toString((BaseComponent[]) object);
     }, component -> {
         return true;
     }),
 
-    NativeAdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
+    NativeAdventureComponent(".*net\\.kyori\\.adventure\\.text\\.Component.*", (object, player) -> {
         return NativeAdventureConverter.componentFromNative(object);
     }, (component, legacyRGB) -> {
         return NativeAdventureConverter.componentToNative(component, legacyRGB);
-    }, object -> {
+    }, (object, player) -> {
         return NativeAdventureConverter.jsonStringFromNative(object);
     }, component -> {
         return NativeAdventureConverter.canHandle(component);
     }),
 
-    AdventureComponent(".*com\\.loohp\\.interactivechat\\.libs\\.net\\.kyori\\.adventure\\.text\\.Component.*", object -> {
+    AdventureComponent(".*com\\.loohp\\.interactivechat\\.libs\\.net\\.kyori\\.adventure\\.text\\.Component.*", (object, player) -> {
         return (Component) object;
     }, (component, legacyRGB) -> {
         return component;
-    }, object -> {
+    }, (object, player) -> {
         return InteractiveChatComponentSerializer.gson().serialize((Component) object);
     }, component -> {
         return true;
     }),
 
-    JsonString(".*java\\.lang\\.String.*", object -> {
+    JsonString(".*java\\.lang\\.String.*", (object, player) -> {
         return InteractiveChatComponentSerializer.gson().deserialize((String) object);
     }, (component, legacyRGB) -> {
         return legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
-    }, object -> {
+    }, (object, player) -> {
         return (String) object;
     }, component -> {
         return true;
@@ -91,12 +91,12 @@ public enum ChatComponentType {
     }
 
     private final String regex;
-    private final Function<Object, Component> converterFrom;
+    private final BiFunction<Object, Player, Component> converterFrom;
     private final BiFunction<Component, Boolean, Object> converterTo;
-    private final Function<Object, String> toJsonString;
+    private final BiFunction<Object, Player, String> toJsonString;
     private final Predicate<Component> canHandle;
 
-    ChatComponentType(String regex, Function<Object, Component> converterFrom, BiFunction<Component, Boolean, Object> converterTo, Function<Object, String> toString, Predicate<Component> canHandle) {
+    ChatComponentType(String regex, BiFunction<Object, Player, Component> converterFrom, BiFunction<Component, Boolean, Object> converterTo, BiFunction<Object, Player, String> toString, Predicate<Component> canHandle) {
         this.regex = regex;
         this.converterFrom = converterFrom;
         this.converterTo = converterTo;
@@ -108,11 +108,11 @@ public enum ChatComponentType {
         return regex;
     }
 
-    public Component convertFrom(Object object) {
+    public Component convertFrom(Object object, Player player) {
         if (object == null) {
             return null;
         }
-        return converterFrom.apply(object);
+        return converterFrom.apply(object, player);
     }
 
     public Object convertTo(Component component, boolean legacyRGB) {
@@ -122,11 +122,11 @@ public enum ChatComponentType {
         return converterTo.apply(component, legacyRGB);
     }
 
-    public String toJsonString(Object object) {
+    public String toJsonString(Object object, Player player) {
         if (object == null) {
             return null;
         }
-        return toJsonString.apply(object);
+        return toJsonString.apply(object, player);
     }
 
     public boolean canHandle(Component component) {
@@ -134,7 +134,7 @@ public enum ChatComponentType {
     }
 
     public String toString(Object object) {
-        return toJsonString(object);
+        return toJsonString(object, null);
     }
 
 }

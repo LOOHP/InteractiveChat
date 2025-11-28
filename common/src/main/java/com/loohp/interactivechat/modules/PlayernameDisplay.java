@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class PlayernameDisplay implements Listener {
 
@@ -141,11 +142,12 @@ public class PlayernameDisplay implements Listener {
         for (int i = 0; i < children.size(); i++) {
             Component child = children.get(i);
             if (child instanceof TranslatableComponent) {
-                TranslatableComponent trans = (TranslatableComponent) child;
-                List<Component> withs = new ArrayList<>(ComponentLike.asComponents(trans.arguments()));
-                withs.replaceAll(with -> processPlayer(placeholder, player, sender, receiver, with, doNotReplace, unix));
-                trans = trans.arguments(withs);
-                children.set(i, trans);
+                TranslatableComponent translatable = (TranslatableComponent) child;
+                List<ComponentLike> args = translatable.arguments().stream()
+                        .map(arg -> processPlayer(placeholder, player, sender, receiver, arg.asComponent(), doNotReplace, unix))
+                        .collect(Collectors.toList());
+                translatable = translatable.arguments(args);
+                children.set(i, translatable);
             }
         }
         doNotReplace.add(hoverEvent);

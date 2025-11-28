@@ -22,6 +22,7 @@ package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
@@ -36,6 +37,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import io.netty.util.AttributeKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.DataComponentValue;
@@ -64,7 +66,9 @@ import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTCompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.chat.ChatDecorator;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.SignedMessageBody;
@@ -88,6 +92,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.ParticleStatus;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.player.EnumChatVisibility;
@@ -104,6 +109,7 @@ import net.querz.nbt.io.NamedTag;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.v1_21_R2.CraftRegistry;
 import org.bukkit.craftbukkit.v1_21_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_21_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R2.boss.CraftBossBar;
@@ -135,6 +141,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -150,9 +157,11 @@ public class V1_21_2 extends NMSWrapper {
     private final Method playerConnectionIsChatMessageIllegalMethod;
     private final Method playerConnectionHandleCommandMethod;
     private final Field craftSkullMetaProfileField;
+    private final Field nmsPlayerConnectionNetworkManagerField;
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
+    private Method paperComponentSerializationLocalizedCodec;
 
     public V1_21_2() {
         try {
@@ -162,11 +171,13 @@ public class V1_21_2 extends NMSWrapper {
             playerConnectionIsChatMessageIllegalMethod = ReflectionUtils.findDeclaredMethod(PlayerConnection.class, new Class<?>[] {String.class}, "isChatMessageIllegal", "d");
             playerConnectionHandleCommandMethod = PlayerConnection.class.getDeclaredMethod("handleCommand", String.class);
             craftSkullMetaProfileField = Class.forName("org.bukkit.craftbukkit.v1_21_R2.inventory.CraftMetaSkull").getDeclaredField("profile");
+            nmsPlayerConnectionNetworkManagerField = Arrays.stream(ServerCommonPacketListenerImpl.class.getDeclaredFields()).filter(m -> m.getType().equals(NetworkManager.class)).findFirst().orElseThrow(() -> new RuntimeException());
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         //paper
         paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 3).findFirst().orElse(null);
+        paperComponentSerializationLocalizedCodec = Arrays.stream(ComponentSerialization.class.getMethods()).filter(m -> m.getName().equalsIgnoreCase("localizedCodec")).findFirst().orElse(null);
     }
 
     @Override
@@ -793,8 +804,21 @@ public class V1_21_2 extends NMSWrapper {
         return CraftChatMessage.fromJSON(json);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public String serializeChatComponent(Object handle) {
+    public String serializeChatComponent(Object handle, Player player) {
+        if (player != null && paperComponentSerializationLocalizedCodec != null) {
+            try {
+                nmsPlayerConnectionNetworkManagerField.setAccessible(true);
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().f;
+                NetworkManager networkManager = ((NetworkManager) nmsPlayerConnectionNetworkManagerField.get(connection));
+                Locale locale = (Locale) networkManager.n.attr(AttributeKey.valueOf("adventure:locale")).get();
+                Codec<IChatBaseComponent> codec = (Codec<IChatBaseComponent>) paperComponentSerializationLocalizedCodec.invoke(null, locale);
+                return NativeJsonConverter.toJson(codec.encodeStart(CraftRegistry.getMinecraftRegistry().a(JsonOps.INSTANCE), (IChatBaseComponent) handle).getOrThrow(JsonParseException::new));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return CraftChatMessage.toJSON((IChatBaseComponent) handle);
     }
 }

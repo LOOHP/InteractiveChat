@@ -30,6 +30,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ComponentModernizing {
 
@@ -49,11 +50,12 @@ public class ComponentModernizing {
                 modern = modern.style(modern.style().merge(text.style(), Merge.Strategy.IF_ABSENT_ON_TARGET));
                 children.set(i, modern);
             } else if (child instanceof TranslatableComponent) {
-                TranslatableComponent trans = (TranslatableComponent) child;
-                List<Component> withs = new ArrayList<>(ComponentLike.asComponents(trans.arguments()));
-                withs.replaceAll(arg -> modernize(arg));
-                trans = trans.arguments(withs);
-                children.set(i, trans);
+                TranslatableComponent translatable = (TranslatableComponent) child;
+                List<ComponentLike> args = translatable.arguments().stream()
+                        .map(arg -> modernize(arg.asComponent()))
+                        .collect(Collectors.toList());
+                translatable = translatable.arguments(args);
+                children.set(i, translatable);
             }
         }
         return ComponentCompacting.optimize(component.children(children));

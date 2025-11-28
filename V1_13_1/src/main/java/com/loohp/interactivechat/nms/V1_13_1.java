@@ -653,7 +653,7 @@ public class V1_13_1 extends NMSWrapper {
     }
 
     @Override
-    public String serializeChatComponent(Object handle) {
+    public String serializeChatComponent(Object handle, Player player) {
         return CraftChatMessage.toJSON((IChatBaseComponent) handle);
     }
 }

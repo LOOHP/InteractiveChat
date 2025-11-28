@@ -67,4 +67,12 @@ public class NativeJsonConverter {
         }
     }
 
+    public static String toJson(Object nativeJsonElement) {
+        try {
+            return (String) nativeGSONToJsonMethod.invoke(nativeGSON, nativeJsonElement);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

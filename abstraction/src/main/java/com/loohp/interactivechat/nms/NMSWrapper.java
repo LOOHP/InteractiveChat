@@ -208,6 +208,6 @@ public abstract class NMSWrapper {
 
     public abstract Object deserializeChatComponent(String json);
 
-    public abstract String serializeChatComponent(Object handle);
+    public abstract String serializeChatComponent(Object handle, Player player);
 
 }

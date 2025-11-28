@@ -22,6 +22,7 @@ package com.loohp.interactivechat.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
 import com.loohp.interactivechat.objectholders.IICPlayer;
@@ -36,6 +37,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import io.netty.util.AttributeKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.DataComponentValue;
@@ -65,7 +67,9 @@ import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTCompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.chat.ChatDecorator;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.SignedMessageBody;
@@ -89,6 +93,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.ParticleStatus;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
@@ -108,8 +113,8 @@ import net.querz.nbt.io.NamedTag;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.v1_21_R6.CraftRegistry;
 import org.bukkit.craftbukkit.v1_21_R6.CraftServer;
-import org.bukkit.craftbukkit.v1_21_R6.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R6.boss.CraftBossBar;
 import org.bukkit.craftbukkit.v1_21_R6.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_21_R6.inventory.CraftItemStack;
@@ -139,6 +144,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -157,9 +163,11 @@ public class V1_21_10 extends NMSWrapper {
     private final Field renderDataCursorsField;
     private final Method nmsEntityPlayerLoadMethod;
     private final Field nmsEntityPlayerServerField;
+    private final Field nmsPlayerConnectionNetworkManagerField;
 
     //paper
     private Method paperChatDecoratorDecorateMethod;
+    private Method paperComponentSerializationLocalizedCodec;
 
     public V1_21_10() {
         try {
@@ -172,21 +180,23 @@ public class V1_21_10 extends NMSWrapper {
             renderDataCursorsField = RenderData.class.getField("cursors");
             nmsEntityPlayerLoadMethod = EntityPlayer.class.getDeclaredMethod("a", ValueInput.class);
             nmsEntityPlayerServerField = ReflectionUtils.findDeclaredField(EntityPlayer.class, MinecraftServer.class, "server", "cK");
+            nmsPlayerConnectionNetworkManagerField = Arrays.stream(ServerCommonPacketListenerImpl.class.getDeclaredFields()).filter(m -> m.getType().equals(NetworkManager.class)).findFirst().orElseThrow(() -> new RuntimeException());
         } catch (NoSuchFieldException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         //paper
         paperChatDecoratorDecorateMethod = Arrays.stream(ChatDecorator.class.getMethods()).filter(m -> m.getParameterCount() == 3).findFirst().orElse(null);
+        paperComponentSerializationLocalizedCodec = Arrays.stream(ComponentSerialization.class.getMethods()).filter(m -> m.getName().equalsIgnoreCase("localizedCodec")).findFirst().orElse(null);
     }
 
     private NBTBase toNBT(net.minecraft.world.item.ItemStack itemStack) {
-        IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+        IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
         NBTTagCompound nbtTagCompound = new NBTTagCompound();
         return net.minecraft.world.item.ItemStack.b.encode(itemStack, registryAccess.a(DynamicOpsNBT.a), nbtTagCompound).getOrThrow();
     }
 
     private Optional<net.minecraft.world.item.ItemStack> fromNBT(NBTBase nbtbase) {
-        IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+        IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
         return net.minecraft.world.item.ItemStack.b.parse(registryAccess.a(DynamicOpsNBT.a), nbtbase).resultOrPartial();
     }
 
@@ -372,7 +382,7 @@ public class V1_21_10 extends NMSWrapper {
     @Override
     public ItemStack getItemFromNBTJson(String json) {
         try {
-            IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+            IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
             NBTTagCompound nbtTagCompound = MojangsonParser.a(json);
             net.minecraft.world.item.ItemStack itemStack = fromNBT(nbtTagCompound).orElseThrow(() -> new RuntimeException());
             return toBukkitCopy(itemStack);
@@ -395,7 +405,7 @@ public class V1_21_10 extends NMSWrapper {
         if (itemStack.getType().isAir()) {
             return Collections.emptyMap();
         }
-        IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+        IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
         net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
         DataComponentPatch dataComponentPatch = nmsItemStack.d();
         Map<Key, DataComponentValue> convertedComponents = new HashMap<>();
@@ -426,7 +436,7 @@ public class V1_21_10 extends NMSWrapper {
             return itemStack;
         }
         try {
-            IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+            IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
             net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
             DataComponentPatch.a builder = DataComponentPatch.a();
             for (Map.Entry<Key, DataComponentValue> entry : dataComponents.entrySet()) {
@@ -468,7 +478,7 @@ public class V1_21_10 extends NMSWrapper {
         if (itemStack.getType().isAir()) {
             return null;
         }
-        IRegistryCustom registryAccess = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+        IRegistryCustom registryAccess = CraftRegistry.getMinecraftRegistry();
         net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
         NBTBase nbt = toNBT(nmsItemStack);
         if (nbt instanceof NBTTagCompound) {
@@ -790,7 +800,7 @@ public class V1_21_10 extends NMSWrapper {
             if (loadedNbt == null) {
                 return null;
             }
-            IRegistryCustom registryCustom = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle().L_();
+            IRegistryCustom registryCustom = CraftRegistry.getMinecraftRegistry();
             ValueInput loadedData = TagValueInput.a(ProblemReporter.a, registryCustom, loadedNbt);
 
             player.c(loadedData);
@@ -822,8 +832,21 @@ public class V1_21_10 extends NMSWrapper {
         return CraftChatMessage.fromJSON(json);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public String serializeChatComponent(Object handle) {
+    public String serializeChatComponent(Object handle, Player player) {
+        if (player != null && paperComponentSerializationLocalizedCodec != null) {
+            try {
+                nmsPlayerConnectionNetworkManagerField.setAccessible(true);
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().g;
+                NetworkManager networkManager = ((NetworkManager) nmsPlayerConnectionNetworkManagerField.get(connection));
+                Locale locale = (Locale) networkManager.n.attr(AttributeKey.valueOf("adventure:locale")).get();
+                Codec<IChatBaseComponent> codec = (Codec<IChatBaseComponent>) paperComponentSerializationLocalizedCodec.invoke(null, locale);
+                return NativeJsonConverter.toJson(codec.encodeStart(CraftRegistry.getMinecraftRegistry().a(JsonOps.INSTANCE), (IChatBaseComponent) handle).getOrThrow(JsonParseException::new));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return CraftChatMessage.toJSON((IChatBaseComponent) handle);
     }
 }

@@ -9,8 +9,4 @@ public class WrappedChatComponentUtils {
         return WrappedChatComponent.fromHandle(NMS.getInstance().deserializeChatComponent(json));
     }
 
-    public static String toJson(WrappedChatComponent component) {
-        return NMS.getInstance().serializeChatComponent(component.getHandle());
-    }
-
 }

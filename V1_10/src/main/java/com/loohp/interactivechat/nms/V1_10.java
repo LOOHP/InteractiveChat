@@ -574,7 +574,7 @@ public class V1_10 extends NMSWrapper {
     }
 
     @Override
-    public String serializeChatComponent(Object handle) {
+    public String serializeChatComponent(Object handle, Player player) {
         return IChatBaseComponent.ChatSerializer.a((IChatBaseComponent) handle);
     }
 }

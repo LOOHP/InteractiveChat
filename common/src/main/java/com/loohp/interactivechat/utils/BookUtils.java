@@ -24,6 +24,7 @@ import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -36,16 +37,16 @@ public class BookUtils {
         return item.getItemMeta() instanceof BookMeta;
     }
 
-    public static List<Component> getPages(BookMeta bookMeta) {
-        return bookMeta.spigot().getPages().stream().map(each -> ChatComponentType.BaseComponentArray.convertFrom(each)).collect(Collectors.toList());
+    public static List<Component> getPages(BookMeta bookMeta, Player player) {
+        return bookMeta.spigot().getPages().stream().map(each -> ChatComponentType.BaseComponentArray.convertFrom(each, player)).collect(Collectors.toList());
     }
 
     public static void setPages(BookMeta bookMeta, List<Component> pages, boolean legacyRGB) {
         bookMeta.spigot().setPages(pages.stream().map(each -> (BaseComponent[]) ChatComponentType.BaseComponentArray.convertTo(each, legacyRGB)).collect(Collectors.toList()));
     }
 
-    public static Book toAdventure(BookMeta meta) {
-        return Book.book(LegacyComponentSerializer.legacySection().deserializeOr(meta.getTitle(), Component.empty()), LegacyComponentSerializer.legacySection().deserializeOr(meta.getAuthor(), Component.empty()), getPages(meta));
+    public static Book toAdventure(BookMeta meta, Player player) {
+        return Book.book(LegacyComponentSerializer.legacySection().deserializeOr(meta.getTitle(), Component.empty()), LegacyComponentSerializer.legacySection().deserializeOr(meta.getAuthor(), Component.empty()), getPages(meta, player));
     }
 
     public static void fromAdventure(BookMeta bookMeta, Book book, boolean legacyRGB) {

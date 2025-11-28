@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ComponentReplacing {
 
@@ -68,8 +69,9 @@ public class ComponentReplacing {
             Component child = children.get(i);
             if (child instanceof TranslatableComponent) {
                 TranslatableComponent translatable = (TranslatableComponent) child;
-                List<Component> args = new ArrayList<>(ComponentLike.asComponents(translatable.arguments()));
-                args.replaceAll(c -> replace(c, regexOriginal, escaping, replaceFunction));
+                List<ComponentLike> args = translatable.arguments().stream()
+                        .map(arg -> replace(arg.asComponent(), regexOriginal, escaping, replaceFunction))
+                        .collect(Collectors.toList());
                 translatable = translatable.arguments(args);
                 children.set(i, translatable);
             }

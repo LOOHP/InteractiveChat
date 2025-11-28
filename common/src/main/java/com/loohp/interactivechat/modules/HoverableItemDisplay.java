@@ -121,14 +121,14 @@ public class HoverableItemDisplay {
                 }
             }
             if (child instanceof TranslatableComponent) {
-                TranslatableComponent trans = (TranslatableComponent) child;
-                List<Component> withs = new ArrayList<>(ComponentLike.asComponents(trans.arguments()));
+                TranslatableComponent translatable = (TranslatableComponent) child;
+                List<ComponentLike> withs = new ArrayList<>(translatable.arguments());
                 for (int u = 0; u < withs.size(); u++) {
-                    Component with = withs.get(u);
-                    withs.set(u, process(with, receiver));
+                    ComponentLike with = withs.get(u);
+                    withs.set(u, process(with.asComponent(), receiver));
                 }
-                trans = trans.arguments(withs);
-                children.set(i, trans);
+                translatable = translatable.arguments(withs);
+                children.set(i, translatable);
             }
         }
 

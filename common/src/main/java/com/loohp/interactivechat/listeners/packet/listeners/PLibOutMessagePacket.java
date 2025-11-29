@@ -583,7 +583,7 @@ public class PLibOutMessagePacket {
                 SERVICE.send(packet, receiver, messageUUID);
                 return;
             }
-            System.out.println("1: " + InteractiveChatComponentSerializer.gson().serialize(component));
+
             component = ComponentModernizing.modernize(component);
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
             try {

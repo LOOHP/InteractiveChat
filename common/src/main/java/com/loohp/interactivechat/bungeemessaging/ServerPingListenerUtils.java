@@ -22,16 +22,16 @@ package com.loohp.interactivechat.bungeemessaging;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.registry.Registry;
-import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("unchecked")
 public class ServerPingListenerUtils {
 
-    public static final Map<Player, Long> REQUESTS = new ConcurrentHashMap<>();
-    public static String json;
+    public static final Map<Object, Long> REQUESTS = new ConcurrentHashMap<>();
+    public static final String MOTD_JSON;
 
     static {
         JSONObject obj = new JSONObject();
@@ -40,6 +40,6 @@ public class ServerPingListenerUtils {
         obj.put("minecraftVersion", InteractiveChat.version.getNumber());
         obj.put("exactMinecraftVersion", InteractiveChat.exactMinecraftVersion);
         obj.put("protocol", Registry.PLUGIN_MESSAGING_PROTOCOL_VERSION);
-        json = obj.toJSONString();
+        MOTD_JSON = obj.toJSONString();
     }
 }

@@ -25,6 +25,7 @@ import com.comphenix.protocol.events.ListeningWhitelist;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.platform.PlatformPacketEvent;
 import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
 import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
@@ -40,23 +41,26 @@ public class VentureChatInjection implements Listener {
 
     public static void _init_() {
         Bukkit.getPluginManager().registerEvents(new VentureChatInjection(), InteractiveChat.plugin);
-        ProtocolLibPlatform.protocolManager.getPacketListeners().forEach(each -> {
-            if (each.getPlugin().getName().equals("VentureChat")) {
-                ListeningWhitelist whitelist = each.getSendingWhitelist();
-                if (whitelist.getTypes().stream().anyMatch(type -> {String name = type.name(); return name.equals("CHAT") || name.equals("SYSTEM_CHAT") || name.equals("CHAT_PREVIEW");})) {
-                    if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
-                        packetListener = each;
-                        ProtocolLibPlatform.protocolManager.removePacketListener(each);
+        if (InteractiveChat.protocolPlatform instanceof ProtocolLibPlatform) {
+            ProtocolLibPlatform platform = (ProtocolLibPlatform) InteractiveChat.protocolPlatform;
+            platform.getProtocolManager().getPacketListeners().forEach(each -> {
+                if (each.getPlugin().getName().equals("VentureChat")) {
+                    ListeningWhitelist whitelist = each.getSendingWhitelist();
+                    if (whitelist.getTypes().stream().anyMatch(type -> {String name = type.name(); return name.equals("CHAT") || name.equals("SYSTEM_CHAT") || name.equals("CHAT_PREVIEW");})) {
+                        if (whitelist.getPriority().equals(ListenerPriority.MONITOR)) {
+                            packetListener = each;
+                            platform.getProtocolManager().removePacketListener(each);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
         init = true;
     }
 
-    public static void firePacketListener(PacketEvent event) {
+    public static void firePacketListener(PlatformPacketEvent<?, ?, ?> event) {
         if (packetListener != null) {
-            packetListener.onPacketSending(event);
+            packetListener.onPacketSending((PacketEvent) event.getHandle());
         }
     }
 

@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.nms.NMS;
+import com.loohp.interactivechat.platform.packets.PlatformPlayServerCustomChatCompletionPacket;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
@@ -86,11 +87,13 @@ public class ModernChatCompletionTask implements Listener {
                     List<String> remove = new ArrayList<>(Sets.difference(oldList, tab));
 
                     if (!add.isEmpty()) {
-                        InteractiveChat.protocolPlatform.sendTabCompletionPacket(tabCompleter, CustomTabCompletionAction.ADD, add);
+                        PlatformPlayServerCustomChatCompletionPacket<?> packet = InteractiveChat.protocolPlatform.getPlatformPacketCreatorProvider().createPlayServerCustomChatCompletionPacket(CustomTabCompletionAction.ADD, add);
+                        InteractiveChat.protocolPlatform.sendServerPacket(tabCompleter, packet);
                     }
 
                     if (!remove.isEmpty()) {
-                        InteractiveChat.protocolPlatform.sendTabCompletionPacket(tabCompleter, CustomTabCompletionAction.REMOVE, remove);
+                        PlatformPlayServerCustomChatCompletionPacket<?> packet = InteractiveChat.protocolPlatform.getPlatformPacketCreatorProvider().createPlayServerCustomChatCompletionPacket(CustomTabCompletionAction.REMOVE, remove);
+                        InteractiveChat.protocolPlatform.sendServerPacket(tabCompleter, packet);
                     }
 
                     remove.forEach(oldList::remove);

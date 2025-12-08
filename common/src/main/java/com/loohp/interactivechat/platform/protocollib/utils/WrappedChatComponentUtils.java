@@ -1,4 +1,4 @@
-package com.loohp.interactivechat.utils;
+package com.loohp.interactivechat.platform.protocollib.utils;
 
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.loohp.interactivechat.nms.NMS;

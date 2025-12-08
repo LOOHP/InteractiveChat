@@ -40,23 +40,23 @@ public class PreExternalResponseSendEvent extends Event {
         return HANDLERS;
     }
 
-    private final Player reciever;
+    private final Player receiver;
     private Component component;
     private final UUID sender;
     private Component original;
     private boolean sendOriginalIfCancelled;
 
-    public PreExternalResponseSendEvent(boolean async, Player reciever, Component component, UUID sender, Component original, boolean sendOriginalIfCancelled) {
+    public PreExternalResponseSendEvent(boolean async, Player receiver, Component component, UUID sender, Component original, boolean sendOriginalIfCancelled) {
         super(async);
-        this.reciever = reciever;
+        this.receiver = receiver;
         this.component = component;
         this.sender = sender;
         this.original = original;
         this.sendOriginalIfCancelled = sendOriginalIfCancelled;
     }
 
-    public Player getReciever() {
-        return reciever;
+    public Player getreceiver() {
+        return receiver;
     }
 
     public Component getComponent() {

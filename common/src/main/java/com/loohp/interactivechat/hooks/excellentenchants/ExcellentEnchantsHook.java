@@ -57,9 +57,7 @@ public class ExcellentEnchantsHook {
         }
         if (InteractiveChat.excellentEnchantsStripEnchantments && itemStack.hasItemMeta()) {
             ItemMeta itemMeta = itemStack.getItemMeta();
-            System.out.println(EnchantRegistry.getRegistered().stream().map(e -> e.getBukkitEnchantment().getKey()).collect(Collectors.toList()));
             for (Enchantment enchantment : itemMeta.getEnchants().keySet()) {
-                System.out.println(enchantment.getKey() + " -> " + EnchantRegistry.isRegistered(enchantment));
                 if (EnchantRegistry.isRegistered(enchantment)) {
                     itemMeta.removeEnchant(enchantment);
                 }

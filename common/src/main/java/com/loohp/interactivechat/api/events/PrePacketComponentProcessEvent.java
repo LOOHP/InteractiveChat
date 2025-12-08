@@ -43,19 +43,19 @@ public class PrePacketComponentProcessEvent extends Event {
         return HANDLERS;
     }
 
-    private final Player reciever;
+    private final Player receiver;
     private Component component;
     private UUID sender;
 
-    public PrePacketComponentProcessEvent(boolean async, Player reciever, Component component, UUID sender) {
+    public PrePacketComponentProcessEvent(boolean async, Player receiver, Component component, UUID sender) {
         super(async);
-        this.reciever = reciever;
+        this.receiver = receiver;
         this.component = component;
         this.sender = sender;
     }
 
     public Player getReceiver() {
-        return reciever;
+        return receiver;
     }
 
     public UUID getSender() {

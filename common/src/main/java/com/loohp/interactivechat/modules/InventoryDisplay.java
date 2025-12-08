@@ -68,7 +68,7 @@ public class InventoryDisplay {
 
     public static final List<Integer> LAYOUTS = Stream.of(0, 1).collect(Collectors.toList());
 
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.invPlaceholder.getKeyword().matcher(plain).find()) {
             String regex = InteractiveChat.invPlaceholder.getKeyword().pattern();
@@ -81,8 +81,8 @@ public class InventoryDisplay {
                     String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
 
                     if (!preview && !InteractiveChat.inventoryDisplay.containsKey(sha1)) {
-                        layout0(player, sha1, title, reciever, component, unix);
-                        layout1(player, sha1, title, reciever, component, unix);
+                        layout0(player, sha1, title, receiver, component, unix);
+                        layout1(player, sha1, title, receiver, component, unix);
                     }
 
                     String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
@@ -125,7 +125,7 @@ public class InventoryDisplay {
         }
     }
 
-    public static void layout0(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+    public static void layout0(ICPlayer player, String sha1, String title, Player receiver, Component component, long unix) throws Exception {
         Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, 54, title);
         int f1 = 0;
         int f2 = 0;
@@ -189,7 +189,7 @@ public class InventoryDisplay {
             CompassUtils.hideLodestoneCompassesPosition(inv);
         }
 
-        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY);
+        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, receiver, component, unix, inv, InventoryPlaceholderType.INVENTORY);
         Bukkit.getPluginManager().callEvent(event);
         inv = event.getInventory();
 
@@ -223,7 +223,7 @@ public class InventoryDisplay {
         }
     }
 
-    public static void layout1(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+    public static void layout1(ICPlayer player, String sha1, String title, Player receiver, Component component, long unix) throws Exception {
         boolean rightHanded = player.isRightHanded();
         int selectedSlot = player.getSelectedSlot();
         int level = player.getExperienceLevel();
@@ -291,7 +291,7 @@ public class InventoryDisplay {
             CompassUtils.hideLodestoneCompassesPosition(inv);
         }
 
-        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.INVENTORY1_UPPER);
+        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, receiver, component, unix, inv, InventoryPlaceholderType.INVENTORY1_UPPER);
         Bukkit.getPluginManager().callEvent(event);
         inv = event.getInventory();
 
@@ -299,7 +299,7 @@ public class InventoryDisplay {
             CompassUtils.hideLodestoneCompassesPosition(inv2);
         }
 
-        InventoryPlaceholderEvent event2 = new InventoryPlaceholderEvent(player, reciever, component, unix, inv2, InventoryPlaceholderType.INVENTORY1_LOWER);
+        InventoryPlaceholderEvent event2 = new InventoryPlaceholderEvent(player, receiver, component, unix, inv2, InventoryPlaceholderType.INVENTORY1_LOWER);
         Bukkit.getPluginManager().callEvent(event2);
         inv2 = event2.getInventory();
 

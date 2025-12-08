@@ -27,11 +27,11 @@ import org.bukkit.event.HandlerList;
 import java.util.Arrays;
 
 /**
- * This is fired when a custom data packet is recieved from the proxy
+ * This is fired when a custom data packet is received from the proxy
  *
  * @author LOOHP
  */
-public class ProxyCustomDataRecievedEvent extends Event {
+public class ProxyCustomDataReceivedEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -42,7 +42,7 @@ public class ProxyCustomDataRecievedEvent extends Event {
     private final String channel;
     private final byte[] data;
 
-    public ProxyCustomDataRecievedEvent(String channel, byte[] data) {
+    public ProxyCustomDataReceivedEvent(String channel, byte[] data) {
         super(!Scheduler.isPrimaryThread());
         this.channel = channel;
         this.data = data;

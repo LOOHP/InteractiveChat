@@ -20,29 +20,24 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import com.loohp.interactivechat.platform.packets.PlatformPacket;
 import org.bukkit.entity.Player;
 
-public class OutboundPacket {
+public class OutboundPacket<Packet> {
 
-    private final Player reciever;
-    private final Object packet;
+    private final Player receiver;
+    private final PlatformPacket<Packet> packet;
 
-    /**
-     * Simple outbound packet class, used to store packets that will be sent later on to a player.
-     *
-     * @param reciever Receiver of the packet.
-     * @param packet Will be cast to the platform-dependent object later. For ProtocolLib: PacketContainer. For PacketEvents: PacketWrapper.
-     */
-    public OutboundPacket(Player reciever, Object packet) {
-        this.reciever = reciever;
+    public OutboundPacket(Player receiver, PlatformPacket<Packet> packet) {
+        this.receiver = receiver;
         this.packet = packet;
     }
 
-    public Player getReciever() {
-        return reciever;
+    public Player getReceiver() {
+        return receiver;
     }
 
-    public Object getPacket() {
+    public PlatformPacket<Packet> getPacket() {
         return packet;
     }
 

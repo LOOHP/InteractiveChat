@@ -46,14 +46,14 @@ import java.util.regex.Pattern;
 
 public class CustomPlaceholderDisplay {
 
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, Collection<ICPlaceholder> placeholderList, long unix) {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, Collection<ICPlaceholder> placeholderList, long unix) {
         for (ICPlaceholder icplaceholder : placeholderList) {
             if (icplaceholder.isBuildIn()) {
                 continue;
             }
             CustomPlaceholder cp = (CustomPlaceholder) icplaceholder;
 
-            ICPlayer parseplayer = cp.getParsePlayer().equals(ParsePlayer.SENDER) ? optplayer.orElse(null) : ICPlayerFactory.getICPlayer(reciever);
+            ICPlayer parseplayer = cp.getParsePlayer().equals(ParsePlayer.SENDER) ? optplayer.orElse(null) : ICPlayerFactory.getICPlayer(receiver);
 
             if (InteractiveChat.useCustomPlaceholderPermissions && optplayer.isPresent()) {
                 ICPlayer sender = optplayer.get();
@@ -80,7 +80,7 @@ public class CustomPlaceholderDisplay {
 
         if (InteractiveChat.t && WebData.getInstance() != null) {
             for (CustomPlaceholder cp : WebData.getInstance().getSpecialPlaceholders()) {
-                ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : ICPlayerFactory.getICPlayer(reciever);
+                ICPlayer parseplayer = (cp.getParsePlayer().equals(ParsePlayer.SENDER) && optplayer.isPresent()) ? optplayer.get() : ICPlayerFactory.getICPlayer(receiver);
                 Pattern placeholder = cp.getKeyword();
                 if (cp.getParseKeyword()) {
                     placeholder = Pattern.compile(PlaceholderParser.parse(parseplayer, placeholder.pattern()));

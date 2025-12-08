@@ -52,7 +52,7 @@ import java.util.Optional;
 
 public class EnderchestDisplay {
 
-    public static Component process(Component component, Optional<ICPlayer> optplayer, Player reciever, boolean preview, long unix) throws Exception {
+    public static Component process(Component component, Optional<ICPlayer> optplayer, Player receiver, boolean preview, long unix) throws Exception {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (InteractiveChat.enderPlaceholder.getKeyword().matcher(plain).find()) {
             String regex = InteractiveChat.enderPlaceholder.getKeyword().pattern();
@@ -65,7 +65,7 @@ public class EnderchestDisplay {
                     String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 
                     if (!preview && !InteractiveChat.enderDisplay.containsKey(sha1)) {
-                        layout(player, sha1, title, reciever, component, unix);
+                        layout(player, sha1, title, receiver, component, unix);
                     }
 
                     String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
@@ -103,7 +103,7 @@ public class EnderchestDisplay {
         }
     }
 
-    public static void layout(ICPlayer player, String sha1, String title, Player reciever, Component component, long unix) throws Exception {
+    public static void layout(ICPlayer player, String sha1, String title, Player receiver, Component component, long unix) throws Exception {
         int size = player.getEnderChest().getSize();
         Inventory inv = Bukkit.createInventory(ICInventoryHolder.INSTANCE, InventoryUtils.toMultipleOf9(size), title);
         for (int j = 0; j < size; j++) {
@@ -118,7 +118,7 @@ public class EnderchestDisplay {
             CompassUtils.hideLodestoneCompassesPosition(inv);
         }
 
-        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, reciever, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
+        InventoryPlaceholderEvent event = new InventoryPlaceholderEvent(player, receiver, component, unix, inv, InventoryPlaceholderType.ENDERCHEST);
         Bukkit.getPluginManager().callEvent(event);
         inv = event.getInventory();
 

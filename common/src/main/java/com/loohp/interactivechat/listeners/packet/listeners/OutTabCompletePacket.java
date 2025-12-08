@@ -20,16 +20,13 @@
 
 package com.loohp.interactivechat.listeners.packet.listeners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.CommandSuggestion;
 import com.loohp.interactivechat.objectholders.ICPlayer;
-import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
+import com.loohp.interactivechat.platform.PlatformPacketListenerPriority;
+import com.loohp.interactivechat.platform.PlatformPacketEvent;
+import com.loohp.interactivechat.platform.packets.PlatformPlayServerTabCompletePacket;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.context.StringRange;
@@ -44,31 +41,24 @@ import java.util.List;
 import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.createComponent;
 import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.findICPlayer;
 
-public class PLibOutTabCompletePacket {
+public class OutTabCompletePacket {
 
     public static void tabCompleteListener() {
-        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params()
-                .optionAsync()
-                .plugin(InteractiveChat.plugin)
-                .listenerPriority(ListenerPriority.HIGHEST)
-                .types(PacketType.Play.Server.TAB_COMPLETE)) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                if (shouldProcessPacket(event)) {
-                    processPacket(event);
-                }
+        InteractiveChat.protocolPlatform.getPlatformPacketListenerProvider().listenToPlayServerTabComplete(InteractiveChat.plugin, PlatformPacketListenerPriority.HIGHEST, event -> {
+            if (shouldProcessPacket(event)) {
+                processPacket(event);
             }
         });
     }
 
-    private static boolean shouldProcessPacket(PacketEvent event) {
-        return event.isFiltered() && !event.isCancelled() && event.getPacketType().equals(PacketType.Play.Server.TAB_COMPLETE) && !event.isPlayerTemporary();
+    private static boolean shouldProcessPacket(PlatformPacketEvent<?, ?, ? extends PlatformPlayServerTabCompletePacket<?>> event) {
+        return event.isFiltered() && !event.isCancelled() && !event.isPlayerTemporary();
     }
 
-    private static void processPacket(PacketEvent event) {
-        PacketContainer packet = event.getPacket();
+    private static void processPacket(PlatformPacketEvent<?, ?, ? extends PlatformPlayServerTabCompletePacket<?>> event) {
+        PlatformPlayServerTabCompletePacket<?> packet = event.getPacket();
         Player tabCompleter = event.getPlayer();
-        CommandSuggestion<?> pair = NMS.getInstance().readCommandSuggestionPacket(packet);
+        CommandSuggestion<?> pair = packet.getCommandSuggestions();
         int id = pair.getPosition();
         Suggestions suggestions = pair.getSuggestion(Suggestions.class);
         StringRange range = suggestions.getRange();
@@ -78,7 +68,7 @@ public class PLibOutTabCompletePacket {
             newMatches.add(processSuggestion(suggestion, range, tabCompleter));
         }
 
-        event.setPacket(NMS.getInstance().createCommandSuggestionPacket(id, new Suggestions(range, newMatches)));
+        packet.setPacket(InteractiveChat.protocolPlatform.getPlatformPacketCreatorProvider().createPlayServerTabCompletePacket(id, new Suggestions(range, newMatches)));
     }
 
     private static Suggestion processSuggestion(Suggestion suggestion, StringRange range, Player tabCompleter) {

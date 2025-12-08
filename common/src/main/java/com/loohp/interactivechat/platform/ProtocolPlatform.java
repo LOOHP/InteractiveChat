@@ -20,31 +20,32 @@
 
 package com.loohp.interactivechat.platform;
 
-import com.loohp.interactivechat.objectholders.CustomTabCompletionAction;
-import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
+import com.loohp.interactivechat.platform.packets.PlatformPacket;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
 import java.util.UUID;
 
-public interface ProtocolPlatform {
+public interface ProtocolPlatform<PacketEvent, Packet> {
 
     Plugin getRegisteredPlugin();
 
-    void initialize();
-
-    void onBungeecordModeEnabled();
-
-    void sendTabCompletionPacket(Player player, CustomTabCompletionAction action, List<String> list);
-
-    void sendUnprocessedChatMessage(CommandSender sender, UUID uuid, Component component);
+    Plugin getProtocolPlatformPlugin();
 
     boolean hasChatSigning();
 
     int getProtocolVersion(Player player);
 
     Player newTemporaryPlayer(String name, UUID uuid);
+
+    default void sendServerPacket(Player player, PlatformPacket<?> packet) {
+        sendServerPacket(player, packet, true);
+    }
+
+    void sendServerPacket(Player player, PlatformPacket<?> packet, boolean filtered);
+
+    PlatformPacketListenerProvider<PacketEvent, Packet> getPlatformPacketListenerProvider();
+
+    PlatformPacketCreatorProvider<Packet> getPlatformPacketCreatorProvider();
 
 }

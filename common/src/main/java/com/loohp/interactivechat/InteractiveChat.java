@@ -23,6 +23,7 @@ package com.loohp.interactivechat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageListener;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
+import com.loohp.interactivechat.bungeemessaging.ServerPingListener;
 import com.loohp.interactivechat.config.ConfigManager;
 import com.loohp.interactivechat.data.Database;
 import com.loohp.interactivechat.data.PlayerDataManager;
@@ -45,6 +46,10 @@ import com.loohp.interactivechat.listeners.PaperChatEvents;
 import com.loohp.interactivechat.listeners.PlayerEvents;
 import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler;
+import com.loohp.interactivechat.listeners.packet.listeners.ClientSettingPacket;
+import com.loohp.interactivechat.listeners.packet.listeners.OutTabCompletePacket;
+import com.loohp.interactivechat.listeners.packet.listeners.OutMessagePacket;
+import com.loohp.interactivechat.listeners.packet.listeners.RedispatchSignedPacket;
 import com.loohp.interactivechat.metrics.Charts;
 import com.loohp.interactivechat.metrics.Metrics;
 import com.loohp.interactivechat.modules.MentionDisplay;
@@ -354,7 +359,8 @@ public class InteractiveChat extends JavaPlugin {
     public static PlaceholderCooldownManager placeholderCooldownManager;
     public static NicknameManager nicknameManager;
     public static Database database;
-    public static ProtocolPlatform protocolPlatform;
+
+    public static ProtocolPlatform<?, ?> protocolPlatform;
 
     public static Map<UUID, List<SignedMessageModificationData>> signedMessageModificationData = new ConcurrentHashMap<>();
     public static Map<Plugin, ValuePairs<Integer, BiFunction<ItemStack, UUID, ItemStack>>> itemStackTransformFunctions = new ConcurrentHashMap<>();
@@ -438,7 +444,8 @@ public class InteractiveChat extends JavaPlugin {
             return;
         }
 
-        // checks if protocolplatform hasn't been initialised through another plugin
+        // Checks if ProtocolPlatform hasn't been initialised through another plugin
+        // Other plugins must do so during onload
         if (protocolPlatform == null) {
             if (isPluginEnabled("ProtocolLib")) {
                 getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[InteractiveChat] No custom ProtocolProvider provided, using default ProtocolLib provider.");
@@ -459,7 +466,7 @@ public class InteractiveChat extends JavaPlugin {
             getServer().getMessenger().registerOutgoingPluginChannel(this, "interchat:main");
             getServer().getMessenger().registerIncomingPluginChannel(this, "interchat:main", bungeeMessageListener = new BungeeMessageListener(this));
 
-            protocolPlatform.onBungeecordModeEnabled();
+            ServerPingListener.listen();
 
             Scheduler.runTaskTimerAsynchronously(plugin, () -> {
                 if (parsePAPIOnMainThread) {
@@ -527,11 +534,14 @@ public class InteractiveChat extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerUtils(), this);
         getServer().getPluginManager().registerEvents(new MapViewer(), this);
 
-        // Register the packet listener only if it is our own (ProtocolLib).
-        // An external provider must initialize ONCE the external plugin is initialized.
-        if (protocolPlatform instanceof ProtocolLibPlatform) {
-            protocolPlatform.initialize();
+        OutMessagePacket.messageListeners();
+        if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
+            RedispatchSignedPacket.packetListener();
         }
+        if (!version.isLegacy()) {
+            OutTabCompletePacket.tabCompleteListener();
+        }
+        ClientSettingPacket.clientSettingsListener();
         OutTabCompletePacketHandler.init();
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {

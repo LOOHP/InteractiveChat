@@ -47,7 +47,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         return HANDLERS;
     }
 
-    private final Player reciever;
+    private final Player receiver;
     private final UUID sender;
     private String title;
     private String subtitle;
@@ -60,7 +60,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 
     public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Either<Sound, String> sound, boolean silent, boolean cancel) {
         super(async);
-        this.reciever = receiver;
+        this.receiver = receiver;
         this.sender = sender;
         this.title = title;
         this.subtitle = subtitle;
@@ -83,7 +83,7 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
     }
 
     public Player getReceiver() {
-        return reciever;
+        return receiver;
     }
 
     public UUID getSender() {

@@ -65,13 +65,13 @@ public class BedrockHook implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChatPacket(PreChatPacketSendEvent event) {
         if (!event.isCancelled() || event.sendOriginalIfCancelled()) {
-            addChatMessage(event.getReciver().getUniqueId(), event.getComponent());
+            addChatMessage(event.getReceiver().getUniqueId(), event.getComponent());
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChatPacket(PreExternalResponseSendEvent event) {
-        addChatMessage(event.getReciever().getUniqueId(), event.getComponent());
+        addChatMessage(event.getreceiver().getUniqueId(), event.getComponent());
     }
 
     @EventHandler

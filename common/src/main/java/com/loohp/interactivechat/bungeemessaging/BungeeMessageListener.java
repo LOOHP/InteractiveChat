@@ -27,7 +27,7 @@ import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.api.InteractiveChatAPI;
 import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
-import com.loohp.interactivechat.api.events.ProxyCustomDataRecievedEvent;
+import com.loohp.interactivechat.api.events.ProxyCustomDataReceivedEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
@@ -445,7 +445,7 @@ public class BungeeMessageListener implements PluginMessageListener {
                         int dataLength = input.readInt();
                         byte[] customData = new byte[dataLength];
                         input.readFully(customData);
-                        ProxyCustomDataRecievedEvent dataEvent = new ProxyCustomDataRecievedEvent(customChannel, customData);
+                        ProxyCustomDataReceivedEvent dataEvent = new ProxyCustomDataReceivedEvent(customChannel, customData);
                         Bukkit.getPluginManager().callEvent(dataEvent);
                         break;
                 }

@@ -30,9 +30,12 @@ import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.PlaceholderCooldownManager;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.interactivechat.objectholders.ValueTrios;
+import com.loohp.interactivechat.platform.packets.PlatformPlayServerSystemChatPacket;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -100,7 +103,13 @@ public class InteractiveChatAPI {
      * @param component
      */
     public static void sendMessageUnprocessed(CommandSender sender, UUID uuid, Component component) {
-        InteractiveChat.protocolPlatform.sendUnprocessedChatMessage(sender, uuid, component);
+        if (sender instanceof Player) {
+            PlatformPlayServerSystemChatPacket<?> packet = InteractiveChat.protocolPlatform.getPlatformPacketCreatorProvider().createPlayServerSystemChatPacket(uuid, component);
+            InteractiveChat.protocolPlatform.sendServerPacket((Player) sender, packet, false);
+        } else {
+            String json = InteractiveChatComponentSerializer.gson().serialize(component);
+            sender.spigot().sendMessage(ComponentSerializer.parse(json));
+        }
     }
 
     /**

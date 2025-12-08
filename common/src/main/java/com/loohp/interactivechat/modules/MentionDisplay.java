@@ -81,7 +81,7 @@ public class MentionDisplay implements Listener {
     public static Component process(Component component, Player receiver, ICPlayer sender, long unix, boolean async) {
         Optional<MentionPair> optPair;
         synchronized (InteractiveChat.mentionPair) {
-            optPair = InteractiveChat.mentionPair.stream().filter(each -> each.getReciever().equals(receiver.getUniqueId())).findFirst();
+            optPair = InteractiveChat.mentionPair.stream().filter(each -> each.getreceiver().equals(receiver.getUniqueId())).findFirst();
         }
         if (optPair.isPresent()) {
             MentionPair pair = optPair.get();

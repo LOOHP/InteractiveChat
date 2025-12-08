@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.api.events;
 
+import com.loohp.interactivechat.platform.packets.PlatformPlayServerUnifiedChatMessagePacket;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -41,18 +42,18 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         return HANDLERS;
     }
 
-    private final Player reciever;
-    private final Object packet;
+    private final Player receiver;
+    private final PlatformPlayServerUnifiedChatMessagePacket<?> packet;
     private final Component component;
     private final UUID sender;
-    private final Object original;
-    private Object originalModified;
+    private final PlatformPlayServerUnifiedChatMessagePacket<?> original;
+    private PlatformPlayServerUnifiedChatMessagePacket<?> originalModified;
     private boolean sendOriginalIfCancelled;
     private boolean cancel;
 
-    public PreChatPacketSendEvent(boolean async, Player reciever, Object packet, Component component, UUID sender, Object original, boolean sendOriginalIfCancelled, boolean cancelled) {
+    public PreChatPacketSendEvent(boolean async, Player receiver, PlatformPlayServerUnifiedChatMessagePacket<?> packet, Component component, UUID sender, PlatformPlayServerUnifiedChatMessagePacket<?> original, boolean sendOriginalIfCancelled, boolean cancelled) {
         super(async);
-        this.reciever = reciever;
+        this.receiver = receiver;
         this.packet = packet;
         this.component = component;
         this.sender = sender;
@@ -71,20 +72,15 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         this.cancel = cancel;
     }
 
-    public Player getReciver() {
-        return reciever;
+    public Player getReceiver() {
+        return receiver;
     }
 
     public UUID getSender() {
         return sender;
     }
 
-    /**
-     * This will either be ProtocolLib's PacketContainer, or PacketEvent's PacketWrapper<?>.
-     *
-     * @return The modified chat packet Object.
-     */
-    public Object getPacket() {
+    public PlatformPlayServerUnifiedChatMessagePacket<?> getPacket() {
         return packet;
     }
 
@@ -92,12 +88,7 @@ public class PreChatPacketSendEvent extends Event implements Cancellable {
         return component;
     }
 
-    /**
-     * Like getPacket(), this will either be ProtocolLib's PacketContainer, or PacketEvent's PacketWrapper<?>.
-     *
-     * @return The chat packet, before any applied modifications.
-     */
-    public Object getOriginal() {
+    public PlatformPlayServerUnifiedChatMessagePacket<?> getOriginal() {
         return original;
     }
 

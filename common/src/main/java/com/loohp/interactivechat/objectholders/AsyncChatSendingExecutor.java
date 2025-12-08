@@ -22,7 +22,9 @@ package com.loohp.interactivechat.objectholders;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.platform.packets.PlatformPacket;
 import com.loohp.platformscheduler.ScheduledTask;
+import com.loohp.platformscheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -45,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongSupplier;
 
-public abstract class AsyncChatSendingExecutor implements AutoCloseable {
+public class AsyncChatSendingExecutor implements AutoCloseable {
 
     private static final int MAX_WAITING_PACKETS_PER_PLAYER = 1000;
     private static final int MAX_MESSAGE_ORDER_PER_PLAYER = 500;
@@ -57,10 +59,10 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
 
     private final ReentrantLock executeLock;
     public final Map<UUID, Queue<MessageOrderInfo>> messagesOrder;
-    public final Queue<OutboundPacket> sendingQueue;
+    public final Queue<OutboundPacket<?>> sendingQueue;
     private final ThreadPoolExecutor executor;
     private final Map<Future<?>, ExecutingTaskData> executingTasks;
-    public final Map<UUID, Map<UUID, OutboundPacket>> waitingPackets;
+    public final Map<UUID, Map<UUID, OutboundPacket<?>>> waitingPackets;
     private final Map<UUID, Long> lastSuccessfulCheck;
 
     private final List<ScheduledTask> tasks;
@@ -107,10 +109,8 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         }
     }
 
-    public void send(Object packet, Player player, UUID id) {
-        // No need to cast to PacketContainer. packetSender() will cast to PacketContainer later, and this method's packet variable will always be a PacketContainer.
-        // If someone is supplying something that *isn't* a PacketContainer, then it's layer 8.
-        OutboundPacket outboundPacket = new OutboundPacket(player, packet);
+    public void send(PlatformPacket<?> packet, Player player, UUID id) {
+        OutboundPacket<?> outboundPacket = new OutboundPacket<>(player, packet);
 
         if (sendingQueue.size() >= MAX_SENDING_QUEUE_SIZE) {
             return;
@@ -122,7 +122,7 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         } else {
             if (queue.stream().anyMatch(each -> each.getId().equals(id))) {
                 waitingPackets.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
-                Map<UUID, OutboundPacket> waitingMap = waitingPackets.get(player.getUniqueId());
+                Map<UUID, OutboundPacket<?>> waitingMap = waitingPackets.get(player.getUniqueId());
                 if (waitingMap.size() < MAX_WAITING_PACKETS_PER_PLAYER) {
                     waitingMap.put(id, outboundPacket);
                 } else {
@@ -163,9 +163,9 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
                 if (Bukkit.getPlayer(playerUUID) == null) {
                     return true;
                 }
-                Map<UUID, OutboundPacket> playerPackets = entry.getValue();
+                Map<UUID, OutboundPacket<?>> playerPackets = entry.getValue();
                 if (playerPackets.size() > MAX_WAITING_PACKETS_PER_PLAYER) {
-                    Iterator<Entry<UUID, OutboundPacket>> iterator = playerPackets.entrySet().iterator();
+                    Iterator<Entry<UUID, OutboundPacket<?>>> iterator = playerPackets.entrySet().iterator();
                     int toRemove = playerPackets.size() - MAX_WAITING_PACKETS_PER_PLAYER;
                     for (int i = 0; i < toRemove && iterator.hasNext(); i++) {
                         iterator.next();
@@ -209,27 +209,27 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
                 long currentTime = System.currentTimeMillis();
                 performPeriodicCleanup(currentTime);
                 
-                Iterator<Entry<UUID, Map<UUID, OutboundPacket>>> itr = waitingPackets.entrySet().iterator();
+                Iterator<Entry<UUID, Map<UUID, OutboundPacket<?>>>> itr = waitingPackets.entrySet().iterator();
                 while (itr.hasNext()) {
-                    Entry<UUID, Map<UUID, OutboundPacket>> entry = itr.next();
+                    Entry<UUID, Map<UUID, OutboundPacket<?>>> entry = itr.next();
                     UUID playerUUID = entry.getKey();
                     if (Bukkit.getPlayer(playerUUID) == null) {
                         itr.remove();
                         continue;
                     }
                     Queue<MessageOrderInfo> orderingQueue = messagesOrder.get(playerUUID);
-                    Map<UUID, OutboundPacket> playerWaitingPackets = entry.getValue();
+                    Map<UUID, OutboundPacket<?>> playerWaitingPackets = entry.getValue();
                     MessageOrderInfo messageOrderInfo;
                     if (orderingQueue != null) {
                         if ((messageOrderInfo = orderingQueue.peek()) == null) {
-                            Iterator<Entry<UUID, OutboundPacket>> itr0 = playerWaitingPackets.entrySet().iterator();
+                            Iterator<Entry<UUID, OutboundPacket<?>>> itr0 = playerWaitingPackets.entrySet().iterator();
                             while (itr0.hasNext()) {
                                 sendingQueue.add(itr0.next().getValue());
                                 itr0.remove();
                             }
                         } else {
                             UUID id = messageOrderInfo.getId();
-                            OutboundPacket outboundPacket = playerWaitingPackets.get(id);
+                            OutboundPacket<?> outboundPacket = playerWaitingPackets.get(id);
                             if (outboundPacket != null) {
                                 sendingQueue.add(outboundPacket);
                                 playerWaitingPackets.remove(id);
@@ -265,7 +265,20 @@ public abstract class AsyncChatSendingExecutor implements AutoCloseable {
         }, "InteractiveChat Async ChatPacket Ordered Sending Thread").start();
     }
 
-    public abstract ScheduledTask packetSender();
+    public ScheduledTask packetSender() {
+        return Scheduler.runTaskTimer(InteractiveChat.plugin, () -> {
+            while (!sendingQueue.isEmpty()) {
+                OutboundPacket<?> out = sendingQueue.poll();
+                try {
+                    if (out.getReceiver().isOnline()) {
+                        InteractiveChat.protocolPlatform.sendServerPacket(out.getReceiver(), out.getPacket(), false);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 1);
+    }
 
     private void monitor() {
         new Thread(() -> {

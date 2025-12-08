@@ -33,9 +33,9 @@ public class MentionPair {
     private final long timestamp;
     private final ScheduledTask task;
 
-    public MentionPair(UUID sender, UUID reciever) {
+    public MentionPair(UUID sender, UUID receiver) {
         this.sender = sender;
-        this.receiver = reciever;
+        this.receiver = receiver;
         this.timestamp = System.currentTimeMillis();
         this.task = run();
     }
@@ -44,7 +44,7 @@ public class MentionPair {
         return sender;
     }
 
-    public UUID getReciever() {
+    public UUID getreceiver() {
         return receiver;
     }
 

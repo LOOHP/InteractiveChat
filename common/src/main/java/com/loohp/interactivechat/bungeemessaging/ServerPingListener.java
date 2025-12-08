@@ -20,44 +20,33 @@
 
 package com.loohp.interactivechat.bungeemessaging;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedServerPing;
 import com.loohp.interactivechat.InteractiveChat;
-import com.loohp.interactivechat.platform.protocollib.ProtocolLibPlatform;
+import com.loohp.interactivechat.platform.PlatformPacketListenerPriority;
+import com.loohp.interactivechat.platform.packets.PlatformHandshakeClientSetProtocolPacket;
+import com.loohp.interactivechat.platform.packets.PlatformStatusServerServerInfoPacket;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.platformscheduler.Scheduler;
 
+import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.MOTD_JSON;
 import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.REQUESTS;
-import static com.loohp.interactivechat.bungeemessaging.ServerPingListenerUtils.json;
 
 public class ServerPingListener {
 
     public static void listen() {
-        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Handshake.Client.SET_PROTOCOL)) {
-            @Override
-            public void onPacketReceiving(PacketEvent event) {
-                PacketContainer packet = event.getPacket();
-                String str = packet.getStrings().read(0);
-                if (str != null && str.equals(Registry.PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER) && event.isPlayerTemporary()) {
-                    REQUESTS.put(event.getPlayer(), System.currentTimeMillis() + 5000);
-                }
+        InteractiveChat.protocolPlatform.getPlatformPacketListenerProvider().listenToHandshakeClientSetProtocol(InteractiveChat.plugin, PlatformPacketListenerPriority.NORMAL, event -> {
+            PlatformHandshakeClientSetProtocolPacket<?> packet = event.getPacket();
+            String str = packet.getServerAddress();
+            if (str != null && str.equals(Registry.PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER) && event.isPlayerTemporary()) {
+                REQUESTS.put(event.getIdentityObject(), System.currentTimeMillis() + 5000);
             }
         });
-        ProtocolLibPlatform.protocolManager.addPacketListener(new PacketAdapter(PacketAdapter.params().optionAsync().plugin(InteractiveChat.plugin).types(PacketType.Status.Server.SERVER_INFO)) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                PacketContainer packet = event.getPacket();
-                WrappedServerPing response = packet.getServerPings().read(0);
-                if (event.isPlayerTemporary() && REQUESTS.remove(event.getPlayer()) != null && response != null) {
-                    response.setMotD(json);
-                    packet.getServerPings().write(0, response);
-                }
+        InteractiveChat.protocolPlatform.getPlatformPacketListenerProvider().listenToStatusServerServerInfo(InteractiveChat.plugin, PlatformPacketListenerPriority.NORMAL, event -> {
+            PlatformStatusServerServerInfoPacket<?> packet = event.getPacket();
+            String motd = packet.getMotd();
+            if (event.isPlayerTemporary() && REQUESTS.remove(event.getIdentityObject()) != null && motd != null) {
+                packet.setMotd(MOTD_JSON);
             }
         });
-
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             REQUESTS.entrySet().removeIf(entry -> System.currentTimeMillis() > entry.getValue());
         }, 0, 20);

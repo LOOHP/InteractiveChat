@@ -115,6 +115,10 @@ public class PlaceholderParser {
     }
 
     private static String parse0(OfflineICPlayer offlineICPlayer, String str) {
+        return ChatColorUtils.translateAlternateColorCodes('&', parsePlaceholder(offlineICPlayer, str));
+    }
+
+    private static String parsePlaceholder(OfflineICPlayer offlineICPlayer, String str) {
         ICPlayer player = offlineICPlayer.getPlayer();
         if (player == null) {
             return PlaceholderAPI.setPlaceholders(offlineICPlayer.getLocalOfflinePlayer(), str);

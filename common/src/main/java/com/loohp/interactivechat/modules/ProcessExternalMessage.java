@@ -35,6 +35,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentFont;
 import com.loohp.interactivechat.utils.ComponentModernizing;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.ItemStackUtils;
@@ -45,8 +46,9 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -56,6 +58,7 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -158,10 +161,9 @@ public class ProcessExternalMessage {
                 if (!InteractiveChat.useCustomPlaceholderPermissions || (InteractiveChat.useCustomPlaceholderPermissions && PlayerUtils.hasPermission(sender.getUniqueId(), customP.getPermission(), true, 250))) {
                     if (customP.getKeyword().matcher(message).find()) {
                         if (customP.getReplace().isEnabled()) {
-                            String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+                            Component replace = Component.empty().color(NamedTextColor.WHITE).children(Collections.singletonList(PlaceholderParser.parse(sender, customP.getReplace().getReplaceText())));
                             component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
-                                String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
-                                return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+                                return ComponentUtils.applyReplacementRegex(replace, result, 1);
                             });
                         }
                     }
@@ -173,10 +175,9 @@ public class ProcessExternalMessage {
             for (CustomPlaceholder customP : WebData.getInstance().getSpecialPlaceholders()) {
                 if (customP.getKeyword().matcher(message).find()) {
                     if (customP.getReplace().isEnabled()) {
-                        String replace = ChatColor.WHITE + ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(sender, customP.getReplace().getReplaceText()));
+                        Component replace = Component.empty().color(NamedTextColor.WHITE).children(Collections.singletonList(PlaceholderParser.parse(sender, customP.getReplace().getReplaceText())));
                         component = ComponentReplacing.replace(component, customP.getKeyword().pattern(), true, result -> {
-                            String replaceString = CustomStringUtils.applyReplacementRegex(replace, result, 1);
-                            return LegacyComponentSerializer.legacySection().deserialize(replaceString);
+                            return ComponentUtils.applyReplacementRegex(replace, result, 1);
                         });
                     }
                 }
@@ -199,29 +200,31 @@ public class ProcessExternalMessage {
 
                 itemStr = RarityUtils.getRarityColor(item) + itemStr;
 
-                String replaceText;
+                Component replaceText;
                 if (amount == 1) {
-                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replace("{Item}", itemStr));
+                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(Component.text(itemStr)).build()));
                 } else {
-                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText.replace("{Amount}", String.valueOf(amount)).replace("{Item}", itemStr));
+                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText
+                            .replaceText(TextReplacementConfig.builder().matchLiteral("{Amount}").replacement(Component.text(amount)).build())
+                            .replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(Component.text(itemStr)).build()));
                 }
-                component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
+                component = ComponentReplacing.replace(component, placeholder.pattern(), true, replaceText);
             }
         }
 
         if (InteractiveChat.useInventory && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.inventory", true, 250)) {
             Pattern placeholder = InteractiveChat.invPlaceholder.getKeyword();
             if (placeholder.matcher(message).find()) {
-                String replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
-                component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
+                Component replaceText = PlaceholderParser.parse(sender, InteractiveChat.invReplaceText);
+                component = ComponentReplacing.replace(component, placeholder.pattern(), true, replaceText);
             }
         }
 
         if (InteractiveChat.useEnder && PlayerUtils.hasPermission(sender.getUniqueId(), "interactivechat.module.enderchest", true, 250)) {
             Pattern placeholder = InteractiveChat.enderPlaceholder.getKeyword();
             if (placeholder.matcher(message).find()) {
-                String replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
-                component = ComponentReplacing.replace(component, placeholder.pattern(), true, LegacyComponentSerializer.legacySection().deserialize(replaceText));
+                Component replaceText = PlaceholderParser.parse(sender, InteractiveChat.enderReplaceText);
+                component = ComponentReplacing.replace(component, placeholder.pattern(), true, replaceText);
             }
         }
 

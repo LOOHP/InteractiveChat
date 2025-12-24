@@ -34,6 +34,7 @@ import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
@@ -51,7 +52,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.DataComponentValue;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -94,8 +94,8 @@ public class ItemDisplay {
                 ICPlayer player = optplayer.get();
                 if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.item", true, 5)) {
                     Component alternativeHover = null;
-                    if (!InteractiveChat.itemHover && !InteractiveChat.itemAlternativeHoverMessage.isEmpty()) {
-                        alternativeHover = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.itemAlternativeHoverMessage);
+                    if (!InteractiveChat.itemHover && !ComponentUtils.isEmpty(InteractiveChat.itemAlternativeHoverMessage)) {
+                        alternativeHover = InteractiveChat.itemAlternativeHoverMessage;
                     }
                     Component itemComponent = ComponentFlattening.flatten(createItemDisplay(player, receiver, component, unix, InteractiveChat.itemHover, alternativeHover, preview));
                     component = ComponentReplacing.replace(component, regex, true, itemComponent);
@@ -103,16 +103,16 @@ public class ItemDisplay {
             } else {
                 Component message;
                 if (InteractiveChat.playerNotFoundReplaceEnable) {
-                    message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.itemName));
+                    message = InteractiveChat.playerNotFoundReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.itemName).build());
                 } else {
                     message = Component.text(InteractiveChat.itemName);
                 }
                 if (InteractiveChat.playerNotFoundHoverEnable && InteractiveChat.itemHover) {
-                    message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.itemName))));
+                    message = message.hoverEvent(HoverEvent.showText(InteractiveChat.playerNotFoundHoverText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.itemName).build())));
                 }
                 if (InteractiveChat.playerNotFoundClickEnable) {
                     String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.itemName));
-                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), ClickEvent.Payload.string(clickValue)));
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }
@@ -302,7 +302,7 @@ public class ItemDisplay {
             Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] " + ChatColor.RED + "Trimmed an item display's meta data as it's NBT exceeds the maximum characters allowed in the chat [THIS IS NOT A BUG]");
         }
 
-        Component itemDisplayComponent = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, itemAmount == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replace("{Amount}", amountString))));
+        Component itemDisplayComponent = PlaceholderParser.parse(player, itemAmount == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Amount}").replacement(Component.text(amountString)).build()));
         itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
         if (showHover) {
             itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);

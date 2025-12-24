@@ -80,6 +80,7 @@
         <module>V1_21_8</module>
         <module>V1_21_9</module>
         <module>V1_21_10</module>
+        <module>V1_21_11</module>
         <module>common</module>
     </modules>
 </project>

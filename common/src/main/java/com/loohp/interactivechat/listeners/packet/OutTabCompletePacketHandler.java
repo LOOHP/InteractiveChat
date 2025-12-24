@@ -30,7 +30,6 @@ import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -81,7 +80,7 @@ public class OutTabCompletePacketHandler {
     }
 
     public static Component createComponent(ICPlayer icplayer, Player tabCompleter) {
-        Component component = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip)));
+        Component component = PlaceholderParser.parse(icplayer, InteractiveChat.tabTooltip);
         if (!PlayerUtils.canChatColor(tabCompleter)) {
             component = ComponentStyling.stripColor(component);
         }

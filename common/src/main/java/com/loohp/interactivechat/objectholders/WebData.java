@@ -28,6 +28,8 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.utils.HTTPRequestUtils;
 import com.loohp.platformscheduler.Scheduler;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -94,7 +96,7 @@ public class WebData {
         for (Object obj : (JSONArray) json.get("special-placeholders")) {
             JSONObject each = (JSONObject) obj;
             String name = (String) each.get("name");
-            specialPlaceholders.add(new CustomPlaceholder(name, ParsePlayer.valueOf((String) each.get("parseplayer")), Pattern.compile((String) each.get("keyword")), true, Long.parseLong(each.get("cooldown").toString()), new CustomPlaceholderHoverEvent((boolean) each.get("hoverEnabled"), (String) each.get("hoverText")), new CustomPlaceholderClickEvent((boolean) each.get("clickEnabled"), ClickEventAction.valueOf((String) each.get("clickAction")), (String) each.get("clickValue")), new CustomPlaceholderReplaceText((boolean) each.get("replaceEnabled"), (String) each.get("replaceText")), name, ""));
+            specialPlaceholders.add(new CustomPlaceholder(name, ParsePlayer.valueOf((String) each.get("parseplayer")), Pattern.compile((String) each.get("keyword")), true, Long.parseLong(each.get("cooldown").toString()), new CustomPlaceholderHoverEvent((boolean) each.get("hoverEnabled"), LegacyComponentSerializer.legacyAmpersand().deserialize((String) each.get("hoverText"))), new CustomPlaceholderClickEvent((boolean) each.get("clickEnabled"), ClickEventAction.valueOf((String) each.get("clickAction")), (String) each.get("clickValue")), new CustomPlaceholderReplaceText((boolean) each.get("replaceEnabled"), LegacyComponentSerializer.legacyAmpersand().deserialize((String) each.get("replaceText"))), name, Component.empty()));
         }
 
         this.specialPlaceholders = specialPlaceholders;

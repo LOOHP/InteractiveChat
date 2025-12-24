@@ -31,7 +31,9 @@ import com.loohp.interactivechat.objectholders.MentionPair;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
+import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.SoundUtils;
@@ -86,19 +88,19 @@ public class MentionDisplay implements Listener {
         if (optPair.isPresent()) {
             MentionPair pair = optPair.get();
             if (pair.getSender().equals(sender.getUniqueId())) {
-                String title = PlaceholderParser.parse(sender, InteractiveChat.mentionTitle);
-                String subtitle = PlaceholderParser.parse(sender, InteractiveChat.mentionSubtitle);
-                String actionbar = PlaceholderParser.parse(sender, InteractiveChat.mentionActionbar);
-                String toast = PlaceholderParser.parse(sender, InteractiveChat.mentionToast);
-                String bossBarText = PlaceholderParser.parse(sender, InteractiveChat.mentionBossBarText);
+                Component title = PlaceholderParser.parse(sender, InteractiveChat.mentionTitle);
+                Component subtitle = PlaceholderParser.parse(sender, InteractiveChat.mentionSubtitle);
+                Component actionbar = PlaceholderParser.parse(sender, InteractiveChat.mentionActionbar);
+                Component toast = PlaceholderParser.parse(sender, InteractiveChat.mentionToast);
+                Component bossBarText = PlaceholderParser.parse(sender, InteractiveChat.mentionBossBarText);
                 String bossBarColorName = InteractiveChat.mentionBossBarColorName;
                 String bossBarOverlayName = InteractiveChat.mentionBossBarOverlayName;
 
                 Optional<BossBar> optBossBar;
-                if (bossBarText.isEmpty()) {
+                if (ComponentUtils.isEmpty(bossBarText)) {
                     optBossBar = Optional.empty();
                 } else {
-                    optBossBar = Optional.of(BossBar.bossBar(LegacyComponentSerializer.legacySection().deserialize(bossBarText), 1, Color.valueOf(bossBarColorName.toUpperCase()), Overlay.valueOf(bossBarOverlayName.toUpperCase())));
+                    optBossBar = Optional.of(BossBar.bossBar(bossBarText, 1, Color.valueOf(bossBarColorName.toUpperCase()), Overlay.valueOf(bossBarOverlayName.toUpperCase())));
                 }
 
                 String settings = InteractiveChat.mentionSound;
@@ -146,9 +148,9 @@ public class MentionDisplay implements Listener {
                             lastMentionMapping.put(sender.getUniqueId(), unix);
                         }
 
-                        Component titleComponent = LegacyComponentSerializer.legacySection().deserialize(mentionEvent.getTitle());
-                        Component subtitleComponent = LegacyComponentSerializer.legacySection().deserialize(mentionEvent.getSubtitle());
-                        Component actionbarComponent = LegacyComponentSerializer.legacySection().deserialize(mentionEvent.getActionbar());
+                        Component titleComponent = mentionEvent.getTitle();
+                        Component subtitleComponent = mentionEvent.getSubtitle();
+                        Component actionbarComponent = mentionEvent.getActionbar();
 
                         int time = InteractiveChat.mentionTitleDuration;
                         NMS.getInstance().sendTitle(receiver, titleComponent, subtitleComponent, actionbarComponent, 10, Math.max(time, 1), 20);
@@ -163,8 +165,9 @@ public class MentionDisplay implements Listener {
                                 receiver.playSound(receiver.getLocation(), soundLocation.toLowerCase(), volume, pitch);
                             }
                         }
-                        if (!mentionEvent.getToast().isEmpty() && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
-                            NMS.getInstance().sendToast(sender, receiver, toast, WRITABLE_BOOK.clone());
+                        if (!ComponentUtils.isEmpty(mentionEvent.getToast()) && InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_12)) {
+                            String toastJson = InteractiveChatComponentSerializer.gson().serialize(toast);
+                            NMS.getInstance().sendToast(sender, receiver, toastJson, WRITABLE_BOOK.clone());
                         }
 
                         int bossBarTime = InteractiveChat.mentionBossBarDuration;

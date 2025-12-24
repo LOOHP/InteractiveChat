@@ -26,6 +26,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.ICMaterial;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -223,6 +224,14 @@ public class DataTypeIO {
         byte[] bytes = string.getBytes(charset);
         out.writeInt(bytes.length);
         out.write(bytes);
+    }
+
+    public static Component readComponent(ByteArrayDataInput in, Charset charset) throws IOException {
+        return InteractiveChatComponentSerializer.gson().deserialize(readString(in, charset));
+    }
+
+    public static void writeComponent(ByteArrayDataOutput out, Component component, Charset charset) throws IOException {
+        writeString(out, InteractiveChatComponentSerializer.gson().serialize(component), charset);
     }
 
 }

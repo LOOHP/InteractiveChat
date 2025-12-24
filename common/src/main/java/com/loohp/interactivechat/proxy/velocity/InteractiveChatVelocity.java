@@ -562,7 +562,7 @@ public class InteractiveChatVelocity {
                                     if (isBuiltIn) {
                                         String keyword = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                         String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        Component description = DataTypeIO.readComponent(input, StandardCharsets.UTF_8);
                                         String permission = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                         long cooldown = input.readLong();
                                         list.add(new BuiltInPlaceholder(Pattern.compile(keyword), name, description, permission, cooldown));
@@ -573,14 +573,14 @@ public class InteractiveChatVelocity {
                                         boolean parseKeyword = input.readBoolean();
                                         long cooldown = input.readLong();
                                         boolean hoverEnabled = input.readBoolean();
-                                        String hoverText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        Component hoverText = DataTypeIO.readComponent(input, StandardCharsets.UTF_8);
                                         boolean clickEnabled = input.readBoolean();
                                         String clickAction = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                         String clickValue = DataTypeIO.readString(input, StandardCharsets.UTF_8);
                                         boolean replaceEnabled = input.readBoolean();
-                                        String replaceText = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        Component replaceText = DataTypeIO.readComponent(input, StandardCharsets.UTF_8);
                                         String name = DataTypeIO.readString(input, StandardCharsets.UTF_8);
-                                        String description = DataTypeIO.readString(input, StandardCharsets.UTF_8);
+                                        Component description = DataTypeIO.readComponent(input, StandardCharsets.UTF_8);
 
                                         list.add(new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description));
                                     }

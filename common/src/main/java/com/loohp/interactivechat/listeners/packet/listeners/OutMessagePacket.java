@@ -115,11 +115,12 @@ public class OutMessagePacket {
     private static void processPacket(Player receiver, ICPlayer determinedSender, PlatformPlayServerUnifiedChatMessagePacket<?> packet, UUID messageUUID, boolean isFiltered, MessagePacketHandler<?, ?> MessagePacketHandler) {
         PlatformPlayServerUnifiedChatMessagePacket<?> originalPacket = packet.shallowClone();
         try {
-            if (MessagePacketHandler.getAccessor() == null) {
+            PacketAccessor<?> accessor = MessagePacketHandler.getAccessor();
+            if (accessor == null) {
                 SERVICE.send(packet, receiver, messageUUID);
                 return;
             }
-            PacketAccessorResult packetAccessorResult = MessagePacketHandler.getAccessor().apply(packet, receiver);
+            PacketAccessorResult packetAccessorResult = accessor.apply(packet, receiver);
             Component component = packetAccessorResult.getComponent();
             ChatComponentType type = packetAccessorResult.getType();
             int field = packetAccessorResult.getField();
@@ -141,7 +142,12 @@ public class OutMessagePacket {
                 return;
             }
 
-            if (InteractiveChat.version.isOld() && JsonUtils.containsKey(InteractiveChatComponentSerializer.gson().serialize(component), "translate")) {
+            String preJson = InteractiveChatComponentSerializer.gson().serialize(component);
+            if (preJson.length() > InteractiveChat.packetStringPreMaxLength) {
+                SERVICE.send(packet, receiver, messageUUID);
+                return;
+            }
+            if (InteractiveChat.version.isOld() && JsonUtils.containsKey(preJson, "translate")) {
                 SERVICE.send(packet, receiver, messageUUID);
                 return;
             }

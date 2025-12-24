@@ -28,8 +28,8 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.WebData;
-import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.PlaceholderParser;
@@ -37,7 +37,6 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -68,12 +67,12 @@ public class CustomPlaceholderDisplay {
             }
             long cooldown = cp.getCooldown();
             boolean hoverEnabled = cp.getHover().isEnabled();
-            String hoverText = cp.getHover().getText();
+            Component hoverText = cp.getHover().getText();
             boolean clickEnabled = cp.getClick().isEnabled();
             ClickEventAction clickAction = cp.getClick().getAction();
             String clickValue = cp.getClick().getValue();
             boolean replaceEnabled = cp.getReplace().isEnabled();
-            String replaceText = cp.getReplace().getReplaceText();
+            Component replaceText = cp.getReplace().getReplaceText();
 
             component = processCustomPlaceholder(parseplayer, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, component, optplayer, unix);
         }
@@ -87,12 +86,12 @@ public class CustomPlaceholderDisplay {
                 }
                 long cooldown = cp.getCooldown();
                 boolean hoverEnabled = cp.getHover().isEnabled();
-                String hoverText = cp.getHover().getText();
+                Component hoverText = cp.getHover().getText();
                 boolean clickEnabled = cp.getClick().isEnabled();
                 ClickEventAction clickAction = cp.getClick().getAction();
                 String clickValue = cp.getClick().getValue();
                 boolean replaceEnabled = cp.getReplace().isEnabled();
-                String replaceText = cp.getReplace().getReplaceText();
+                Component replaceText = cp.getReplace().getReplaceText();
 
                 component = processCustomPlaceholder(parseplayer, placeholder, cooldown, hoverEnabled, hoverText, clickEnabled, clickAction, clickValue, replaceEnabled, replaceText, component, optplayer, unix);
             }
@@ -101,7 +100,7 @@ public class CustomPlaceholderDisplay {
         return component;
     }
 
-    public static Component processCustomPlaceholder(ICPlayer player, Pattern placeholder, long cooldown, boolean hoverEnabled, String hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, String replaceText, Component component, Optional<ICPlayer> optplayer, long unix) {
+    public static Component processCustomPlaceholder(ICPlayer player, Pattern placeholder, long cooldown, boolean hoverEnabled, Component hoverText, boolean clickEnabled, ClickEventAction clickAction, String clickValue, boolean replaceEnabled, Component replaceText, Component component, Optional<ICPlayer> optplayer, long unix) {
         String plain = InteractiveChatComponentSerializer.plainText().serialize(component);
         if (placeholder.matcher(plain).find()) {
             String regex = placeholder.pattern();
@@ -111,18 +110,16 @@ public class CustomPlaceholderDisplay {
                 } else {
                     Component replaceComponent;
                     if (replaceEnabled) {
-                        String replace = CustomStringUtils.applyReplacementRegex(replaceText, result, 1);
-                        replace = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replace));
-                        replaceComponent = LegacyComponentSerializer.legacySection().deserialize(replace);
+                        replaceComponent = PlaceholderParser.parse(player, ComponentUtils.applyReplacementRegex(replaceText, result, 1));
                     } else {
                         replaceComponent = Component.empty().children(matchedComponents);
                     }
                     if (hoverEnabled) {
-                        replaceComponent = replaceComponent.hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, CustomStringUtils.applyReplacementRegex(hoverText, result, 1))))));
+                        replaceComponent = replaceComponent.hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, PlaceholderParser.parse(player, ComponentUtils.applyReplacementRegex(hoverText, result, 1))));
                     }
                     if (clickEnabled) {
-                        String clicktext = PlaceholderParser.parse(player, CustomStringUtils.applyReplacementRegex(clickValue, result, 1));
-                        replaceComponent = replaceComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(clickAction.name()), clicktext));
+                        String clickText = PlaceholderParser.parse(player, CustomStringUtils.applyReplacementRegex(clickValue, result, 1));
+                        replaceComponent = replaceComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(clickAction.name()), ClickEvent.Payload.string(clickText)));
                     }
                     return replaceComponent;
                 }

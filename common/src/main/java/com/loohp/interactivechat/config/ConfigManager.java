@@ -33,9 +33,11 @@ import com.loohp.interactivechat.objectholders.ICMaterial;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.objectholders.WebData;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.platformscheduler.Scheduler;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -104,6 +106,7 @@ public class ConfigManager {
         InteractiveChat.skipDetectSpamRateWhenDispatchingUnsignedPackets = getConfig().getBoolean("Settings.SkipDetectSpamRateWhenDispatchingUnsignedPackets");
 
         InteractiveChat.itemTagMaxLength = getConfig().getInt("Settings.ItemTagMaxLength");
+        InteractiveChat.packetStringPreMaxLength = getConfig().getInt("Settings.PacketStringPreMaxLength");
         InteractiveChat.packetStringMaxLength = getConfig().getInt("Settings.PacketStringMaxLength");
 
         InteractiveChat.chatListener = getConfig().getBoolean("Settings.PacketsToListen.Chat");
@@ -130,18 +133,18 @@ public class ConfigManager {
 
         InteractiveChat.universalCooldown = getConfig().getLong("Settings.UniversalCooldown") * 1000;
 
-        InteractiveChat.noPermissionMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission"));
-        InteractiveChat.invExpiredMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired"));
-        InteractiveChat.reloadPluginMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin"));
-        InteractiveChat.noConsoleMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand"));
-        InteractiveChat.invalidPlayerMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer"));
-        InteractiveChat.listPlaceholderHeader = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersHeader"));
-        InteractiveChat.listPlaceholderBody = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersBody"));
-        InteractiveChat.notEnoughArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoEnoughArgs"));
-        InteractiveChat.invalidArgs = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidArgs"));
-        InteractiveChat.setInvDisplayLayout = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.SetInventoryDisplayLayout"));
-        InteractiveChat.placeholderCooldownMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlaceholderCooldown"));
-        InteractiveChat.universalCooldownMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.UniversalCooldown"));
+        InteractiveChat.noPermissionMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission")));
+        InteractiveChat.invExpiredMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvExpired")));
+        InteractiveChat.reloadPluginMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ReloadPlugin")));
+        InteractiveChat.noConsoleMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlayerOnlyCommand")));
+        InteractiveChat.invalidPlayerMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidPlayer")));
+        InteractiveChat.listPlaceholderHeader = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersHeader")));
+        InteractiveChat.listPlaceholderBody = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.ListPlaceholdersBody")));
+        InteractiveChat.notEnoughArgs = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.NoEnoughArgs")));
+        InteractiveChat.invalidArgs = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.InvalidArgs")));
+        InteractiveChat.setInvDisplayLayout = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.SetInventoryDisplayLayout")));
+        InteractiveChat.placeholderCooldownMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.PlaceholderCooldown")));
+        InteractiveChat.universalCooldownMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.UniversalCooldown")));
         InteractiveChat.bedrockEventsMenuTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.Title"));
         InteractiveChat.bedrockEventsMenuContent = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.Content"));
         InteractiveChat.bedrockEventsMenuRunSuggested = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.BedrockEventsMenu.RunSuggested"));
@@ -156,10 +159,10 @@ public class ConfigManager {
         Pattern invPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.Inventory.Keyword"));
         Pattern enderPlaceholder = Pattern.compile(getConfig().getString("ItemDisplay.EnderChest.Keyword"));
 
-        InteractiveChat.itemReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text"));
-        InteractiveChat.itemSingularReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.SingularText"));
-        InteractiveChat.invReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text"));
-        InteractiveChat.enderReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Text"));
+        InteractiveChat.itemReplaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Text")));
+        InteractiveChat.itemSingularReplaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.SingularText")));
+        InteractiveChat.invReplaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Text")));
+        InteractiveChat.enderReplaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Text")));
 
         InteractiveChat.itemAirAllow = getConfig().getBoolean("ItemDisplay.Item.EmptyItemSettings.AllowAir");
         InteractiveChat.itemAirErrorMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.EmptyItemSettings.DisallowMessage"));
@@ -169,7 +172,7 @@ public class ConfigManager {
         InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));
 
         InteractiveChat.itemHover = getConfig().getBoolean("ItemDisplay.Item.HoverEnabled");
-        InteractiveChat.itemAlternativeHoverMessage = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("ItemDisplay.Item.AlternativeHoverMessage")));
+        InteractiveChat.itemAlternativeHoverMessage = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("ItemDisplay.Item.AlternativeHoverMessage"))));
         InteractiveChat.itemGUI = getConfig().getBoolean("ItemDisplay.Item.GUIEnabled");
         InteractiveChat.translateHoverableItems = getConfig().getBoolean("ItemDisplay.Item.HoverableItemsTranslation.Enabled");
         InteractiveChat.hoverableItemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.HoverableItemsTranslation.InventoryTitle"));
@@ -267,7 +270,7 @@ public class ConfigManager {
         InteractiveChat.usePlayerNameOverrideClick = getConfig().getBoolean("Player.OverrideOriginal.ClickEvent");
         InteractiveChat.usePlayerNameHoverEnable = getConfig().getBoolean("Player.Hover.Enable");
         List<String> stringList = getConfig().getStringList("Player.Hover.Text");
-        InteractiveChat.usePlayerNameHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList));
+        InteractiveChat.usePlayerNameHoverText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList)));
         InteractiveChat.usePlayerNameClickEnable = getConfig().getBoolean("Player.Click.Enable");
         InteractiveChat.usePlayerNameClickAction = getConfig().getString("Player.Click.Action");
         InteractiveChat.usePlayerNameClickValue = getConfig().getString("Player.Click.Value");
@@ -275,16 +278,16 @@ public class ConfigManager {
 
         InteractiveChat.chatTabCompletionsEnabled = getConfig().getBoolean("TabCompletion.ChatTabCompletions.Enabled");
         InteractiveChat.useTooltipOnTab = getConfig().getBoolean("TabCompletion.PlayerNameToolTip.Enabled");
-        InteractiveChat.tabTooltip = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("TabCompletion.PlayerNameToolTip.ToolTip"));
+        InteractiveChat.tabTooltip = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("TabCompletion.PlayerNameToolTip.ToolTip")));
 
         InteractiveChat.playerNotFoundHoverEnable = getConfig().getBoolean("Settings.PlayerNotFound.Hover.Enable");
         List<String> stringList2 = getConfig().getStringList("Settings.PlayerNotFound.Hover.Text");
-        InteractiveChat.playerNotFoundHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2));
+        InteractiveChat.playerNotFoundHoverText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", stringList2)));
         InteractiveChat.playerNotFoundClickEnable = getConfig().getBoolean("Settings.PlayerNotFound.Click.Enable");
         InteractiveChat.playerNotFoundClickAction = getConfig().getString("Settings.PlayerNotFound.Click.Action");
         InteractiveChat.playerNotFoundClickValue = getConfig().getString("Settings.PlayerNotFound.Click.Value");
         InteractiveChat.playerNotFoundReplaceEnable = getConfig().getBoolean("Settings.PlayerNotFound.Replace.Enable");
-        InteractiveChat.playerNotFoundReplaceText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText"));
+        InteractiveChat.playerNotFoundReplaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Settings.PlayerNotFound.Replace.ReplaceText")));
 
         InteractiveChat.ecoSetLoreOnMainThread = getConfig().getBoolean("Settings.Hooks.EcoSetLoreOnMainThread");
         InteractiveChat.excellentEnchantsStripEnchantments = getConfig().getBoolean("Settings.Hooks.ExcellentEnchantsStripEnchantments");
@@ -292,19 +295,19 @@ public class ConfigManager {
         InteractiveChat.placeholderList.clear();
         if (InteractiveChat.useItem) {
             String name = InteractiveChat.itemName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Name"));
-            String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description"));
+            Component description = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.Description")));
             InteractiveChat.itemPlaceholder = new BuiltInPlaceholder(itemPlaceholder, name, description, "interactivechat.module.item", getConfig().getLong("ItemDisplay.Item.Cooldown") * 1000);
             InteractiveChat.placeholderList.put(InteractiveChat.itemPlaceholder.getInternalId(), InteractiveChat.itemPlaceholder);
         }
         if (InteractiveChat.useInventory) {
             String name = InteractiveChat.invName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Name"));
-            String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description"));
+            Component description = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.Description")));
             InteractiveChat.invPlaceholder = new BuiltInPlaceholder(invPlaceholder, name, description, "interactivechat.module.inventory", getConfig().getLong("ItemDisplay.Inventory.Cooldown") * 1000);
             InteractiveChat.placeholderList.put(InteractiveChat.invPlaceholder.getInternalId(), InteractiveChat.invPlaceholder);
         }
         if (InteractiveChat.useEnder) {
             String name = InteractiveChat.enderName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Name"));
-            String description = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description"));
+            Component description = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.Description")));
             InteractiveChat.enderPlaceholder = new BuiltInPlaceholder(enderPlaceholder, name, description, "interactivechat.module.enderchest", getConfig().getLong("ItemDisplay.EnderChest.Cooldown") * 1000);
             InteractiveChat.placeholderList.put(InteractiveChat.enderPlaceholder.getInternalId(), InteractiveChat.enderPlaceholder);
         }
@@ -319,14 +322,14 @@ public class ConfigManager {
                     boolean parseKeyword = s.getBoolean("ParseKeyword", false);
                     long cooldown = s.getLong("Cooldown", 0) * 1000;
                     boolean hoverEnabled = s.getBoolean("Hover.Enable", false);
-                    String hoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text")));
+                    Component hoverText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", s.getStringList("Hover.Text"))));
                     boolean clickEnabled = s.getBoolean("Click.Enable", false);
                     String clickAction = s.getString("Click.Action", "SUGGEST_COMMAND").toUpperCase();
                     String clickValue = s.getString("Click.Value", "");
                     boolean replaceEnabled = s.getBoolean("Replace.Enable", false);
-                    String replaceText = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText", ""));
+                    Component replaceText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', s.getString("Replace.ReplaceText", "")));
                     String name = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Name", placeholder.replace("\\", "")));
-                    String description = ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing"));
+                    Component description = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', s.getString("Description", "&7&oDescription missing")));
 
                     ICPlaceholder customPlaceholder = new CustomPlaceholder(key, parseplayer, Pattern.compile(placeholder), parseKeyword, cooldown, new CustomPlaceholderHoverEvent(hoverEnabled, hoverText), new CustomPlaceholderClickEvent(clickEnabled, clickEnabled ? ClickEventAction.valueOf(clickAction) : null, clickValue), new CustomPlaceholderReplaceText(replaceEnabled, replaceText), name, description);
                     InteractiveChat.placeholderList.put(customPlaceholder.getInternalId(), customPlaceholder);
@@ -356,11 +359,11 @@ public class ConfigManager {
         InteractiveChat.mentionEnable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.EnableMentions"));
         InteractiveChat.mentionDisable = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Messages.DisableMentions"));
 
-        InteractiveChat.mentionTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionedTitle"));
-        InteractiveChat.mentionSubtitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionSubtitle"));
-        InteractiveChat.mentionActionbar = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionActionbar"));
-        InteractiveChat.mentionToast = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionToast"));
-        InteractiveChat.mentionBossBarText = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Text"));
+        InteractiveChat.mentionTitle = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionedTitle")));
+        InteractiveChat.mentionSubtitle = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionSubtitle")));
+        InteractiveChat.mentionActionbar = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.KnownPlayerMentionActionbar")));
+        InteractiveChat.mentionToast = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionToast")));
+        InteractiveChat.mentionBossBarText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Text")));
         InteractiveChat.mentionBossBarColorName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Color"));
         InteractiveChat.mentionBossBarOverlayName = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Chat.MentionBossBar.Overlay"));
 
@@ -377,7 +380,7 @@ public class ConfigManager {
         InteractiveChat.clickableCommandsFormat = getConfig().getString("Commands.Format");
         InteractiveChat.clickableCommandsAction = ClickEvent.Action.valueOf(getConfig().getString("Commands.Action"));
         InteractiveChat.clickableCommandsDisplay = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Commands.Text"));
-        InteractiveChat.clickableCommandsHoverText = ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("Commands.HoverMessage")));
+        InteractiveChat.clickableCommandsHoverText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("Commands.HoverMessage"))));
 
         InteractiveChat.sendOriginalIfTooLong = getConfig().getBoolean("Settings.SendOriginalMessageIfExceedLengthLimit");
 

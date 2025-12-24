@@ -44,7 +44,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-@SuppressWarnings("UnstableApiUsage")
 public class PluginMessageSendingVelocity {
 
     private static final Object lastServerPingLock = new Object();
@@ -309,7 +308,7 @@ public class PluginMessageSendingVelocity {
             if (isBuiltIn) {
                 DataTypeIO.writeString(output, placeholder.getKeyword().pattern(), StandardCharsets.UTF_8);
                 DataTypeIO.writeString(output, placeholder.getName(), StandardCharsets.UTF_8);
-                DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(output, placeholder.getDescription(), StandardCharsets.UTF_8);
                 DataTypeIO.writeString(output, placeholder.getPermission(), StandardCharsets.UTF_8);
                 output.writeLong(placeholder.getCooldown());
             } else {
@@ -322,7 +321,7 @@ public class PluginMessageSendingVelocity {
 
                 CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
                 output.writeBoolean(hover.isEnabled());
-                DataTypeIO.writeString(output, hover.getText(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(output, hover.getText(), StandardCharsets.UTF_8);
 
                 CustomPlaceholderClickEvent click = customPlaceholder.getClick();
                 output.writeBoolean(click.isEnabled());
@@ -331,10 +330,10 @@ public class PluginMessageSendingVelocity {
 
                 CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
                 output.writeBoolean(replace.isEnabled());
-                DataTypeIO.writeString(output, replace.getReplaceText(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(output, replace.getReplaceText(), StandardCharsets.UTF_8);
 
                 DataTypeIO.writeString(output, placeholder.getName(), StandardCharsets.UTF_8);
-                DataTypeIO.writeString(output, placeholder.getDescription(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(output, placeholder.getDescription(), StandardCharsets.UTF_8);
             }
         }
 

@@ -41,8 +41,10 @@ import com.loohp.interactivechat.hooks.luckperms.LuckPermsEvents;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
 import com.loohp.interactivechat.listeners.ChatEvents;
 import com.loohp.interactivechat.listeners.InventoryEvents;
+import com.loohp.interactivechat.listeners.LoginEvents;
 import com.loohp.interactivechat.listeners.MapViewer;
 import com.loohp.interactivechat.listeners.PaperChatEvents;
+import com.loohp.interactivechat.listeners.PaperLoginEvents;
 import com.loohp.interactivechat.listeners.PlayerEvents;
 import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler;
@@ -182,10 +184,10 @@ public class InteractiveChat extends JavaPlugin {
     public static String invName = "";
     public static String enderName = "";
 
-    public static String itemReplaceText = "&f[&f{Item} &bx{Amount}&f]";
-    public static String itemSingularReplaceText = "&f[&f{Item}&f]";
-    public static String invReplaceText = "&f[&b%player_name%'s Inventory&f]";
-    public static String enderReplaceText = "&f[&d%player_name%'s Ender Chest&f]";
+    public static Component itemReplaceText = Component.empty();
+    public static Component itemSingularReplaceText = Component.empty();
+    public static Component invReplaceText = Component.empty();
+    public static Component enderReplaceText = Component.empty();
 
     public static boolean itemAirAllow = true;
     public static String itemAirErrorMessage = "";
@@ -195,7 +197,7 @@ public class InteractiveChat extends JavaPlugin {
     public static String enderTitle = "%player_name%'s Ender Chest";
 
     public static boolean itemHover = true;
-    public static String itemAlternativeHoverMessage = "";
+    public static Component itemAlternativeHoverMessage = Component.empty();
     public static boolean itemGUI = true;
     public static boolean translateHoverableItems = true;
     public static String hoverableItemTitle = "";
@@ -206,7 +208,7 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean usePlayerNameOverrideHover = true;
     public static boolean usePlayerNameOverrideClick = true;
     public static boolean usePlayerNameHoverEnable = true;
-    public static String usePlayerNameHoverText = "";
+    public static Component usePlayerNameHoverText = Component.empty();
     public static boolean usePlayerNameClickEnable = true;
     public static String usePlayerNameClickAction = "SUGGEST_COMMAND";
     public static String usePlayerNameClickValue = "";
@@ -214,15 +216,15 @@ public class InteractiveChat extends JavaPlugin {
 
     public static boolean chatTabCompletionsEnabled = true;
     public static boolean useTooltipOnTab = true;
-    public static String tabTooltip = "";
+    public static Component tabTooltip = Component.empty();
 
     public static boolean playerNotFoundHoverEnable = true;
-    public static String playerNotFoundHoverText = "&cUnable to parse placeholder..";
+    public static Component playerNotFoundHoverText = Component.empty();
     public static boolean playerNotFoundClickEnable = false;
     public static String playerNotFoundClickAction = "SUGGEST_COMMAND";
     public static String playerNotFoundClickValue = "";
     public static boolean playerNotFoundReplaceEnable = true;
-    public static String playerNotFoundReplaceText = "[&cERROR]";
+    public static Component playerNotFoundReplaceText = Component.empty();
 
     public static ItemStack itemFrame1;
     public static ItemStack itemFrame2;
@@ -239,20 +241,20 @@ public class InteractiveChat extends JavaPlugin {
     public static String clickableCommandsFormat = "";
     public static ClickEvent.Action clickableCommandsAction = ClickEvent.Action.SUGGEST_COMMAND;
     public static String clickableCommandsDisplay = "";
-    public static String clickableCommandsHoverText = null;
+    public static Component clickableCommandsHoverText = null;
 
-    public static String noPermissionMessage = "&cYou do not have permission to use that command!";
-    public static String invExpiredMessage = "&cThis inventory view has expired!";
-    public static String reloadPluginMessage = "&aInteractive Chat has been reloaded!";
-    public static String noConsoleMessage = "";
-    public static String invalidPlayerMessage = "";
-    public static String listPlaceholderHeader = "";
-    public static String listPlaceholderBody = "";
-    public static String notEnoughArgs = "";
-    public static String setInvDisplayLayout = "";
-    public static String invalidArgs = "";
-    public static String placeholderCooldownMessage = "";
-    public static String universalCooldownMessage = "";
+    public static Component noPermissionMessage = Component.empty();
+    public static Component invExpiredMessage = Component.empty();
+    public static Component reloadPluginMessage = Component.empty();
+    public static Component noConsoleMessage = Component.empty();
+    public static Component invalidPlayerMessage = Component.empty();
+    public static Component listPlaceholderHeader = Component.empty();
+    public static Component listPlaceholderBody = Component.empty();
+    public static Component notEnoughArgs = Component.empty();
+    public static Component setInvDisplayLayout = Component.empty();
+    public static Component invalidArgs = Component.empty();
+    public static Component placeholderCooldownMessage = Component.empty();
+    public static Component universalCooldownMessage = Component.empty();
     public static String bedrockEventsMenuTitle = "";
     public static String bedrockEventsMenuContent = "";
     public static String bedrockEventsMenuRunSuggested = "";
@@ -295,11 +297,11 @@ public class InteractiveChat extends JavaPlugin {
     public static long mentionCooldown = 3000;
     public static String mentionEnable = "";
     public static String mentionDisable = "";
-    public static String mentionTitle = "";
-    public static String mentionSubtitle = "";
-    public static String mentionActionbar = "";
-    public static String mentionToast = "";
-    public static String mentionBossBarText = "";
+    public static Component mentionTitle = Component.empty();
+    public static Component mentionSubtitle = Component.empty();
+    public static Component mentionActionbar = Component.empty();
+    public static Component mentionToast = Component.empty();
+    public static Component mentionBossBarText = Component.empty();
     public static String mentionBossBarColorName = "";
     public static String mentionBossBarOverlayName = "";
     public static String mentionSound = "";
@@ -344,6 +346,7 @@ public class InteractiveChat extends JavaPlugin {
     public static List<Pattern> additionalRGBFormats = new ArrayList<>();
 
     public static int itemTagMaxLength = 32767;
+    public static int packetStringPreMaxLength = 32767;
     public static int packetStringMaxLength = 32767;
 
     public static boolean forceUnsignedChatPackets = false;
@@ -387,6 +390,10 @@ public class InteractiveChat extends JavaPlugin {
                 }
             }
         }
+    }
+
+    public static void sendMessage(CommandSender sender, String message) {
+        sender.sendMessage(message);
     }
 
     public static void sendMessage(CommandSender sender, Component component) {
@@ -527,6 +534,13 @@ public class InteractiveChat extends JavaPlugin {
         database.setup();
 
         placeholderCooldownManager = new PlaceholderCooldownManager();
+
+        try {
+            Class.forName("org.bukkit.event.player.PlayerLoginEvent");
+            getServer().getPluginManager().registerEvents(new LoginEvents(), this);
+        } catch (ClassNotFoundException ignore) {
+            getServer().getPluginManager().registerEvents(new PaperLoginEvents(), this);
+        }
 
         getServer().getPluginManager().registerEvents(new ChatEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerEvents(), this);

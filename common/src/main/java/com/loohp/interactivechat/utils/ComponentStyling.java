@@ -23,6 +23,7 @@ package com.loohp.interactivechat.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -30,8 +31,29 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ComponentStyling {
+
+    private static final Pattern LEGACY_PATTERN = Pattern.compile("§x(?:§[0-9a-fA-F]){6}|§[0-9a-fklmnor]");
+
+    public static Component parseMiniMessage(String input) {
+        Matcher matcher = LEGACY_PATTERN.matcher(input);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            ChatColor chatColor = ChatColorUtils.getColor(matcher.group());
+            if (chatColor != null && ChatColorUtils.isColor(chatColor)) {
+                TextColor textColor = ColorUtils.toTextColor(chatColor);
+                matcher.appendReplacement(sb, "<" + textColor + ">");
+            } else {
+                String name = chatColor == null ? "reset" : chatColor.getName();
+                matcher.appendReplacement(sb, "<" + name + ">");
+            }
+        }
+        matcher.appendTail(sb);
+        return MiniMessage.miniMessage().deserialize(sb.toString());
+    }
 
     public static Component stripColor(Component component) {
         component = component.color(null);
@@ -63,7 +85,7 @@ public class ComponentStyling {
                 currentChildren.add(child);
             }
         }
-        if (currentChildren.size() > 0) {
+        if (!currentChildren.isEmpty()) {
             filtered.add(ComponentCompacting.optimize(component.children(currentChildren)));
         }
         return filtered;

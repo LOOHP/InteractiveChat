@@ -43,6 +43,7 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.SkinUtils;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -76,7 +77,7 @@ public class InventoryDisplay {
                 ICPlayer player = optplayer.get();
                 if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.inventory", true, 5)) {
 
-                    String replaceText = InteractiveChat.invReplaceText;
+                    Component replaceText = InteractiveChat.invReplaceText;
                     String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.invTitle));
                     String sha1 = HashUtils.createSha1(player.isRightHanded(), player.getSelectedSlot(), player.getExperienceLevel(), title, player.getInventory());
 
@@ -85,14 +86,14 @@ public class InventoryDisplay {
                         layout1(player, sha1, title, receiver, component, unix);
                     }
 
-                    String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
+                    Component componentText = PlaceholderParser.parse(player, replaceText);
 
                     List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.Inventory.HoverMessage");
                     String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
 
                     String command = "/interactivechat viewinv " + sha1;
 
-                    Component invComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+                    Component invComponent = componentText;
                     invComponent = invComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
                     invComponent = invComponent.clickEvent(ClickEvent.runCommand(command));
                     component = ComponentReplacing.replace(component, regex, true, invComponent);
@@ -100,16 +101,16 @@ public class InventoryDisplay {
             } else {
                 Component message;
                 if (InteractiveChat.playerNotFoundReplaceEnable) {
-                    message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.invName));
+                    message = InteractiveChat.playerNotFoundReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.invName).build());
                 } else {
                     message = Component.text(InteractiveChat.invName);
                 }
                 if (InteractiveChat.playerNotFoundHoverEnable) {
-                    message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.invName))));
+                    message = message.hoverEvent(HoverEvent.showText(InteractiveChat.playerNotFoundHoverText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.invName).build())));
                 }
                 if (InteractiveChat.playerNotFoundClickEnable) {
                     String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.invName));
-                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), ClickEvent.Payload.string(clickValue)));
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }

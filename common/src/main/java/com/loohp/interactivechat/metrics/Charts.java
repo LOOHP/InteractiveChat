@@ -21,9 +21,11 @@
 package com.loohp.interactivechat.metrics;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.platform.ProtocolPlatform;
 
 import java.util.concurrent.Callable;
 
+@SuppressWarnings({"Convert2Lambda", "RedundantThrows"})
 public class Charts {
 
     public static void setup(Metrics metrics) {
@@ -114,6 +116,14 @@ public class Charts {
             @Override
             public String call() throws Exception {
                 return InteractiveChat.allowMention ? "Enabled" : "Disabled";
+            }
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("protocol_platform", new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                ProtocolPlatform<?, ?> platform = InteractiveChat.protocolPlatform;
+                return platform.getProtocolPlatformPlugin().getName() + " (Registered by " + platform.getRegisteredPlugin().getName() + ")";
             }
         }));
     }

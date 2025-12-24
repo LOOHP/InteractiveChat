@@ -657,10 +657,10 @@ public class V1_21_10 extends NMSWrapper {
     }
 
     @Override
-    public void sendToast(IICPlayer sender, Player pinged, String message, ItemStack icon) {
+    public void sendToast(IICPlayer sender, Player pinged, String messageJson, ItemStack icon) {
         MinecraftKey minecraftKey = MinecraftKey.a("interactivechat", "mentioned/" + sender.getUniqueId());
         AdvancementRewards advancementRewards = new AdvancementRewards(0, Collections.emptyList(), Collections.emptyList(), Optional.empty());
-        IChatBaseComponent componentTitle = CraftChatMessage.fromStringOrNull(message);
+        IChatBaseComponent componentTitle = CraftChatMessage.fromJSON(messageJson);
         IChatBaseComponent componentSubtitle = IChatBaseComponent.a("");
         AdvancementDisplay advancementDisplay = new AdvancementDisplay(toNMSCopy(icon), componentTitle, componentSubtitle, Optional.empty(), AdvancementFrameType.c, true, false, true);
 

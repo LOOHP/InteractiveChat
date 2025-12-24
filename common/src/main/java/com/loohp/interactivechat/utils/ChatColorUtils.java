@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.loohp.interactivechat.InteractiveChat;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Arrays;
@@ -151,7 +152,7 @@ public class ChatColorUtils {
             sb.append(before);
             text = text.substring(pos);
             leadingColor = getLastColors(before);
-        } while (text.length() > 0 && !text.equals(leadingColor));
+        } while (!text.isEmpty() && !text.equals(leadingColor));
         return sb.toString();
     }
 
@@ -168,7 +169,7 @@ public class ChatColorUtils {
     }
 
     public static String translateAlternateColorCodes(char code, String text) {
-        return translateAlternateColorCodes(code, text, com.loohp.interactivechat.InteractiveChat.version.isLegacyRGB(), com.loohp.interactivechat.InteractiveChat.rgbTags, com.loohp.interactivechat.InteractiveChat.additionalRGBFormats);
+        return translateAlternateColorCodes(code, text, InteractiveChat.version.isLegacyRGB(), InteractiveChat.rgbTags, InteractiveChat.additionalRGBFormats);
     }
 
     public static String translateAlternateColorCodes(char code, String text, boolean legacyRGB, boolean rgbTags, List<Pattern> additionalRGBFormats) {

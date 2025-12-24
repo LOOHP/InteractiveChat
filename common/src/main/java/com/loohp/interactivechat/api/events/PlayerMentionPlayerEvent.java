@@ -22,6 +22,7 @@ package com.loohp.interactivechat.api.events;
 
 import com.loohp.interactivechat.objectholders.Either;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -49,16 +50,16 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
 
     private final Player receiver;
     private final UUID sender;
-    private String title;
-    private String subtitle;
-    private String actionbar;
-    private String toast;
+    private Component title;
+    private Component subtitle;
+    private Component actionbar;
+    private Component toast;
     private Optional<BossBar> bossbar;
     private Either<Sound, String> sound;
     private boolean silent;
     private boolean cancel;
 
-    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, String title, String subtitle, String actionbar, String toast, Optional<BossBar> bossbar, Either<Sound, String> sound, boolean silent, boolean cancel) {
+    public PlayerMentionPlayerEvent(boolean async, Player receiver, UUID sender, Component title, Component subtitle, Component actionbar, Component toast, Optional<BossBar> bossbar, Either<Sound, String> sound, boolean silent, boolean cancel) {
         super(async);
         this.receiver = receiver;
         this.sender = sender;
@@ -90,35 +91,35 @@ public class PlayerMentionPlayerEvent extends Event implements Cancellable {
         return sender;
     }
 
-    public String getTitle() {
+    public Component getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(Component title) {
         this.title = title;
     }
 
-    public String getSubtitle() {
+    public Component getSubtitle() {
         return subtitle;
     }
 
-    public void setSubtitle(String subtitle) {
+    public void setSubtitle(Component subtitle) {
         this.subtitle = subtitle;
     }
 
-    public String getActionbar() {
+    public Component getActionbar() {
         return actionbar;
     }
 
-    public void setActionbar(String actionbar) {
+    public void setActionbar(Component actionbar) {
         this.actionbar = actionbar;
     }
 
-    public String getToast() {
+    public Component getToast() {
         return toast;
     }
 
-    public void setToast(String toast) {
+    public void setToast(Component toast) {
         this.toast = toast;
     }
 

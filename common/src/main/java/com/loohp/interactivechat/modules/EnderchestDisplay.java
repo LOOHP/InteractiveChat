@@ -38,6 +38,7 @@ import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -60,7 +61,7 @@ public class EnderchestDisplay {
                 ICPlayer player = optplayer.get();
                 if (PlayerUtils.hasPermission(player.getUniqueId(), "interactivechat.module.enderchest", true, 5)) {
 
-                    String replaceText = InteractiveChat.enderReplaceText;
+                    Component replaceText = InteractiveChat.enderReplaceText;
                     String title = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.enderTitle));
                     String sha1 = HashUtils.createSha1(title, player.getEnderChest());
 
@@ -68,14 +69,14 @@ public class EnderchestDisplay {
                         layout(player, sha1, title, receiver, component, unix);
                     }
 
-                    String componentText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, replaceText));
+                    Component componentText = PlaceholderParser.parse(player, replaceText);
 
                     List<String> hoverList = ConfigManager.getConfig().getStringList("ItemDisplay.EnderChest.HoverMessage");
                     String hoverText = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, String.join("\n", hoverList)));
 
                     String command = "/interactivechat viewender " + sha1;
 
-                    Component enderComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
+                    Component enderComponent = componentText;
                     enderComponent = enderComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(hoverText)));
                     enderComponent = enderComponent.clickEvent(ClickEvent.runCommand(command));
                     component = ComponentReplacing.replace(component, regex, true, enderComponent);
@@ -83,16 +84,16 @@ public class EnderchestDisplay {
             } else {
                 Component message;
                 if (InteractiveChat.playerNotFoundReplaceEnable) {
-                    message = LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundReplaceText.replace("{Placeholder}", InteractiveChat.enderName));
+                    message = InteractiveChat.playerNotFoundReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.enderName).build());
                 } else {
                     message = Component.text(InteractiveChat.enderName);
                 }
                 if (InteractiveChat.playerNotFoundHoverEnable) {
-                    message = message.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.playerNotFoundHoverText.replace("{Placeholder}", InteractiveChat.enderName))));
+                    message = message.hoverEvent(HoverEvent.showText(InteractiveChat.playerNotFoundHoverText.replaceText(TextReplacementConfig.builder().matchLiteral("{Placeholder}").replacement(InteractiveChat.enderName).build())));
                 }
                 if (InteractiveChat.playerNotFoundClickEnable) {
                     String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.enderName));
-                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), clickValue));
+                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), ClickEvent.Payload.string(clickValue)));
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }

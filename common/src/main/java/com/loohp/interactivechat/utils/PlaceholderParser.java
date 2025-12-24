@@ -28,6 +28,10 @@ import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.objectholders.ValuePairs;
 import com.loohp.platformscheduler.Scheduler;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -42,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PlaceholderParser {
 
@@ -57,6 +62,26 @@ public class PlaceholderParser {
                 }
             }
         }, 100, 100);
+    }
+
+    public static Component parse(OfflineICPlayer offlineICPlayer, Component component) {
+        component = ComponentFlattening.flatten(component);
+        List<Component> children = new ArrayList<>(component.children());
+        for (int i = 0; i < children.size(); i++) {
+            Component child = children.get(i);
+            if (child instanceof TextComponent) {
+                TextComponent text = (TextComponent) child;
+                String content = parse(offlineICPlayer, text.content());
+                children.set(i, text.content(content));
+            } else if (child instanceof TranslatableComponent) {
+                TranslatableComponent translatable = (TranslatableComponent) child;
+                List<ComponentLike> args = translatable.arguments().stream()
+                        .map(arg -> parse(offlineICPlayer, arg.asComponent()))
+                        .collect(Collectors.toList());
+                children.set(i, translatable.arguments(args));
+            }
+        }
+        return ComponentCompacting.optimize(component.children(children));
     }
 
     public static String parse(OfflineICPlayer offlineICPlayer, String str) {
@@ -114,6 +139,23 @@ public class PlaceholderParser {
                 return str;
             }
         }
+    }
+
+    public static Map<String, String> getAllPlaceholdersContained(Player player, Component component) {
+        Map<String, String> matchingPlaceholders = new HashMap<>();
+        component = ComponentFlattening.flatten(component);
+        for (Component child : component.children()) {
+            if (child instanceof TextComponent) {
+                TextComponent text = (TextComponent) child;
+                matchingPlaceholders.putAll(getAllPlaceholdersContained(player, text.content()));
+            } else if (child instanceof TranslatableComponent) {
+                TranslatableComponent translatable = (TranslatableComponent) child;
+                for (ComponentLike arg : translatable.arguments()) {
+                    matchingPlaceholders.putAll(getAllPlaceholdersContained(player, arg.asComponent()));
+                }
+            }
+        }
+        return matchingPlaceholders;
     }
 
     public static Map<String, String> getAllPlaceholdersContained(Player player, String str) {

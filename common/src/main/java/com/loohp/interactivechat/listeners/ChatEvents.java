@@ -33,13 +33,14 @@ import com.loohp.interactivechat.objectholders.SignedMessageModificationData;
 import com.loohp.interactivechat.registry.Registry;
 import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.PlaceholderAPIUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.TimeUtils;
 import com.loohp.platformscheduler.Scheduler;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -211,11 +212,11 @@ public class ChatEvents implements Listener {
                     Component cancelmessage;
                     switch (cooldownResult.getOutcome()) {
                         case DENY_PLACEHOLDER:
-                            cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
-                            cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getName()).hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(cooldownResult.getPlaceholder().getDescription()))));
+                            cancelmessage = PlaceholderAPIUtils.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replaceText(TextReplacementConfig.builder().matchLiteral("{Time}").replacement(Component.text(TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime()))).build()));
+                            cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getName()).hoverEvent(HoverEvent.showText(cooldownResult.getPlaceholder().getDescription())));
                             break;
                         case DENY_UNIVERSAL:
-                            cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+                            cancelmessage = PlaceholderAPIUtils.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replaceText(TextReplacementConfig.builder().matchLiteral("{Time}").replacement(Component.text(TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime()))).build()));
                             break;
                         default:
                             cancelmessage = Component.empty();
@@ -292,11 +293,11 @@ public class ChatEvents implements Listener {
             Component cancelmessage;
             switch (cooldownResult.getOutcome()) {
                 case DENY_PLACEHOLDER:
-                    cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
-                    cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getName()).hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(cooldownResult.getPlaceholder().getDescription()))));
+                    cancelmessage = PlaceholderAPIUtils.setPlaceholders(event.getPlayer(), InteractiveChat.placeholderCooldownMessage.replaceText(TextReplacementConfig.builder().matchLiteral("{Time}").replacement(Component.text(TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime()))).build()));
+                    cancelmessage = ComponentReplacing.replace(cancelmessage, "\\{Keyword\\}", Component.text(cooldownResult.getPlaceholder().getName()).hoverEvent(HoverEvent.showText(cooldownResult.getPlaceholder().getDescription())));
                     break;
                 case DENY_UNIVERSAL:
-                    cancelmessage = LegacyComponentSerializer.legacySection().deserialize(ChatColorUtils.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replace("{Time}", TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime())))));
+                    cancelmessage = PlaceholderAPIUtils.setPlaceholders(event.getPlayer(), InteractiveChat.universalCooldownMessage.replaceText(TextReplacementConfig.builder().matchLiteral("{Time}").replacement(Component.text(TimeUtils.getReadableTimeBetween(System.currentTimeMillis(), cooldownResult.getCooldownExpireTime()))).build()));
                     break;
                 default:
                     cancelmessage = Component.empty();

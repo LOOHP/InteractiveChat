@@ -36,15 +36,8 @@ import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,14 +51,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class PlayernameDisplay implements Listener {
+public class PlayernameDisplay {
 
     private static final Random random = new Random();
     private static final AtomicInteger flag = new AtomicInteger();
     private static Collection<ReplaceTextBundle> names = new LinkedHashSet<>();
 
     public static void setup() {
-        Bukkit.getPluginManager().registerEvents(new PlayernameDisplay(), InteractiveChat.plugin);
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
             int valid = flag.get();
             Collection<ReplaceTextBundle> names = getNames();
@@ -75,6 +67,11 @@ public class PlayernameDisplay implements Listener {
                 }
             });
         }, 0, 100);
+    }
+
+    public static void resetCache() {
+        flag.set(random.nextInt());
+        names = null;
     }
 
     public static Component process(Component component, Optional<ICPlayer> sender, Player receiver, long unix) {
@@ -104,14 +101,13 @@ public class PlayernameDisplay implements Listener {
         HoverEvent<?> hoverEvent;
         ClickEvent clickEvent;
         if (InteractiveChat.usePlayerNameHoverEnable) {
-            String playertext = ChatColorUtils.translateAlternateColorCodes('&', PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
-            hoverEvent = HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(playertext));
+            hoverEvent = HoverEvent.showText(PlaceholderParser.parse(player, InteractiveChat.usePlayerNameHoverText));
         } else {
             hoverEvent = null;
         }
         if (InteractiveChat.usePlayerNameClickEnable) {
             String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
-            clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), playertext);
+            clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), ClickEvent.Payload.string(playertext));
         } else {
             clickEvent = null;
         }
@@ -173,20 +169,6 @@ public class PlayernameDisplay implements Listener {
         names.sort(Comparator.reverseOrder());
 
         return new LinkedHashSet<>(names);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onJoin(PlayerLoginEvent event) {
-        if (event.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
-            flag.set(random.nextInt());
-            names = null;
-        }
-    }
-
-    @EventHandler
-    public void onLeave(PlayerQuitEvent event) {
-        flag.set(random.nextInt());
-        names = null;
     }
 
 }

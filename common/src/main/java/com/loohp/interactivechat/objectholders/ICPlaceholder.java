@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import net.kyori.adventure.text.Component;
+
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -118,14 +120,14 @@ public abstract class ICPlaceholder {
 
     protected Pattern keyword;
     protected String name;
-    protected String description;
+    protected Component description;
     protected String permission;
     protected long cooldown;
     protected UUID internalId;
 
     private Pattern colorIgnoredKeyword;
 
-    public ICPlaceholder(Pattern keyword, String name, String description, String permission, long cooldown) {
+    public ICPlaceholder(Pattern keyword, String name, Component description, String permission, long cooldown) {
         this.keyword = keyword;
         this.name = name;
         this.description = description;
@@ -157,7 +159,7 @@ public abstract class ICPlaceholder {
         return name;
     }
 
-    public String getDescription() {
+    public Component getDescription() {
         return description;
     }
 

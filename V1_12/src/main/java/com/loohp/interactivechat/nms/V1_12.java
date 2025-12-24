@@ -78,7 +78,6 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
 import org.bukkit.craftbukkit.v1_12_R1.map.RenderData;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -463,11 +462,11 @@ public class V1_12 extends NMSWrapper {
     }
 
     @Override
-    public void sendToast(IICPlayer sender, Player pinged, String message, ItemStack icon) {
+    public void sendToast(IICPlayer sender, Player pinged, String messageJson, ItemStack icon) {
         MinecraftKey minecraftKey = new MinecraftKey("interactivechat", "mentioned/" + sender.getUniqueId());
         AdvancementRewards advancementRewards = new AdvancementRewards(0, new MinecraftKey[0], new MinecraftKey[0], null);
         IChatBaseComponent componentTitle = new ChatComponentText("");
-        for (IChatBaseComponent component : CraftChatMessage.fromString(message)) {
+        for (IChatBaseComponent component : IChatBaseComponent.ChatSerializer.a(messageJson)) {
             componentTitle = componentTitle.addSibling(component);
         }
         IChatBaseComponent componentSubtitle = new ChatComponentText("");

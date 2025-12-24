@@ -44,11 +44,11 @@ import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.InventoryUtils;
 import com.loohp.interactivechat.utils.ItemNBTUtils;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.utils.PlaceholderAPIUtils;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.platformscheduler.Scheduler;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -77,8 +77,8 @@ public class Commands implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.AQUA + "InteractiveChat written by LOOHP!");
-            sender.sendMessage(ChatColor.GOLD + "You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
+            InteractiveChat.sendMessage(sender, ChatColor.AQUA + "InteractiveChat written by LOOHP!");
+            InteractiveChat.sendMessage(sender, ChatColor.GOLD + "You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
             return true;
         }
 
@@ -97,22 +97,22 @@ public class Commands implements CommandExecutor, TabCompleter {
                     }
                 }
                 Bukkit.getPluginManager().callEvent(new InteractiveChatConfigReloadEvent());
-                sender.sendMessage(InteractiveChat.reloadPluginMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.reloadPluginMessage);
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
 
         if (args[0].equalsIgnoreCase("update")) {
             if (sender.hasPermission("interactivechat.update")) {
-                sender.sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
-                sender.sendMessage(ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
+                InteractiveChat.sendMessage(sender, ChatColor.AQUA + "[InteractiveChat] InteractiveChat written by LOOHP!");
+                InteractiveChat.sendMessage(sender, ChatColor.GOLD + "[InteractiveChat] You are running InteractiveChat version: " + InteractiveChat.plugin.getDescription().getVersion());
                 Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> {
                     UpdaterResponse version = Updater.checkUpdate();
                     if (version.getResult().equals("latest")) {
                         if (version.isDevBuildLatest()) {
-                            sender.sendMessage(ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
+                            InteractiveChat.sendMessage(sender, ChatColor.GREEN + "[InteractiveChat] You are running the latest version!");
                         } else {
                             Updater.sendUpdateMessage(sender, version.getResult(), version.getSpigotPluginId(), true);
                         }
@@ -121,7 +121,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     }
                 });
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -135,11 +135,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         if (pd.isMentionDisabled()) {
                             pd.setMentionDisabled(false);
                             Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                            sender.sendMessage(InteractiveChat.mentionEnable);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.mentionEnable);
                         } else {
                             pd.setMentionDisabled(true);
                             Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                            sender.sendMessage(InteractiveChat.mentionDisable);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.mentionDisable);
                         }
                         if (InteractiveChat.bungeecordMode) {
                             try {
@@ -149,7 +149,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                             }
                         }
                     } else {
-                        sender.sendMessage(InteractiveChat.noConsoleMessage);
+                        InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                     }
                 } else {
                     if (sender.hasPermission("interactivechat.mention.toggle.others")) {
@@ -159,11 +159,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                             if (pd.isMentionDisabled()) {
                                 pd.setMentionDisabled(false);
                                 Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                                sender.sendMessage(InteractiveChat.mentionEnable);
+                                InteractiveChat.sendMessage(sender, InteractiveChat.mentionEnable);
                             } else {
                                 pd.setMentionDisabled(true);
                                 Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                                sender.sendMessage(InteractiveChat.mentionDisable);
+                                InteractiveChat.sendMessage(sender, InteractiveChat.mentionDisable);
                             }
                             if (InteractiveChat.bungeecordMode) {
                                 try {
@@ -173,14 +173,14 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 }
                             }
                         } else {
-                            sender.sendMessage(InteractiveChat.invalidPlayerMessage);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.invalidPlayerMessage);
                         }
                     } else {
-                        sender.sendMessage(InteractiveChat.noPermissionMessage);
+                        InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
                     }
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -189,7 +189,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("interactivechat.module.inventory.setlayout")) {
                 try {
                     if (args.length == 1) {
-                        sender.sendMessage(InteractiveChat.notEnoughArgs);
+                        InteractiveChat.sendMessage(sender, InteractiveChat.notEnoughArgs);
                     } else if (args.length == 2) {
                         if (sender instanceof Player) {
                             int layout = Integer.parseInt(args[1]);
@@ -200,7 +200,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                             PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                             pd.setInventoryDisplayLayout(layout);
                             Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                            sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
+                            InteractiveChat.sendMessage(sender, InteractiveChat.setInvDisplayLayout.replaceText(TextReplacementConfig.builder().matchLiteral("{Layout}").replacement(Component.text(layout)).build()));
                             if (InteractiveChat.bungeecordMode) {
                                 try {
                                     BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
@@ -209,7 +209,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 }
                             }
                         } else {
-                            sender.sendMessage(InteractiveChat.noConsoleMessage);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                         }
                     } else {
                         if (sender.hasPermission("interactivechat.module.inventory.setlayout.others")) {
@@ -222,7 +222,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 PlayerData pd = InteractiveChat.playerDataManager.getPlayerData(player);
                                 pd.setInventoryDisplayLayout(layout);
                                 Scheduler.runTaskAsynchronously(InteractiveChat.plugin, () -> pd.save());
-                                sender.sendMessage(InteractiveChat.setInvDisplayLayout.replace("{Layout}", layout + ""));
+                                InteractiveChat.sendMessage(sender, InteractiveChat.setInvDisplayLayout.replaceText(TextReplacementConfig.builder().matchLiteral("{Layout}").replacement(Component.text(layout)).build()));
                                 if (InteractiveChat.bungeecordMode) {
                                     try {
                                         BungeeMessageSender.signalPlayerDataReload(System.currentTimeMillis(), player.getUniqueId());
@@ -231,17 +231,17 @@ public class Commands implements CommandExecutor, TabCompleter {
                                     }
                                 }
                             } else {
-                                sender.sendMessage(InteractiveChat.invalidPlayerMessage);
+                                InteractiveChat.sendMessage(sender, InteractiveChat.invalidPlayerMessage);
                             }
                         } else {
-                            sender.sendMessage(InteractiveChat.noPermissionMessage);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
                         }
                     }
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(InteractiveChat.invalidArgs);
+                    InteractiveChat.sendMessage(sender, InteractiveChat.invalidArgs);
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -263,23 +263,28 @@ public class Commands implements CommandExecutor, TabCompleter {
                             end = InteractiveChat.placeholderList.size();
                         }
                     }
-                    InteractiveChatAPI.sendMessageUnprocessed(sender, LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.listPlaceholderHeader));
-                    String body = InteractiveChat.listPlaceholderBody;
+                    InteractiveChatAPI.sendMessageUnprocessed(sender, InteractiveChat.listPlaceholderHeader);
                     List<Component> items = new ArrayList<>();
                     if (sender.hasPermission("interactivechat.list.all")) {
                         int i = 0;
                         for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
                             i++;
-                            String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getName()).replace("{Description}", placeholder.getDescription());
-                            items.add(LegacyComponentSerializer.legacySection().deserialize(text));
+                            Component body = InteractiveChat.listPlaceholderBody
+                                    .replaceText(TextReplacementConfig.builder().matchLiteral("{Order}").replacement(Component.text(i)).build())
+                                    .replaceText(TextReplacementConfig.builder().matchLiteral("{Keyword}").replacement(Component.text(placeholder.getName())).build())
+                                    .replaceText(TextReplacementConfig.builder().matchLiteral("{Description}").replacement(placeholder.getDescription()).build());
+                            items.add(body);
                         }
                     } else {
                         int i = 0;
                         for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
                             if ((placeholder.isBuildIn() && sender.hasPermission(placeholder.getPermission())) || (!placeholder.isBuildIn() && (sender.hasPermission(placeholder.getPermission()) || !InteractiveChat.useCustomPlaceholderPermissions))) {
                                 i++;
-                                String text = body.replace("{Order}", i + "").replace("{Keyword}", placeholder.getName()).replace("{Description}", placeholder.getDescription());
-                                items.add(LegacyComponentSerializer.legacySection().deserialize(text));
+                                Component body = InteractiveChat.listPlaceholderBody
+                                        .replaceText(TextReplacementConfig.builder().matchLiteral("{Order}").replacement(Component.text(i)).build())
+                                        .replaceText(TextReplacementConfig.builder().matchLiteral("{Keyword}").replacement(Component.text(placeholder.getName())).build())
+                                        .replaceText(TextReplacementConfig.builder().matchLiteral("{Description}").replacement(placeholder.getDescription()).build());
+                                items.add(body);
                             }
                         }
                     }
@@ -288,11 +293,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         InteractiveChatAPI.sendMessageUnprocessed(sender, items.get(i));
                     }
                 } else {
-                    sender.sendMessage(InteractiveChat.noPermissionMessage);
+                    InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                sender.sendMessage(InteractiveChat.invalidArgs);
+                InteractiveChat.sendMessage(sender, InteractiveChat.invalidArgs);
             }
             return true;
         }
@@ -347,10 +352,10 @@ public class Commands implements CommandExecutor, TabCompleter {
                         }
                     });
                 } else {
-                    sender.sendMessage(String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
+                    InteractiveChat.sendMessage(sender, String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -363,11 +368,11 @@ public class Commands implements CommandExecutor, TabCompleter {
                         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                         Scheduler.runTask(InteractiveChat.plugin, () -> player.chat(message), player);
                     } else {
-                        sender.sendMessage(InteractiveChat.noConsoleMessage);
+                        InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                     }
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -380,14 +385,14 @@ public class Commands implements CommandExecutor, TabCompleter {
                         if (BedrockHook.isBedrockPlayer(uuid)) {
                             BedrockHook.sendRecentChatMessagesForm(uuid);
                         } else {
-                            sender.sendMessage(InteractiveChat.noPermissionMessage);
+                            InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
                         }
                     });
                 } else {
-                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                    InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -408,10 +413,10 @@ public class Commands implements CommandExecutor, TabCompleter {
                     InteractiveChatAPI.sendMessageUnprocessed(sender, nbt);
                     Bukkit.getConsoleSender().sendMessage(nbt);
                 } else {
-                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                    InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -432,10 +437,10 @@ public class Commands implements CommandExecutor, TabCompleter {
                     InteractiveChatAPI.sendMessageUnprocessed(sender, components);
                     Bukkit.getConsoleSender().sendMessage(components);
                 } else {
-                    sender.sendMessage(InteractiveChat.noConsoleMessage);
+                    InteractiveChat.sendMessage(sender, InteractiveChat.noConsoleMessage);
                 }
             } else {
-                sender.sendMessage(InteractiveChat.noPermissionMessage);
+                InteractiveChat.sendMessage(sender, InteractiveChat.noPermissionMessage);
             }
             return true;
         }
@@ -451,7 +456,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         if (inv != null) {
                             Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                         } else {
-                            player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                            InteractiveChat.sendMessage(player, PlaceholderAPIUtils.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
                     } else {
                         Inventory inv = InteractiveChat.inventoryDisplay1Upper.get(hash);
@@ -463,7 +468,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                                 InteractiveChat.viewingInv1.put(player.getUniqueId(), hash);
                             }, player);
                         } else {
-                            player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                            InteractiveChat.sendMessage(player, PlaceholderAPIUtils.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                         }
                     }
                     break;
@@ -473,7 +478,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (inv != null) {
                         Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                     } else {
-                        player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                        InteractiveChat.sendMessage(player, PlaceholderAPIUtils.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
                     break;
                 }
@@ -482,7 +487,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (inv != null) {
                         Scheduler.runTask(InteractiveChat.plugin, () -> player.openInventory(inv), player);
                     } else {
-                        player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                        InteractiveChat.sendMessage(player, PlaceholderAPIUtils.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
                     break;
                 }
@@ -491,14 +496,14 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (map != null) {
                         Scheduler.runTask(InteractiveChat.plugin, () -> MapViewer.showMap(player, map), player);
                     } else {
-                        player.sendMessage(PlaceholderAPI.setPlaceholders(player, InteractiveChat.invExpiredMessage));
+                        InteractiveChat.sendMessage(player, PlaceholderAPIUtils.setPlaceholders(player, InteractiveChat.invExpiredMessage));
                     }
                     break;
             }
             return true;
         }
 
-        sender.sendMessage(ChatColorUtils.translateAlternateColorCodes('&', Bukkit.spigot().getConfig().getString("messages.unknown-command")));
+        InteractiveChat.sendMessage(sender, ChatColorUtils.translateAlternateColorCodes('&', Bukkit.spigot().getConfig().getString("messages.unknown-command")));
         return true;
     }
 
@@ -526,7 +531,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     if (sender.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
                         String text = placeholder.getName();
                         if (text.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
-                            Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder.getDescription());
+                            Component component = placeholder.getDescription();
                             String json = InteractiveChat.version.isLegacyRGB() ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component);
                             tab.add(text + "\0" + json);
                         }

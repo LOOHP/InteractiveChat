@@ -20,11 +20,13 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import net.kyori.adventure.text.Component;
+
 import java.util.regex.Pattern;
 
 public class BuiltInPlaceholder extends ICPlaceholder {
 
-    public BuiltInPlaceholder(Pattern keyword, String name, String description, String permission, long cooldown) {
+    public BuiltInPlaceholder(Pattern keyword, String name, Component description, String permission, long cooldown) {
         super(keyword, name, description, permission, cooldown);
     }
 

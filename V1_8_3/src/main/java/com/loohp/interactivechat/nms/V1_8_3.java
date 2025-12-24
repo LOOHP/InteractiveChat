@@ -443,7 +443,7 @@ public class V1_8_3 extends NMSWrapper {
     }
 
     @Override
-    public void sendToast(IICPlayer sender, Player pinged, String message, ItemStack icon) {
+    public void sendToast(IICPlayer sender, Player pinged, String messageJson, ItemStack icon) {
         throw new UnsupportedOperationException();
     }
 

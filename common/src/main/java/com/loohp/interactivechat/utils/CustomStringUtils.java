@@ -32,11 +32,11 @@ import java.util.regex.Pattern;
 
 public class CustomStringUtils {
 
-    private static final String[] META_CHARACTERS = new String[] {"\\", "^", "$", "{", "}", "[", "]", "(", ")", ".", "*", "+", "?", "|", "<", ">", "-", "&", "%", "\"", "'"};
-    private static final String[] REPLACE_ALL_META_CHARACTERS = new String[] {"$"};
-    private static final String REPLACE_REGEX = "(?<!\\\\)\\$%s|\\\\\\\\\\$%s";
-    private static final String REPLACE_ESCAPE_REGEX = "(?<!\\\\)\\\\\\$";
-    private static final UnicodeUnescaper UNESCAPE_UNICODE = new UnicodeUnescaper();
+    protected static final String[] META_CHARACTERS = new String[] {"\\", "^", "$", "{", "}", "[", "]", "(", ")", ".", "*", "+", "?", "|", "<", ">", "-", "&", "%", "\"", "'"};
+    protected static final String[] REPLACE_ALL_META_CHARACTERS = new String[] {"$"};
+    protected static final String REPLACE_REGEX = "(?<!\\\\)\\$%s|\\\\\\\\\\$%s";
+    protected static final String REPLACE_ESCAPE_REGEX = "(?<!\\\\)\\\\\\$";
+    protected static final UnicodeUnescaper UNESCAPE_UNICODE = new UnicodeUnescaper();
 
     public static String applyReplacementRegex(String str, MatchResult result, int groupOffset) {
         str = str.replaceAll(REPLACE_REGEX.replace("%s", "0"), escapeReplaceAllMetaCharacters(result.group()));
@@ -165,18 +165,18 @@ public class CustomStringUtils {
     }
 
     public static String escapeReplaceAllMetaCharacters(String inputString) {
-        for (int i = 0; i < REPLACE_ALL_META_CHARACTERS.length; i++) {
-            if (inputString.contains(REPLACE_ALL_META_CHARACTERS[i])) {
-                inputString = inputString.replace(REPLACE_ALL_META_CHARACTERS[i], "\\" + REPLACE_ALL_META_CHARACTERS[i]);
+        for (String metaCharacter : REPLACE_ALL_META_CHARACTERS) {
+            if (inputString.contains(metaCharacter)) {
+                inputString = inputString.replace(metaCharacter, "\\" + metaCharacter);
             }
         }
         return inputString;
     }
 
     public static String escapeMetaCharacters(String inputString) {
-        for (int i = 0; i < META_CHARACTERS.length; i++) {
-            if (inputString.contains(META_CHARACTERS[i])) {
-                inputString = inputString.replace(META_CHARACTERS[i], "\\" + META_CHARACTERS[i]);
+        for (String metaCharacter : META_CHARACTERS) {
+            if (inputString.contains(metaCharacter)) {
+                inputString = inputString.replace(metaCharacter, "\\" + metaCharacter);
             }
         }
         return inputString;
@@ -208,19 +208,15 @@ public class CustomStringUtils {
     }
 
     public static String clearPluginRGBTags(String str) {
-        Matcher matcher = ChatColorUtils.COLOR_TAG_PATTERN.matcher(str);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String escape = matcher.group(1);
-            String replacement = escape == null ? "" : escape;
-            matcher.appendReplacement(sb, replacement);
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
+        return clearPluginTags(ChatColorUtils.COLOR_TAG_PATTERN, str);
     }
 
     public static String clearPluginFontTags(String str) {
-        Matcher matcher = ComponentFont.FONT_TAG_PATTERN.matcher(str);
+        return clearPluginTags(ComponentFont.FONT_TAG_PATTERN, str);
+    }
+
+    public static String clearPluginTags(Pattern tagPattern, String str) {
+        Matcher matcher = tagPattern.matcher(str);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String escape = matcher.group(1);

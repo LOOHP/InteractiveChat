@@ -258,7 +258,7 @@ public class BungeeMessageSender {
             if (isBuiltIn) {
                 DataTypeIO.writeString(out, placeholder.getKeyword().pattern(), StandardCharsets.UTF_8);
                 DataTypeIO.writeString(out, placeholder.getName(), StandardCharsets.UTF_8);
-                DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(out, placeholder.getDescription(), StandardCharsets.UTF_8);
                 DataTypeIO.writeString(out, placeholder.getPermission(), StandardCharsets.UTF_8);
                 out.writeLong(placeholder.getCooldown());
             } else {
@@ -271,7 +271,7 @@ public class BungeeMessageSender {
 
                 CustomPlaceholderHoverEvent hover = customPlaceholder.getHover();
                 out.writeBoolean(hover.isEnabled());
-                DataTypeIO.writeString(out, hover.getText(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(out, hover.getText(), StandardCharsets.UTF_8);
 
                 CustomPlaceholderClickEvent click = customPlaceholder.getClick();
                 out.writeBoolean(click.isEnabled());
@@ -280,10 +280,10 @@ public class BungeeMessageSender {
 
                 CustomPlaceholderReplaceText replace = customPlaceholder.getReplace();
                 out.writeBoolean(replace.isEnabled());
-                DataTypeIO.writeString(out, replace.getReplaceText(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(out, replace.getReplaceText(), StandardCharsets.UTF_8);
 
                 DataTypeIO.writeString(out, placeholder.getName(), StandardCharsets.UTF_8);
-                DataTypeIO.writeString(out, placeholder.getDescription(), StandardCharsets.UTF_8);
+                DataTypeIO.writeComponent(out, placeholder.getDescription(), StandardCharsets.UTF_8);
             }
         }
         return forwardData(time, 0x0C, out.toByteArray());

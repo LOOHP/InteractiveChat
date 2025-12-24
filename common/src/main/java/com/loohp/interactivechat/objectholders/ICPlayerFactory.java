@@ -35,12 +35,6 @@ import net.craftersland.data.bridge.objects.DatabaseInventoryData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -66,44 +60,6 @@ public class ICPlayerFactory {
     private static final Unsafe UNSAFE = new Unsafe();
 
     static {
-        Bukkit.getPluginManager().registerEvents(new Listener() {
-            @EventHandler(priority = EventPriority.LOWEST)
-            public void onJoin(PlayerLoginEvent event) {
-                synchronized (LOCK) {
-                    Player player = event.getPlayer();
-                    if (!ICPLAYERS.containsKey(player.getUniqueId())) {
-                        ICPlayer icplayer = new ICPlayer(player);
-                        ICPLAYERS.put(icplayer.getUniqueId(), icplayer);
-                        LOGGING_IN.put(icplayer.getUniqueId(), icplayer);
-                    }
-                }
-            }
-
-            @EventHandler(priority = EventPriority.MONITOR)
-            public void onJoinConfirm(PlayerLoginEvent event) {
-                if (!event.getResult().equals(Result.ALLOWED)) {
-                    onLeave(new PlayerQuitEvent(event.getPlayer(), null));
-                } else {
-                    UUID uuid = event.getPlayer().getUniqueId();
-                    LOGGING_IN.remove(uuid);
-                    Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(getICPlayer(uuid), false));
-                }
-            }
-
-            @EventHandler(priority = EventPriority.MONITOR)
-            public void onLeave(PlayerQuitEvent event) {
-                synchronized (LOCK) {
-                    UUID uuid = event.getPlayer().getUniqueId();
-                    if (!REMOTE_UUID.contains(uuid)) {
-                        ICPlayer icplayer = ICPLAYERS.remove(uuid);
-                        if (icplayer != null && LOGGING_IN.remove(uuid) == null) {
-                            Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, false));
-                        }
-                    }
-                }
-            }
-        }, InteractiveChat.plugin);
-
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> REFERENCED_OFFLINE_PLAYERS.values().removeIf(each -> each.get() == null), 12000, 12000);
     }
 
@@ -355,6 +311,41 @@ public class ICPlayerFactory {
     public static class Unsafe {
 
         private Unsafe() {
+        }
+
+        @Deprecated
+        public void triggerPlayerJoinEarly(Player player) {
+            synchronized (LOCK) {
+                if (!ICPLAYERS.containsKey(player.getUniqueId())) {
+                    ICPlayer icplayer = new ICPlayer(player);
+                    ICPLAYERS.put(icplayer.getUniqueId(), icplayer);
+                    LOGGING_IN.put(icplayer.getUniqueId(), icplayer);
+                }
+            }
+        }
+
+        @Deprecated
+        public void triggerPlayerJoinConfirm(Player player, boolean allowed) {
+            if (!allowed) {
+                triggerPlayerQuit(player);
+            } else {
+                UUID uuid = player.getUniqueId();
+                LOGGING_IN.remove(uuid);
+                Bukkit.getPluginManager().callEvent(new ICPlayerJoinEvent(getICPlayer(uuid), false));
+            }
+        }
+
+        @Deprecated
+        public void triggerPlayerQuit(Player player) {
+            synchronized (LOCK) {
+                UUID uuid = player.getUniqueId();
+                if (!REMOTE_UUID.contains(uuid)) {
+                    ICPlayer icplayer = ICPLAYERS.remove(uuid);
+                    if (icplayer != null && LOGGING_IN.remove(uuid) == null) {
+                        Bukkit.getPluginManager().callEvent(new ICPlayerQuitEvent(icplayer, false));
+                    }
+                }
+            }
         }
 
         @Deprecated

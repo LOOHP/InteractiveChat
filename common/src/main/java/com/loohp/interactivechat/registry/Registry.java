@@ -34,9 +34,9 @@ import java.util.regex.Pattern;
 public class Registry {
 
     public static final String PLUGIN_MESSAGING_PROTOCOL_IDENTIFIER = "InteractiveChatBungeePing";
-    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 21;
+    public static final int PLUGIN_MESSAGING_PROTOCOL_VERSION = 22;
 
-    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 48;
+    public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 49;
 
     public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
     public static final Function<ComponentReplacing.ComponentMatchResult, Component> ID_PATTERN_REPLACEMENT = result -> result.group(4) == null ? Component.empty() : result.componentGroup(4);

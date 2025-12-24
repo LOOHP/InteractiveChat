@@ -192,7 +192,7 @@ public abstract class NMSWrapper {
 
     public abstract String getSkinValue(ItemMeta skull);
 
-    public abstract void sendToast(IICPlayer sender, Player pinged, String message, ItemStack icon);
+    public abstract void sendToast(IICPlayer sender, Player pinged, String messageJson, ItemStack icon);
 
     public abstract void setBossbarTitle(Object bukkitBossbar, Component component);
 

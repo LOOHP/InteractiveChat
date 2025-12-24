@@ -337,7 +337,7 @@
 		<dependency>
 			<groupId>com.github.cryptomorin</groupId>
 			<artifactId>XSeries</artifactId>
-			<version>13.5.1</version>
+			<version>13.6.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -808,17 +808,23 @@
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.loohp</groupId>
-            <artifactId>InteractiveChat-V1_21_9</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.loohp</groupId>
-            <artifactId>InteractiveChat-V1_21_10</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>com.loohp</groupId>
+      <artifactId>InteractiveChat-V1_21_9</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.loohp</groupId>
+      <artifactId>InteractiveChat-V1_21_10</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.loohp</groupId>
+      <artifactId>InteractiveChat-V1_21_11</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
 	</dependencies>
 </project>

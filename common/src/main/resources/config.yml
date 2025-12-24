@@ -74,6 +74,7 @@ Settings:
   #Whether to parse PlaceholderAPI placeholders on the main thread
   ParsePAPIOnMainThread: false
   ItemTagMaxLength: 30767
+  PacketStringPreMaxLength: 32767
   PacketStringMaxLength: 32767
   SendOriginalMessageIfExceedLengthLimit: true
   #You might want to adjust this option if you have other plugins listening to the chat

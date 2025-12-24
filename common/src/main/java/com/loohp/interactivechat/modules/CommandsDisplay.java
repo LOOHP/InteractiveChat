@@ -22,6 +22,7 @@ package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.CustomStringUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -63,9 +64,9 @@ public class CommandsDisplay {
                     componentText = escape + componentText;
                 }
                 Component commandComponent = LegacyComponentSerializer.legacySection().deserialize(componentText);
-                commandComponent = commandComponent.clickEvent(ClickEvent.clickEvent(InteractiveChat.clickableCommandsAction, command));
-                if (!InteractiveChat.clickableCommandsHoverText.isEmpty()) {
-                    commandComponent = commandComponent.hoverEvent(HoverEvent.showText(LegacyComponentSerializer.legacySection().deserialize(InteractiveChat.clickableCommandsHoverText)));
+                commandComponent = commandComponent.clickEvent(ClickEvent.clickEvent(InteractiveChat.clickableCommandsAction, ClickEvent.Payload.string(command)));
+                if (!ComponentUtils.isEmpty(InteractiveChat.clickableCommandsHoverText)) {
+                    commandComponent = commandComponent.hoverEvent(HoverEvent.showText(InteractiveChat.clickableCommandsHoverText));
                 }
                 return commandComponent;
             } else if (result.group(4) != null) {

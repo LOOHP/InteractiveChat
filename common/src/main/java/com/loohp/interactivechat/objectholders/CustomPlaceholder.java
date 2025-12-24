@@ -20,6 +20,8 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import net.kyori.adventure.text.Component;
+
 import java.util.regex.Pattern;
 
 public class CustomPlaceholder extends ICPlaceholder {
@@ -33,7 +35,7 @@ public class CustomPlaceholder extends ICPlaceholder {
     private final CustomPlaceholderClickEvent click;
     private final CustomPlaceholderReplaceText replace;
 
-    public CustomPlaceholder(String key, ParsePlayer parsePlayer, Pattern keyword, boolean parseKeyword, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String name, String description) {
+    public CustomPlaceholder(String key, ParsePlayer parsePlayer, Pattern keyword, boolean parseKeyword, long cooldown, CustomPlaceholderHoverEvent hover, CustomPlaceholderClickEvent click, CustomPlaceholderReplaceText replace, String name, Component description) {
         super(keyword, name, description, CUSTOM_PLACEHOLDER_PERMISSION + key, cooldown);
         this.key = key;
         this.parsePlayer = parsePlayer;
@@ -129,9 +131,9 @@ public class CustomPlaceholder extends ICPlaceholder {
     public static class CustomPlaceholderHoverEvent {
 
         private final boolean enabled;
-        private final String text;
+        private final Component text;
 
-        public CustomPlaceholderHoverEvent(boolean enabled, String text) {
+        public CustomPlaceholderHoverEvent(boolean enabled, Component text) {
             this.enabled = enabled;
             this.text = text;
         }
@@ -140,7 +142,7 @@ public class CustomPlaceholder extends ICPlaceholder {
             return enabled;
         }
 
-        public String getText() {
+        public Component getText() {
             return text;
         }
 
@@ -241,9 +243,9 @@ public class CustomPlaceholder extends ICPlaceholder {
     public static class CustomPlaceholderReplaceText {
 
         private final boolean enabled;
-        private final String replaceText;
+        private final Component replaceText;
 
-        public CustomPlaceholderReplaceText(boolean enabled, String replaceText) {
+        public CustomPlaceholderReplaceText(boolean enabled, Component replaceText) {
             this.enabled = enabled;
             this.replaceText = replaceText;
         }
@@ -252,7 +254,7 @@ public class CustomPlaceholder extends ICPlaceholder {
             return enabled;
         }
 
-        public String getReplaceText() {
+        public Component getReplaceText() {
             return replaceText;
         }
 

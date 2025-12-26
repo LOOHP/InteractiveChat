@@ -260,7 +260,7 @@
 		</repository>
 		<repository>
 			<id>paper-repo</id>
-			<url>https://papermc.io/repo/repository/maven-public/</url>
+			<url>https://repo.papermc.io/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
@@ -281,10 +281,6 @@
 		<repository>
 			<id>Scarsz-Nexus</id>
 			<url>https://nexus.scarsz.me/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>velocity</id>
-			<url>https://nexus.velocitypowered.com/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>viaversion-repo</id>

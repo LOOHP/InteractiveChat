@@ -111,7 +111,10 @@ public class HoverableItemDisplay {
                         }
                     }
                 } else {
-                    itemstack = ItemNBTUtils.getItemStackFromDataComponents(itemstack, dataComponents);
+                    try {
+                        itemstack = ItemNBTUtils.getItemStackFromDataComponents(itemstack, dataComponents);
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 if (itemstack != null) {

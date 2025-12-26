@@ -94,7 +94,6 @@ public class ComponentReplacing {
                     int start = toComponentIndex(matcher.start(), str);
                     int end = toComponentIndex(matcher.end(), str);
                     List<Component> componentGroup = Collections.unmodifiableList(componentCharacters.subList(start, end));
-                    int originalLength = componentGroup.size();
                     Component result = replaceFunction.apply(new ComponentMatchResult(matcher, str, componentCharacters), componentGroup);
                     children.addAll(componentCharacters.subList(lastEnd, start));
                     children.add(result);

@@ -119,13 +119,35 @@ public class CustomPlaceholder extends ICPlaceholder {
 
     public enum ClickEventAction {
 
-        OPEN_URL,
-        OPEN_FILE,
-        RUN_COMMAND,
-        SUGGEST_COMMAND,
-        CHANGE_PAGE,
-        COPY_TO_CLIPBOARD;
+        OPEN_URL("open_url"),
+        OPEN_FILE("open_file"),
+        RUN_COMMAND("run_command"),
+        SUGGEST_COMMAND("suggest_command"),
+        CHANGE_PAGE("change_page"),
+        COPY_TO_CLIPBOARD("copy_to_clipboard"),
+        SHOW_DIALOG("show_dialog"),
+        CUSTOM("custom");
 
+        private static final ClickEventAction[] VALUES = values();
+
+        private final String id;
+
+        ClickEventAction(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public static ClickEventAction of(String id) {
+            for (ClickEventAction clickEventAction : VALUES) {
+                if (id.equals(clickEventAction.getId()) || id.equals(clickEventAction.name())) {
+                    return clickEventAction;
+                }
+            }
+            throw new IllegalArgumentException("Unknown ClickEventAction: " + id);
+        }
     }
 
     public static class CustomPlaceholderHoverEvent {

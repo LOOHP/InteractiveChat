@@ -119,7 +119,12 @@ public class CustomPlaceholderDisplay {
                     }
                     if (clickEnabled) {
                         String clickText = PlaceholderParser.parse(player, CustomStringUtils.applyReplacementRegex(clickValue, result, 1));
-                        replaceComponent = replaceComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(clickAction.name()), ClickEvent.Payload.string(clickText)));
+                        ClickEvent.Action<?> clickEventAction = ClickEvent.Action.NAMES.value(clickAction.getId());
+                        ClickEvent.Payload.Text payload = ClickEvent.Payload.string(clickText);
+                        if (clickEventAction != null && clickEventAction.supports(payload)) {
+                            //noinspection unchecked
+                            replaceComponent = replaceComponent.clickEvent(ClickEvent.clickEvent((ClickEvent.Action<ClickEvent.Payload.Text>) clickEventAction, payload));
+                        }
                     }
                     return replaceComponent;
                 }

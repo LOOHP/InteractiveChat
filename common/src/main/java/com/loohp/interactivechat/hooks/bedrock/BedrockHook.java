@@ -123,8 +123,8 @@ public class BedrockHook implements Listener {
                     .append(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(pair.getSecond(), InteractiveChat.language));
         }
         SimpleForm.Builder builder = SimpleForm.builder().title(InteractiveChat.bedrockEventsMenuTitle).content(sb.toString());
-        List<ValueTrios<Component, String, ClickEvent.Action>> clicks = extractClickCommands(message);
-        for (ValueTrios<Component, String, ClickEvent.Action> trio : clicks) {
+        List<ValueTrios<Component, String, ClickEvent.Action<?>>> clicks = extractClickCommands(message);
+        for (ValueTrios<Component, String, ClickEvent.Action<?>> trio : clicks) {
             builder.button(InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(trio.getFirst(), InteractiveChat.language));
         }
         builder.validResultHandler(response -> {
@@ -132,8 +132,8 @@ public class BedrockHook implements Listener {
             if (index >= clicks.size()) {
                 return;
             }
-            ValueTrios<Component, String, ClickEvent.Action> trio = clicks.get(index);
-            ClickEvent.Action action = trio.getThird();
+            ValueTrios<Component, String, ClickEvent.Action<?>> trio = clicks.get(index);
+            ClickEvent.Action<?> action = trio.getThird();
             String command = trio.getSecond();
             if (action.equals(ClickEvent.Action.SUGGEST_COMMAND)) {
                 handleSuggestCommand(uuid, trio.getFirst(), message, command);
@@ -190,8 +190,8 @@ public class BedrockHook implements Listener {
         return result;
     }
 
-    private static List<ValueTrios<Component, String, ClickEvent.Action>> extractClickCommands(Component component) {
-        List<ValueTrios<Component, String, ClickEvent.Action>> result = new ArrayList<>();
+    private static List<ValueTrios<Component, String, ClickEvent.Action<?>>> extractClickCommands(Component component) {
+        List<ValueTrios<Component, String, ClickEvent.Action<?>>> result = new ArrayList<>();
         List<Component> flattened = new ArrayList<>(ComponentFlattening.flatten(component).children());
         for (int i = 0; i < flattened.size(); i++) {
             Component c = flattened.get(i);
@@ -201,9 +201,12 @@ public class BedrockHook implements Listener {
         }
         Component optimizeEvents = ComponentCompacting.optimizeEvents(Component.empty().children(flattened));
         for (Component c : optimizeEvents.children()) {
-            ClickEvent clickEvent = c.clickEvent();
+            ClickEvent<?> clickEvent = c.clickEvent();
             if (clickEvent != null && (clickEvent.action().equals(ClickEvent.Action.RUN_COMMAND) || clickEvent.action().equals(ClickEvent.Action.SUGGEST_COMMAND))) {
-                result.add(new ValueTrios<>(c, clickEvent.value(), clickEvent.action()));
+                ClickEvent.Payload payload = clickEvent.payload();
+                if (payload instanceof ClickEvent.Payload.Text) {
+                    result.add(new ValueTrios<>(c, ((ClickEvent.Payload.Text) payload).value(), clickEvent.action()));
+                }
             }
         }
         return result;

@@ -378,7 +378,7 @@ public class ConfigManager {
 
         InteractiveChat.clickableCommands = getConfig().getBoolean("Commands.Enabled");
         InteractiveChat.clickableCommandsFormat = getConfig().getString("Commands.Format");
-        InteractiveChat.clickableCommandsAction = ClickEvent.Action.valueOf(getConfig().getString("Commands.Action"));
+        InteractiveChat.clickableCommandsAction = ClickEvent.Action.NAMES.value(CustomPlaceholder.ClickEventAction.of(getConfig().getString("Commands.Action")).getId());
         InteractiveChat.clickableCommandsDisplay = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("Commands.Text"));
         InteractiveChat.clickableCommandsHoverText = ComponentStyling.parseMiniMessage(ChatColorUtils.translateAlternateColorCodes('&', String.join("\n", getConfig().getStringList("Commands.HoverMessage"))));
 

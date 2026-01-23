@@ -212,7 +212,7 @@ public class InteractiveChatComponentSerializer {
             String snbt = PlainTextComponentSerializer.plainText().serialize(input);
             CompoundBinaryTag item;
             try {
-                item = TagStringIO.get().asCompound(snbt);
+                item = TagStringIO.tagStringIO().asCompound(snbt);
             } catch (Exception e) {
                 return ShowItem.showItem(Key.key("minecraft:stone"), 1);
             }
@@ -244,13 +244,13 @@ public class InteractiveChatComponentSerializer {
             }
 
             byte count = item.getByte("Count", (byte) 1);
-            return ShowItem.showItem(key, count, isTagEmpty ? null : BinaryTagHolder.binaryTagHolder(TagStringIO.get().asString(tag)));
+            return ShowItem.showItem(key, count, isTagEmpty ? null : BinaryTagHolder.binaryTagHolder(TagStringIO.tagStringIO().asString(tag)));
         }
 
         @Override
         public HoverEvent.@NonNull ShowEntity deserializeShowEntity(@NonNull Component input, Decoder<Component, String, ? extends RuntimeException> componentDecoder) throws IOException {
             String snbt = PlainTextComponentSerializer.plainText().serialize(input);
-            CompoundBinaryTag item = TagStringIO.get().asCompound(snbt);
+            CompoundBinaryTag item = TagStringIO.tagStringIO().asCompound(snbt);
 
             Component name;
             try {
@@ -281,10 +281,10 @@ public class InteractiveChatComponentSerializer {
             BinaryTagHolder nbt = input.nbt();
             try {
                 if (nbt != null) {
-                    builder.put("tag", TagStringIO.get().asCompound(nbt.string()));
+                    builder.put("tag", TagStringIO.tagStringIO().asCompound(nbt.string()));
                 }
 
-                return Component.text(TagStringIO.get().asString(builder.build()));
+                return Component.text(TagStringIO.tagStringIO().asString(builder.build()));
             } catch (Throwable e) {
                 try {
                     String nbtAsString = "";
@@ -293,7 +293,7 @@ public class InteractiveChatComponentSerializer {
                         builder.put("tag", StringBinaryTag.stringBinaryTag("{Tag}"));
                     }
 
-                    return Component.text(TagStringIO.get().asString(builder.build()).replace("\"{Tag}\"", nbtAsString));
+                    return Component.text(TagStringIO.tagStringIO().asString(builder.build()).replace("\"{Tag}\"", nbtAsString));
                 } catch (Throwable e1) {
                     e.printStackTrace();
                     return Component.empty();
@@ -308,7 +308,7 @@ public class InteractiveChatComponentSerializer {
             if (name != null) {
                 tag.putString("name", componentEncoder.encode(name));
             }
-            return Component.text(TagStringIO.get().asString(tag.build()));
+            return Component.text(TagStringIO.tagStringIO().asString(tag.build()));
         }
 
     }

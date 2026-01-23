@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.modules;
 
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
 import com.loohp.interactivechat.objectholders.ReplaceTextBundle;
@@ -107,7 +108,14 @@ public class PlayernameDisplay {
         }
         if (InteractiveChat.usePlayerNameClickEnable) {
             String playertext = PlaceholderParser.parse(player, InteractiveChat.usePlayerNameClickValue);
-            clickEvent = ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.usePlayerNameClickAction), ClickEvent.Payload.string(playertext));
+            ClickEvent.Action<?> clickEventAction = ClickEvent.Action.NAMES.value(CustomPlaceholder.ClickEventAction.of(InteractiveChat.usePlayerNameClickAction).getId());
+            ClickEvent.Payload.Text payload = ClickEvent.Payload.string(playertext);
+            if (clickEventAction != null && clickEventAction.supports(payload)) {
+                //noinspection unchecked
+                clickEvent = ClickEvent.clickEvent((ClickEvent.Action<ClickEvent.Payload.Text>) clickEventAction, payload);
+            } else {
+                clickEvent = null;
+            }
         } else {
             clickEvent = null;
         }

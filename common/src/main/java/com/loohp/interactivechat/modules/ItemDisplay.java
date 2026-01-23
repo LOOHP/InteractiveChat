@@ -26,6 +26,7 @@ import com.loohp.interactivechat.api.InteractiveChatAPI.SharedType;
 import com.loohp.interactivechat.api.events.ItemPlaceholderEvent;
 import com.loohp.interactivechat.bungeemessaging.BungeeMessageSender;
 import com.loohp.interactivechat.nms.NMS;
+import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
@@ -112,7 +113,12 @@ public class ItemDisplay {
                 }
                 if (InteractiveChat.playerNotFoundClickEnable) {
                     String clickValue = ChatColorUtils.translateAlternateColorCodes('&', InteractiveChat.playerNotFoundClickValue.replace("{Placeholder}", InteractiveChat.itemName));
-                    message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.valueOf(InteractiveChat.playerNotFoundClickAction), ClickEvent.Payload.string(clickValue)));
+                    ClickEvent.Action<?> clickEventAction = ClickEvent.Action.NAMES.value(CustomPlaceholder.ClickEventAction.of(InteractiveChat.playerNotFoundClickAction).getId());
+                    ClickEvent.Payload.Text payload = ClickEvent.Payload.string(clickValue);
+                    if (clickEventAction != null && clickEventAction.supports(payload)) {
+                        //noinspection unchecked
+                        message = message.clickEvent(ClickEvent.clickEvent((ClickEvent.Action<ClickEvent.Payload.Text>) clickEventAction, payload));
+                    }
                 }
                 component = ComponentReplacing.replace(component, regex, true, message);
             }

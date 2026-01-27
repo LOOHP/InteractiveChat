@@ -583,14 +583,14 @@
 			<artifactId>excellentenchants</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/ExcellentEnchants-5.1.0.jar</systemPath>
+			<systemPath>${basedir}/lib/ExcellentEnchants-5.4.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.nightcore</groupId>
 			<artifactId>nightcore</artifactId>
 			<scope>system</scope>
 			<version>1.0</version>
-			<systemPath>${basedir}/lib/nightcore-2.7.9.jar</systemPath>
+			<systemPath>${basedir}/lib/nightcore-2.13.2.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.geysermc.geyser</groupId>

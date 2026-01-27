@@ -29,21 +29,17 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import su.nightexpress.excellentenchants.api.EnchantRegistry;
-import su.nightexpress.excellentenchants.config.Config;
-import su.nightexpress.excellentenchants.hook.HookPlugin;
-import su.nightexpress.excellentenchants.util.EnchantUtils;
+import su.nightexpress.excellentenchants.EnchantsAPI;
+import su.nightexpress.excellentenchants.enchantment.EnchantRegistry;
+import su.nightexpress.excellentenchants.tooltip.TooltipManager;
+import su.nightexpress.excellentenchants.tooltip.TooltipPlugins;
 import su.nightexpress.nightcore.util.Plugins;
-
-import java.util.stream.Collectors;
 
 public class ExcellentEnchantsHook {
 
-    public static final String NAMESPACE = "excellentenchants";
-
     public static void init() {
         Plugin excellentEnchants = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
-        if (Config.isDescriptionEnabled() && (Plugins.isInstalled(HookPlugin.PACKET_EVENTS) || Plugins.isInstalled(HookPlugin.PROTOCOL_LIB))) {
+        if (EnchantsAPI.getPlugin().getTooltipManager() != null && (Plugins.isInstalled(TooltipPlugins.PACKET_EVENTS) || Plugins.isInstalled(TooltipPlugins.PROTOCOL_LIB))) {
             InteractiveChatAPI.registerItemStackTransformProvider(excellentEnchants, 1, (itemStack, uuid) -> {
                 ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
                 return setExcellentEnchantsInfo(itemStack, icPlayer);
@@ -52,8 +48,12 @@ public class ExcellentEnchantsHook {
     }
 
     public static ItemStack setExcellentEnchantsInfo(ItemStack itemStack, ICPlayer icPlayer) {
-        if (icPlayer != null && icPlayer.isLocal() && EnchantUtils.canUpdateDisplay(icPlayer.getLocalPlayer())) {
-            itemStack = EnchantUtils.addDescription(itemStack);
+        TooltipManager tooltipManager = EnchantsAPI.getPlugin().getTooltipManager();
+        if (tooltipManager == null) {
+            return itemStack;
+        }
+        if (icPlayer != null && icPlayer.isLocal() && tooltipManager.isReadyForTooltipUpdate(icPlayer.getLocalPlayer())) {
+            itemStack = tooltipManager.addDescription(itemStack);
         }
         if (InteractiveChat.excellentEnchantsStripEnchantments && itemStack.hasItemMeta()) {
             ItemMeta itemMeta = itemStack.getItemMeta();

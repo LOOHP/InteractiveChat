@@ -616,9 +616,13 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         if (isPluginEnabled("ExcellentEnchants")) {
-            ExcellentEnchantsHook.init();
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ExcellentEnchants!");
-            excellentenchantsHook = true;
+            if (ExcellentEnchantsHook.init()) {
+                getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ExcellentEnchants!");
+                excellentenchantsHook = true;
+            } else {
+                getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] ExcellentEnchants detected, but tooltip hook is not compatible with this EE build. Skipping hook.");
+                excellentenchantsHook = false;
+            }
         }
 
         if (isPluginEnabled("LuckPerms")) {

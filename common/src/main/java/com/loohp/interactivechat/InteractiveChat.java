@@ -616,9 +616,10 @@ public class InteractiveChat extends JavaPlugin {
         }
 
         if (isPluginEnabled("ExcellentEnchants")) {
-            ExcellentEnchantsHook.init();
-            getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ExcellentEnchants!");
-            excellentenchantsHook = true;
+            if (ExcellentEnchantsHook.init()) {
+                getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[InteractiveChat] InteractiveChat has hooked into ExcellentEnchants!");
+                excellentenchantsHook = true;
+            }
         }
 
         if (isPluginEnabled("LuckPerms")) {

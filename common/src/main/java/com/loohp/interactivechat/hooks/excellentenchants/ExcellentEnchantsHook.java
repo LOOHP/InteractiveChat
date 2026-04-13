@@ -37,13 +37,19 @@ import su.nightexpress.nightcore.util.Plugins;
 
 public class ExcellentEnchantsHook {
 
-    public static void init() {
-        Plugin excellentEnchants = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
-        if (EnchantsAPI.getPlugin().getTooltipManager() != null && (Plugins.isInstalled(TooltipPlugins.PACKET_EVENTS) || Plugins.isInstalled(TooltipPlugins.PROTOCOL_LIB))) {
-            InteractiveChatAPI.registerItemStackTransformProvider(excellentEnchants, 1, (itemStack, uuid) -> {
-                ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
-                return setExcellentEnchantsInfo(itemStack, icPlayer);
-            });
+    public static boolean init() {
+        try {
+            Plugin excellentEnchants = Bukkit.getPluginManager().getPlugin("ExcellentEnchants");
+            if (EnchantsAPI.getPlugin().getTooltipManager() != null && (Plugins.isInstalled(TooltipPlugins.PACKET_EVENTS) || Plugins.isInstalled(TooltipPlugins.PROTOCOL_LIB))) {
+                InteractiveChatAPI.registerItemStackTransformProvider(excellentEnchants, 1, (itemStack, uuid) -> {
+                    ICPlayer icPlayer = ICPlayerFactory.getICPlayer(uuid);
+                    return setExcellentEnchantsInfo(itemStack, icPlayer);
+                });
+            }
+            return true;
+        } catch (Throwable e) {
+            new RuntimeException("Unable to hook into ExcellentEnchants due to error (Is it up to date?)", e).printStackTrace();
+            return false;
         }
     }
 

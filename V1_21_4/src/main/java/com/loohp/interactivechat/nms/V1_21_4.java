@@ -289,7 +289,7 @@ public class V1_21_4 extends NMSWrapper {
         if (equippable == null) {
             return false;
         }
-        if (!equippable.e().map(a -> a.a().anyMatch(s -> s.a().equals(EntityTypes.bS))).orElse(true)) {
+        if (!equippable.e().map(a -> a.a().anyMatch(s -> s.a().equals(EntityTypes.bR))).orElse(true)) {
             return false;
         }
         EnumItemSlot slot = equippable.a();

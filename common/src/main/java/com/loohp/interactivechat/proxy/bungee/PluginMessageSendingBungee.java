@@ -30,10 +30,6 @@ import com.loohp.interactivechat.objectholders.ICPlaceholder;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.utils.CustomArrayUtils;
 import com.loohp.interactivechat.utils.DataTypeIO;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -43,6 +39,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public class PluginMessageSendingBungee {
 
@@ -481,10 +482,10 @@ public class PluginMessageSendingBungee {
         }
     }
 
-    public static void forwardSignedChatEventChange(UUID sender, String originalMessage, String modifiedMessage, long time) throws IOException {
+    public static void forwardSignedChatEventChange(ProxiedPlayer sender, String originalMessage, String modifiedMessage, long time) throws IOException {
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
-        DataTypeIO.writeUUID(output, sender);
+        DataTypeIO.writeUUID(output, sender.getUniqueId());
         DataTypeIO.writeString(output, originalMessage, StandardCharsets.UTF_8);
         DataTypeIO.writeString(output, modifiedMessage, StandardCharsets.UTF_8);
         output.writeLong(time);
@@ -506,9 +507,15 @@ public class PluginMessageSendingBungee {
 
             out.write(chunk);
 
+            ServerConnection playerServer = (ServerConnection) sender.getServer();
+            playerServer.unsafe().sendPacket(new PluginMessage("interchat:main", out.toByteArray(), false));
+            InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+
             for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
-                server.sendData("interchat:main", out.toByteArray());
-                InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+                if (!playerServer.getInfo().equals(server)) {
+                    server.sendData("interchat:main", out.toByteArray());
+                    InteractiveChatBungee.pluginMessagesCounter.incrementAndGet();
+                }
             }
         }
     }

@@ -52,6 +52,7 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import java.util.WeakHashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -143,6 +144,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     private static volatile boolean filtersAdded = false;
     private static ProxyMessageForwardingHandler messageForwardingHandler;
     private static ThreadPoolExecutor pluginMessageHandlingExecutor;
+    private static Map<ChatEvent, String> eventOriginalMessage = Collections.synchronizedMap(new WeakHashMap<>());
 
     static {
         Cache<Integer, byte[][]> incomingCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).build();
@@ -591,42 +593,68 @@ public class InteractiveChatBungee extends Plugin implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBungeeChatLowest(ChatEvent event) {
         if (chatEventPriority == EventPriority.LOWEST) {
+            String originalMessage = event.getMessage();
             handleChat(event);
+            if (!originalMessage.equals(event.getMessage())) {
+                eventOriginalMessage.put(event, originalMessage);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBungeeChatLow(ChatEvent event) {
         if (chatEventPriority == EventPriority.LOW) {
+            String originalMessage = event.getMessage();
             handleChat(event);
+            if (!originalMessage.equals(event.getMessage())) {
+                eventOriginalMessage.put(event, originalMessage);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBungeeChatNormal(ChatEvent event) {
         if (chatEventPriority == EventPriority.NORMAL) {
+            String originalMessage = event.getMessage();
             handleChat(event);
+            if (!originalMessage.equals(event.getMessage())) {
+                eventOriginalMessage.put(event, originalMessage);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBungeeChatHigh(ChatEvent event) {
         if (chatEventPriority == EventPriority.HIGH) {
+            String originalMessage = event.getMessage();
             handleChat(event);
+            if (!originalMessage.equals(event.getMessage())) {
+                eventOriginalMessage.put(event, originalMessage);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBungeeChatHighest(ChatEvent event) {
         if (chatEventPriority == EventPriority.HIGHEST) {
+            String originalMessage = event.getMessage();
             handleChat(event);
+            if (!originalMessage.equals(event.getMessage())) {
+                eventOriginalMessage.put(event, originalMessage);
+            }
         }
+        String originalMessage = eventOriginalMessage.remove(event);
+        if (originalMessage == null) {
+            return;
+        }
+        completeHandleChat(event, originalMessage);
     }
 
     private void handleChat(ChatEvent event) {
         if (event.isCancelled()) {
             return;
         }
+
         event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
 
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
@@ -740,20 +768,28 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }, 100, TimeUnit.MILLISECONDS);
         }
 
-        if (!event.getMessage().equals(newMessage)) {
+        event.setMessage(newMessage);
+    }
+
+    private void completeHandleChat(ChatEvent event, String originalMessage) {
+        Connection connection = event.getSender();
+        if (connection instanceof ProxiedPlayer && !originalMessage.equals(event.getMessage()) ) {
+            ProxiedPlayer player = (ProxiedPlayer) connection;
             if (player.getPendingConnection().getVersion() >= Registry.MINECRAFT_1_19_1_PROTOCOL_VERSION) {
                 try {
-                    PluginMessageSendingBungee.forwardSignedChatEventChange(uuid, event.getMessage(), newMessage, System.currentTimeMillis());
-                } catch (IOException e) {
+                    PluginMessageSendingBungee.forwardSignedChatEventChange(player, originalMessage, event.getMessage(), System.currentTimeMillis());
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            event.setMessage(newMessage);
         }
     }
 
     @EventHandler
     public void onServerConnected(ServerConnectedEvent event) {
+        if (!handleProxyMessage) return;
+
         ProxiedPlayer player = event.getPlayer();
 
         ServerConnection serverConnection = (ServerConnection) event.getServer();
@@ -772,7 +808,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
-        if (!handleProxyMessage) return;
         ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
         pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {
@@ -830,6 +865,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
+        if (!handleProxyMessage) return;
+
         UserConnection userConnection = (UserConnection) player;
         ChannelWrapper channelWrapper;
         Field channelField = null;
@@ -846,7 +883,6 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             }
         }
 
-        if (!handleProxyMessage) return;
         ChannelPipeline pipeline = channelWrapper.getHandle().pipeline();
 
         pipeline.addBefore(PipelineUtils.BOSS_HANDLER, "interactivechat_interceptor", new ChannelDuplexHandler() {

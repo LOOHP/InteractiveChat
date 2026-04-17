@@ -40,5 +40,5 @@ Settings:
   #LOWEST, LOW, NORMAL, HIGH/DEFAULT, HIGHEST
   #.
   #For Velocity:
-  #FIRST, EARLY, NORMAL, LATE/DEFAULT, LAST
+  #DEFAULT (0) or any number between -32768 to 32767 (Lower is called earlier)
   ChatEventPriority: DEFAULT

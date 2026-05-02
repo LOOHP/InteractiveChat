@@ -177,6 +177,16 @@ Settings:
     EcoSetLoreOnMainThread: false
     ExcellentEnchantsStripEnchantments: false
 
+    CraftEngineFontCompatibility:
+      # Restores missing Adventure font keys on raw CraftEngine bitmap glyphs.
+      # This is useful when another chat plugin has already converted an emoji/image
+      # into its glyph character, but the visible chat component lost its custom font.
+      Enabled: false
+      # Only glyphs from these CraftEngine bitmap fonts will be repaired.
+      # Example:
+      #   - minecraft:emojis
+      Fonts: []
+
 Commands:
   #Whether to make commands displayed in chat clickable
   Enabled: true

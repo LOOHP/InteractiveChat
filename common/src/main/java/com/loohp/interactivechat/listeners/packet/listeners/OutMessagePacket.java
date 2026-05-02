@@ -27,6 +27,7 @@ import com.loohp.interactivechat.api.events.PrePacketComponentProcessEvent;
 import com.loohp.interactivechat.data.PlayerDataManager.PlayerData;
 import com.loohp.interactivechat.hooks.triton.TritonHook;
 import com.loohp.interactivechat.hooks.venturechat.VentureChatInjection;
+import com.loohp.interactivechat.hooks.craftengine.CraftEngineFontCompatibility;
 import com.loohp.interactivechat.listeners.packet.MessagePacketHandler;
 import com.loohp.interactivechat.modules.CommandsDisplay;
 import com.loohp.interactivechat.modules.CustomPlaceholderDisplay;
@@ -261,6 +262,10 @@ public class OutMessagePacket {
                     component = ComponentFont.parseFont(component);
                 }
             }
+
+            
+            component = CraftEngineFontCompatibility.process(component);
+         
 
             if (!PlayerUtils.canChatColor(receiver)) {
                 component = ComponentStyling.stripColor(component);

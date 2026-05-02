@@ -45,6 +45,7 @@ import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
 import com.loohp.platformscheduler.Scheduler;
+import com.loohp.interactivechat.hooks.craftengine.CraftEngineFontCompatibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -349,10 +350,16 @@ public class ProcessExternalMessage {
             InteractiveChat.keyPlayer.remove(rawMessageKey);
         }, 5);
 
+        
+        component = CraftEngineFontCompatibility.process(component);
+        
+
         String newJson = InteractiveChatComponentSerializer.gson().serialize(component);
 
         PreExternalResponseSendEvent event = new PreExternalResponseSendEvent(!Scheduler.isPrimaryThread(), receiver, component, sender.map(each -> each.getUniqueId()).orElse(null), originalComponent, InteractiveChat.sendOriginalIfTooLong);
         Bukkit.getPluginManager().callEvent(event);
+        component = event.getComponent();
+        newJson = InteractiveChatComponentSerializer.gson().serialize(component);
 
         if (event.isSendOriginalIfCancelled() && newJson.length() > InteractiveChat.packetStringMaxLength) {
             String originalJson = InteractiveChatComponentSerializer.gson().serialize(originalComponent);

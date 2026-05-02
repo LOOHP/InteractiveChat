@@ -43,47 +43,7 @@
 
     <modules>
         <module>abstraction</module>
-        <module>V1_8</module>
-        <module>V1_8_3</module>
-        <module>V1_8_4</module>
-        <module>V1_9</module>
-        <module>V1_9_4</module>
-        <module>V1_10</module>
-        <module>V1_11</module>
-        <module>V1_12</module>
-        <module>V1_13</module>
-        <module>V1_13_1</module>
-        <module>V1_14</module>
-        <module>V1_15</module>
-        <module>V1_16</module>
-        <module>V1_16_2</module>
-        <module>V1_16_4</module>
-        <module>V1_17</module>
-        <module>V1_18</module>
-        <module>V1_18_2</module>
-        <module>V1_19</module>
-        <module>V1_19_3</module>
-        <module>V1_19_4</module>
-        <module>V1_20</module>
-        <module>V1_20_2</module>
-        <module>V1_20_3</module>
-        <module>V1_20_5</module>
-        <module>V1_20_6</module>
-        <module>V1_21</module>
-        <module>V1_21_1</module>
-        <module>V1_21_2</module>
-        <module>V1_21_3</module>
-        <module>V1_21_4</module>
-        <module>V1_21_5</module>
-        <module>V1_21_6</module>
-        <module>V1_21_7</module>
-        <module>V1_21_8</module>
-        <module>V1_21_9</module>
-        <module>V1_21_10</module>
         <module>V1_21_11</module>
-        <module>V26_1</module>
-        <module>V26_1_1</module>
-        <module>V26_1_2</module>
         <module>common</module>
     </modules>
 </project>

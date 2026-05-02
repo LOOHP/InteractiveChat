@@ -357,6 +357,9 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean ecoSetLoreOnMainThread = false;
     public static boolean excellentEnchantsStripEnchantments = false;
 
+    public static boolean craftEngineFontCompatibility = false;
+    public static Set<String> craftEngineFontCompatibilityFonts = new HashSet<>();
+
     public static BungeeMessageListener bungeeMessageListener;
     public static PlayerDataManager playerDataManager;
     public static PlaceholderCooldownManager placeholderCooldownManager;

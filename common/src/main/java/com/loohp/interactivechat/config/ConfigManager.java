@@ -36,6 +36,7 @@ import com.loohp.interactivechat.utils.ChatColorUtils;
 import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.LanguageUtils;
 import com.loohp.interactivechat.utils.MCVersion;
+import com.loohp.interactivechat.hooks.craftengine.CraftEngineFontCompatibility;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -291,6 +292,12 @@ public class ConfigManager {
 
         InteractiveChat.ecoSetLoreOnMainThread = getConfig().getBoolean("Settings.Hooks.EcoSetLoreOnMainThread");
         InteractiveChat.excellentEnchantsStripEnchantments = getConfig().getBoolean("Settings.Hooks.ExcellentEnchantsStripEnchantments");
+
+        InteractiveChat.craftEngineFontCompatibility = getConfig().getBoolean("Settings.Hooks.CraftEngineFontCompatibility.Enabled", false);
+        InteractiveChat.craftEngineFontCompatibilityFonts = getConfig().getStringList("Settings.Hooks.CraftEngineFontCompatibility.Fonts").stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        CraftEngineFontCompatibility.clearCache();
 
         InteractiveChat.placeholderList.clear();
         if (InteractiveChat.useItem) {

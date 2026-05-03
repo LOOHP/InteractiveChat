@@ -27,14 +27,15 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
+import net.momirealms.craftengine.core.font.BitmapImage;
+import net.momirealms.craftengine.core.plugin.CraftEngine;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -177,42 +178,22 @@ public final class CraftEngineFontCompatibility {
             return Collections.emptyMap();
         }
 
-        Plugin plugin = Bukkit.getPluginManager().getPlugin(PLUGIN_NAME);
-        if (plugin == null || !plugin.isEnabled()) {
+        if (!Bukkit.getPluginManager().isPluginEnabled(PLUGIN_NAME)) {
             return Collections.emptyMap();
         }
 
         try {
-            Class<?> craftEngineClass = Class.forName("net.momirealms.craftengine.bukkit.plugin.BukkitCraftEngine");
-            Object craftEngine = craftEngineClass.getMethod("instance").invoke(null);
-            if (craftEngine == null) {
-                return Collections.emptyMap();
-            }
-
-            Object fontManager = craftEngine.getClass().getMethod("fontManager").invoke(craftEngine);
-            Method loadedBitmapImagesMethod = fontManager.getClass().getMethod("loadedBitmapImages");
-            Map<?, ?> loadedBitmapImages = (Map<?, ?>) loadedBitmapImagesMethod.invoke(fontManager);
-
             Map<Integer, Key> codepointFonts = new HashMap<>();
 
-            for (Object bitmapImage : loadedBitmapImages.values()) {
-                Object font = bitmapImage.getClass().getMethod("font").invoke(bitmapImage);
-
-                String fontString;
-                try {
-                    fontString = String.valueOf(font.getClass().getMethod("asString").invoke(font));
-                } catch (NoSuchMethodException ignored) {
-                    fontString = String.valueOf(font);
-                }
-
-                fontString = fontString.toLowerCase();
+            for (BitmapImage bitmapImage : CraftEngine.instance().fontManager().loadedBitmapImages().values()) {
+                String fontString = bitmapImage.font().toString().toLowerCase(Locale.ROOT);
 
                 if (!InteractiveChat.craftEngineFontCompatibilityFonts.contains(fontString)) {
                     continue;
                 }
 
-                int[][] codepointGrid = (int[][]) bitmapImage.getClass().getMethod("codepointGrid").invoke(bitmapImage);
                 Key fontKey = Key.key(fontString);
+                int[][] codepointGrid = bitmapImage.codepointGrid();
 
                 for (int[] row : codepointGrid) {
                     for (int codepoint : row) {

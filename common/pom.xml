@@ -319,6 +319,10 @@
 			<id>nms-repo</id>
 			<url>https://repo.codemc.io/repository/nms/</url>
 		</repository>
+		<repository>
+   			 <id>momirealms-releases</id>
+    		<url>https://repo.momirealms.net/releases/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -855,6 +859,13 @@
 			<artifactId>InteractiveChat-V26_1_2</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+    	<groupId>net.momirealms</groupId>
+    		<artifactId>craft-engine-bukkit</artifactId>
+    		<version>0.0.67</version>
+    		<scope>provided</scope>
+    		<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>

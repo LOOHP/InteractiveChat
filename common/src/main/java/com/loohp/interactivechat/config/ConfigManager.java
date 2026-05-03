@@ -294,9 +294,7 @@ public class ConfigManager {
         InteractiveChat.excellentEnchantsStripEnchantments = getConfig().getBoolean("Settings.Hooks.ExcellentEnchantsStripEnchantments");
 
         InteractiveChat.craftEngineFontCompatibility = getConfig().getBoolean("Settings.Hooks.CraftEngineFontCompatibility.Enabled", false);
-        InteractiveChat.craftEngineFontCompatibilityFonts = getConfig().getStringList("Settings.Hooks.CraftEngineFontCompatibility.Fonts").stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+        InteractiveChat.craftEngineFontCompatibilityFonts = getConfig().getStringList("Settings.Hooks.CraftEngineFontCompatibility.Fonts").stream().map(each -> each.toLowerCase(java.util.Locale.ROOT)).collect(Collectors.toSet());
         CraftEngineFontCompatibility.clearCache();
 
         InteractiveChat.placeholderList.clear();

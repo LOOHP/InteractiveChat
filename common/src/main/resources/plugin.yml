@@ -25,6 +25,7 @@ softdepend:
   - floodgate
   - ExcellentEnchants
   - ProtocolLib
+  - CraftEngine
 depend: [PlaceholderAPI, Vault]
 prefix: InteractiveChat
 

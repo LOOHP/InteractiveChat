@@ -93,7 +93,11 @@ public class NativeAdventureConverter {
                 nativeKeyAsStringMethod = nativeKeyClass.getMethod("asString");
                 nativeKeyAsStringMethod.setAccessible(true);
                 nativeBinaryTagHolderClass = Class.forName(NATIVE_PACKAGE + ".nbt.api.BinaryTagHolder");
-                nativeBinaryTagHolderConstructionMethod = nativeBinaryTagHolderClass.getMethod("of", String.class);
+                try {
+                    nativeBinaryTagHolderConstructionMethod = nativeBinaryTagHolderClass.getMethod("binaryTagHolder", String.class);
+                } catch (Throwable e) {
+                    nativeBinaryTagHolderConstructionMethod = nativeBinaryTagHolderClass.getMethod("of", String.class);
+                }
                 nativeBinaryTagHolderConstructionMethod.setAccessible(true);
                 nativeBinaryTagHolderStringMethod = nativeBinaryTagHolderClass.getMethod("string");
                 nativeBinaryTagHolderStringMethod.setAccessible(true);

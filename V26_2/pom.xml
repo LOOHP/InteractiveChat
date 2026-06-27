@@ -30,7 +30,7 @@
         <version>2026.1.1.0</version>
     </parent>
 
-    <artifactId>InteractiveChat-V26_1_2</artifactId>
+    <artifactId>InteractiveChat-V26_2</artifactId>
 
     <repositories>
         <repository>
@@ -117,13 +117,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>26.1.2-R0.1-SNAPSHOT</version>
+            <version>26.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>26.1.2-R0.1-SNAPSHOT</version>
+            <version>26.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

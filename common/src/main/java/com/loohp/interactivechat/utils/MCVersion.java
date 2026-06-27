@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 public enum MCVersion {
 
+    V26_2("26.2", 41),
     V26_1_2("26.1.2", 40),
     V26_1_1("26.1.1", 39),
     V26_1("26.1", 38),

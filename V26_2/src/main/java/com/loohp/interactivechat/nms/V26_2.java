@@ -241,7 +241,7 @@ public class V26_2 extends NMSWrapper {
 
     @Override
     public ItemStack toBukkitCopy(Object handle) {
-        return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) handle);
+        return CraftItemStack.asCraftMirror((net.minecraft.world.item.ItemStack) handle).clone();
     }
 
     @Override
@@ -261,11 +261,7 @@ public class V26_2 extends NMSWrapper {
         net.minecraft.world.item.ItemStack nmsItemStack = toNMSCopy(itemStack);
         DataComponentPatch dataComponentPatch = DataComponentPatch.builder().set(DataComponents.CUSTOM_NAME, nmsComponent).build();
         nmsItemStack.applyComponents(dataComponentPatch);
-        ItemStack modifiedStack = toBukkitCopy(nmsItemStack);
-        ItemMeta meta = modifiedStack.getItemMeta();
-        if (meta != null) {
-            itemStack.setItemMeta(meta);
-        }
+        itemStack.setItemMeta(CraftItemStack.getItemMeta(nmsItemStack));
     }
 
     @Override

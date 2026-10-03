@@ -23,6 +23,7 @@ package com.loohp.interactivechat.utils;
 import com.loohp.interactivechat.nms.NMS;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapView;
@@ -31,9 +32,23 @@ import java.util.List;
 
 public class FilledMapUtils {
 
+    @SuppressWarnings("deprecation")
     public static boolean isFilledMap(ItemStack itemStack) {
         try {
-            return itemStack != null && itemStack.getItemMeta() != null && itemStack.getItemMeta() instanceof MapMeta;
+            if (itemStack == null) {
+                return false;
+            }
+            if (!itemStack.hasItemMeta()) {
+                return false;
+            }
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if (itemMeta == null) {
+                return false;
+            }
+            if (!(itemMeta instanceof MapMeta)) {
+                return false;
+            }
+            return ((MapMeta) itemMeta).hasMapId();
         } catch (Exception e) {
             return false;
         }

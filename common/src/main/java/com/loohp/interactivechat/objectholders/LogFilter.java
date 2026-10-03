@@ -20,8 +20,11 @@
 
 package com.loohp.interactivechat.objectholders;
 
+import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.modules.ProcessAccurateSender;
 import com.loohp.interactivechat.modules.ProcessExternalMessage;
 import com.loohp.interactivechat.registry.Registry;
+import com.loohp.platformscheduler.Scheduler;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Marker;
@@ -31,21 +34,49 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
 
+import java.util.UUID;
+
 public class LogFilter implements Filter {
+
+    private static final ThreadLocal<Boolean> FILTER_BYPASS = new ThreadLocal<>();
 
     public Filter.Result checkMessage(String message, Level level) {
         try {
-            if (message == null || message.isEmpty()) {
+            if (Boolean.TRUE.equals(FILTER_BYPASS.get()) || message == null || message.isEmpty()) {
                 return Filter.Result.NEUTRAL;
             } else if (!Registry.ID_PATTERN.matcher(message).find() && !Registry.MENTION_TAG_CONVERTER.containsTags(message)) {
                 return Filter.Result.NEUTRAL;
             } else {
+                UUID senderUUID = ProcessAccurateSender.find(message);
+                ICPlayer sender = senderUUID == null ? null : ICPlayerFactory.getICPlayer(senderUUID);
+                if (InteractiveChat.bungeecordMode && sender != null && !sender.isLocal()) {
+                    long delay = Math.max(1L, (long) Math.ceil(InteractiveChat.remoteDelay / 50.0));
+                    Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
+                        String processed;
+                        try {
+                            processed = ProcessExternalMessage.processWithoutReceiver(message);
+                        } catch (Throwable e) {
+                            processed = message;
+                        }
+                        log(level, processed);
+                    }, delay);
+                    return Filter.Result.DENY;
+                }
                 String processed = ProcessExternalMessage.processWithoutReceiver(message);
-                LogManager.getRootLogger().log(level, processed);
+                log(level, processed);
                 return Filter.Result.DENY;
             }
         } catch (Throwable e) {
             return Filter.Result.NEUTRAL;
+        }
+    }
+
+    private void log(Level level, String message) {
+        try {
+            FILTER_BYPASS.set(true);
+            LogManager.getRootLogger().log(level, message);
+        } finally {
+            FILTER_BYPASS.remove();
         }
     }
 

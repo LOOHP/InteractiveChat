@@ -33,10 +33,10 @@ import org.apache.logging.log4j.message.Message;
 public class LogFilterVelocity implements Filter {
 
     public Filter.Result checkMessage(String message, Level level) {
-        if (!Registry.ID_PATTERN.matcher(message).find()) {
+        if (!Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
             return Filter.Result.NEUTRAL;
         } else {
-            LogManager.getRootLogger().log(level, message.replaceAll(Registry.ID_PATTERN.pattern(), ""));
+            LogManager.getRootLogger().log(level, Registry.sanitizeSenderTags(message));
             return Filter.Result.DENY;
         }
     }

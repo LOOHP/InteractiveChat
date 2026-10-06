@@ -374,7 +374,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                 logger.setFilter(new Filter() {
                     @Override
                     public boolean isLoggable(LogRecord record) {
-                        record.setMessage(Registry.MENTION_TAG_CONVERTER.revertTags(record.getMessage().replaceAll(Registry.ID_PATTERN.pattern(), "")));
+                        record.setMessage(Registry.MENTION_TAG_CONVERTER.revertTags(Registry.sanitizeSenderTags(record.getMessage())));
                         return true;
                     }
                 });
@@ -655,7 +655,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
             return;
         }
 
-        event.setMessage(Registry.ID_PATTERN.matcher(event.getMessage()).replaceAll(""));
+        event.setMessage(Registry.sanitizeSenderTags(event.getMessage()));
 
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
         UUID uuid = player.getUniqueId();
@@ -897,8 +897,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                             if (message != null) {
                                 if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                     message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                    if (Registry.ID_PATTERN.matcher(message).find()) {
-                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                        message = Registry.sanitizeSenderTags(message).trim();
                                     }
                                     packet.setMessage(message);
                                 } else if (hasInteractiveChat(player.getServer())) {
@@ -918,7 +918,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                     for (BaseComponent part : baseComponent.getExtra()) {
                                         if (part instanceof TextComponent) {
                                             TextComponent textPart = (TextComponent) part;
-                                            textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                            textPart.setText(Registry.sanitizeSenderTags(textPart.getText()).trim());
                                         }
                                     }
                                 }
@@ -936,8 +936,8 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                         if (message != null) {
                             if (message.contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 packet.setUnsignedContent(message);
                             } else if (hasInteractiveChat(player.getServer())) {
@@ -957,7 +957,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                         for (BaseComponent part : baseComponent.getExtra()) {
                                             if (part instanceof TextComponent) {
                                                 TextComponent textPart = (TextComponent) part;
-                                                textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                                textPart.setText(Registry.sanitizeSenderTags(textPart.getText()).trim());
                                             }
                                         }
                                     }
@@ -978,7 +978,7 @@ public class InteractiveChatBungee extends Plugin implements Listener {
                                     for (BaseComponent part : baseComponent.getExtra()) {
                                         if (part instanceof TextComponent) {
                                             TextComponent textPart = (TextComponent) part;
-                                            textPart.setText(Registry.ID_PATTERN.matcher(textPart.getText()).replaceAll("").trim());
+                                            textPart.setText(Registry.sanitizeSenderTags(textPart.getText()).trim());
                                         }
                                     }
                                 }

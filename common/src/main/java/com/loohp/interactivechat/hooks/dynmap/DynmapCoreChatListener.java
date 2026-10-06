@@ -48,7 +48,7 @@ public class DynmapCoreChatListener implements ChatEventListener {
         if (core.mapManager != null) {
             Player bukkitplayer = Bukkit.getPlayer(p.getUUID());
             if (bukkitplayer == null) {
-                msg = msg.replaceAll(Registry.ID_PATTERN.pattern(), "");
+                msg = Registry.sanitizeSenderTags(msg);
                 core.mapManager.pushUpdate(new Client.ChatMessage("player", "", p.getDisplayName(), msg, p.getName()));
             } else {
                 try {

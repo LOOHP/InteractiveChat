@@ -38,11 +38,22 @@ public class Registry {
 
     public static final int INTERACTIVE_CHAT_DISCORD_SRV_ADDON_COMPATIBLE_VERSION = 49;
 
-    public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(:(.*?):)?>)");
+    public static final String ID_UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+    public static final Pattern ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=(" + ID_UUID_PATTERN + ")(:(.*?):)?>)");
+    /**
+     * Matches reserved sender tags at untrusted input boundaries, including malformed tags.
+     * A malformed tag must not survive long enough for a subsequently inserted sender tag to
+     * supply its closing delimiter.
+     */
+    public static final Pattern ID_SANITIZATION_PATTERN = Pattern.compile("<(?:cmd|chat)=" + ID_UUID_PATTERN + "[^>]*(?:>|\\z)");
     public static final Function<ComponentReplacing.ComponentMatchResult, Component> ID_PATTERN_REPLACEMENT = result -> result.group(4) == null ? Component.empty() : result.componentGroup(4);
     public static final Pattern CHR_ID_PATTERN = Pattern.compile("(?:<(cmd|chat)=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\\\\:(.*?)\\\\:)?>)");
     public static final Pattern ID_ESCAPE_PATTERN = Pattern.compile(">");
     public static final Pattern ID_UNESCAPE_PATTERN = Pattern.compile("\\\\>");
+
+    public static String sanitizeSenderTags(String input) {
+        return ID_SANITIZATION_PATTERN.matcher(input).replaceAll("");
+    }
 
     public static final MentionTagConverter MENTION_TAG_CONVERTER = new MentionTagConverter("<IC^%s>");
 

@@ -133,7 +133,7 @@ public class InteractiveChatAPI {
      */
     public static String markSender(String message, UUID sender) {
         if (InteractiveChat.useAccurateSenderFinder) {
-            if (Registry.ID_PATTERN.matcher(message).find()) {
+            if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
                 throw new IllegalStateException("Sender is already marked in the given message: " + message);
             }
             for (ICPlaceholder icplaceholder : InteractiveChat.placeholderList.values()) {

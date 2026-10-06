@@ -26,14 +26,13 @@
 
     <groupId>com.loohp</groupId>
     <artifactId>InteractiveChat-Parent</artifactId>
-    <version>2026.1.2.0</version>
+    <version>2026.1.3.0</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- Add the global dmulloy2 repository. Makes it easier than declaring the same repository in all the sub-module XMLs. -->
     <repositories>
         <repository>
             <id>dmulloy2-repo</id>

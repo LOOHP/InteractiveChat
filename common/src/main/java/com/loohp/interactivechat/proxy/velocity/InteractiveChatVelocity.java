@@ -741,7 +741,7 @@ public class InteractiveChatVelocity {
 
         UUID uuid = player.getUniqueId();
 
-        String message = Registry.ID_PATTERN.matcher(eventMessage).replaceAll("");
+        String message = Registry.sanitizeSenderTags(eventMessage);
         setEventMessage.accept(message);
         setResult.accept(message);
         String newMessage = message;
@@ -981,8 +981,8 @@ public class InteractiveChatVelocity {
                             if ((position == 0 || position == 1) && message != null) {
                                 if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                     message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                    if (Registry.ID_PATTERN.matcher(message).find()) {
-                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                        message = Registry.sanitizeSenderTags(message).trim();
                                     }
                                     packet.setMessage(message);
                                 } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
@@ -999,8 +999,8 @@ public class InteractiveChatVelocity {
                         if (message != null) {
                             if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 Field messageField = packet.getClass().getDeclaredField("component");
                                 messageField.setAccessible(true);
@@ -1021,8 +1021,8 @@ public class InteractiveChatVelocity {
                         if (message != null) {
                             if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 unsignedContentField.set(packet, new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
@@ -1039,8 +1039,8 @@ public class InteractiveChatVelocity {
                             if (message != null) {
                                 if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                     message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                    if (Registry.ID_PATTERN.matcher(message).find()) {
-                                        message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                    if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                        message = Registry.sanitizeSenderTags(message).trim();
                                     }
                                     packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                                 } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
@@ -1056,8 +1056,8 @@ public class InteractiveChatVelocity {
                         if (message != null) {
                             if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
@@ -1072,8 +1072,8 @@ public class InteractiveChatVelocity {
                         if (message != null) {
                             if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {
@@ -1088,8 +1088,8 @@ public class InteractiveChatVelocity {
                         if (message != null) {
                             if ((message = CustomStringUtils.unescapeUnicode(message)).contains("<QUxSRUFEWVBST0NFU1NFRA==>")) {
                                 message = message.replace("<QUxSRUFEWVBST0NFU1NFRA==>", "");
-                                if (Registry.ID_PATTERN.matcher(message).find()) {
-                                    message = Registry.ID_PATTERN.matcher(message).replaceAll("").trim();
+                                if (Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
+                                    message = Registry.sanitizeSenderTags(message).trim();
                                 }
                                 packet.setComponent(new ComponentHolder(getProtocolVersion(holder), message));
                             } else if (player.getCurrentServer().isPresent() && hasInteractiveChat(player.getCurrentServer().get().getServer())) {

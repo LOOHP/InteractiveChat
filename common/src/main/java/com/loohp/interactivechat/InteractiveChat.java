@@ -126,6 +126,8 @@ public class InteractiveChat extends JavaPlugin {
 
     public static InteractiveChat plugin = null;
 
+    private LogFilter logFilter;
+
     public static String exactMinecraftVersion;
     public static MCVersion version;
 
@@ -717,10 +719,11 @@ public class InteractiveChat extends JavaPlugin {
 
         try {
             Logger logger = LogManager.getRootLogger();
-            LogFilter filter = new LogFilter();
+            logFilter = new LogFilter();
             Method method = logger.getClass().getMethod("addFilter", Filter.class);
-            method.invoke(logger, filter);
+            method.invoke(logger, logFilter);
         } catch (Exception e) {
+            logFilter = null;
             Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[InteractiveChat] Unable to add filter to logger, safely skipping...");
         }
 
@@ -729,6 +732,16 @@ public class InteractiveChat extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (logFilter != null) {
+            try {
+                Logger logger = LogManager.getRootLogger();
+                Method method = logger.getClass().getMethod("removeFilter", Filter.class);
+                method.invoke(logger, logFilter);
+            } catch (Exception ignored) {
+            } finally {
+                logFilter = null;
+            }
+        }
         closeSharedInventoryViews();
         if (nicknameManager != null) {
             nicknameManager.close();

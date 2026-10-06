@@ -29,16 +29,40 @@ import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.ParameterizedMessageFactory;
 
 public class LogFilterVelocity implements Filter {
 
+    private static final ThreadLocal<Boolean> FILTER_BYPASS = new ThreadLocal<>();
+
     public Filter.Result checkMessage(String message, Level level) {
-        if (!Registry.ID_SANITIZATION_PATTERN.matcher(message).find()) {
-            return Filter.Result.NEUTRAL;
-        } else {
-            LogManager.getRootLogger().log(level, Registry.sanitizeSenderTags(message));
+        try {
+            if (Boolean.TRUE.equals(FILTER_BYPASS.get()) || message == null || message.isEmpty()) {
+                return Filter.Result.NEUTRAL;
+            }
+            boolean containsSenderTag = Registry.ID_SANITIZATION_PATTERN.matcher(message).find();
+            boolean containsMentionTag = Registry.MENTION_TAG_CONVERTER.containsTags(message);
+            if (!containsSenderTag && !containsMentionTag) {
+                return Filter.Result.NEUTRAL;
+            }
+            String sanitizedMessage = Registry.MENTION_TAG_CONVERTER.revertTags(Registry.sanitizeSenderTags(message));
+            try {
+                FILTER_BYPASS.set(true);
+                LogManager.getRootLogger().log(level, sanitizedMessage);
+            } finally {
+                FILTER_BYPASS.remove();
+            }
             return Filter.Result.DENY;
+        } catch (Throwable e) {
+            return Filter.Result.NEUTRAL;
         }
+    }
+
+    private Filter.Result checkParameterizedMessage(String message, Level level, Object... parameters) {
+        if (message == null) {
+            return checkMessage(null, level);
+        }
+        return checkMessage(ParameterizedMessageFactory.INSTANCE.newMessage(message, parameters).getFormattedMessage(), level);
     }
 
     public LifeCycle.State getState() {
@@ -70,59 +94,59 @@ public class LogFilterVelocity implements Filter {
     }
 
     public Filter.Result filter(LogEvent event) {
-        return checkMessage(event.getMessage().getFormattedMessage(), event.getLevel());
+        return event == null || event.getMessage() == null ? Filter.Result.NEUTRAL : checkMessage(event.getMessage().getFormattedMessage(), event.getLevel());
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object... arg4) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, Object message, Throwable arg4) {
-        return checkMessage(message.toString(), arg1);
+        return checkMessage(message == null ? null : message.toString(), arg1);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, Message message, Throwable arg4) {
-        return checkMessage(message.getFormattedMessage(), arg1);
+        return checkMessage(message == null ? null : message.getFormattedMessage(), arg1);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8, arg9);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
     }
 
     public Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13) {
-        return checkMessage(message, arg1);
+        return checkParameterizedMessage(message, arg1, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
     }
 
     public Filter.Result getOnMatch() {

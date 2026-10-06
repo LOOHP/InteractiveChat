@@ -36,7 +36,6 @@ import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlacehold
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.CustomPlaceholderReplaceText;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ParsePlayer;
 import com.loohp.interactivechat.objectholders.ICPlaceholder;
-import com.loohp.interactivechat.objectholders.LogFilter;
 import com.loohp.interactivechat.proxy.objectholders.BackendInteractiveChatData;
 import com.loohp.interactivechat.proxy.objectholders.ChatPacketType;
 import com.loohp.interactivechat.proxy.objectholders.ForwardedMessageData;
@@ -139,7 +138,7 @@ public class InteractiveChatVelocity {
 
     public static final int BSTATS_PLUGIN_ID = 10945;
     public static final String CONFIG_ID = "config";
-    private static final boolean filtersAdded = false;
+    private static volatile boolean filtersAdded = false;
     private static final Map<Integer, byte[][]> incoming;
     private static final Map<Integer, Boolean> permissionChecks = new ConcurrentHashMap<>();
     public static InteractiveChatVelocity plugin = null;
@@ -435,9 +434,10 @@ public class InteractiveChatVelocity {
     }
 
     private void addFilters() {
+        filtersAdded = true;
         try {
             org.apache.logging.log4j.Logger logger = LogManager.getRootLogger();
-            LogFilter filter = new LogFilter();
+            LogFilterVelocity filter = new LogFilterVelocity();
             Method method = logger.getClass().getMethod("addFilter", Filter.class);
             method.invoke(logger, filter);
         } catch (Exception e) {

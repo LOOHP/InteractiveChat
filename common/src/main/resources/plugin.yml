@@ -23,6 +23,7 @@ softdepend:
   - MysqlPlayerDataBridge
   - ChatControlRed
   - floodgate
+  - Geyser-Spigot
   - ExcellentEnchants
   - ProtocolLib
   - CraftEngine

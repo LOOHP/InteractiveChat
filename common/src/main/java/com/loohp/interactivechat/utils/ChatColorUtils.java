@@ -21,6 +21,7 @@
 package com.loohp.interactivechat.utils;
 
 import com.loohp.interactivechat.InteractiveChat;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Arrays;
@@ -44,6 +45,10 @@ public class ChatColorUtils {
 
     public static String stripColor(String string) {
         return string.replaceAll("\u00a7[0-9A-Fa-fk-orx]", "");
+    }
+
+    public static String escapeMiniMessageTags(String string) {
+        return MiniMessage.miniMessage().escapeTags(string);
     }
 
     public static String filterIllegalColorCodes(String string) {

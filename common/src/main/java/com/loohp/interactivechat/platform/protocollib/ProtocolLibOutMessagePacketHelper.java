@@ -109,6 +109,9 @@ public class ProtocolLibOutMessagePacketHelper {
                     int field = InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_21_5) ? 5 : 4;
                     Component component;
                     Object unsignedContent = packet.getModifier().read(field);
+                    if (unsignedContent instanceof Optional) {
+                        unsignedContent = ((Optional<?>) unsignedContent).orElse(null);
+                    }
                     if (unsignedContent == null) {
                         component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(field - 1)));
                     } else {
@@ -179,7 +182,12 @@ public class ProtocolLibOutMessagePacketHelper {
                     if (sender != null) {
                         packet.getUUIDs().write(0, sender);
                     }
-                    packet.getModifier().write(field, type.convertTo(component, legacyRGB));
+                    Object convertedComponent = type.convertTo(component, legacyRGB);
+                    if (packet.getModifier().getField(field).getType().equals(Optional.class)) {
+                        packet.getModifier().write(field, Optional.ofNullable(convertedComponent));
+                    } else {
+                        packet.getModifier().write(field, convertedComponent);
+                    }
                 } else {
                     if (field == Integer.MIN_VALUE) {
                         Object chatMessage = ModernChatSigningUtils.withUnsignedContent(packet.getModifier().read(0), type.convertTo(component, legacyRGB));

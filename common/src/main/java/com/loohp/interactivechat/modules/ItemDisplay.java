@@ -31,10 +31,12 @@ import com.loohp.interactivechat.objectholders.ICInventoryHolder;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.OfflineICPlayer;
 import com.loohp.interactivechat.utils.ChatColorUtils;
+import com.loohp.interactivechat.utils.ColorUtils;
 import com.loohp.interactivechat.utils.CompassUtils;
 import com.loohp.interactivechat.utils.ComponentCompacting;
 import com.loohp.interactivechat.utils.ComponentFlattening;
 import com.loohp.interactivechat.utils.ComponentReplacing;
+import com.loohp.interactivechat.utils.ComponentStyling;
 import com.loohp.interactivechat.utils.ComponentUtils;
 import com.loohp.interactivechat.utils.FilledMapUtils;
 import com.loohp.interactivechat.utils.HashUtils;
@@ -48,11 +50,14 @@ import com.loohp.interactivechat.utils.PlayerUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.DataComponentValue;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowItem;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -66,6 +71,8 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -185,7 +192,7 @@ public class ItemDisplay {
 
         String itemJson = ItemNBTUtils.getNMSItemStackJson(item);
         ItemStack trimmedItem = null;
-        if (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > InteractiveChat.itemTagMaxLength) {
+        if (useInventoryView(item) || (InteractiveChat.sendOriginalIfTooLong && itemJson.length() > InteractiveChat.itemTagMaxLength)) {
             trimmedItem = new ItemStack(item.getType());
             trimmedItem.addUnsafeEnchantments(item.getEnchantments());
             if (itemMeta != null && itemMeta.hasDisplayName()) {
@@ -211,7 +218,28 @@ public class ItemDisplay {
         }
 
         String amountString = "";
-        Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item);
+        Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item, false);
+        List<Component> flattened = ComponentFlattening.flatten(itemDisplayNameComponent).children();
+        List<Component> cleaned = new ArrayList<>(flattened.size());
+        for (Component child : flattened) {
+            if (child instanceof TextComponent) {
+                TextComponent text = (TextComponent) child;
+                cleaned.add(text.content(ChatColorUtils.escapeMiniMessageTags(ChatColorUtils.stripColor(text.content()))));
+            } else {
+                cleaned.add(child);
+            }
+        }
+        itemDisplayNameComponent = ComponentCompacting.optimize(Component.empty().children(cleaned));
+
+        ChatColor rarity = NMS.getInstance().getRarityColor(item);
+        if (rarity != null) {
+            itemDisplayNameComponent = itemDisplayNameComponent.colorIfAbsent(ColorUtils.toTextColor(rarity));
+        }
+
+        ItemStack hoverItem = (trimmedItem == null ? item : trimmedItem).clone();
+        if (itemMeta != null && itemMeta.hasDisplayName()) {
+            NMS.getInstance().setItemStackDisplayName(hoverItem, ComponentStyling.stripColor(itemDisplayNameComponent));
+        }
 
         amountString = String.valueOf(itemAmount);
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
@@ -221,10 +249,12 @@ public class ItemDisplay {
             if (item.getType().equals(Material.AIR)) {
                 showHover = false;
             }
-            Map<Key, DataComponentValue> dataComponents = ItemNBTUtils.getNMSItemStackDataComponents(trimmedItem == null ? item : trimmedItem);
+            Map<Key, DataComponentValue> dataComponents = ItemNBTUtils.getNMSItemStackDataComponents(hoverItem);
+            dataComponents.remove(Key.key("minecraft", "container"));
+            dataComponents.remove(Key.key("minecraft", "bundle_contents"));
             showItem = dataComponents.isEmpty() ? ShowItem.showItem(key, itemAmount) : ShowItem.showItem(key, itemAmount, dataComponents);
         } else {
-            String tag = ItemNBTUtils.getNMSItemStackTag(trimmedItem == null ? item : trimmedItem);
+            String tag = ItemNBTUtils.getNMSItemStackTag(hoverItem);
             showItem = tag == null ? ShowItem.showItem(key, itemAmount) : ShowItem.showItem(key, itemAmount, BinaryTagHolder.binaryTagHolder(tag));
         }
 
@@ -309,7 +339,15 @@ public class ItemDisplay {
         }
 
         Component itemDisplayComponent = PlaceholderParser.parse(player, itemAmount == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Amount}").replacement(Component.text(amountString)).build()));
-        itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
+        TextColor templateColor = NamedTextColor.WHITE;
+        for (Component child : ComponentFlattening.flatten(itemDisplayComponent).children()) {
+            TextColor color = child.color();
+            if (color != null) {
+                templateColor = color;
+                break;
+            }
+        }
+        itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent.colorIfAbsent(templateColor)).build());
         if (showHover) {
             itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);
         } else if (alternativeHover != null) {

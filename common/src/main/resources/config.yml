@@ -76,6 +76,12 @@ Settings:
   ItemTagMaxLength: 30767
   PacketStringPreMaxLength: 32767
   PacketStringMaxLength: 32767
+  #send chat and system messages that InteractiveChat would not change (no placeholders, commands,
+  #item hovers, mentions or tags in them) as they are, without processing. Saves most of the CPU and memory
+  #InteractiveChat uses on a busy server. Set to false to process every message like before.
+  FastPathUnchangedMessages: true
+  #every N minutes log how many messages took the fast path and why the others did not. 0 = off.
+  FastPathStatsLogMinutes: 0
   SendOriginalMessageIfExceedLengthLimit: true
   #You might want to adjust this option if you have other plugins listening to the chat
   #And it is interfering with InteractiveChat's placeholders

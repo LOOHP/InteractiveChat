@@ -57,6 +57,7 @@ import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.JsonUtils;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import com.loohp.interactivechat.utils.RegexCache;
 import com.loohp.platformscheduler.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -114,7 +115,9 @@ public class OutMessagePacket {
     }
 
     private static void processPacket(Player receiver, ICPlayer determinedSender, PlatformPlayServerUnifiedChatMessagePacket<?> packet, UUID messageUUID, boolean isFiltered, MessagePacketHandler<?, ?> MessagePacketHandler) {
-        PlatformPlayServerUnifiedChatMessagePacket<?> originalPacket = packet.shallowClone();
+        // the clone is taken after the fast path check below. The accessor only reads the packet, so until
+        // then the packet itself is the original.
+        PlatformPlayServerUnifiedChatMessagePacket<?> originalPacket = packet;
         try {
             PacketAccessor<?> accessor = MessagePacketHandler.getAccessor();
             if (accessor == null) {
@@ -131,10 +134,26 @@ public class OutMessagePacket {
                 return;
             }
 
+            // fast path for messages InteractiveChat would not change for this receiver (most system and
+            // plugin messages). Sending the packet as it is skips modernize, serializing, every module and the writer,
+            // which is where nearly all of InteractiveChat's allocation comes from. Only for packet types whose writer
+            // just writes the component back and when no sender was determined from the packet. keyTime/keyPlayer
+            // would only be filled for the duration of this message and messagesCounter was already counted.
+            // Toggle: Settings.FastPathUnchangedMessages. See UnchangedMessageFastPath for the checks.
+            if (determinedSender != null) {
+                UnchangedMessageFastPath.count("sender determined");
+            } else if (!MessagePacketHandler.isFastPathEligible()) {
+                UnchangedMessageFastPath.count("packet type not eligible");
+            } else if (UnchangedMessageFastPath.isUnchanged(component, receiver)) {
+                SERVICE.send(packet, receiver, messageUUID);
+                return;
+            }
+            originalPacket = packet.shallowClone();
+
             component = ComponentModernizing.modernize(component);
             String legacyText = LegacyComponentSerializer.legacySection().serializeOr(component, "");
             try {
-                if (legacyText.isEmpty() || InteractiveChat.messageToIgnore.stream().anyMatch(legacyText::matches)) {
+                if (legacyText.isEmpty() || InteractiveChat.messageToIgnore.stream().anyMatch(each -> RegexCache.get(each).matcher(legacyText).matches())) {
                     SERVICE.send(packet, receiver, messageUUID);
                     return;
                 }

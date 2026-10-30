@@ -44,6 +44,7 @@ import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlaceholderParser;
 import com.loohp.interactivechat.utils.PlayerUtils;
 import com.loohp.interactivechat.utils.RarityUtils;
+import com.loohp.interactivechat.utils.RegexCache;
 import com.loohp.platformscheduler.Scheduler;
 import com.loohp.interactivechat.hooks.craftengine.CraftEngineFontCompatibility;
 import net.kyori.adventure.text.Component;
@@ -281,7 +282,7 @@ public class ProcessExternalMessage {
         }
 
         String text = LegacyComponentSerializer.legacySection().serialize(component);
-        if (InteractiveChat.messageToIgnore.stream().anyMatch(each -> text.matches(each))) {
+        if (InteractiveChat.messageToIgnore.stream().anyMatch(each -> RegexCache.get(each).matcher(text).matches())) {
             return json;
         }
 

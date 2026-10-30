@@ -71,7 +71,7 @@ public class ProtocolLibOutMessagePacketHelper {
                 boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
                 packet.getModifier().write(field, type.convertTo(component, legacyRGB));
                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
-            }));
+            }, true)); // the writer only writes the component back, so unchanged messages may skip processing
         }
 
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
@@ -356,7 +356,9 @@ public class ProtocolLibOutMessagePacketHelper {
                 }
             }
             return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
-        }));
+        // on 1.19.3+ this is SYSTEM_CHAT. With no determined sender the writer only writes the component
+        // back, so unchanged messages may skip processing. Older versions write a sender UUID and stay on the full path.
+        }, InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)));
 
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_17)) {
             MessagePacketHandler<PacketEvent, PacketContainer> modernTitleHandler = new MessagePacketHandler<>(event -> {

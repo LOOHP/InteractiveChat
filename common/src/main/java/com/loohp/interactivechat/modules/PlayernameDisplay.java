@@ -75,6 +75,25 @@ public class PlayernameDisplay {
         names = null;
     }
 
+    /**
+     * true when process could change a message with this plain text, i.e. some online name occurs in it
+     * (same case rule as process). Also true while the name cache is being rebuilt.
+     */
+    public static boolean anyNameIn(String plain) {
+        Collection<ReplaceTextBundle> names = PlayernameDisplay.names;
+        if (names == null) {
+            return true;
+        }
+        String plainLower = InteractiveChat.usePlayerNameCaseSensitive ? null : plain.toLowerCase();
+        for (ReplaceTextBundle entry : names) {
+            String placeholder = entry.getPlaceholder();
+            if (plainLower == null ? plain.contains(placeholder) : plainLower.contains(placeholder.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static Component process(Component component, Optional<ICPlayer> sender, Player receiver, long unix) {
         Collection<ReplaceTextBundle> names = PlayernameDisplay.names;
         if (names == null) {
@@ -82,8 +101,34 @@ public class PlayernameDisplay {
         }
 
         Set<HoverEvent<?>> doNotReplace = new HashSet<>();
+        // processPlayer starts by serializing the whole component to plain text (and lowercasing it)
+        // just to check whether this one name occurs, i.e. once per online name per message per receiver.
+        // Components are immutable, so the plain text only changes when processPlayer returns a different
+        // instance; reuse it until then and skip names that do not occur. processPlayer returns the component
+        // unchanged (and touches nothing) in exactly that case, so the result is identical.
+        Component plainSource = null;
+        String plain = null;
+        String plainLower = null;
         for (ReplaceTextBundle entry : names) {
-            component = processPlayer(entry.getPlaceholder(), entry.getPlayer(), sender, receiver, component, doNotReplace, unix);
+            String placeholder = entry.getPlaceholder();
+            if (plainSource != component) {
+                plain = PlainTextComponentSerializer.plainText().serialize(component);
+                plainLower = null;
+                plainSource = component;
+            }
+            if (InteractiveChat.usePlayerNameCaseSensitive) {
+                if (!plain.contains(placeholder)) {
+                    continue;
+                }
+            } else {
+                if (plainLower == null) {
+                    plainLower = plain.toLowerCase();
+                }
+                if (!plainLower.contains(placeholder.toLowerCase())) {
+                    continue;
+                }
+            }
+            component = processPlayer(placeholder, entry.getPlayer(), sender, receiver, component, doNotReplace, unix);
         }
         return ComponentCompacting.optimize(component);
     }

@@ -52,16 +52,29 @@ public class MessagePacketHandler<PacketEvent, Packet> {
     private final DeterminedSenderFinder<PacketEvent> determinedSenderFunction;
     private final PacketAccessor<Packet> accessor;
     private final PacketWriter<Packet> writer;
+    // true only for packet types whose writer does nothing but write the component back (no sender UUID,
+    // no signature or unsigned content), so sending the untouched packet equals a processing run that changed nothing.
+    // See UnchangedMessageFastPath.
+    private final boolean fastPathEligible;
 
-    public MessagePacketHandler(PreFilter<PacketEvent> preFilter, DeterminedSenderFinder<PacketEvent> determinedSenderFunction, PacketAccessor<Packet> accessor, PacketWriter<Packet> writer) {
+    public MessagePacketHandler(PreFilter<PacketEvent> preFilter, DeterminedSenderFinder<PacketEvent> determinedSenderFunction, PacketAccessor<Packet> accessor, PacketWriter<Packet> writer, boolean fastPathEligible) {
         this.preFilter = preFilter;
         this.determinedSenderFunction = determinedSenderFunction;
         this.accessor = accessor;
         this.writer = writer;
+        this.fastPathEligible = fastPathEligible;
+    }
+
+    public MessagePacketHandler(PreFilter<PacketEvent> preFilter, DeterminedSenderFinder<PacketEvent> determinedSenderFunction, PacketAccessor<Packet> accessor, PacketWriter<Packet> writer) {
+        this(preFilter, determinedSenderFunction, accessor, writer, false);
+    }
+
+    public MessagePacketHandler(PreFilter<PacketEvent> preFilter, PacketAccessor<Packet> accessor, PacketWriter<Packet> writer, boolean fastPathEligible) {
+        this(preFilter, undeterminedSender(), accessor, writer, fastPathEligible);
     }
 
     public MessagePacketHandler(PreFilter<PacketEvent> preFilter, PacketAccessor<Packet> accessor, PacketWriter<Packet> writer) {
-        this(preFilter, undeterminedSender(), accessor, writer);
+        this(preFilter, undeterminedSender(), accessor, writer, false);
     }
 
     public PreFilter<PacketEvent> getPreFilter() {
@@ -78,6 +91,10 @@ public class MessagePacketHandler<PacketEvent, Packet> {
 
     public PacketWriter<Packet> getWriter() {
         return writer;
+    }
+
+    public boolean isFastPathEligible() {
+        return fastPathEligible;
     }
 
     @FunctionalInterface

@@ -168,6 +168,8 @@ public class ConfigManager {
         InteractiveChat.itemAirAllow = getConfig().getBoolean("ItemDisplay.Item.EmptyItemSettings.AllowAir");
         InteractiveChat.itemAirErrorMessage = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.EmptyItemSettings.DisallowMessage"));
 
+        InteractiveChat.hideCustomItemDisplayName = getConfig().getBoolean("ItemDisplay.Item.HideCustomDisplayName", false);
+
         InteractiveChat.itemTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Item.InventoryTitle"));
         InteractiveChat.invTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.Inventory.InventoryTitle"));
         InteractiveChat.enderTitle = ChatColorUtils.translateAlternateColorCodes('&', getConfig().getString("ItemDisplay.EnderChest.InventoryTitle"));

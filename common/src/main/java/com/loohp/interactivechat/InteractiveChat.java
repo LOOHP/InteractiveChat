@@ -194,6 +194,8 @@ public class InteractiveChat extends JavaPlugin {
     public static boolean itemAirAllow = true;
     public static String itemAirErrorMessage = "";
 
+    public static boolean hideCustomItemDisplayName = false;
+
     public static String itemTitle = "%player_name%'s Item";
     public static String invTitle = "%player_name%'s Inventory";
     public static String enderTitle = "%player_name%'s Ender Chest";

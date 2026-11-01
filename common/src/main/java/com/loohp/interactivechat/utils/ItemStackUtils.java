@@ -20,6 +20,7 @@
 
 package com.loohp.interactivechat.utils;
 
+import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.nms.NMS;
 import com.loohp.interactivechat.objectholders.ICMaterial;
 import net.kyori.adventure.text.Component;
@@ -50,10 +51,17 @@ public class ItemStackUtils {
         ICMaterial icMaterial = ICMaterial.from(itemstack);
         ItemMeta itemMeta = itemstack.getItemMeta();
 
-        Component component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(itemstack));
+        boolean hideCustomName = InteractiveChat.hideCustomItemDisplayName;
+
+        Component component;
+        if (hideCustomName) {
+            component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(new ItemStack(itemstack.getType())));
+        } else {
+            component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(itemstack));
+        }
 
         if (applyStyle) {
-            if (itemMeta != null && itemMeta.hasDisplayName()) {
+            if (!hideCustomName && itemMeta != null && itemMeta.hasDisplayName()) {
                 component = component.decorate(TextDecoration.ITALIC);
             }
 

@@ -315,6 +315,9 @@ ItemDisplay:
     Text: "&f[&f{Item} &bx{Amount}&f]"
     #The text to replace the keyword when the player is only holding one item
     SingularText: "&f[&f{Item}&f]"
+    # Whether to hide the custom display name of the item in the chat message
+    # If true, the default vanilla item name will replace {Item} instead of the custom name
+    HideCustomDisplayName: false
     #The title of the inventory view
     InventoryTitle: "%player_name%'s Item"
     #Cooldown of this placeholder in seconds

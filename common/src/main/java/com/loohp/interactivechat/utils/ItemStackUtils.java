@@ -55,7 +55,13 @@ public class ItemStackUtils {
 
         Component component;
         if (hideCustomName) {
-            component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(new ItemStack(itemstack.getType())));
+            ItemStack strippedItem = itemstack.clone();
+            ItemMeta strippedMeta = strippedItem.getItemMeta();
+            if (strippedMeta != null && strippedMeta.hasDisplayName()) {
+                strippedMeta.setDisplayName(null);
+                strippedItem.setItemMeta(strippedMeta);
+            }
+            component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(strippedItem));
         } else {
             component = Component.empty().append(NMS.getInstance().getItemStackDisplayName(itemstack));
         }

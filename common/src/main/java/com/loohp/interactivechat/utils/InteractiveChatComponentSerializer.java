@@ -23,6 +23,8 @@ package com.loohp.interactivechat.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.loohp.interactivechat.objectholders.LegacyIdKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
@@ -162,6 +165,51 @@ public class InteractiveChatComponentSerializer {
 
     private InteractiveChatComponentSerializer() {
 
+    }
+
+    private static String stripIncompatibleClickEvents(String json) {
+        try {
+            JsonElement element = JsonParser.parseString(json);
+            if (stripClickEvents(element)) {
+                return element.toString();
+            }
+            return json;
+        } catch (Throwable e) {
+            return json;
+        }
+    }
+
+    private static boolean stripClickEvents(JsonElement element) {
+        boolean changed = false;
+        if (element.isJsonObject()) {
+            JsonObject object = element.getAsJsonObject();
+            List<String> toRemove = new ArrayList<>();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                String key = entry.getKey();
+                JsonElement value = entry.getValue();
+                if ((key.equals("clickEvent") || key.equals("click_event")) && value != null && value.isJsonObject()) {
+                    JsonElement payload = value.getAsJsonObject().get("payload");
+                    if (payload != null && (payload.isJsonObject() || payload.isJsonArray())) {
+                        toRemove.add(key);
+                        continue;
+                    }
+                }
+                if (stripClickEvents(value)) {
+                    changed = true;
+                }
+            }
+            for (String key : toRemove) {
+                object.remove(key);
+                changed = true;
+            }
+        } else if (element.isJsonArray()) {
+            for (JsonElement child : element.getAsJsonArray()) {
+                if (stripClickEvents(child)) {
+                    changed = true;
+                }
+            }
+        }
+        return changed;
     }
 
     public static class InteractiveChatBungeecordAPILegacyComponentSerializer implements ComponentSerializer<Component, Component, String> {
@@ -372,6 +420,9 @@ public class InteractiveChatComponentSerializer {
 
         @Override
         public @NotNull Component deserialize(@NotNull String input) {
+            if (input.contains("payload")) {
+                input = stripIncompatibleClickEvents(input);
+            }
             return instance.deserialize(input);
         }
 

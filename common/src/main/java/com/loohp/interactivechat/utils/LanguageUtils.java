@@ -350,7 +350,7 @@ public class LanguageUtils {
         return path;
     }
 
-    private static String getLegacyTranslationKey(ItemStack itemStack) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private static String getLegacyTranslationKey(ItemStack itemStack) throws IllegalArgumentException {
         if (itemStack.getType().equals(Material.AIR)) {
             if (InteractiveChat.version.isOld()) {
                 return "Air";

@@ -153,7 +153,43 @@ public class V1_9_4 extends NMSWrapper {
     @Override
     public Component getItemStackDisplayName(ItemStack itemStack) {
         net.minecraft.server.v1_9_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return l(nmsItemStack.getName());
+        if (nmsItemStack.hasName()) {
+            return l(nmsItemStack.getName());
+        }
+        Item item = nmsItemStack.getItem();
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemWrittenBook && nmsItemStack.hasTag() && !net.minecraft.server.v1_9_R2.UtilColor.b(nmsItemStack.getTag().getString("title"))) {
+            return l(item.a(nmsItemStack));
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemSplashPotion) {
+            return Component.translatable(net.minecraft.server.v1_9_R2.PotionUtil.c(nmsItemStack).b("splash_potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemLingeringPotion) {
+            return Component.translatable(net.minecraft.server.v1_9_R2.PotionUtil.c(nmsItemStack).b("lingering_potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemPotion) {
+            return Component.translatable(net.minecraft.server.v1_9_R2.PotionUtil.c(nmsItemStack).b("potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemTippedArrow) {
+            return Component.translatable(net.minecraft.server.v1_9_R2.PotionUtil.c(nmsItemStack).b("tipped_arrow.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemSkull && nmsItemStack.getData() == 3) {
+            Component owner = getSkullOwner(itemStack);
+            if (owner != null) {
+                return Component.translatable("item.skull.player.name").arguments(owner);
+            }
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemBanner) {
+            return Component.translatable("item.banner." + net.minecraft.server.v1_9_R2.ItemBanner.b(nmsItemStack).d() + ".name");
+        }
+        if (item instanceof net.minecraft.server.v1_9_R2.ItemMonsterEgg) {
+            Component component = Component.translatable(item.f_(nmsItemStack) + ".name");
+            String entityName = net.minecraft.server.v1_9_R2.ItemMonsterEgg.h(nmsItemStack);
+            if (entityName != null) {
+                component = component.append(Component.text(" ")).append(Component.translatable("entity." + entityName + ".name"));
+            }
+            return component;
+        }
+        return Component.translatable(item.f_(nmsItemStack) + ".name");
     }
 
     @Override
@@ -184,7 +220,7 @@ public class V1_9_4 extends NMSWrapper {
     @Override
     public String getItemStackTranslationKey(ItemStack itemStack) {
         net.minecraft.server.v1_9_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return nmsItemStack.getItem().a(nmsItemStack);
+        return nmsItemStack.getItem().f_(nmsItemStack);
     }
 
     @Override

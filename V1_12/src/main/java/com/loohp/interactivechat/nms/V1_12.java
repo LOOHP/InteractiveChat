@@ -167,7 +167,44 @@ public class V1_12 extends NMSWrapper {
     @Override
     public Component getItemStackDisplayName(ItemStack itemStack) {
         net.minecraft.server.v1_12_R1.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        return l(nmsItemStack.getName());
+        if (nmsItemStack.hasName()) {
+            return l(nmsItemStack.getName());
+        }
+        Item item = nmsItemStack.getItem();
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemWrittenBook && nmsItemStack.hasTag() && !net.minecraft.server.v1_12_R1.UtilColor.b(nmsItemStack.getTag().getString("title"))) {
+            return l(item.b(nmsItemStack));
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemSplashPotion) {
+            return Component.translatable(net.minecraft.server.v1_12_R1.PotionUtil.d(nmsItemStack).b("splash_potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemLingeringPotion) {
+            return Component.translatable(net.minecraft.server.v1_12_R1.PotionUtil.d(nmsItemStack).b("lingering_potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemPotion) {
+            return Component.translatable(net.minecraft.server.v1_12_R1.PotionUtil.d(nmsItemStack).b("potion.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemTippedArrow) {
+            return Component.translatable(net.minecraft.server.v1_12_R1.PotionUtil.d(nmsItemStack).b("tipped_arrow.effect."));
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemSkull && nmsItemStack.getData() == 3) {
+            Component owner = getSkullOwner(itemStack);
+            if (owner != null) {
+                return Component.translatable("item.skull.player.name").arguments(owner);
+            }
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemBanner) {
+            return Component.translatable("item.banner." + net.minecraft.server.v1_12_R1.ItemBanner.c(nmsItemStack).d() + ".name");
+        }
+        if (item instanceof net.minecraft.server.v1_12_R1.ItemMonsterEgg) {
+            Component component = Component.translatable(item.a(nmsItemStack) + ".name");
+            net.minecraft.server.v1_12_R1.MinecraftKey entityKey = net.minecraft.server.v1_12_R1.ItemMonsterEgg.h(nmsItemStack);
+            String entityName = net.minecraft.server.v1_12_R1.EntityTypes.a(entityKey);
+            if (entityName != null) {
+                component = component.append(Component.text(" ")).append(Component.translatable("entity." + entityName + ".name"));
+            }
+            return component;
+        }
+        return Component.translatable(item.a(nmsItemStack) + ".name");
     }
 
     @Override

@@ -38,9 +38,6 @@ public class FilledMapUtils {
             if (itemStack == null) {
                 return false;
             }
-            if (!itemStack.hasItemMeta()) {
-                return false;
-            }
             ItemMeta itemMeta = itemStack.getItemMeta();
             if (itemMeta == null) {
                 return false;

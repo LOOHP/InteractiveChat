@@ -33,7 +33,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
@@ -80,7 +79,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
@@ -787,9 +786,9 @@ public class V26_3 extends NMSWrapper {
 
     @Override
     public void sendFakeMainHandSlot(Player player, ItemStack item) {
-        List<Pair<EquipmentSlot, net.minecraft.world.item.ItemStack>> nmsEquipments = Collections.singletonList(new Pair<>(EquipmentSlot.MAINHAND, toNMSCopy(item)));
-        ClientboundSetEquipmentPacket packet = new ClientboundSetEquipmentPacket(player.getEntityId(), nmsEquipments);
-        ((CraftPlayer) player).getHandle().connection.send(packet);
+        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        ClientboundSetPlayerInventoryPacket packet = new ClientboundSetPlayerInventoryPacket(serverPlayer.getInventory().getSelectedSlot(), toNMSCopy(item));
+        serverPlayer.connection.send(packet);
     }
 
     @Override

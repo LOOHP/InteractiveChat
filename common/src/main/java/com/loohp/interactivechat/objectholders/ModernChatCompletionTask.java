@@ -34,9 +34,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModernChatCompletionTask implements Listener {
@@ -62,26 +65,73 @@ public class ModernChatCompletionTask implements Listener {
 
     private void run() {
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+            // this timer runs async, so it can read a player from the online list just before
+            // onQuit removes them and then re-add them via computeIfAbsent below. Nothing removed that entry
+            // again, so the map kept the CraftPlayer (and its connection) alive forever. Drop every entry
+            // whose key is no longer the current online Player object for that UUID.
+            registered.keySet().removeIf(p -> Bukkit.getPlayer(p.getUniqueId()) != p);
             if (InteractiveChat.chatTabCompletionsEnabled) {
-                for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
-                    Set<String> tab = ConcurrentHashMap.newKeySet();
+                Collection<? extends Player> tabCompleters = Bukkit.getOnlinePlayers();
+                if (tabCompleters.isEmpty()) {
+                    return;
+                }
 
-                    for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
+                // everything that does not depend on the receiving player is computed once per run
+                // instead of once per (receiver x placeholder) / (receiver x online player). This used to be
+                // O(players^2) stripColor calls (each a fresh Pattern.compile) plus O(players^2) nickname lookups
+                // every 10 ticks. The resulting completion set per receiver is the same as before.
+                Collection<ICPlaceholder> placeholderValues = InteractiveChat.placeholderList.values();
+                List<ICPlaceholder> placeholders = new ArrayList<>(placeholderValues.size());
+                List<String> placeholderNames = new ArrayList<>(placeholderValues.size());
+                for (ICPlaceholder placeholder : placeholderValues) {
+                    placeholders.add(placeholder);
+                    placeholderNames.add(ChatColorUtils.stripColor(placeholder.getName()));
+                }
+
+                Collection<ICPlayer> icPlayers = ICPlayerFactory.getOnlineICPlayers();
+                List<UUID> mentionableUUIDs = new ArrayList<>(icPlayers.size());
+                List<List<String>> mentionableEntries = new ArrayList<>(icPlayers.size());
+                for (ICPlayer player : icPlayers) {
+                    if (!player.isVanished()) {
+                        List<String> nicknames = InteractiveChatAPI.getNicknames(player.getUniqueId());
+                        List<String> entries = new ArrayList<>(2 + nicknames.size());
+                        entries.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getName()));
+                        entries.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getDisplayName()));
+                        for (String nickname : nicknames) {
+                            entries.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + nickname));
+                        }
+                        mentionableUUIDs.add(player.getUniqueId());
+                        mentionableEntries.add(entries);
+                    }
+                }
+
+                for (Player tabCompleter : tabCompleters) {
+                    if (Bukkit.getPlayer(tabCompleter.getUniqueId()) != tabCompleter) {
+                        continue; // quit since the online list was taken, do not re-register
+                    }
+                    Set<String> tab = new HashSet<>();
+
+                    for (int i = 0; i < placeholders.size(); i++) {
+                        ICPlaceholder placeholder = placeholders.get(i);
                         if (tabCompleter.hasPermission(placeholder.getPermission()) || (!placeholder.isBuildIn() && !InteractiveChat.useCustomPlaceholderPermissions)) {
-                            tab.add(ChatColorUtils.stripColor(placeholder.getName()));
+                            tab.add(placeholderNames.get(i));
                         }
                     }
-                    for (ICPlayer player : ICPlayerFactory.getOnlineICPlayers()) {
-                        if (!player.isVanished() && !player.getUniqueId().equals(tabCompleter.getUniqueId())) {
-                            tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getName()));
-                            tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + player.getDisplayName()));
-                            for (String nickname : InteractiveChatAPI.getNicknames(player.getUniqueId())) {
-                                tab.add(ChatColorUtils.stripColor(InteractiveChat.mentionPrefix + nickname));
-                            }
+                    UUID tabCompleterUUID = tabCompleter.getUniqueId();
+                    for (int i = 0; i < mentionableUUIDs.size(); i++) {
+                        if (!mentionableUUIDs.get(i).equals(tabCompleterUUID)) {
+                            tab.addAll(mentionableEntries.get(i));
                         }
                     }
 
                     Set<String> oldList = registered.computeIfAbsent(tabCompleter, k -> ConcurrentHashMap.newKeySet());
+                    if (Bukkit.getPlayer(tabCompleter.getUniqueId()) != tabCompleter) {
+                        registered.remove(tabCompleter); // quit raced with the line above
+                        continue;
+                    }
+                    if (tab.size() == oldList.size() && oldList.containsAll(tab)) {
+                        continue; // unchanged, nothing to send (same outcome as empty add/remove diffs)
+                    }
 
                     List<String> add = new ArrayList<>(Sets.difference(tab, oldList));
                     List<String> remove = new ArrayList<>(Sets.difference(oldList, tab));

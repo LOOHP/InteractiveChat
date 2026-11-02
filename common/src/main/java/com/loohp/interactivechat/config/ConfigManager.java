@@ -22,6 +22,7 @@ package com.loohp.interactivechat.config;
 
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.datafixer.ConfigDataFixer;
+import com.loohp.interactivechat.listeners.packet.listeners.UnchangedMessageFastPath;
 import com.loohp.interactivechat.objectholders.BuiltInPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder;
 import com.loohp.interactivechat.objectholders.CustomPlaceholder.ClickEventAction;
@@ -119,6 +120,9 @@ public class ConfigManager {
 
         InteractiveChat.parsePAPIOnMainThread = getConfig().getBoolean("Settings.ParsePAPIOnMainThread");
         InteractiveChat.useAccurateSenderFinder = getConfig().getBoolean("Settings.UseAccurateSenderParser");
+        // send messages InteractiveChat would not change without processing them (default on when missing)
+        UnchangedMessageFastPath.enabled = getConfig().getBoolean("Settings.FastPathUnchangedMessages", true);
+        UnchangedMessageFastPath.statsLogMinutes = getConfig().getInt("Settings.FastPathStatsLogMinutes", 0);
         InteractiveChat.tagEveryIdentifiableMessage = getConfig().getBoolean("Settings.TagEveryIdentifiableMessage");
 
         String colorCodeString = getConfig().getString("Chat.TranslateAltColorCode");

@@ -78,8 +78,44 @@ public class ComponentReplacing {
         }
         component = component.children(children);
 
+        Pattern pattern = RegexCache.get(regex);
+
+        // Fast path: most calls (ID/mention/command tags, keywords) match nothing in a given message.
+        // The slow path below splits every text component into one component per code point before matching,
+        // which dominated allocation. When the regex cannot match any text section we build an equivalent
+        // children list without the full per-code-point split: empty text components are dropped (as breakdown()
+        // does) and each text is split into "first code point" + "rest" only. Adventure's compaction merges
+        // adjacent same-style text greedily, so the merged result is the same; keeping at least two pieces for
+        // multi-code-point text preserves the "group has exactly one child" condition compaction checks, so
+        // ComponentCompacting.optimize produces the same component tree as the slow path.
+        Component flatten = ComponentFlattening.flatten(component);
+        if (!anySectionMatches(flatten, pattern)) {
+            List<Component> unchanged = new ArrayList<>(flatten.children().size() * 2);
+            for (Component c : flatten.children()) {
+                if (c instanceof TextComponent) {
+                    TextComponent textComponent = (TextComponent) c;
+                    String content = textComponent.content();
+                    if (!content.isEmpty()) {
+                        int first = Character.charCount(content.codePointAt(0));
+                        if (first >= content.length()) {
+                            unchanged.add(textComponent);
+                        } else {
+                            unchanged.add(textComponent.content(content.substring(0, first)));
+                            unchanged.add(textComponent.content(content.substring(first)));
+                        }
+                    }
+                } else {
+                    unchanged.add(c);
+                }
+            }
+            component = ComponentCompacting.optimize(component.children(unchanged));
+            if (escaping) {
+                component = replace(component, ESCAPE_PLACEHOLDER_PATTERN.replace("%s", regexOriginal), false, (result, replaced) -> result.componentGroup(1));
+            }
+            return component;
+        }
+
         List<Either<ValuePairs<String, List<Component>>, Component>> sections = breakdown(component);
-        Pattern pattern = Pattern.compile(regex);
         children = new ArrayList<>();
         for (Either<ValuePairs<String, List<Component>>, Component> either : sections) {
             if (either.isRight()) {
@@ -112,15 +148,34 @@ public class ComponentReplacing {
         return component;
     }
 
+    /**
+     * returns whether the pattern finds a match in any of the text sections that breakdown() would
+     * produce for this component (consecutive text components joined, split at non-text components), without
+     * building the per-code-point component lists.
+     */
+    private static boolean anySectionMatches(Component flatten, Pattern pattern) {
+        StringBuilder sb = new StringBuilder();
+        for (Component c : flatten.children()) {
+            if (c instanceof TextComponent) {
+                sb.append(((TextComponent) c).content());
+            } else if (sb.length() > 0) {
+                if (pattern.matcher(sb).find()) {
+                    return true;
+                }
+                sb.setLength(0);
+            }
+        }
+        return sb.length() > 0 && pattern.matcher(sb).find();
+    }
+
     private static int toComponentIndex(int pos, String str) {
         if (pos < 0) {
             return pos;
         }
         int actual = 0;
         for (int i = 0; i < pos;) {
-            int codePoint = str.codePointAt(i);
-            String character = new String(Character.toChars(codePoint));
-            i += character.length();
+            // same arithmetic as new String(Character.toChars(cp)).length(), without the allocation
+            i += Character.charCount(str.codePointAt(i));
             actual++;
         }
         return actual;

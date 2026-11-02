@@ -42,8 +42,22 @@ public class ChatColorUtils {
     public static final Pattern STANDARD_COLOR_CODE = Pattern.compile("&([0-9A-Fa-fk-or])");
     public static final Set<ChatColor> FORMATTING_CODES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ChatColor.MAGIC, ChatColor.BOLD, ChatColor.ITALIC, ChatColor.UNDERLINE, ChatColor.STRIKETHROUGH)));
 
+    // precompiled versions of the regexes these methods used to pass to String.replaceAll/matches
+    // (which runs Pattern.compile on every call).
+    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("\u00a7[0-9A-Fa-fk-orx]");
+    private static final Pattern ILLEGAL_COLOR_LEGACY_RGB_PATTERN = Pattern.compile("\u00a7[^0-9a-fk-or]");
+    private static final Pattern ILLEGAL_COLOR_PATTERN = Pattern.compile("\u00a7[^0-9A-Fa-fk-orx]");
+    private static final Pattern LEGAL_COLOR_PATTERN = Pattern.compile("\u00a7[0-9a-fk-or]");
+    private static final Pattern LEGAL_HEX_COLOR_PATTERN = Pattern.compile("\u00a7x(\u00a7[0-9a-fA-F]){6}");
+    private static final Pattern ESCAPED_COLOR_CHAR_PATTERN = Pattern.compile("(?i)(?<!\\\\)\\\\u00A7");
+
     public static String stripColor(String string) {
-        return string.replaceAll("\u00a7[0-9A-Fa-fk-orx]", "");
+        // Fast path: every pattern alternative starts with the section sign, so without one nothing can match
+        // (String.replaceAll returns the same string instance in that case too).
+        if (string.indexOf(COLOR_CHAR) < 0) {
+            return string;
+        }
+        return STRIP_COLOR_PATTERN.matcher(string).replaceAll("");
     }
 
     public static String filterIllegalColorCodes(String string) {
@@ -51,7 +65,10 @@ public class ChatColorUtils {
     }
 
     public static String filterIllegalColorCodes(String string, boolean legacyRGB) {
-        return legacyRGB ? string.replaceAll("\u00a7[^0-9a-fk-or]", "") : string.replaceAll("\u00a7[^0-9A-Fa-fk-orx]", "");
+        if (string.indexOf(COLOR_CHAR) < 0) {
+            return string;
+        }
+        return legacyRGB ? ILLEGAL_COLOR_LEGACY_RGB_PATTERN.matcher(string).replaceAll("") : ILLEGAL_COLOR_PATTERN.matcher(string).replaceAll("");
     }
 
     public static String getLastColors(String input) {
@@ -119,10 +136,10 @@ public class ChatColorUtils {
         if (color.charAt(0) != '\u00a7') {
             return false;
         }
-        if (color.matches("\u00a7[0-9a-fk-or]")) {
+        if (LEGAL_COLOR_PATTERN.matcher(color).matches()) {
             return true;
         }
-        return color.matches("\u00a7x(\u00a7[0-9a-fA-F]){6}");
+        return LEGAL_HEX_COLOR_PATTERN.matcher(color).matches();
     }
 
     public static ChatColor getColor(String color) {
@@ -242,11 +259,11 @@ public class ChatColorUtils {
     }
 
     public static String escapeColorCharacters(char character, String str) {
-        return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", character + "");
+        return ESCAPED_COLOR_CHAR_PATTERN.matcher(str).replaceAll(character + "");
     }
 
     public static String unescapeColorCharacters(String str) {
-        return str.replaceAll("(?i)(?<!\\\\)\\\\u00A7", COLOR_CHAR + "");
+        return ESCAPED_COLOR_CHAR_PATTERN.matcher(str).replaceAll(COLOR_CHAR + "");
     }
 
 }

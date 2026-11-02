@@ -63,7 +63,6 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
     private final ThreadPoolExecutor executor;
     private final Map<Future<?>, ExecutingTaskData> executingTasks;
     public final Map<UUID, Map<UUID, OutboundPacket<?>>> waitingPackets;
-    private final Map<UUID, Long> lastSuccessfulCheck;
 
     private final List<ScheduledTask> tasks;
     private final AtomicBoolean isValid;
@@ -83,7 +82,6 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
         this.tasks = new ArrayList<>();
         this.isValid = new AtomicBoolean(true);
         this.waitingPackets = new ConcurrentHashMap<>();
-        this.lastSuccessfulCheck = new ConcurrentHashMap<>();
         this.lastCleanupTime = System.currentTimeMillis();
 
         tasks.add(packetSender());
@@ -190,8 +188,6 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                 return queue.isEmpty();
             });
 
-            lastSuccessfulCheck.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
-            
             if (sendingQueue.size() > MAX_SENDING_QUEUE_SIZE) {
                 int toRemove = sendingQueue.size() - MAX_SENDING_QUEUE_SIZE;
                 for (int i = 0; i < toRemove; i++) {
@@ -234,19 +230,8 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                                 sendingQueue.add(outboundPacket);
                                 playerWaitingPackets.remove(id);
                                 orderingQueue.remove(messageOrderInfo);
-                                lastSuccessfulCheck.put(playerUUID, currentTime);
-                            } else {
-                                if (playerWaitingPackets.isEmpty()) {
-                                    lastSuccessfulCheck.put(playerUUID, currentTime);
-                                } else {
-                                    Long lastSuccessful = lastSuccessfulCheck.get(playerUUID);
-                                    if (lastSuccessful == null) {
-                                        lastSuccessfulCheck.put(playerUUID, currentTime);
-                                    } else if ((lastSuccessful + executionWaitTime.getAsLong()) < currentTime) {
-                                        orderingQueue.poll();
-                                        lastSuccessfulCheck.put(playerUUID, currentTime);
-                                    }
-                                }
+                            } else if ((messageOrderInfo.getTime() + executionWaitTime.getAsLong()) < currentTime) {
+                                orderingQueue.remove(messageOrderInfo);
                             }
                         }
                     }
@@ -312,7 +297,6 @@ public class AsyncChatSendingExecutor implements AutoCloseable {
                 }
 
                 waitingPackets.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
-                lastSuccessfulCheck.entrySet().removeIf(entry -> Bukkit.getPlayer(entry.getKey()) == null);
                 if (!isValid()) {
                     break;
                 }

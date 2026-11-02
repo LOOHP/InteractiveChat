@@ -746,9 +746,12 @@ public class InteractiveChat extends JavaPlugin {
         if (nicknameManager != null) {
             nicknameManager.close();
         }
-        try {
-            MessagePacketHandler.getAsyncChatSendingExecutor().close();
-        } catch (Exception ignored) {
+        // Initializing MessagePacketHandler now would schedule a task while disabled
+        if (MessagePacketHandler.InitState.isInitialized()) {
+            try {
+                MessagePacketHandler.getAsyncChatSendingExecutor().close();
+            } catch (Exception ignored) {
+            }
         }
         getServer().getConsoleSender().sendMessage(ChatColor.RED + "[InteractiveChat] InteractiveChat has been Disabled!");
     }

@@ -40,6 +40,10 @@ public class MessagePacketHandler<PacketEvent, Packet> {
     public static final Executor SCHEDULING_SERVICE = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("InteractiveChat Async ChatMessage Process Scheduling Thread").build());
     public static final AsyncChatSendingExecutor SERVICE = new AsyncChatSendingExecutor(() -> (long) (InteractiveChat.bungeecordMode ? InteractiveChat.remoteDelay : 0) + 2000, 5000);
 
+    static {
+        InitState.initialized = true;
+    }
+
     public static AsyncChatSendingExecutor getAsyncChatSendingExecutor() {
         return SERVICE;
     }
@@ -171,6 +175,18 @@ public class MessagePacketHandler<PacketEvent, Packet> {
 
         public UUID getSender() {
             return sender;
+        }
+    }
+
+    // Separate class so that reading the flag does not initialize MessagePacketHandler
+    public static class InitState {
+        private static volatile boolean initialized;
+
+        private InitState() {
+        }
+
+        public static boolean isInitialized() {
+            return initialized;
         }
     }
 

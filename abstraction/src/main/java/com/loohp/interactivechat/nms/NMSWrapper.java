@@ -112,6 +112,8 @@ public abstract class NMSWrapper {
 
     public abstract Component getItemStackDisplayName(ItemStack itemStack);
 
+    public abstract Component getItemStackDefaultName(ItemStack itemStack);
+
     public abstract void setItemStackDisplayName(ItemStack itemStack, Component component);
 
     public abstract List<Component> getItemStackLore(ItemStack itemStack);

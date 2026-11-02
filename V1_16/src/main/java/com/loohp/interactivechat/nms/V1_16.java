@@ -189,6 +189,12 @@ public class V1_16 extends NMSWrapper {
     }
 
     @Override
+    public Component getItemStackDefaultName(ItemStack itemStack) {
+        net.minecraft.server.v1_16_R1.ItemStack nmsItemStack = toNMSCopy(itemStack);
+        return GsonComponentSerializer.gson().deserialize(CraftChatMessage.toJSON(nmsItemStack.getItem().h(nmsItemStack)));
+    }
+
+    @Override
     public void setItemStackDisplayName(ItemStack itemStack, Component component) {
         IChatBaseComponent nmsComponent = IChatBaseComponent.ChatSerializer.a(GsonComponentSerializer.gson().serialize(component));
         net.minecraft.server.v1_16_R1.ItemStack nmsItemStack = toNMSCopy(itemStack);

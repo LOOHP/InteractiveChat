@@ -310,7 +310,7 @@ ItemDisplay:
     Keyword: "(?i)\\[item\\]|\\[i\\]"
     #The text to replace the keyword
     #Special Placeholders:
-    #Use {Item} for item display name
+    #Use {Item} for item display name and {ItemDefaultName} for the default item name
     #Use {Amount} for the item amount
     Text: "&f[&f{Item} &bx{Amount}&f]"
     #The text to replace the keyword when the player is only holding one item

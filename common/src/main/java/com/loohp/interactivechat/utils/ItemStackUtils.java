@@ -69,6 +69,33 @@ public class ItemStackUtils {
         return component;
     }
 
+    public static Component getDefaultDisplayName(ItemStack itemstack) {
+        return getDefaultDisplayName(itemstack, true);
+    }
+
+    public static Component getDefaultDisplayName(ItemStack itemstack, boolean applyStyle) {
+        return getDefaultDisplayName(itemstack, applyStyle, true);
+    }
+
+    public static Component getDefaultDisplayName(ItemStack itemstack, boolean applyStyle, boolean removeClickAndHover) {
+        if (itemstack == null) {
+            itemstack = AIR.clone();
+        }
+        Component component = Component.empty().append(NMS.getInstance().getItemStackDefaultName(itemstack));
+
+        if (applyStyle) {
+            ChatColor rarityChatColor = NMS.getInstance().getRarityColor(itemstack);
+            if (rarityChatColor != null) {
+                component = component.colorIfAbsent(ColorUtils.toTextColor(rarityChatColor));
+            }
+        }
+
+        if (removeClickAndHover) {
+            component = ComponentStyling.stripEvents(component);
+        }
+        return component;
+    }
+
     public static List<Component> getLore(ItemStack itemstack) {
         ItemMeta meta = itemstack.getItemMeta();
         if (meta == null) {

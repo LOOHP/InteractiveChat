@@ -149,12 +149,21 @@ public class V1_8_3 extends NMSWrapper {
 
     @Override
     public Component getItemStackDisplayName(ItemStack itemStack) {
+        return getItemStackName(itemStack, true, true);
+    }
+
+    @Override
+    public Component getItemStackDefaultName(ItemStack itemStack) {
+        return getItemStackName(itemStack, false, false);
+    }
+
+    private Component getItemStackName(ItemStack itemStack, boolean useCustomName, boolean useBookTitle) {
         net.minecraft.server.v1_8_R2.ItemStack nmsItemStack = toNMSCopy(itemStack);
-        if (nmsItemStack.hasName()) {
+        if (useCustomName && nmsItemStack.hasName()) {
             return l(nmsItemStack.getName());
         }
         Item item = nmsItemStack.getItem();
-        if (item instanceof net.minecraft.server.v1_8_R2.ItemWrittenBook && nmsItemStack.hasTag() && !net.minecraft.server.v1_8_R2.UtilColor.b(nmsItemStack.getTag().getString("title"))) {
+        if (useBookTitle && item instanceof net.minecraft.server.v1_8_R2.ItemWrittenBook && nmsItemStack.hasTag() && !net.minecraft.server.v1_8_R2.UtilColor.b(nmsItemStack.getTag().getString("title"))) {
             return l(item.a(nmsItemStack));
         }
         if (item instanceof net.minecraft.server.v1_8_R2.ItemPotion) {

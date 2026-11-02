@@ -193,6 +193,7 @@ public class ProcessExternalMessage {
                     item = new ItemStack(Material.AIR);
                 }
                 String itemStr = InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(ItemStackUtils.getDisplayName(item), InteractiveChat.language);
+                String itemDefaultNameStr = InteractiveChatComponentSerializer.bungeecordApiLegacy().serialize(ItemStackUtils.getDefaultDisplayName(item), InteractiveChat.language);
 
                 int amount = item.getAmount();
                 if (item == null || item.getType().equals(Material.AIR)) {
@@ -200,13 +201,17 @@ public class ProcessExternalMessage {
                 }
 
                 itemStr = RarityUtils.getRarityColor(item) + itemStr;
+                itemDefaultNameStr = RarityUtils.getRarityColor(item) + itemDefaultNameStr;
 
                 Component replaceText;
                 if (amount == 1) {
-                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(Component.text(itemStr)).build()));
+                    replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemSingularReplaceText
+                            .replaceText(TextReplacementConfig.builder().matchLiteral("{ItemDefaultName}").replacement(Component.text(itemDefaultNameStr)).build())
+                            .replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(Component.text(itemStr)).build()));
                 } else {
                     replaceText = PlaceholderParser.parse(sender, InteractiveChat.itemReplaceText
                             .replaceText(TextReplacementConfig.builder().matchLiteral("{Amount}").replacement(Component.text(amount)).build())
+                            .replaceText(TextReplacementConfig.builder().matchLiteral("{ItemDefaultName}").replacement(Component.text(itemDefaultNameStr)).build())
                             .replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(Component.text(itemStr)).build()));
                 }
                 component = ComponentReplacing.replace(component, placeholder.pattern(), true, replaceText);

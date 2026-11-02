@@ -212,6 +212,7 @@ public class ItemDisplay {
 
         String amountString = "";
         Component itemDisplayNameComponent = ItemStackUtils.getDisplayName(item);
+        Component itemDefaultNameComponent = ItemStackUtils.getDefaultDisplayName(item);
 
         amountString = String.valueOf(itemAmount);
         Key key = ItemNBTUtils.getNMSItemStackNamespacedKey(item);
@@ -309,6 +310,7 @@ public class ItemDisplay {
         }
 
         Component itemDisplayComponent = PlaceholderParser.parse(player, itemAmount == 1 ? InteractiveChat.itemSingularReplaceText : InteractiveChat.itemReplaceText.replaceText(TextReplacementConfig.builder().matchLiteral("{Amount}").replacement(Component.text(amountString)).build()));
+        itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{ItemDefaultName}").replacement(itemDefaultNameComponent).build());
         itemDisplayComponent = itemDisplayComponent.replaceText(TextReplacementConfig.builder().matchLiteral("{Item}").replacement(itemDisplayNameComponent).build());
         if (showHover) {
             itemDisplayComponent = itemDisplayComponent.hoverEvent(hoverEvent);

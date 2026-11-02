@@ -105,7 +105,7 @@ public class TextColor {
     /**
      * Makes the text appear underlined.
      */
-    public static final TextColor UNDERLINE = new TextColor('n', "underline");
+    public static final TextColor UNDERLINE = new TextColor('n', "underlined");
     /**
      * Makes the text italic.
      */

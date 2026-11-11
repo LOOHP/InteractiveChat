@@ -62,8 +62,14 @@ public class ModernChatCompletionTask implements Listener {
 
     private void run() {
         Scheduler.runTaskTimerAsynchronously(InteractiveChat.plugin, () -> {
+            // This runs async, so a player can quit between reading the online list and computeIfAbsent below.
+            // Drop entries whose key is no longer the online Player for that UUID, so a quit player is not kept.
+            registered.keySet().removeIf(p -> Bukkit.getPlayer(p.getUniqueId()) != p);
             if (InteractiveChat.chatTabCompletionsEnabled) {
                 for (Player tabCompleter : Bukkit.getOnlinePlayers()) {
+                    if (Bukkit.getPlayer(tabCompleter.getUniqueId()) != tabCompleter) {
+                        continue;
+                    }
                     Set<String> tab = ConcurrentHashMap.newKeySet();
 
                     for (ICPlaceholder placeholder : InteractiveChat.placeholderList.values()) {
@@ -82,6 +88,10 @@ public class ModernChatCompletionTask implements Listener {
                     }
 
                     Set<String> oldList = registered.computeIfAbsent(tabCompleter, k -> ConcurrentHashMap.newKeySet());
+                    if (Bukkit.getPlayer(tabCompleter.getUniqueId()) != tabCompleter) {
+                        registered.remove(tabCompleter);
+                        continue;
+                    }
 
                     List<String> add = new ArrayList<>(Sets.difference(tab, oldList));
                     List<String> remove = new ArrayList<>(Sets.difference(oldList, tab));

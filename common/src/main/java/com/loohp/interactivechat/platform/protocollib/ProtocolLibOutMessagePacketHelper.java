@@ -113,7 +113,9 @@ public class ProtocolLibOutMessagePacketHelper {
                         unsignedContent = ((Optional<?>) unsignedContent).orElse(null);
                     }
                     if (unsignedContent == null) {
-                        component = PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(packet.getModifier().read(field - 1)));
+                        Object signedBody = packet.getModifier().read(field - 1);
+                        component = signedBody == null ? null :
+                                PlainTextComponentSerializer.plainText().deserialize(ModernChatSigningUtils.getSignedMessageBodyAContent(signedBody));
                     } else {
                         component = type.convertFrom(unsignedContent, player);
                     }

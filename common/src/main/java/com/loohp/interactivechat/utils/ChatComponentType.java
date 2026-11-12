@@ -35,9 +35,9 @@ import java.util.function.Predicate;
 public enum ChatComponentType {
 
     IChatBaseComponent(".*(?:net\\.minecraft\\..*\\.IChatBaseComponent|net\\.minecraft\\.network\\.chat\\.Component).*", (object, player) -> {
-        return InteractiveChatComponentSerializer.gson().deserialize(NMS.getInstance().serializeChatComponent(object, player));
+        return InteractiveChatComponentSerializer.deserializeMinecraft(NMS.getInstance().serializeChatComponent(object, player));
     }, (component, legacyRGB) -> {
-        return NMS.getInstance().deserializeChatComponent(legacyRGB ? InteractiveChatComponentSerializer.legacyGson().serialize(component) : InteractiveChatComponentSerializer.gson().serialize(component));
+        return NMS.getInstance().deserializeChatComponent(InteractiveChatComponentSerializer.serializeMinecraft(component, legacyRGB));
     }, (object, player) -> {
         return NMS.getInstance().serializeChatComponent(object, player);
     }, component -> {

@@ -63,6 +63,7 @@ public class InteractiveChatComponentSerializer {
     private static final InteractiveChatBungeecordAPILegacyComponentSerializer BUNGEECORD_CHAT_LEGACY;
     private static final GsonComponentSerializer GSON_SERIALIZER;
     private static final GsonComponentSerializer GSON_SERIALIZER_LEGACY;
+    private static final Gson MINECRAFT_GSON;
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER;
     private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
 
@@ -95,6 +96,9 @@ public class InteractiveChatComponentSerializer {
                         )
                         .build()
         );
+        MINECRAFT_GSON = GSON_SERIALIZER.serializer().newBuilder()
+                .registerTypeAdapterFactory(new MinecraftClickEventPayloadAdapter())
+                .create();
         PLAIN_TEXT_SERIALIZER = new InteractiveChatPlainTextComponentSerializer();
         LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacySection().toBuilder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
     }
@@ -126,6 +130,14 @@ public class InteractiveChatComponentSerializer {
 
     public static GsonComponentSerializer legacyGson() {
         return GSON_SERIALIZER_LEGACY;
+    }
+
+    static Component deserializeMinecraft(String json) {
+        return json.contains("\"payload\"") ? MINECRAFT_GSON.fromJson(json, Component.class) : GSON_SERIALIZER.deserialize(json);
+    }
+
+    static String serializeMinecraft(Component component, boolean legacyRGB) {
+        return legacyRGB ? GSON_SERIALIZER_LEGACY.serialize(component) : MINECRAFT_GSON.toJson(component);
     }
 
     public static PlainTextComponentSerializer plainText() {
